@@ -43,5 +43,9 @@ namespace DSharpPlus
         /// Red button.
         /// </summary>
         Danger = 4,
+        /// <summary>
+        /// A link button
+        /// </summary>
+        Link =5
     }
 }

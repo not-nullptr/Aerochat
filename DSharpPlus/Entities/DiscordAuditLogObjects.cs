@@ -576,7 +576,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a change in the event's name
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<string?> Name { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets the target event. Note that this will only have the ID specified if it is not cached.
@@ -586,12 +588,16 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the channel the event was changed to.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<DiscordChannel?> Channel { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets the description change of the event.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<string?> Description { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets the change of type for the event.
@@ -601,12 +607,16 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the change in image hash.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<string?> ImageHash { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets the change in event location, if it's an external event.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<string?> Location { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets change in privacy level.
@@ -631,7 +641,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a change in the thread's name.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public PropertyChange<string?> Name { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets a change in channel type.

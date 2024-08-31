@@ -24,6 +24,7 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net.Abstractions
 {
@@ -55,6 +56,28 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("guilds")]
         public IReadOnlyList<DiscordGuild> Guilds { get; private set; }
+
+        /// <summary>
+        /// Gets the relationships available for this shard.
+        /// </summary>
+        [JsonProperty("relationships", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordRelationship> Relationships { get; private set; }
+
+        /// <summary>
+        /// Gets the relationships available for this shard.
+        /// </summary>
+        [JsonProperty("read_state", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordReadState> ReadStates { get; private set; }
+
+        /// <summary>
+        /// Gets the user settings for this shard
+        /// </summary>
+        [JsonProperty("user_settings", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUserSettings UserSettings { get; set; }
+
+
+        [JsonProperty("user_guild_settings", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordUserGuildSettings> UserGuildSettings { get; set; }
 
         /// <summary>
         /// Gets the current session's ID.

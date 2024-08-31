@@ -456,13 +456,13 @@ namespace DSharpPlus
                 Token = Utilities.GetFormattedToken(this),
                 Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
                 LargeThreshold = this.Configuration.LargeThreshold,
-                ShardInfo = new ShardInfo
-                {
-                    ShardId = this.Configuration.ShardId,
-                    ShardCount = this.Configuration.ShardCount
-                },
+                //ShardInfo = new ShardInfo
+                //{
+                //    ShardId = this.Configuration.ShardId,
+                //    ShardCount = this.Configuration.ShardCount
+                //},
                 Presence = status,
-                Intents = this.Configuration.Intents
+                //Intents = this.Configuration.Intents
             };
             var payload = new GatewayPayload
             {
@@ -538,7 +538,7 @@ namespace DSharpPlus
         #region Semaphore Methods
 
         private SocketLock GetSocketLock()
-            => _socketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
+            => _socketLocks.GetOrAdd(this.CurrentApplication?.Id ?? this.CurrentUser.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket?.MaxConcurrency ?? 4));
 
         #endregion
     }

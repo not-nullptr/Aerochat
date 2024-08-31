@@ -54,11 +54,11 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("large_threshold")]
         public int LargeThreshold { get; set; }
 
-        /// <summary>
-        /// Gets or sets the shard info for this connection.
-        /// </summary>
-        [JsonProperty("shard")]
-        public ShardInfo ShardInfo { get; set; }
+        ///// <summary>
+        ///// Gets or sets the shard info for this connection.
+        ///// </summary>
+        //[JsonProperty("shard")]
+        //public ShardInfo ShardInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the presence for this connection.
@@ -66,11 +66,11 @@ namespace DSharpPlus.Net.Abstractions
 		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
         public StatusUpdate Presence { get; set; } = null;
 
-        /// <summary>
-        /// Gets or sets the intent flags for this connection.
-        /// </summary>
-        [JsonProperty("intents")]
-        public DiscordIntents Intents { get; set; }
+        ///// <summary>
+        ///// Gets or sets the intent flags for this connection.
+        ///// </summary>
+        //[JsonProperty("intents")]
+        //public DiscordIntents Intents { get; set; }
     }
 
     /// <summary>

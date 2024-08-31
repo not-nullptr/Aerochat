@@ -91,6 +91,11 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Used to request guild synchronization.
         /// </summary>
-        GuildSync = 12
+        GuildSync = 12,
+
+        /// <summary>
+        /// Used to sync "Lazy guilds"
+        /// </summary>
+        LazyRequest = 14
     }
 }

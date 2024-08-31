@@ -41,7 +41,9 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The new channel ID of the event. This must be set to null for external events.
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public Optional<DiscordChannel?> Channel { get; set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// The new privacy of the event.

@@ -35,6 +35,8 @@ namespace DSharpPlus
         /// <summary>
         /// Includes app perks as well as the games subscription service.
         /// </summary>
-        Nitro = 2
+        Nitro = 2,
+
+        NitroBasic = 3
     }
 }

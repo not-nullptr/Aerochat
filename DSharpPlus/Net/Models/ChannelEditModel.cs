@@ -111,7 +111,9 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// <para>Sets the channel's default reaction, if any.</para>
         /// </summary>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public Optional<DefaultReaction?> DefaultReaction { internal get; set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// <para>Sets the default slowmode of newly created threads, but does not retroactively update.</para>

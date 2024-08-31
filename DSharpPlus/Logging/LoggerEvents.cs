@@ -163,5 +163,10 @@ namespace DSharpPlus
         /// Events pertaining to Discord API requests from the <see cref="DiscordShardedClient"/>.
         /// </summary>
         public static EventId ShardRest { get; } = new EventId(127, nameof(ShardRest));
+
+        /// <summary>
+        /// Event indicating a slow dispatch
+        /// </summary>
+        public static EventId SlowDispatch { get; } = new EventId(128, nameof(SlowDispatch));
     }
 }

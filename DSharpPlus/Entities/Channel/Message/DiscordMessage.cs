@@ -86,7 +86,9 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public DiscordChannel Channel
         {
-            get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this._channel;
+            get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ??
+                (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ??
+                this._channel;
             internal set => this._channel = value;
         }
 
@@ -174,6 +176,10 @@ namespace DSharpPlus.Entities
         [JsonProperty("mention_roles")]
         internal List<ulong> _mentionedRoleIds;
 
+        [JsonIgnore]
+        public IReadOnlyList<ulong> MentionedRoleIds
+            => this._mentionedRoleIds;
+
         /// <summary>
         /// Gets channels mentioned by this message.
         /// </summary>
@@ -221,6 +227,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? Nonce { get; internal set; }
         */
+
+        /// <summary>
+        /// Is this message a hit in search results?
+        /// </summary>
+        [JsonProperty("hit", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> Hit { get; internal set; }
 
         /// <summary>
         /// Gets whether the message is pinned.
@@ -649,7 +661,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
         {
-            if (this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.News)
+            if (this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.Announcement)
                 throw new InvalidOperationException("Threads can only be created within text or news channels.");
 
             return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
@@ -755,6 +767,20 @@ namespace DSharpPlus.Entities
             } while (remaining > 0 && lastCount > 0);
 
             return new ReadOnlyCollection<DiscordUser>(users);
+        }
+
+        /// <summary>
+        /// Acknowledges the message. This is available to user tokens only.
+        /// </summary>
+        /// <returns></returns>
+        public Task AcknowledgeAsync()
+        {
+            if (this.Discord.Configuration.TokenType == TokenType.User)
+            {
+                return this.Discord.ApiClient.AcknowledgeMessageAsync(this.Id, this.ChannelId);
+            }
+
+            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
         }
 
         /// <summary>

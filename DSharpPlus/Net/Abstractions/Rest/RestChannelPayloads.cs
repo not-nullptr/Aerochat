@@ -68,7 +68,9 @@ namespace DSharpPlus.Net.Abstractions
         public AutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
 
         [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public DefaultReaction? DefaultReaction { get; set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         [JsonProperty("available_tags", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordForumTagBuilder> AvailableTags { get; set; }

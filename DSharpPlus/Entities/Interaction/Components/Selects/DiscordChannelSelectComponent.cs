@@ -65,7 +65,9 @@ namespace DSharpPlus.Entities
         /// <param name="disabled">Whether this component is disabled.</param>
         /// <param name="minOptions">The minimum amount of options to be selected.</param>
         /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public DiscordChannelSelectComponent(string customId, string placeholder, IEnumerable<ChannelType>? channelTypes = null, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         {
             this.CustomId = customId;
             this.Placeholder = placeholder;

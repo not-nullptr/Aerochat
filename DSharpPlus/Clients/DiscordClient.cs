@@ -27,10 +27,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
@@ -38,6 +40,7 @@ using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
@@ -109,6 +112,13 @@ namespace DSharpPlus
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
         internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new();
 
+
+        /// <summary>
+        /// Gets a collection of relationships held by this client.
+        /// </summary>
+        public IReadOnlyDictionary<ulong, DiscordRelationship> Relationships { get; }
+        internal ConcurrentDictionary<ulong, DiscordRelationship> _relationships = new();
+
         /// <summary>
         /// Gets the WS latency for this client.
         /// </summary>
@@ -117,14 +127,27 @@ namespace DSharpPlus
 
         private int _ping;
 
+        public DiscordUserSettings UserSettings { get; private set; } = new();
+
         /// <summary>
         /// Gets the collection of presences held by this client.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordPresence> Presences
-            => this._presencesLazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordPresence> Presences { get; }
 
-        internal Dictionary<ulong, DiscordPresence> _presences = new();
-        private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
+        internal ConcurrentDictionary<ulong, DiscordPresence> _presences = new();
+
+        /// <summary>
+        /// Gets the collection of user guild settings held by this client.
+        /// </summary>
+        public IReadOnlyDictionary<ulong, DiscordUserGuildSettings> UserGuildSettings { get; }
+        internal ConcurrentDictionary<ulong, DiscordUserGuildSettings> _userGuildSettings = new();
+
+        public IReadOnlyDictionary<ulong, DiscordReadState> ReadStates { get; }
+        internal ConcurrentDictionary<ulong, DiscordReadState>_readStates = new();
+
+        public int UserCacheCount
+            => this. UserCache.Count;
+
         #endregion
 
         #region Constructor/Internal Setup
@@ -138,16 +161,17 @@ namespace DSharpPlus
         {
             if (this.Configuration.MessageCacheSize > 0)
             {
-                var intents = this.Configuration.Intents;
-                this.MessageCache = intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages)
-                        ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
-                        : null;
+                this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
             }
 
             this.InternalSetup();
 
             this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
             this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+            this.Relationships = new ReadOnlyConcurrentDictionary<ulong, DiscordRelationship>(this._relationships);
+            this.Presences = new ReadOnlyConcurrentDictionary<ulong, DiscordPresence>(this._presences);
+            this.ReadStates = new ReadOnlyConcurrentDictionary<ulong, DiscordReadState>(this._readStates);
+            this.UserGuildSettings = new ReadOnlyConcurrentDictionary<ulong, DiscordUserGuildSettings>(this._userGuildSettings);
         }
 
         /// <summary>
@@ -179,10 +203,12 @@ namespace DSharpPlus
             this._socketOpened = new AsyncEvent<DiscordClient, SocketEventArgs>("SOCKET_OPENED", this.EventErrorHandler);
             this._socketClosed = new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", this.EventErrorHandler);
             this._ready = new AsyncEvent<DiscordClient, ReadyEventArgs>("READY", this.EventErrorHandler);
-            this._resumed = new AsyncEvent<DiscordClient, ReadyEventArgs>("RESUMED", this.EventErrorHandler);
+            this._resumed = new AsyncEvent<DiscordClient, ResumedEventArgs>("RESUMED", this.EventErrorHandler);
             this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", this.EventErrorHandler);
             this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", this.EventErrorHandler);
             this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", this.EventErrorHandler);
+            this._channelUnreadUpdate = new AsyncEvent<DiscordClient, ChannelUnreadUpdateEventArgs>("CHANNEL_UNREAD_UPDATED", this.EventErrorHandler);
+            this._dmChannelCreated = new AsyncEvent<DiscordClient, DmChannelCreateEventArgs>("DM_CHANNEL_CREATED", this.EventErrorHandler);
             this._dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", this.EventErrorHandler);
             this._channelPinsUpdated = new AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs>("CHANNEL_PINS_UPDATED", this.EventErrorHandler);
             this._guildCreated = new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_CREATED", this.EventErrorHandler);
@@ -245,6 +271,12 @@ namespace DSharpPlus
             this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", this.EventErrorHandler);
 
+            this._relationshipAdded = new AsyncEvent<DiscordClient, RelationshipAddEventArgs>("RELATIONSHIP_ADDED", this.EventErrorHandler);
+            this._relationshipRemoved = new AsyncEvent<DiscordClient, RelationshipRemoveEventArgs>("RElATIONSHIP_REMOVED", this.EventErrorHandler);
+            this._loggedOut = new AsyncEvent<DiscordClient, LoggedOutEventArgs>("LOGGED_OUT", this.EventErrorHandler);
+
+            this._readStateUpdated = new AsyncEvent<DiscordClient, ReadStateUpdateEventArgs>("READ_STATE_UPDTED", this.EventErrorHandler);
+
             #region Threads
             this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", this.EventErrorHandler);
             this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", this.EventErrorHandler);
@@ -255,8 +287,7 @@ namespace DSharpPlus
             #endregion
 
             this._guilds.Clear();
-
-            this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
+            this._presences.Clear();
         }
 
         #endregion
@@ -808,6 +839,122 @@ namespace DSharpPlus
         /// <param name="commandId">The ID of the command.</param>
         public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
             this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+
+        /// <summary>
+        /// Gets a list of messages in which the current user was mentioned recently
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <param name="roles"></param>
+        /// <param name="everyone"></param>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordMessage>> GetMentionsAsync(int limit = 25, bool roles = true, bool everyone = true)
+            => this.ApiClient.GetMentionsAsync(limit, roles, everyone);
+
+        /// <summary>
+        /// Performs a search in a given guild
+        /// </summary>
+        public Task<DiscordSearchResult> SearchAsync(DiscordGuild guild,
+                                                     string content = null,
+                                                     ulong[] authorIds = null,
+                                                     ulong[] channelIds = null,
+                                                     ulong[] mentionIds = null,
+                                                     ulong? min_id = null,
+                                                     ulong? max_id = null,
+                                                     DiscordSearchFlags hasFlags = DiscordSearchFlags.None,
+                                                     int? offset = null)
+            => this.ApiClient.SearchGuildAsync(guild.Id, content, authorIds, channelIds, mentionIds, min_id, max_id, hasFlags, offset);
+
+        /// <summary>
+        /// Performs a search in a given guild
+        /// </summary>
+        public Task<DiscordSearchResult> SearchAsync(DiscordChannel channel,
+                                                     string content = null,
+                                                     ulong[] authorIds = null,
+                                                     ulong[] channelIds = null,
+                                                     ulong[] mentionIds = null,
+                                                     ulong? min_id = null,
+                                                     ulong? max_id = null,
+                                                     DiscordSearchFlags hasFlags = DiscordSearchFlags.None,
+                                                     int? offset = null)
+            => this.ApiClient.SearchChannelAsync(channel.Id, content, authorIds, channelIds, mentionIds, min_id, max_id, hasFlags, offset);
+        #endregion
+
+        #region Public WebSocket Methods
+
+        /// <summary>
+        /// Requests guild sync for specified guilds. Guild sync sends information about members and presences for a given guild, and makes gateway dispatch additional events.
+        /// 
+        /// This can only be done for user tokens.
+        /// </summary>
+        /// <param name="guilds">Guilds to send a sync request for.</param>
+        public async Task SyncGuildsAsync(params DiscordGuild[] guilds)
+        {
+            if (this.Configuration.TokenType != TokenType.User)
+            {
+                throw new InvalidOperationException("This can only be done for user tokens.");
+            }
+
+            var to_sync = guilds.Where(xg => !xg._isSynced);
+            foreach (var guild in to_sync)
+            {
+                var guild_sync = new GatewayPayload
+                {
+                    OpCode = GatewayOpCode.LazyRequest,
+                    Data = new JObject()
+                    {
+                        ["guild_id"] = new JValue(guild.Id.ToString()),
+                        ["typing"] = new JValue(true),
+                        ["activities"] = new JValue(true)
+                    }
+                };
+
+                guild._isSynced = true;
+
+                // TOOD: track most accessed channels for quick stuff
+                var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
+                await _webSocketClient.SendMessageAsync(guild_syncstr);
+            }
+        }
+
+
+        internal async Task RequestUserPresencesAsync(DiscordGuild discordGuild, IEnumerable<ulong> usersToSync)
+        {
+            var request = new GatewayPayload
+            {
+                OpCode = GatewayOpCode.RequestGuildMembers,
+                Data = new JObject()
+                {
+                    ["guild_id"] = new JArray() { discordGuild.Id.ToString() },
+                    ["user_ids"] = new JArray(usersToSync)
+                }
+            };
+
+            this.Logger.LogDebug($"Requesting {usersToSync.Count()} members");
+
+            var guild_syncstr = JsonConvert.SerializeObject(request);
+            await _webSocketClient.SendMessageAsync(guild_syncstr);
+        }
+
+        #endregion
+
+        #region Public Cache Methods
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetCachedGuild(ulong id, out DiscordGuild guild)
+            => (guild = this.InternalGetCachedGuild(id)) != null;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetCachedChannel(ulong id, out DiscordChannel channel)
+            => (channel = this.InternalGetCachedChannel(id)) != null;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetCachedUser(ulong id, out DiscordUser user)
+            => this.TryGetCachedUserInternal(id, out user);
+        #endregion
+
+        #region DANGER ZONE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task SendSocketMessageAsync(string message)
+            => _webSocketClient.SendMessageAsync(message);
         #endregion
 
         #region Internal Caching Methods

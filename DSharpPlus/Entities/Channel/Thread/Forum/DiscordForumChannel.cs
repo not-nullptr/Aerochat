@@ -60,7 +60,9 @@ namespace DSharpPlus.Entities
         /// The default reaction shown on posts when they are created.
         /// </summary>
         [JsonProperty("default_reaction", NullValueHandling = NullValueHandling.Ignore)]
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public DefaultReaction? DefaultReaction { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// The default sort order of posts in the forum.

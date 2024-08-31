@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.IO;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -86,12 +87,12 @@ namespace DSharpPlus
         /// <summary>
         /// Fired whenever a session is resumed.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Resumed
+        public event AsyncEventHandler<DiscordClient, ResumedEventArgs> Resumed
         {
             add => this._resumed.Register(value);
             remove => this._resumed.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ReadyEventArgs> _resumed;
+        private AsyncEvent<DiscordClient, ResumedEventArgs> _resumed;
 
         /// <summary>
         /// Fired on received heartbeat ACK.
@@ -149,6 +150,18 @@ namespace DSharpPlus
             remove => this._channelDeleted.Unregister(value);
         }
         private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> _channelDeleted;
+
+        /// <summary>
+        /// Fired when a new DM channel is created.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, DmChannelCreateEventArgs> DmChannelCreated
+        {
+            add => this._dmChannelCreated.Register(value);
+            remove => this._dmChannelCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, DmChannelCreateEventArgs> _dmChannelCreated;
+
 
         /// <summary>
         /// Fired when a dm channel is deleted
@@ -917,5 +930,51 @@ namespace DSharpPlus
             where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
         #endregion
+
+        /// <summary>
+        /// Fired when a relationship is added (block/pending request)
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, RelationshipAddEventArgs> RelationshipAdded
+        {
+            add => this._relationshipAdded.Register(value);
+            remove => this._relationshipAdded.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, RelationshipAddEventArgs> _relationshipAdded;
+
+        /// <summary>
+        /// Fired when a relationship is removed (unfriend)
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, RelationshipRemoveEventArgs> RelationshipRemoved
+        {
+            add => this._relationshipRemoved.Register(value);
+            remove => this._relationshipRemoved.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, RelationshipRemoveEventArgs> _relationshipRemoved;
+
+        /// <summary>
+        /// Fired when you log out
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, LoggedOutEventArgs> LoggedOut
+        {
+            add => this._loggedOut.Register(value);
+            remove => this._loggedOut.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, LoggedOutEventArgs> _loggedOut;
+
+        public event AsyncEventHandler<DiscordClient, ReadStateUpdateEventArgs> ReadStateUpdated
+        {
+            add => this._readStateUpdated.Register(value);
+            remove => this._readStateUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ReadStateUpdateEventArgs> _readStateUpdated;
+
+
+        public event AsyncEventHandler<DiscordClient, ChannelUnreadUpdateEventArgs> ChannelUnreadUpdated
+        {
+            add => this._channelUnreadUpdate.Register(value);
+            remove => this._channelUnreadUpdate.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ChannelUnreadUpdateEventArgs> _channelUnreadUpdate;
+
     }
 }

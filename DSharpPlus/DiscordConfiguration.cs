@@ -112,7 +112,7 @@ namespace DSharpPlus
         /// <para>Sets the size of the global message cache.</para>
         /// <para>Setting this to 0 will disable message caching entirely. Defaults to 1024.</para>
         /// </summary>
-        public int MessageCacheSize { internal get; set; } = 1024;
+        public int MessageCacheSize { internal get; set; } = 4096;
 
         /// <summary>
         /// <para>Sets the proxy to use for HTTP and WebSocket connections to Discord.</para>
@@ -149,7 +149,7 @@ namespace DSharpPlus
         /// <para>If set, the client will only receive events that they specify with intents.</para>
         /// <para>Defaults to <see cref="DiscordIntents.AllUnprivileged"/>.</para>
         /// </summary>
-        public DiscordIntents Intents { internal get; set; } = DiscordIntents.AllUnprivileged;
+        public DiscordIntents Intents { internal get; set; } = DiscordIntents.All;
 
         /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>

@@ -258,7 +258,7 @@ namespace DSharpPlus.Entities
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="id">Id of the emote.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromGuildEmote(BaseDiscordClient client, ulong id)
+        public static DiscordEmoji FromGuildEmote(BaseDiscordClient client, ulong id, string name = null)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
@@ -269,7 +269,21 @@ namespace DSharpPlus.Entities
                     return found;
             }
 
-            throw new KeyNotFoundException("Given emote was not found.");
+            // TODO: get rid of this
+            return new DiscordEmoji() { Id = id, Name = name };
+        }
+
+        public string SearchName
+        {
+            get
+            {
+                DiscordNameLookup.TryGetValue(this.Name, out var name);
+
+                if (name == null)
+                    return this.Name;
+
+                return name;
+            }
         }
 
         /// <summary>

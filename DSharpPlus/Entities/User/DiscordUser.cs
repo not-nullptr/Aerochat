@@ -53,6 +53,7 @@ namespace DSharpPlus.Entities
             this.Locale = transport.Locale;
             this.Flags = transport.Flags;
             this.OAuthFlags = transport.OAuthFlags;
+            this.GlobalName = transport.GlobalName;
         }
 
         /// <summary>
@@ -113,6 +114,10 @@ namespace DSharpPlus.Entities
         public string DefaultAvatarUrl
             => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
+        [JsonIgnore]
+        public virtual string DisplayName
+            => this.GlobalName ?? this.Username;
+
         /// <summary>
         /// Gets whether the user is a bot.
         /// </summary>
@@ -168,6 +173,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
         public virtual UserFlags? Flags { get; internal set; }
+
+        /// <summary>
+        /// Gets this user's "global name".
+        /// </summary>
+        [JsonProperty("global_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string GlobalName { get; internal set; }
 
         /// <summary>
         /// Gets the user's mention string.

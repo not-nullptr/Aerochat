@@ -30,6 +30,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
@@ -78,11 +79,13 @@ namespace DSharpPlus
                 case "ready":
                     var glds = (JArray)dat["guilds"];
                     var dmcs = (JArray)dat["private_channels"];
+                    var presences = (JArray)dat["presences"];
 
                     dat.Remove("guilds");
                     dat.Remove("private_channels");
+                    dat.Remove("presences");
 
-                    await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs).ConfigureAwait(false);
+                    await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs, presences).ConfigureAwait(false);
                     break;
 
                 case "resumed":
@@ -113,6 +116,11 @@ namespace DSharpPlus
                     cid = (ulong)dat["channel_id"];
                     var ts = (string)dat["last_pin_timestamp"];
                     await this.OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], cid, ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
+                    break;
+
+
+                case "channel_unread_update":
+                    await this.OnChannelUnreadUpdate(dat).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -386,11 +394,27 @@ namespace DSharpPlus
                     break;
 
                 case "user_settings_update":
-                    await this.OnUserSettingsUpdateEventAsync(dat.ToDiscordObject<TransportUser>()).ConfigureAwait(false);
+                    await this.OnUserSettingsUpdateEventAsync(dat).ConfigureAwait(false);
+                    break;
+
+                case "user_guild_settings_update":
+                    await this.OnUserGuildSettingsUpdated(dat).ConfigureAwait(false);
                     break;
 
                 case "user_update":
                     await this.OnUserUpdateEventAsync(dat.ToDiscordObject<TransportUser>()).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
+                #region Relationships
+
+                case "relationship_add":
+                    await this.OnRelationshipAddAsync(dat).ConfigureAwait(false);
+                    break;
+
+                case "relationship_remove":
+                    await this.OnRelationshipRemoveAsync(dat).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -556,7 +580,7 @@ namespace DSharpPlus
 
         #region Gateway
 
-        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
+        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels, JArray rawPresences)
         {
             //ready.CurrentUser.Discord = this;
 
@@ -663,13 +687,54 @@ namespace DSharpPlus
                 this._guilds[guild.Id] = guild;
             }
 
+
+            foreach (var item in ready.UserGuildSettings)
+            {
+                _userGuildSettings[item.GuildId ?? default] = item;
+            }
+
+            foreach (var relationship in (ready.Relationships ?? Array.Empty<DiscordRelationship>()))
+            {
+                relationship.Discord = this;
+
+                var user = this.UpdateUserCache(new DiscordUser(relationship.InternalUser));
+                if (_relationships.TryGetValue(relationship.Id, out var oldRel))
+                {
+                    oldRel.RelationshipType = relationship.RelationshipType;
+                }
+                else
+                {
+                    _relationships.TryAdd(relationship.Id, relationship);
+                }
+            }
+
+            foreach (var dat in (ready.ReadStates ?? Array.Empty<DiscordReadState>()))
+            {
+                if (this._readStates.TryGetValue(dat.Id, out var state))
+                {
+                    state.LastMessageId = dat.LastMessageId;
+                    state.LastPinTimestamp = dat.LastPinTimestamp;
+                    state.MentionCount = dat.MentionCount;
+                }
+                else
+                {
+                    dat.Discord = this;
+                    this._readStates[dat.Id] = dat;
+                }
+            }
+
+            foreach (var token in (rawPresences ?? new JArray()))
+            {
+                await this.OnPresenceUpdateEventAsync((JObject)token, (JObject)token["user"]).ConfigureAwait(false);
+            }
+
             await this._ready.InvokeAsync(this, new ReadyEventArgs()).ConfigureAwait(false);
         }
 
         internal Task OnResumedAsync()
         {
             this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-            return this._resumed.InvokeAsync(this, new ReadyEventArgs());
+            return this._resumed.InvokeAsync(this, new ResumedEventArgs());
         }
 
         #endregion
@@ -808,6 +873,29 @@ namespace DSharpPlus
                 LastPinTimestamp = lastPinTimestamp
             };
             await this._channelPinsUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        private async Task OnChannelUnreadUpdate(JObject dat)
+        {
+            var readStateDict = new Dictionary<ulong, DiscordReadState>();
+            var guildId = dat["guild_id"]?.ToObject<ulong?>();
+            var readStates = dat["channel_unread_updates"].ToDiscordObject<IEnumerable<DiscordReadState>>();
+            foreach (var state in readStates)
+            {
+                state.Discord = this;
+                var newReadState = this._readStates.AddOrUpdate(state.Id, state, (id, old) =>
+                {
+                    old.LastMessageId = state.LastMessageId;
+                    old.LastPinTimestamp = state.LastPinTimestamp;
+                    old.MentionCount = state.MentionCount;
+                    return old;
+                });
+
+                readStateDict.Add(state.Id, state);
+            }
+
+            var ev = new ChannelUnreadUpdateEventArgs() { GuildId = guildId, ReadStates = readStateDict };
+            await this._channelUnreadUpdate.InvokeAsync(this, ev);
         }
 
         #endregion
@@ -1327,7 +1415,7 @@ namespace DSharpPlus
             var ea = new GuildMembersChunkEventArgs
             {
                 Guild = guild,
-                Members = new ReadOnlySet<DiscordMember>(mbrs),
+                Members = mbrs.ToImmutableDictionary(m => m.Id),
                 ChunkIndex = chunkIndex,
                 ChunkCount = chunkCount,
                 Nonce = nonce,
@@ -1351,10 +1439,13 @@ namespace DSharpPlus
                             xp._internalActivities[j] = new DiscordActivity(xp.RawActivities[j]);
                     }
 
+                    this._presences.AddOrUpdate(xp.InternalUser.Id, xp, (id, _) => xp);
+
                     pres.Add(xp);
                 }
 
-                ea.Presences = new ReadOnlySet<DiscordPresence>(pres);
+                //ea.Presences = new ReadOnlySet<DiscordPresence>(pres);
+                ea.Presences = pres.ToImmutableDictionary(k => k.InternalUser.Id);
             }
 
             if (dat["not_found"] != null)
@@ -1904,10 +1995,18 @@ namespace DSharpPlus
             {
                 old = new DiscordPresence(presence);
                 DiscordJson.PopulateObject(rawPresence, presence);
+
+                if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
+                    presence.RawActivity = null;
+
+                if (presence.Activity != null)
+                    presence.Activity.UpdateWith(presence.RawActivity);
+                else
+                    presence.Activity = new DiscordActivity(presence.RawActivity);
             }
             else
             {
-                presence = rawPresence.ToDiscordObject<DiscordPresence>();
+                presence = rawPresence.ToObject<DiscordPresence>();
                 presence.Discord = this;
                 presence.Activity = new DiscordActivity(presence.RawActivity);
                 this._presences[presence.InternalUser.Id] = presence;
@@ -1925,29 +2024,34 @@ namespace DSharpPlus
 
                 for (var i = 0; i < presence._internalActivities.Length; i++)
                     presence._internalActivities[i] = new DiscordActivity(presence.RawActivities[i]);
-
-                if (presence._internalActivities.Length > 0)
-                {
-                    presence.RawActivity = presence.RawActivities[0];
-
-                    if (presence.Activity != null)
-                        presence.Activity.UpdateWith(presence.RawActivity);
-                    else
-                        presence.Activity = new DiscordActivity(presence.RawActivity);
-                }
-                else
-                {
-                    presence.RawActivity = null;
-                    presence.Activity = null;
-                }
             }
 
-            // Caching partial objects is not a good idea, but considering these
-            // Objects will most likely be GC'd immediately after this event,
-            // This probably isn't great for GC pressure because this is a hot zone.
-            _ = this.UserCache.TryGetValue(uid, out var usr);
+            if (this.UserCache.TryGetValue(uid, out var usr))
+            {
+                if (old != null)
+                {
+                    old.InternalUser.Username = usr.Username;
+                    old.InternalUser.Discriminator = usr.Discriminator;
+                    old.InternalUser.AvatarHash = usr.AvatarHash;
+                }
 
-            var usrafter = usr ?? new DiscordUser(presence.InternalUser);
+                if (rawUser["username"] is object)
+                    usr.Username = (string)rawUser["username"];
+                if (rawUser["discriminator"] is object)
+                    usr.Discriminator = (string)rawUser["discriminator"];
+                if (rawUser["avatar"] is object)
+                    usr.AvatarHash = (string)rawUser["avatar"];
+
+                presence.InternalUser.Username = usr.Username;
+                presence.InternalUser.Discriminator = usr.Discriminator;
+                presence.InternalUser.AvatarHash = usr.AvatarHash;
+            }
+            else
+            {
+                usr = new DiscordUser(presence.InternalUser);
+                this.UserCache[usr.Id] = usr;
+            }
+
             var ea = new PresenceUpdateEventArgs
             {
                 Status = presence.Status,
@@ -1955,17 +2059,35 @@ namespace DSharpPlus
                 User = usr,
                 PresenceBefore = old,
                 PresenceAfter = presence,
-                UserBefore = old != null ? new DiscordUser(old.InternalUser) { Discord = this } : usrafter,
-                UserAfter = usrafter
+                UserBefore = old != null ? new DiscordUser(old.InternalUser) : usr,
+                UserAfter = usr
             };
             await this._presenceUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnUserSettingsUpdateEventAsync(TransportUser user)
+        internal async Task OnUserSettingsUpdateEventAsync(JObject json)
         {
-            var usr = new DiscordUser(user) { Discord = this };
+            var usr = new DiscordUser(json.ToObject<TransportUser>()) { Discord = this };
 
-            var ea = new UserSettingsUpdateEventArgs
+            if (json.TryGetValue("theme", out var t))
+            {
+                this.UserSettings.Theme = t.ToObject<string>();
+            }
+
+            if (json.TryGetValue("guild_positions", out var jsonPositions))
+            {
+                var positions = jsonPositions.ToObject<List<ulong>>();
+                _guilds = new ConcurrentDictionary<ulong, DiscordGuild>(_guilds.OrderBy(k => positions.IndexOf(k.Key)).ToDictionary(k => k.Key, v => v.Value));
+
+                this.UserSettings.GuildPositions = positions;
+            }
+
+            if (json.TryGetValue("status", out var jStatus))
+            {
+                this._presences[this.CurrentUser.Id].Status = jStatus.ToDiscordObject<UserStatus>();
+            }
+
+            var ea = new UserSettingsUpdateEventArgs()
             {
                 User = usr
             };
@@ -2005,6 +2127,59 @@ namespace DSharpPlus
         }
 
         #endregion
+
+        #region Relationships
+        private async Task OnRelationshipAddAsync(JToken json)
+        {
+            var rel = json.ToObject<DiscordRelationship>();
+            rel.Discord = this;
+
+            if (this._relationships.TryGetValue(rel.Id, out var oldRel))
+            {
+                oldRel.RelationshipType = rel.RelationshipType;
+            }
+            else
+            {
+                this.UpdateUserCache(new DiscordUser(rel.InternalUser) { Discord = this });
+                _relationships[rel.Id] = rel;
+            }
+
+            await _relationshipAdded?.InvokeAsync(this, new RelationshipAddEventArgs() { Relationship = rel });
+        }
+
+        private async Task OnRelationshipRemoveAsync(JToken json)
+        {
+            var rel = json.ToObject<DiscordRelationship>();
+
+            if (_relationships.TryRemove(rel.Id, out rel))
+                await _relationshipRemoved?.InvokeAsync(this, new RelationshipRemoveEventArgs() { Relationship = rel });
+        }
+        #endregion
+
+        private async Task OnUserGuildSettingsUpdated(JToken json)
+        {
+            // TODO: verify if version is always higher mn
+            var rel = json.ToObject<DiscordUserGuildSettings>();
+            _userGuildSettings[rel.GuildId ?? default] = rel;
+
+            if (rel.GuildId != null && this.TryGetCachedGuild(rel.GuildId.Value, out var guild))
+            {
+                foreach (var channel in guild.Channels.Values)
+                {
+                    if (this.ReadStates.TryGetValue(channel.Id, out var rs))
+                        await _readStateUpdated.InvokeAsync(this, new ReadStateUpdateEventArgs() { ReadState = rs });
+                }
+            }
+            else
+            {
+                foreach (var channel in this.PrivateChannels.Values)
+                {
+                    if (this.ReadStates.TryGetValue(channel.Id, out var rs))
+                        await _readStateUpdated.InvokeAsync(this, new ReadStateUpdateEventArgs() { ReadState = rs });
+                }
+            }
+        }
+
 
         #region Voice
 

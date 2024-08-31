@@ -39,7 +39,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the collection of members returned from this chunk.
         /// </summary>
-        public IReadOnlyCollection<DiscordMember> Members { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordMember> Members { get; internal set; }
 
         /// <summary>
         /// Gets the current chunk index from the response.
@@ -54,7 +54,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the collection of presences returned from this chunk, if specified.
         /// </summary>
-        public IReadOnlyCollection<DiscordPresence> Presences { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordPresence> Presences { get; internal set; }
 
         /// <summary>
         /// Gets the returned Ids that were not found in the chunk, if specified.

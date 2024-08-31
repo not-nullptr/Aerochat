@@ -102,7 +102,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="value">The value contained within the optional.</param>
         /// <returns>True if the value is set, and is not null, otherwise false.</returns>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public bool IsDefined(out T? value)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             => (value = this._val) != null;
 
         /// <summary>

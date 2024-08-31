@@ -106,13 +106,17 @@ namespace DSharpPlus.Entities
         /// Gets the locale of the user that invoked this interaction.
         /// </summary>
         [JsonProperty("locale")]
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public string? Locale { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Gets the guild's preferred locale, if invoked in a guild.
         /// </summary>
         [JsonProperty("guild_locale")]
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public string? GuildLocale { get; internal set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         /// <summary>
         /// Creates a response to this interaction.

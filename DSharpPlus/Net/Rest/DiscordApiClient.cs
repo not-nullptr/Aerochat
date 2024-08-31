@@ -29,8 +29,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
@@ -46,6 +48,9 @@ namespace DSharpPlus.Net
         internal BaseDiscordClient _discord { get; }
         internal RestClient _rest { get; }
 
+        private string LastAckToken { get; set; } = null;
+        private SemaphoreSlim TokenSemaphore { get; } = new SemaphoreSlim(1, 1);
+
         internal DiscordApiClient(BaseDiscordClient client, RestClient rest = null)
         {
             this._discord = client;
@@ -57,9 +62,9 @@ namespace DSharpPlus.Net
             this._rest = new RestClient(proxy, timeout, useRelativeRateLimit, logger);
         }
 
-        private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
+        private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> values, bool post = false)
         {
-            if (values == null || values.Count == 0)
+            if (values == null || values.Count() == 0)
                 return string.Empty;
 
             var vals_collection = values.Select(xkvp =>
@@ -989,7 +994,9 @@ namespace DSharpPlus.Net
             int? position,
             string reason,
             AutoArchiveDuration? defaultAutoArchiveDuration,
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             DefaultReaction? defaultReactionEmoji,
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             IEnumerable<DiscordForumTagBuilder> forumTags,
             DefaultSortOrder? defaultSortOrder
 
@@ -1057,9 +1064,13 @@ namespace DSharpPlus.Net
             IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
             string reason,
             Optional<ChannelFlags> flags,
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             IEnumerable<DiscordForumTagBuilder>? availableTags,
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             Optional<AutoArchiveDuration?> defaultAutoArchiveDuration,
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             Optional<DefaultReaction?> defaultReactionEmoji,
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             Optional<int> defaultPerUserRatelimit,
             Optional<DefaultSortOrder?> defaultSortOrder,
             Optional<DefaultForumLayout> defaultForumLayout
@@ -3699,10 +3710,180 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
             var info = JObject.Parse(res.Response).ToDiscordObject<GatewayInfo>();
-            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
+            if (info.SessionBucket != null)
+                info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
             return info;
         }
         #endregion
+
+        internal async Task<IReadOnlyList<DiscordMessage>> GetMentionsAsync(int limit, bool roles, bool everyone)
+        {
+            var urlparams = new Dictionary<string, string>();
+            urlparams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+            if (roles)
+                urlparams["roles"] = "true";
+            if (everyone)
+                urlparams["everyone"] = "true";
+
+            var route = $"/users/:user_id/mentions";
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { user_id = "@me" }, out var path);
+
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var msgs_raw = JArray.Parse(res.Response);
+            var msgs = new List<DiscordMessage>();
+            foreach (var xj in msgs_raw)
+                msgs.Add(this.PrepareMessage(xj));
+
+            return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
+        }
+
+
+
+        internal async Task AcknowledgeMessageAsync(ulong msg_id, ulong channel_id)
+        {
+            await this.TokenSemaphore.WaitAsync().ConfigureAwait(false);
+
+            var pld = new AcknowledgePayload
+            {
+                Token =this.LastAckToken
+            };
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/{msg_id}{Endpoints.ACK}";
+            var bucket =this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
+            this.LastAckToken = ret.Token;
+            this.TokenSemaphore.Release();
+        }
+
+        internal async Task AcknowledgeGuildAsync(ulong guild_id)
+        {
+            await this.TokenSemaphore.WaitAsync().ConfigureAwait(false);
+
+            var pld = new AcknowledgePayload
+            {
+                Token = this.LastAckToken
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ACK}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            if (res.ResponseCode != 204)
+            {
+                var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
+                this.LastAckToken = ret.Token;
+            }
+            else
+            {
+                this.LastAckToken = null;
+            }
+
+            this.TokenSemaphore.Release();
+        }
+
+
+        internal async Task<DiscordSearchResult> SearchGuildAsync(
+         ulong guild_id, string content, ulong[] authorIds, ulong[] channelIds, ulong[] mentionIds, ulong? minId, ulong? maxId, DiscordSearchFlags hasFlags, int? offset)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MESSAGES}/search";
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var urlParams = GetSearchUrlParams(content, authorIds, channelIds, mentionIds, minId, maxId, hasFlags, offset);
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlParams));
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var parsed = this.ProcessSearchResults(res);
+
+            return parsed;
+        }
+
+        internal async Task<DiscordSearchResult> SearchChannelAsync(
+            ulong channel_id, string content, ulong[] authorIds, ulong[] channelIds, ulong[] mentionIds, ulong? minId, ulong? maxId, DiscordSearchFlags hasFlags, int? offset)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/search";
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
+
+            var urlParams = GetSearchUrlParams(content, authorIds, channelIds, mentionIds, minId, maxId, hasFlags, offset);
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlParams));
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var parsed = this.ProcessSearchResults(res);
+
+            return parsed;
+        }
+
+        private DiscordSearchResult ProcessSearchResults(RestResponse res)
+        {
+            var raw = JObject.Parse(res.Response);
+            var parsed = new DiscordSearchResult();
+
+            if (res.ResponseCode == 202)
+            {
+                // if the responce is 202 Accepted, the server or channel hasn't been indexed yet.
+                parsed.IsIndexed = false;
+            }
+            else
+            {
+                parsed.TotalResults = raw["total_results"].ToObject<int>();
+
+                var collections = new List<List<DiscordMessage>>();
+                foreach (var collection in raw["messages"].ToObject<JArray>())
+                {
+                    var messages = new List<DiscordMessage>();
+                    foreach (var rawMessage in collection)
+                        messages.Add(this.PrepareMessage(rawMessage));
+
+                    collections.Add(messages);
+                }
+
+                parsed.Messages = collections;
+            }
+
+            return parsed;
+        }
+
+        private static List<KeyValuePair<string, string>> GetSearchUrlParams(
+            string content, ulong[] authorIds, ulong[] channelIds, ulong[] mentionIds, ulong? minId, ulong? maxId, DiscordSearchFlags hasFlags, int? offset)
+        {
+            authorIds ??= Array.Empty<ulong>();
+            channelIds ??= Array.Empty<ulong>();
+            mentionIds ??= Array.Empty<ulong>();
+
+            var urlParams = new List<KeyValuePair<string, string>>();
+            if (!string.IsNullOrWhiteSpace(content))
+                urlParams.Add(new KeyValuePair<string, string>("content", content));
+
+            foreach (var id in authorIds)
+                urlParams.Add(new KeyValuePair<string, string>("author_id", id.ToString(CultureInfo.InvariantCulture)));
+
+            foreach (var id in channelIds)
+                urlParams.Add(new KeyValuePair<string, string>("channel_id", id.ToString(CultureInfo.InvariantCulture)));
+
+            foreach (var id in mentionIds)
+                urlParams.Add(new KeyValuePair<string, string>("mentions", id.ToString(CultureInfo.InvariantCulture)));
+
+            if (minId.HasValue)
+                urlParams.Add(new KeyValuePair<string, string>("min_id", minId.Value.ToString(CultureInfo.InvariantCulture)));
+
+            if (maxId.HasValue)
+                urlParams.Add(new KeyValuePair<string, string>("max_id", maxId.Value.ToString(CultureInfo.InvariantCulture)));
+
+            foreach (Enum val in Enum.GetValues(typeof(DiscordSearchFlags)))
+                if (hasFlags.HasFlag(val) && (DiscordSearchFlags)val != DiscordSearchFlags.None)
+                    urlParams.Add(new KeyValuePair<string, string>("has", val.ToString().ToLowerInvariant()));
+
+            if (offset.HasValue && offset != 0)
+                urlParams.Add(new KeyValuePair<string, string>("offset", offset.Value.ToString(CultureInfo.InvariantCulture)));
+            return urlParams;
+        }
 
         public async Task<DiscordForumPostStarter> CreateForumPostAsync
         (

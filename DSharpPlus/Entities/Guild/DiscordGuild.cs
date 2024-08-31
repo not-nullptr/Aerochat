@@ -504,6 +504,9 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal bool _isSynced { get; set; }
 
+        public bool IsSynced
+            => this._isSynced;
+
         internal DiscordGuild()
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
@@ -1052,13 +1055,15 @@ namespace DSharpPlus.Entities
             int? position = null,
             string reason = null,
             AutoArchiveDuration? defaultAutoArchiveDuration = null,
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             DefaultReaction? defaultReactionEmoji = null,
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             IEnumerable<DiscordForumTagBuilder> availableTags = null,
             DefaultSortOrder? defaultSortOrder = null
         )
         {
             // technically you can create news/store channels but not always
-            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.Announcement or ChannelType.Stage or ChannelType.GuildForum))
                 throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
 
             return type == ChannelType.Category && parent != null
@@ -2424,28 +2429,34 @@ namespace DSharpPlus.Entities
                             switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     evententry.Name = new PropertyChange<string?>
                                     {
                                         Before = xc.OldValue != null ? xc.OldValueString : null,
                                         After = xc.NewValue != null ? xc.NewValueString : null
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
                                 case "channel_id":
                                     ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
                                     ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     evententry.Channel = new PropertyChange<DiscordChannel?>
                                     {
                                         Before = this.GetChannel(t2) ?? new DiscordChannel { Id = t2, Discord = this.Discord, GuildId = this.Id },
                                         After = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
 
                                 case "description":
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     evententry.Description = new PropertyChange<string?>
                                     {
                                         Before = xc.OldValue != null ? xc.OldValueString : null,
                                         After = xc.NewValue != null ? xc.NewValueString : null
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
 
                                 case "entity_type":
@@ -2457,19 +2468,23 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 case "image_hash":
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     evententry.ImageHash = new PropertyChange<string?>
                                     {
                                         Before = (string?)xc.OldValue,
                                         After = (string?)xc.NewValue
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
 
                                 case "location":
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     evententry.Location = new PropertyChange<string?>
                                     {
                                         Before = (string?)xc.OldValue,
                                         After = (string?)xc.NewValue
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
 
                                 case "privacy_level":
@@ -2509,11 +2524,13 @@ namespace DSharpPlus.Entities
                             switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     threadentry.Name = new PropertyChange<string?>
                                     {
                                         Before = xc.OldValue != null ? xc.OldValueString : null,
                                         After = xc.NewValue != null ? xc.NewValueString : null
                                     };
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
                                     break;
 
                                 case "type":
@@ -3003,6 +3020,36 @@ namespace DSharpPlus.Entities
         /// <returns>A list of edited permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
             => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
+
+        public Task SyncAsync()
+            => this.Discord is DiscordClient dc ? dc.SyncGuildsAsync(this) : Task.CompletedTask;
+
+        /// <summary>
+        /// Acknowledges all the messages in this guild. This is available to user tokens only.
+        /// </summary>
+        /// <returns></returns>
+        public Task AcknowledgeAsync()
+        {
+            if (this.Discord.Configuration.TokenType == TokenType.User)
+            {
+                return this.Discord.ApiClient.AcknowledgeGuildAsync(this.Id);
+            }
+
+            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
+        }
+        public async Task RequestUserPresencesAsync(IEnumerable<DiscordUser> usersToSync)
+        {
+            if (this.Discord is DiscordClient client)
+                await client.RequestUserPresencesAsync(this, usersToSync.Select(u => u.Id));
+        }
+
+        public async Task RequestUserPresencesAsync(IEnumerable<ulong> usersToSync)
+        {
+            if (this.Discord is DiscordClient client)
+                await client.RequestUserPresencesAsync(this, usersToSync);
+        }
+
+
         #endregion
 
         /// <summary>

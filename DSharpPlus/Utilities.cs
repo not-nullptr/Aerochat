@@ -92,7 +92,7 @@ namespace DSharpPlus
         internal static QueryUriBuilder GetApiUriBuilderFor(string path)
             => new($"{GetApiBaseUri()}{path}");
 
-        internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
+        public static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
         internal static string GetFormattedToken(DiscordConfiguration config)
         {
@@ -100,6 +100,7 @@ namespace DSharpPlus
             {
                 TokenType.Bearer => $"Bearer {config.Token}",
                 TokenType.Bot => $"Bot {config.Token}",
+                TokenType.User => config.Token,
                 _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
             };
         }
@@ -192,7 +193,7 @@ namespace DSharpPlus
         internal static bool HasTypingIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessageTyping) || intents.HasIntent(DiscordIntents.DirectMessageTyping);
 
-        internal static bool IsTextableChannel(DiscordChannel channel)
+        public static bool IsTextableChannel(DiscordChannel channel)
             => channel.Type switch
             {
                 ChannelType.Text => true,
@@ -201,8 +202,8 @@ namespace DSharpPlus
                 ChannelType.Private => true,
                 ChannelType.PublicThread => true,
                 ChannelType.PrivateThread => true,
-                ChannelType.NewsThread => true,
-                ChannelType.News => true,
+                ChannelType.AnnouncementThread => true,
+                ChannelType.Announcement => true,
                 _ => false,
             };
 

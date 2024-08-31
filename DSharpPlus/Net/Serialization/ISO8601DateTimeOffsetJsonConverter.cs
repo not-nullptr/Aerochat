@@ -32,9 +32,15 @@ namespace DSharpPlus.Net.Serialization
     /// </summary>
     internal sealed class ISO8601DateTimeOffsetJsonConverter : JsonConverter
     {
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             => writer.WriteValue(((DateTimeOffset)value).ToString("O", CultureInfo.InvariantCulture));
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         {
             var jr = JToken.Load(reader);
 

@@ -53,7 +53,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
         /// </summary>
-        public ChannelFlags? Flags { internal get; set; }
+        public new ChannelFlags? Flags { internal get; set; }
 
         internal ThreadChannelEditModel() { }
     }

@@ -58,7 +58,7 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a news channel.
         /// </summary>
-        News = 5,
+        Announcement = 5,
 
         /// <summary>
         /// Indicates that this is a store channel.
@@ -69,7 +69,7 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a thread within a news channel.
         /// </summary>
-        NewsThread = 10,
+        AnnouncementThread = 10,
 
         /// <summary>
         /// Indicates that this is a public thread within a channel.

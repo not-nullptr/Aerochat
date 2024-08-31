@@ -597,7 +597,7 @@ namespace DSharpPlus
             DefaultSortOrder? defaultSortOrder = null
         )
         {
-            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.Announcement or ChannelType.Stage or ChannelType.GuildForum))
                 throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
 
             return this.ApiClient.CreateGuildChannelAsync

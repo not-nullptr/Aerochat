@@ -41,7 +41,7 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMember()
         {
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            this.IsLocal = true;
         }
 
         internal DiscordMember(DiscordUser user)
@@ -49,9 +49,9 @@ namespace DSharpPlus.Entities
             this.Discord = user.Discord;
 
             this.Id = user.Id;
+            this.IsLocal = true;
 
             this._role_ids = new List<ulong>();
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
         internal DiscordMember(TransportMember member)
@@ -65,9 +65,12 @@ namespace DSharpPlus.Entities
             this.IsPending = member.IsPending;
             this._avatarHash = member.AvatarHash;
             this._role_ids = member.Roles ?? new List<ulong>();
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
             this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
+            this.IsLocal = false;
         }
+
+        [JsonIgnore]
+        public bool IsLocal { get; internal set; }
 
         /// <summary>
         /// Gets the member's avatar for the current guild.
@@ -94,7 +97,7 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName => this.Nickname ?? this.Username;
+        public override string DisplayName => this.Nickname ?? base.DisplayName;
 
         /// <summary>
         /// How long this member's communication will be suppressed for.
@@ -106,12 +109,11 @@ namespace DSharpPlus.Entities
         /// List of role IDs
         /// </summary>
         [JsonIgnore]
-        internal IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
+        public IReadOnlyList<ulong> RoleIds =>
+            this._role_ids;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<ulong>> _role_ids_lazy;
 
         /// <summary>
         /// Gets the list of roles associated with this member.
@@ -590,7 +592,35 @@ namespace DSharpPlus.Entities
         /// <param name="channel">Channel to calculate permissions for.</param>
         /// <returns>Calculated permissions for this member in the channel.</returns>
         public Permissions PermissionsIn(DiscordChannel channel)
-            => channel.PermissionsFor(this);
+            => channel?.PermissionsFor(this) ?? this.GetDefaultPermissions();
+
+        private Permissions GetDefaultPermissions()
+        {
+            // default permissions
+            const Permissions def = Permissions.None;
+
+            if (this.Guild == null)
+            {
+                return def;
+            }
+
+            if (this.Guild.OwnerId == this.Id)
+            {
+                return ~def;
+            }
+
+            Permissions perms;
+
+            // assign @everyone permissions
+            var everyoneRole = this.Guild.EveryoneRole;
+            perms = everyoneRole.Permissions;
+
+            // roles that member is in
+            var mbRoles = this.Roles.ToArray();
+            perms |= mbRoles.Aggregate(def, (c, role) => c | role.Permissions);
+
+            return perms;
+        }
 
         /// <summary>
         /// Constructs the url for a guild member's avatar, defaulting to the user's avatar if none is set.

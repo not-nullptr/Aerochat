@@ -49,7 +49,7 @@ namespace DSharpPlus.Net.Serialization
                 channel = chn;
             }
             // May or not be necessary. Better safe than sorry.
-            else if (channelType is ChannelType.NewsThread or ChannelType.PrivateThread or ChannelType.PublicThread)
+            else if (channelType is ChannelType.AnnouncementThread or ChannelType.PrivateThread or ChannelType.PublicThread)
             {
                 var chn = new DiscordThreadChannel();
                 serializer.Populate(job.CreateReader(), chn);
