@@ -63,7 +63,7 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a store channel.
         /// </summary>
-        [Obsolete("Store channels have been sunset.", true)]
+        [Obsolete("Store channels have been sunset.")]
         Store = 6,
 
         /// <summary>
