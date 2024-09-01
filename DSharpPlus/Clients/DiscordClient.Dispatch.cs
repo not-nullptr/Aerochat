@@ -26,6 +26,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -72,504 +73,519 @@ namespace DSharpPlus
             JArray rawMembers = default;
             JArray rawPresences = default;
 
-            switch (payload.EventName.ToLowerInvariant())
+            long startTime = Stopwatch.GetTimestamp();
+
+            try
             {
-                #region Gateway Status
-
-                case "ready":
-                    var glds = (JArray)dat["guilds"];
-                    var dmcs = (JArray)dat["private_channels"];
-                    var presences = (JArray)dat["presences"];
-
-                    dat.Remove("guilds");
-                    dat.Remove("private_channels");
-                    dat.Remove("presences");
-
-                    await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs, presences).ConfigureAwait(false);
-                    break;
-
-                case "resumed":
-                    await this.OnResumedAsync().ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Channel
-
-                case "channel_create":
-                    chn = dat.ToDiscordObject<DiscordChannel>();
-                    await this.OnChannelCreateEventAsync(chn).ConfigureAwait(false);
-                    break;
-
-                case "channel_update":
-                    await this.OnChannelUpdateEventAsync(dat.ToDiscordObject<DiscordChannel>()).ConfigureAwait(false);
-                    break;
-
-                case "channel_delete":
-                    var isPrivate = dat["is_private"]?.ToObject<bool>() ?? false;
-
-                    chn = isPrivate ? dat.ToDiscordObject<DiscordDmChannel>() : dat.ToDiscordObject<DiscordChannel>();
-                    await this.OnChannelDeleteEventAsync(chn).ConfigureAwait(false);
-                    break;
-
-                case "channel_pins_update":
-                    cid = (ulong)dat["channel_id"];
-                    var ts = (string)dat["last_pin_timestamp"];
-                    await this.OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], cid, ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
-                    break;
-
-
-                case "channel_unread_update":
-                    await this.OnChannelUnreadUpdate(dat).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Scheduled Guild Events
-
-                case "guild_scheduled_event_create":
-                    var cevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
-                    await this.OnScheduledGuildEventCreateEventAsync(cevt).ConfigureAwait(false);
-                    break;
-                case "guild_scheduled_event_delete":
-                    var devt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
-                    await this.OnScheduledGuildEventDeleteEventAsync(devt).ConfigureAwait(false);
-                    break;
-                case "guild_scheduled_event_update":
-                    var uevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
-                    await this.OnScheduledGuildEventUpdateEventAsync(uevt).ConfigureAwait(false);
-                    break;
-                case "guild_scheduled_event_user_add":
-                    gid = (ulong)dat["guild_id"];
-                    var uid = (ulong)dat["user_id"];
-                    var eid = (ulong)dat["guild_scheduled_event_id"];
-                    await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid).ConfigureAwait(false);
-                    break;
-                case "guild_scheduled_event_user_remove":
-                    gid = (ulong)dat["guild_id"];
-                    uid = (ulong)dat["user_id"];
-                    eid = (ulong)dat["guild_scheduled_event_id"];
-                    await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid).ConfigureAwait(false);
-                    break;
-                #endregion
-
-                #region Guild
-
-                case "guild_create":
-
-                    rawMembers = (JArray)dat["members"];
-                    rawPresences = (JArray)dat["presences"];
-                    dat.Remove("members");
-                    dat.Remove("presences");
-
-                    await this.OnGuildCreateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
-                    break;
-
-                case "guild_update":
-
-                    rawMembers = (JArray)dat["members"];
-                    dat.Remove("members");
-
-                    await this.OnGuildUpdateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
-                    break;
-
-                case "guild_delete":
-
-                    rawMembers = (JArray)dat["members"];
-                    dat.Remove("members");
-
-                    await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
-                    break;
-
-                case "guild_sync":
-                    gid = (ulong)dat["id"];
-
-                    rawMembers = (JArray)dat["members"];
-                    rawPresences = (JArray)dat["presences"];
-                    dat.Remove("members");
-                    dat.Remove("presences");
-
-                    await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
-                    break;
-
-                case "guild_emojis_update":
-                    gid = (ulong)dat["guild_id"];
-                    var ems = dat["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
-                    await this.OnGuildEmojisUpdateEventAsync(this._guilds[gid], ems).ConfigureAwait(false);
-                    break;
-
-                case "guild_integrations_update":
-                    gid = (ulong)dat["guild_id"];
-
-                    // discord fires this event inconsistently if the current user leaves a guild.
-                    if (!this._guilds.ContainsKey(gid))
-                        return;
-
-                    await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Guild Ban
-
-                case "guild_ban_add":
-                    usr = dat["user"].ToDiscordObject<TransportUser>();
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildBanAddEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_ban_remove":
-                    usr = dat["user"].ToDiscordObject<TransportUser>();
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildBanRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Guild Member
-
-                case "guild_member_add":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberAddEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_member_remove":
-                    gid = (ulong)dat["guild_id"];
-                    usr = dat["user"].ToDiscordObject<TransportUser>();
-
-                    if (!this._guilds.ContainsKey(gid))
-                    {
-                        // discord fires this event inconsistently if the current user leaves a guild.
-                        if (usr.Id != this.CurrentUser.Id)
-                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {Guild} in guild cache", gid);
-                        return;
-                    }
-
-                    await this.OnGuildMemberRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_member_update":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_members_chunk":
-                    await this.OnGuildMembersChunkEventAsync(dat).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Guild Role
-
-                case "guild_role_create":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildRoleCreateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_role_update":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildRoleUpdateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_role_delete":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Invite
-
-                case "invite_create":
-                    gid = (ulong)dat["guild_id"];
-                    cid = (ulong)dat["channel_id"];
-                    await this.OnInviteCreateEventAsync(cid, gid, dat.ToDiscordObject<DiscordInvite>()).ConfigureAwait(false);
-                    break;
-
-                case "invite_delete":
-                    gid = (ulong)dat["guild_id"];
-                    cid = (ulong)dat["channel_id"];
-                    await this.OnInviteDeleteEventAsync(cid, gid, dat).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Message
-
-                case "message_ack":
-                    cid = (ulong)dat["channel_id"];
-                    var mid = (ulong)dat["message_id"];
-                    await this.OnMessageAckEventAsync(this.InternalGetCachedChannel(cid), mid).ConfigureAwait(false);
-                    break;
-
-                case "message_create":
-                    rawMbr = dat["member"];
-
-                    if (rawMbr != null)
-                        mbr = rawMbr.ToDiscordObject<TransportMember>();
-
-                    if (rawRefMsg != null && rawRefMsg.HasValues)
-                    {
-                        if (rawRefMsg.SelectToken("author") != null)
-                        {
-                            refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
-                        }
-
-                        if (rawRefMsg.SelectToken("member") != null)
-                        {
-                            refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
-                        }
-                    }
-
-                    var author = dat["author"].ToDiscordObject<TransportUser>();
-                    dat.Remove("author");
-                    dat.Remove("member");
-
-                    await this.OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), author, mbr, refUsr, refMbr).ConfigureAwait(false);
-                    break;
-
-                case "message_update":
-                    rawMbr = dat["member"];
-
-                    if (rawMbr != null)
-                        mbr = rawMbr.ToDiscordObject<TransportMember>();
-
-                    if (rawRefMsg != null && rawRefMsg.HasValues)
-                    {
-                        if (rawRefMsg.SelectToken("author") != null)
-                        {
-                            refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
-                        }
-
-                        if (rawRefMsg.SelectToken("member") != null)
-                        {
-                            refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
-                        }
-                    }
-
-                    await this.OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToDiscordObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
-                    break;
-
-                // delete event does *not* include message object
-                case "message_delete":
-                    await this.OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "message_delete_bulk":
-                    await this.OnMessageBulkDeleteEventAsync(dat["ids"].ToDiscordObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Message Reaction
-
-                case "message_reaction_add":
-                    rawMbr = dat["member"];
-
-                    if (rawMbr != null)
-                        mbr = rawMbr.ToDiscordObject<TransportMember>();
-
-                    await this.OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], mbr, dat["emoji"].ToDiscordObject<DiscordEmoji>()).ConfigureAwait(false);
-                    break;
-
-                case "message_reaction_remove":
-                    await this.OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToDiscordObject<DiscordEmoji>()).ConfigureAwait(false);
-                    break;
-
-                case "message_reaction_remove_all":
-                    await this.OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "message_reaction_remove_emoji":
-                    await this.OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region User/Presence Update
-
-                case "presence_update":
-                    // Presences are a mess. I'm not touching this. ~Velvet
-                    await this.OnPresenceUpdateEventAsync(dat, (JObject)dat["user"]).ConfigureAwait(false);
-                    break;
-
-                case "user_settings_update":
-                    await this.OnUserSettingsUpdateEventAsync(dat).ConfigureAwait(false);
-                    break;
-
-                case "user_guild_settings_update":
-                    await this.OnUserGuildSettingsUpdated(dat).ConfigureAwait(false);
-                    break;
-
-                case "user_update":
-                    await this.OnUserUpdateEventAsync(dat.ToDiscordObject<TransportUser>()).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Relationships
-
-                case "relationship_add":
-                    await this.OnRelationshipAddAsync(dat).ConfigureAwait(false);
-                    break;
-
-                case "relationship_remove":
-                    await this.OnRelationshipRemoveAsync(dat).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Voice
-
-                case "voice_state_update":
-                    await this.OnVoiceStateUpdateEventAsync(dat).ConfigureAwait(false);
-                    break;
-
-                case "voice_server_update":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Thread
-
-                case "thread_create":
-                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadCreateEventAsync(thread, thread.IsNew).ConfigureAwait(false);
-                    break;
-
-                case "thread_update":
-                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadUpdateEventAsync(thread).ConfigureAwait(false);
-                    break;
-
-                case "thread_delete":
-                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadDeleteEventAsync(thread).ConfigureAwait(false);
-                    break;
-
-                case "thread_list_sync":
-                    gid = (ulong)dat["guild_id"]; //get guild
-                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToDiscordObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
-                    break;
-
-                case "thread_member_update":
-                    await this.OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>()).ConfigureAwait(false);
-                    break;
-
-                case "thread_members_update":
-                    gid = (ulong)dat["guild_id"];
-                    await this.OnThreadMembersUpdateEventAsync(this._guilds[gid], (ulong)dat["id"], dat["added_members"]?.ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>(), dat["removed_member_ids"]?.ToDiscordObject<IReadOnlyList<ulong?>>(), (int)dat["member_count"]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Interaction/Integration/Application
-
-                case "interaction_create":
-
-                    rawMbr = dat["member"];
-
-                    if (rawMbr != null)
-                    {
-                        mbr = dat["member"].ToDiscordObject<TransportMember>();
-                        usr = mbr.User;
-                    }
-                    else
-                    {
-                        usr = dat["user"].ToDiscordObject<TransportUser>();
-                    }
-
-                    // Re: Removing re-serialized data: This one is probably fine?
-                    // The user on the object is marked with [JsonIgnore].
-
-                    cid = (ulong)dat["channel_id"];
-                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
-                    break;
-
-                case "application_command_create":
-                    await this.OnApplicationCommandCreateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "application_command_update":
-                    await this.OnApplicationCommandUpdateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "application_command_permissions_update":
-                    await this.OnApplicationCommandPermissionsUpdateAsync(dat).ConfigureAwait(false);
-                    break;
-
-                case "application_command_delete":
-                    await this.OnApplicationCommandDeleteAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "integration_create":
-                    await this.OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "integration_update":
-                    await this.OnIntegrationUpdateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
-                    break;
-
-                case "integration_delete":
-                    await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Stage Instance
-
-                case "stage_instance_create":
-                    await this.OnStageInstanceCreateAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
-                    break;
-
-                case "stage_instance_update":
-                    await this.OnStageInstanceUpdateAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
-                    break;
-
-                case "stage_instance_delete":
-                    await this.OnStageInstanceDeleteAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
-                #region Misc
-
-                case "gift_code_update": //Not supposed to be dispatched to bots
-                    break;
-
-                case "embedded_activity_update": //Not supposed to be dispatched to bots
-                    break;
-
-                case "typing_start":
-                    cid = (ulong)dat["channel_id"];
-                    rawMbr = dat["member"];
-
-                    if (rawMbr != null)
-                        mbr = rawMbr.ToDiscordObject<TransportMember>();
-
-                    await this.OnTypingStartEventAsync((ulong)dat["user_id"], cid, this.InternalGetCachedChannel(cid), (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"]), mbr).ConfigureAwait(false);
-                    break;
-
-                case "webhooks_update":
-                    gid = (ulong)dat["guild_id"];
-                    cid = (ulong)dat["channel_id"];
-                    await this.OnWebhooksUpdateAsync(this._guilds[gid].GetChannel(cid), this._guilds[gid]).ConfigureAwait(false);
-                    break;
-
-                case "guild_stickers_update":
-                    var strs = dat["stickers"].ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
-                    await this.OnStickersUpdatedAsync(strs, dat).ConfigureAwait(false);
-                    break;
-
-                default:
-                    await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    if (this.Configuration.LogUnknownEvents)
-                        this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
-                    break;
+                switch (payload.EventName.ToLowerInvariant())
+                {
+                    #region Gateway Status
+
+                    case "ready":
+                        var glds = (JArray)dat["guilds"];
+                        var dmcs = (JArray)dat["private_channels"];
+                        var presences = (JArray)dat["presences"];
+
+                        dat.Remove("guilds");
+                        dat.Remove("private_channels");
+                        dat.Remove("presences");
+
+                        await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs, presences).ConfigureAwait(false);
+                        break;
+
+                    case "resumed":
+                        await this.OnResumedAsync().ConfigureAwait(false);
+                        break;
 
                     #endregion
+
+                    #region Channel
+
+                    case "channel_create":
+                        chn = dat.ToDiscordObject<DiscordChannel>();
+                        await this.OnChannelCreateEventAsync(chn).ConfigureAwait(false);
+                        break;
+
+                    case "channel_update":
+                        await this.OnChannelUpdateEventAsync(dat.ToDiscordObject<DiscordChannel>()).ConfigureAwait(false);
+                        break;
+
+                    case "channel_delete":
+                        var isPrivate = dat["is_private"]?.ToObject<bool>() ?? false;
+
+                        chn = isPrivate ? dat.ToDiscordObject<DiscordDmChannel>() : dat.ToDiscordObject<DiscordChannel>();
+                        await this.OnChannelDeleteEventAsync(chn).ConfigureAwait(false);
+                        break;
+
+                    case "channel_pins_update":
+                        cid = (ulong)dat["channel_id"];
+                        var ts = (string)dat["last_pin_timestamp"];
+                        await this.OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], cid, ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
+                        break;
+
+
+                    case "channel_unread_update":
+                        await this.OnChannelUnreadUpdate(dat).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Scheduled Guild Events
+
+                    case "guild_scheduled_event_create":
+                        var cevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventCreateEventAsync(cevt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_delete":
+                        var devt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventDeleteEventAsync(devt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_update":
+                        var uevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventUpdateEventAsync(uevt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_user_add":
+                        gid = (ulong)dat["guild_id"];
+                        var uid = (ulong)dat["user_id"];
+                        var eid = (ulong)dat["guild_scheduled_event_id"];
+                        await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_user_remove":
+                        gid = (ulong)dat["guild_id"];
+                        uid = (ulong)dat["user_id"];
+                        eid = (ulong)dat["guild_scheduled_event_id"];
+                        await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid).ConfigureAwait(false);
+                        break;
+                    #endregion
+
+                    #region Guild
+
+                    case "guild_create":
+
+                        rawMembers = (JArray)dat["members"];
+                        rawPresences = (JArray)dat["presences"];
+                        dat.Remove("members");
+                        dat.Remove("presences");
+
+                        await this.OnGuildCreateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
+                        break;
+
+                    case "guild_update":
+
+                        rawMembers = (JArray)dat["members"];
+                        dat.Remove("members");
+
+                        await this.OnGuildUpdateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
+                        break;
+
+                    case "guild_delete":
+
+                        rawMembers = (JArray)dat["members"];
+                        dat.Remove("members");
+
+                        await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
+                        break;
+
+                    case "guild_sync":
+                        gid = (ulong)dat["id"];
+
+                        rawMembers = (JArray)dat["members"];
+                        rawPresences = (JArray)dat["presences"];
+                        dat.Remove("members");
+                        dat.Remove("presences");
+
+                        await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
+                        break;
+
+                    case "guild_emojis_update":
+                        gid = (ulong)dat["guild_id"];
+                        var ems = dat["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
+                        await this.OnGuildEmojisUpdateEventAsync(this._guilds[gid], ems).ConfigureAwait(false);
+                        break;
+
+                    case "guild_integrations_update":
+                        gid = (ulong)dat["guild_id"];
+
+                        // discord fires this event inconsistently if the current user leaves a guild.
+                        if (!this._guilds.ContainsKey(gid))
+                            return;
+
+                        await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Guild Ban
+
+                    case "guild_ban_add":
+                        usr = dat["user"].ToDiscordObject<TransportUser>();
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildBanAddEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_ban_remove":
+                        usr = dat["user"].ToDiscordObject<TransportUser>();
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildBanRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Guild Member
+
+                    case "guild_member_add":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildMemberAddEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_member_remove":
+                        gid = (ulong)dat["guild_id"];
+                        usr = dat["user"].ToDiscordObject<TransportUser>();
+
+                        if (!this._guilds.ContainsKey(gid))
+                        {
+                            // discord fires this event inconsistently if the current user leaves a guild.
+                            if (usr.Id != this.CurrentUser.Id)
+                                this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {Guild} in guild cache", gid);
+                            return;
+                        }
+
+                        await this.OnGuildMemberRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_member_update":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_members_chunk":
+                        await this.OnGuildMembersChunkEventAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Guild Role
+
+                    case "guild_role_create":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildRoleCreateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_role_update":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildRoleUpdateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_role_delete":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Invite
+
+                    case "invite_create":
+                        gid = (ulong)dat["guild_id"];
+                        cid = (ulong)dat["channel_id"];
+                        await this.OnInviteCreateEventAsync(cid, gid, dat.ToDiscordObject<DiscordInvite>()).ConfigureAwait(false);
+                        break;
+
+                    case "invite_delete":
+                        gid = (ulong)dat["guild_id"];
+                        cid = (ulong)dat["channel_id"];
+                        await this.OnInviteDeleteEventAsync(cid, gid, dat).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Message
+
+                    case "message_ack":
+                        cid = (ulong)dat["channel_id"];
+                        var mid = (ulong)dat["message_id"];
+                        await this.OnMessageAckEventAsync(this.InternalGetCachedChannel(cid), mid).ConfigureAwait(false);
+                        break;
+
+                    case "message_create":
+                        rawMbr = dat["member"];
+
+                        if (rawMbr != null)
+                            mbr = rawMbr.ToDiscordObject<TransportMember>();
+
+                        if (rawRefMsg != null && rawRefMsg.HasValues)
+                        {
+                            if (rawRefMsg.SelectToken("author") != null)
+                            {
+                                refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
+                            }
+
+                            if (rawRefMsg.SelectToken("member") != null)
+                            {
+                                refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
+                            }
+                        }
+
+                        var author = dat["author"].ToDiscordObject<TransportUser>();
+                        dat.Remove("author");
+                        dat.Remove("member");
+
+                        await this.OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), author, mbr, refUsr, refMbr).ConfigureAwait(false);
+                        break;
+
+                    case "message_update":
+                        rawMbr = dat["member"];
+
+                        if (rawMbr != null)
+                            mbr = rawMbr.ToDiscordObject<TransportMember>();
+
+                        if (rawRefMsg != null && rawRefMsg.HasValues)
+                        {
+                            if (rawRefMsg.SelectToken("author") != null)
+                            {
+                                refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
+                            }
+
+                            if (rawRefMsg.SelectToken("member") != null)
+                            {
+                                refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
+                            }
+                        }
+
+                        await this.OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToDiscordObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
+                        break;
+
+                    // delete event does *not* include message object
+                    case "message_delete":
+                        await this.OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "message_delete_bulk":
+                        await this.OnMessageBulkDeleteEventAsync(dat["ids"].ToDiscordObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Message Reaction
+
+                    case "message_reaction_add":
+                        rawMbr = dat["member"];
+
+                        if (rawMbr != null)
+                            mbr = rawMbr.ToDiscordObject<TransportMember>();
+
+                        await this.OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], mbr, dat["emoji"].ToDiscordObject<DiscordEmoji>()).ConfigureAwait(false);
+                        break;
+
+                    case "message_reaction_remove":
+                        await this.OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToDiscordObject<DiscordEmoji>()).ConfigureAwait(false);
+                        break;
+
+                    case "message_reaction_remove_all":
+                        await this.OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "message_reaction_remove_emoji":
+                        await this.OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region User/Presence Update
+
+                    case "presence_update":
+                        // Presences are a mess. I'm not touching this. ~Velvet
+                        await this.OnPresenceUpdateEventAsync(dat, (JObject)dat["user"]).ConfigureAwait(false);
+                        break;
+
+                    case "user_settings_update":
+                        await this.OnUserSettingsUpdateEventAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    case "user_guild_settings_update":
+                        await this.OnUserGuildSettingsUpdated(dat).ConfigureAwait(false);
+                        break;
+
+                    case "user_update":
+                        await this.OnUserUpdateEventAsync(dat.ToDiscordObject<TransportUser>()).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Relationships
+
+                    case "relationship_add":
+                        await this.OnRelationshipAddAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    case "relationship_remove":
+                        await this.OnRelationshipRemoveAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Voice
+
+                    case "voice_state_update":
+                        await this.OnVoiceStateUpdateEventAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    case "voice_server_update":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Thread
+
+                    case "thread_create":
+                        thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                        await this.OnThreadCreateEventAsync(thread, thread.IsNew).ConfigureAwait(false);
+                        break;
+
+                    case "thread_update":
+                        thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                        await this.OnThreadUpdateEventAsync(thread).ConfigureAwait(false);
+                        break;
+
+                    case "thread_delete":
+                        thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                        await this.OnThreadDeleteEventAsync(thread).ConfigureAwait(false);
+                        break;
+
+                    case "thread_list_sync":
+                        gid = (ulong)dat["guild_id"]; //get guild
+                        await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToDiscordObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                        break;
+
+                    case "thread_member_update":
+                        await this.OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>()).ConfigureAwait(false);
+                        break;
+
+                    case "thread_members_update":
+                        gid = (ulong)dat["guild_id"];
+                        await this.OnThreadMembersUpdateEventAsync(this._guilds[gid], (ulong)dat["id"], dat["added_members"]?.ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>(), dat["removed_member_ids"]?.ToDiscordObject<IReadOnlyList<ulong?>>(), (int)dat["member_count"]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Interaction/Integration/Application
+
+                    case "interaction_create":
+
+                        rawMbr = dat["member"];
+
+                        if (rawMbr != null)
+                        {
+                            mbr = dat["member"].ToDiscordObject<TransportMember>();
+                            usr = mbr.User;
+                        }
+                        else
+                        {
+                            usr = dat["user"].ToDiscordObject<TransportUser>();
+                        }
+
+                        // Re: Removing re-serialized data: This one is probably fine?
+                        // The user on the object is marked with [JsonIgnore].
+
+                        cid = (ulong)dat["channel_id"];
+                        await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
+                        break;
+
+                    case "application_command_create":
+                        await this.OnApplicationCommandCreateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "application_command_update":
+                        await this.OnApplicationCommandUpdateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "application_command_permissions_update":
+                        await this.OnApplicationCommandPermissionsUpdateAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    case "application_command_delete":
+                        await this.OnApplicationCommandDeleteAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "integration_create":
+                        await this.OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "integration_update":
+                        await this.OnIntegrationUpdateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
+                        break;
+
+                    case "integration_delete":
+                        await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Stage Instance
+
+                    case "stage_instance_create":
+                        await this.OnStageInstanceCreateAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
+                        break;
+
+                    case "stage_instance_update":
+                        await this.OnStageInstanceUpdateAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
+                        break;
+
+                    case "stage_instance_delete":
+                        await this.OnStageInstanceDeleteAsync(dat.ToDiscordObject<DiscordStageInstance>()).ConfigureAwait(false);
+                        break;
+
+                    #endregion
+
+                    #region Misc
+
+                    case "gift_code_update": //Not supposed to be dispatched to bots
+                        break;
+
+                    case "embedded_activity_update": //Not supposed to be dispatched to bots
+                        break;
+
+                    case "typing_start":
+                        cid = (ulong)dat["channel_id"];
+                        rawMbr = dat["member"];
+
+                        if (rawMbr != null)
+                            mbr = rawMbr.ToDiscordObject<TransportMember>();
+
+                        await this.OnTypingStartEventAsync((ulong)dat["user_id"], cid, this.InternalGetCachedChannel(cid), (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"]), mbr).ConfigureAwait(false);
+                        break;
+
+                    case "webhooks_update":
+                        gid = (ulong)dat["guild_id"];
+                        cid = (ulong)dat["channel_id"];
+                        await this.OnWebhooksUpdateAsync(this._guilds[gid].GetChannel(cid), this._guilds[gid]).ConfigureAwait(false);
+                        break;
+
+                    case "guild_stickers_update":
+                        var strs = dat["stickers"].ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
+                        await this.OnStickersUpdatedAsync(strs, dat).ConfigureAwait(false);
+                        break;
+
+                    default:
+                        await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
+                        if (this.Configuration.LogUnknownEvents)
+                            this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
+                        break;
+
+                        #endregion
+                }
+            }
+            finally
+            {
+                var endTime = Stopwatch.GetTimestamp();
+                var deltaTime = TimeSpan.FromSeconds((double)(endTime - startTime) / (double)Stopwatch.Frequency);
+
+                if (deltaTime > TimeSpan.FromMilliseconds(50))
+                {
+                    Logger.LogError(LoggerEvents.SlowDispatch, "Dispatch of event \'{EventName}\' took {EventMs}ms! < 50ms target!", payload.EventName, deltaTime.TotalMilliseconds);
+                }
             }
         }
 
@@ -1584,6 +1600,26 @@ namespace DSharpPlus
                 };
             }
 
+            if (ReadStates.TryGetValue(chn.Id, out var state))
+            {
+                state.LastMessageId = messageId;
+                state.MentionCount = 0;
+            }
+            else
+            {
+                state = new DiscordReadState
+                {
+                    Id = chn.Id,
+                    LastMessageId = messageId,
+                    MentionCount = 0
+                };
+            }
+
+            this._readStates[chn.Id] = state;
+
+            await this._readStateUpdated.InvokeAsync(this, new ReadStateUpdateEventArgs() { ReadState = state }).ConfigureAwait(false);
+
+
             await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs { Message = msg }).ConfigureAwait(false);
         }
 
@@ -1605,6 +1641,26 @@ namespace DSharpPlus
 
             foreach (var sticker in message.Stickers)
                 sticker.Discord = this;
+
+            if (ReadStates.TryGetValue(message.ChannelId, out var readState))
+            {
+                if (message.Author.Id != CurrentUser.Id)
+                {
+                    if (message.MentionEveryone || message.MentionedUsers.Any(u => u?.Id == CurrentUser.Id) || message.Channel is DiscordDmChannel)
+                    {
+                        readState.MentionCount += 1;
+                    }
+                }
+                else
+                {
+                    readState.MentionCount = 0;
+                    readState.LastMessageId = message.Id;
+                }
+
+                await _readStateUpdated.InvokeAsync(this, new ReadStateUpdateEventArgs() { ReadState = readState })
+                    .ConfigureAwait(false);
+            }
+
 
             var ea = new MessageCreateEventArgs
             {

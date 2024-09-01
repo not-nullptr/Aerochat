@@ -949,12 +949,16 @@ namespace DSharpPlus
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetCachedUser(ulong id, out DiscordUser user)
             => this.TryGetCachedUserInternal(id, out user);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetCachedThread(ulong id, out DiscordThreadChannel thread)
+            => (thread = this.InternalGetCachedThread(id)) != null;
         #endregion
 
         #region DANGER ZONE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task SendSocketMessageAsync(string message)
-            => _webSocketClient.SendMessageAsync(message);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public Task SendSocketMessageAsync(string message)
+        //    => _webSocketClient.SendMessageAsync(message);
         #endregion
 
         #region Internal Caching Methods

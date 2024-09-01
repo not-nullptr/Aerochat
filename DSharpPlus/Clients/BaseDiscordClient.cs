@@ -240,9 +240,15 @@ namespace DSharpPlus
         internal bool TryGetCachedUserInternal(ulong user_id, out DiscordUser user)
         {
             if (this.UserCache.TryGetValue(user_id, out user))
+            {
+                if (user.Discord == null)
+                    user.Discord = this; // for safety
                 return true;
+            }
 
             user = this.UserCache.GetOrAdd(user_id, new DiscordUser { Id = user_id, Discord = this });
+            if (user.Discord == null)
+                user.Discord = this; // for safety
             return true;
         }
 
