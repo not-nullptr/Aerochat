@@ -65,8 +65,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the guild associated with this sticker, if any.
         /// </summary>
+        [JsonIgnore]
         public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
 
+        [JsonIgnore]
         public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 
         /// <summary>
@@ -115,6 +117,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         internal string InternalTags { get; set; }
 
+        [JsonIgnore]
         public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
 
         [JsonProperty("banner_asset_id")]

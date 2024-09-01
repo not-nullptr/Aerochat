@@ -146,7 +146,7 @@ namespace DSharpPlus.Net.Abstractions
         }
 
         public bool IsRichPresence()
-            => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
+            => !this.IsCustomStatus() && (this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null);
 
         public bool IsCustomStatus()
             => this.Name == "Custom Status";

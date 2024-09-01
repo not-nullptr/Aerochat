@@ -242,8 +242,8 @@ namespace DSharpPlus
             if (this.UserCache.TryGetValue(user_id, out user))
                 return true;
 
-            user = new DiscordUser { Id = user_id, Discord = this };
-            return false;
+            user = this.UserCache.GetOrAdd(user_id, new DiscordUser { Id = user_id, Discord = this });
+            return true;
         }
 
         // This previously set properties on the old user and re-injected into the cache.

@@ -593,6 +593,9 @@ namespace DSharpPlus
             this.CurrentUser.IsBot = rusr.IsBot;
 
             this.GatewayVersion = ready.GatewayVersion;
+
+            this.UserSettings = ready.UserSettings;
+
             this._sessionId = ready.SessionId;
             var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
@@ -1169,7 +1172,6 @@ namespace DSharpPlus
                 foreach (var kvp in gld._threads ??= new()) oldGuild._threads[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._emojis ??= new()) oldGuild._emojis[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._roles ??= new()) oldGuild._roles[kvp.Key] = kvp.Value;
-                //new ConcurrentDictionary<ulong, DiscordVoiceState>()
                 foreach (var kvp in gld._voiceStates ??= new()) oldGuild._voiceStates[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._members ??= new()) oldGuild._members[kvp.Key] = kvp.Value;
             }
@@ -1179,18 +1181,12 @@ namespace DSharpPlus
             var eventGuild = guild;
             guild = this._guilds[eventGuild.Id];
 
-            if (guild._channels == null)
-                guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
-            if (guild._threads == null)
-                guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
-            if (guild._roles == null)
-                guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
-            if (guild._emojis == null)
-                guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
-            if (guild._voiceStates == null)
-                guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
-            if (guild._members == null)
-                guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
+            guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
+            guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
+            guild._roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
+            guild._emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
+            guild._voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
+            guild._members ??= new ConcurrentDictionary<ulong, DiscordMember>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -1999,16 +1995,16 @@ namespace DSharpPlus
                 if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
                     presence.RawActivity = null;
 
-                if (presence.Activity != null)
-                    presence.Activity.UpdateWith(presence.RawActivity);
-                else
-                    presence.Activity = new DiscordActivity(presence.RawActivity);
+                presence.Activity ??= new DiscordActivity(presence.RawActivity);
+                presence.Activity.UpdateWith(presence.RawActivity);
+
             }
             else
             {
                 presence = rawPresence.ToObject<DiscordPresence>();
                 presence.Discord = this;
                 presence.Activity = new DiscordActivity(presence.RawActivity);
+                presence.Activity.UpdateWith(presence.RawActivity);
                 this._presences[presence.InternalUser.Id] = presence;
             }
 
