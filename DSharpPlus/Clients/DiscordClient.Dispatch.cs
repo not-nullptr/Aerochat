@@ -483,13 +483,13 @@ namespace DSharpPlus
                         }
                         else
                         {
-                            usr = dat["user"].ToDiscordObject<TransportUser>();
+                            usr = dat["user"]?.ToDiscordObject<TransportUser>();
                         }
 
                         // Re: Removing re-serialized data: This one is probably fine?
                         // The user on the object is marked with [JsonIgnore].
 
-                        cid = (ulong)dat["channel_id"];
+                        cid = dat["channel_id"]?.ToObject<ulong>() ?? 0;
                         await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
                         break;
 
@@ -584,7 +584,7 @@ namespace DSharpPlus
 
                 if (deltaTime > TimeSpan.FromMilliseconds(50))
                 {
-                    Logger.LogError(LoggerEvents.SlowDispatch, "Dispatch of event \'{EventName}\' took {EventMs}ms! < 50ms target!", payload.EventName, deltaTime.TotalMilliseconds);
+                    this.Logger.LogError(LoggerEvents.SlowDispatch, "Dispatch of event \'{EventName}\' took {EventMs}ms! < 50ms target!", payload.EventName, deltaTime.TotalMilliseconds);
                 }
             }
         }
@@ -2681,22 +2681,25 @@ namespace DSharpPlus
 
         internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
         {
-            var usr = new DiscordUser(user) { Discord = this };
-
+            interaction.Data ??= new DiscordInteractionData();
             interaction.ChannelId = channelId;
             interaction.GuildId = guildId;
             interaction.Discord = this;
             interaction.Data.Discord = this;
 
-            if (member != null)
+            if (user != null)
             {
-                usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
-                this.UpdateUser(usr, guildId, interaction.Guild, member);
-            }
-            else
-                this.UpdateUserCache(usr);
+                var usr = new DiscordUser(user) { Discord = this };
+                if (member != null)
+                {
+                    usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
+                    this.UpdateUser(usr, guildId, interaction.Guild, member);
+                }
+                else
+                    this.UpdateUserCache(usr);
 
-            interaction.User = usr;
+                interaction.User = usr;
+            }
 
             var resolved = interaction.Data.Resolved;
             if (resolved != null)
@@ -2759,7 +2762,6 @@ namespace DSharpPlus
 
             if (interaction.Type is InteractionType.Component)
             {
-
                 interaction.Message.Discord = this;
                 interaction.Message.ChannelId = interaction.ChannelId;
                 var cea = new ComponentInteractionCreateEventArgs

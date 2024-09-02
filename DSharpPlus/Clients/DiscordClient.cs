@@ -1023,7 +1023,7 @@ namespace DSharpPlus
                 : new DiscordChannel
                 {
                     Id = message.ChannelId,
-                    GuildId = guild.Id,
+                    GuildId = guild?.Id,
                     Discord = this
                 };
 

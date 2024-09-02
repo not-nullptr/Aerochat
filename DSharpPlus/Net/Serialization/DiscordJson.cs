@@ -61,7 +61,8 @@ namespace DSharpPlus.Net.Serialization
         /// <param name="token">The token to convert</param>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <returns>The converted token</returns>
-        public static T ToDiscordObject<T>(this JToken token) => token.ToObject<T>(_serializer);
+        public static T ToDiscordObject<T>(this JToken token)
+            => token.ToObject<T>(_serializer);
 
         private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
         {

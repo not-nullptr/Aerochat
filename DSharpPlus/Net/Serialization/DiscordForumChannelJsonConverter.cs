@@ -56,7 +56,7 @@ namespace DSharpPlus.Net.Serialization
 
                 channel = chn;
             }
-            else if (channelType is ChannelType.Private)
+            else if (channelType is ChannelType.Private or ChannelType.Group)
             {
                 channel = new DiscordDmChannel();
                 serializer.Populate(job.CreateReader(), channel);
