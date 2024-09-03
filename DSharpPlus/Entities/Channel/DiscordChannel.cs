@@ -201,7 +201,7 @@ namespace DSharpPlus.Entities
             get
             {
                 return this.Type is not (ChannelType.Text or ChannelType.Announcement or ChannelType.GuildForum)
-                    ? throw new ArgumentException("Only text channels can have threads.")
+                    ? Array.Empty<DiscordThreadChannel>()
                     : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray();
             }
         }

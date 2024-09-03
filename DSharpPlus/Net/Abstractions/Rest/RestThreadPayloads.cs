@@ -57,4 +57,9 @@ namespace DSharpPlus.Net.Abstractions
         public IEnumerable<ulong> AppliedTags { get; set; }
     }
 
+    internal sealed class GetForumPostDataPayload
+    {
+        [JsonProperty("thread_ids")]
+        public ulong[] ThreadIds { get; set; }
+    }
 }

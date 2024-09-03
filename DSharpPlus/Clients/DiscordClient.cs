@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Channel.Thread.Forum;
 using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -146,7 +147,7 @@ namespace DSharpPlus
         internal ConcurrentDictionary<ulong, DiscordReadState>_readStates = new();
 
         public int UserCacheCount
-            => this. UserCache.Count;
+            => this.UserCache.Count;
 
         #endregion
 
@@ -877,6 +878,18 @@ namespace DSharpPlus
                                                      DiscordSearchFlags hasFlags = DiscordSearchFlags.None,
                                                      int? offset = null)
             => this.ApiClient.SearchChannelAsync(channel.Id, content, authorIds, channelIds, mentionIds, min_id, max_id, hasFlags, offset);
+
+        public Task<ThreadQueryResult> SearchForumChannelAsync(DiscordForumChannel channel,
+                                                               bool archived,
+                                                               bool ascending,
+                                                               int limit,
+                                                               int offset,
+                                                               ulong[] tagIds)
+            => this.ApiClient.SearchForumChannelAsync(channel.Id, channel.GuildId.Value, archived, ascending, limit, offset, tagIds);
+
+        public Task<DiscordForumDataResult> GetForumPostDataAsync(DiscordForumChannel channel, ulong[] thread_ids)
+            => this.ApiClient.GetForumPostDataAsync(channel.Id, channel.GuildId.Value, thread_ids);
+
         #endregion
 
         #region Public WebSocket Methods
@@ -904,7 +917,8 @@ namespace DSharpPlus
                     {
                         ["guild_id"] = new JValue(guild.Id.ToString()),
                         ["typing"] = new JValue(true),
-                        ["activities"] = new JValue(true)
+                        ["activities"] = new JValue(true),
+                        ["threads"] = new JValue(true)
                     }
                 };
 
@@ -982,7 +996,7 @@ namespace DSharpPlus
                 if (guild.Channels.TryGetValue(channelId, out var foundChannel))
                     return foundChannel;
 
-            return null;
+            return this.InternalGetCachedThread(channelId); // this may break things but might also make things crash less
         }
 
         internal DiscordGuild InternalGetCachedGuild(ulong? guildId)

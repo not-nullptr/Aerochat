@@ -21,32 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Text;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities.Channel.Thread.Forum
 {
-    public class ThreadQueryResult
+    public class DiscordForumThreadData
     {
-        /// <summary>
-        /// Gets whether additional calls will yield more threads.
-        /// </summary>
-        [JsonProperty("has_more", NullValueHandling = NullValueHandling.Ignore)]
-        public bool HasMore { get; internal set; }
+        [JsonProperty("first_message", NullValueHandling = NullValueHandling.Ignore)]
+        internal JObject _firstMessage { get; set; }
+        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
+        internal TransportMember _creator { get; set; }
 
-        [JsonProperty("total_results", NullValueHandling = NullValueHandling.Ignore)]
-        public int? TotalResults { get; internal set; }
+        [JsonIgnore]
+        public DiscordMessage FirstMessage { get; internal set; }
 
-        /// <summary>
-        /// Gets the list of threads returned by the query. Generally ordered by <seealso cref="DiscordThreadChannelMetadata.ArchiveTimestamp"/> in descending order.
-        /// </summary>
+        [JsonIgnore]
+        public DiscordMember Creator { get; internal set; }
+    }
+
+    public class DiscordForumDataResult
+    {
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<DiscordThreadChannel> Threads { get; internal set; }
-
-        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<DiscordThreadChannelMember> Members { get; internal set; }
-
-        [JsonProperty("first_messages", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<DiscordMessage> FirstMessages { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordForumThreadData> ThreadData { get; internal set; }
     }
 }

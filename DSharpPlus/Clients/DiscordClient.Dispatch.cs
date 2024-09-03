@@ -456,7 +456,7 @@ namespace DSharpPlus
 
                     case "thread_list_sync":
                         gid = (ulong)dat["guild_id"]; //get guild
-                        await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToDiscordObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                        await this.OnThreadListSyncEventAsync(this._guilds[gid], dat).ConfigureAwait(false);
                         break;
 
                     case "thread_member_update":
@@ -1413,9 +1413,7 @@ namespace DSharpPlus
             for (var i = 0; i < memCount; i++)
             {
                 var mbr = new DiscordMember(members[i]) { Discord = this, _guild_id = guild.Id };
-
-                if (!this.UserCache.ContainsKey(mbr.Id))
-                    this.UserCache[mbr.Id] = new DiscordUser(members[i].User) { Discord = this };
+                this.UpdateUserCache(new DiscordUser(members[i].User) { Discord = this });
 
                 guild._members[mbr.Id] = mbr;
 
@@ -1590,6 +1588,8 @@ namespace DSharpPlus
 
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
         {
+            if (chn == null) return;
+
             if (this.MessageCache == null || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn.Id, out var msg))
             {
                 msg = new DiscordMessage
@@ -1600,7 +1600,7 @@ namespace DSharpPlus
                 };
             }
 
-            if (ReadStates.TryGetValue(chn.Id, out var state))
+            if (this.ReadStates.TryGetValue(chn.Id, out var state))
             {
                 state.LastMessageId = messageId;
                 state.MentionCount = 0;
@@ -1642,11 +1642,27 @@ namespace DSharpPlus
             foreach (var sticker in message.Stickers)
                 sticker.Discord = this;
 
-            if (ReadStates.TryGetValue(message.ChannelId, out var readState))
+            await this.UpdateMessageReadStatesAsync(message)
+                .ConfigureAwait(false);
+
+            var ea = new MessageCreateEventArgs
             {
-                if (message.Author.Id != CurrentUser.Id)
+                Message = message,
+
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(message._mentionedUsers),
+                MentionedRoles = message._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message._mentionedRoles) : null,
+                MentionedChannels = message._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message._mentionedChannels) : null
+            };
+            await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        private async Task UpdateMessageReadStatesAsync(DiscordMessage message)
+        {
+            if (this.ReadStates.TryGetValue(message.ChannelId, out var readState))
+            {
+                if (message.Author.Id != this.CurrentUser.Id)
                 {
-                    if (message.MentionEveryone || message.MentionedUsers.Any(u => u?.Id == CurrentUser.Id) || message.Channel is DiscordDmChannel)
+                    if (message.MentionEveryone || message.MentionedUsers.Any(u => u?.Id == this.CurrentUser.Id) || message.Channel is DiscordDmChannel)
                     {
                         readState.MentionCount += 1;
                     }
@@ -1660,17 +1676,6 @@ namespace DSharpPlus
                 await _readStateUpdated.InvokeAsync(this, new ReadStateUpdateEventArgs() { ReadState = readState })
                     .ConfigureAwait(false);
             }
-
-
-            var ea = new MessageCreateEventArgs
-            {
-                Message = message,
-
-                MentionedUsers = new ReadOnlyCollection<DiscordUser>(message._mentionedUsers),
-                MentionedRoles = message._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message._mentionedRoles) : null,
-                MentionedChannels = message._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message._mentionedChannels) : null
-            };
-            await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
@@ -2367,10 +2372,17 @@ namespace DSharpPlus
             await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong> channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, JObject dat)
         {
+            var channel_ids = dat["channel_ids"]?.ToDiscordObject<IReadOnlyList<ulong>>();
+            var threads = dat["threads"].ToDiscordObject<IReadOnlyList<DiscordThreadChannel>>();
+            var members = dat["members"]?.ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>();
+            var messages = dat["most_recent_messages"]?.ToDiscordObject<IReadOnlyList<DiscordMessage>>();
+
             guild.Discord = this;
-            var channels = channel_ids.Select(x => guild.GetChannel(x) ?? new DiscordChannel{ Id = x, GuildId = guild.Id}); //getting channel objects
+            var channels = channel_ids != null ?
+                channel_ids.Select(x => guild.GetChannel(x) ?? new DiscordChannel{ Id = x, GuildId = guild.Id}) :
+                threads.Select(t => guild.GetChannel(t.ParentId.Value) ?? new DiscordChannel{ Id = t.ParentId.Value, GuildId = guild.Id});
 
             foreach (var channel in channels)
             {
@@ -2383,17 +2395,39 @@ namespace DSharpPlus
                 guild._threads[thread.Id] = thread;
             }
 
-            foreach (var member in members)
+            if (members != null)
             {
-                member.Discord = this;
-                member._guild_id = guild.Id;
+                foreach (var member in members)
+                {
+                    member.Discord = this;
+                    member._guild_id = guild.Id;
 
-                var thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
-                if (thread != null)
-                    thread.CurrentMember = member;
+                    var thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                    if (thread != null)
+                        thread.CurrentMember = member;
+                }
             }
 
-            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() }).ConfigureAwait(false);
+            if (messages != null)
+            {
+                foreach (var message in messages)
+                {
+                    message.Discord = this;
+
+                    var thread = threads.FirstOrDefault(t => t.Id == message.ChannelId);
+                    if (thread != null)
+                        thread.FirstMessage = message;
+                }
+            }
+
+            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs
+            {
+                Guild = guild,
+                Channels = channels.ToList(),
+                Threads = threads,
+                CurrentMembers = members,
+                MostRecentMessages = messages
+            }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)

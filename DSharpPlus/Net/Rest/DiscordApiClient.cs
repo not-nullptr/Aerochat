@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Channel.Thread.Forum;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -3946,6 +3948,99 @@ namespace DSharpPlus.Net
             var chn = ret.ToDiscordObject<DiscordThreadChannel>();
 
             return new DiscordForumPostStarter(chn, msg);
+        }
+
+        public async Task<ThreadQueryResult> SearchForumChannelAsync(
+            ulong channel_id,
+            ulong guild_id,
+            bool archived,
+            bool ascending,
+            int limit,
+            int offset,
+            ulong[] tagIds
+            )
+        {
+            var queryParams = new Dictionary<string, string>();
+            queryParams["archived"] = archived ? "true" : "false";
+            queryParams["sort_order"] = ascending ? "asc" : "desc";
+            queryParams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+            queryParams["offset"] = offset.ToString(CultureInfo.InvariantCulture);
+
+            queryParams["sort_by"] = "last_message_time";
+            queryParams["tag_setting"] = "match_some";
+
+            if (tagIds.Length != 0)
+                queryParams["tag"] = string.Join(",", tagIds.Select(t => t.ToString(CultureInfo.InvariantCulture)));
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}{Endpoints.SEARCH}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path,BuildQueryString(queryParams) );
+            var response = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var jObject = JObject.Parse(response.Response);
+            var firstMessages = jObject["first_messages"];
+            jObject.Remove("first_messages");
+
+            var result = jObject.ToDiscordObject<ThreadQueryResult>();
+
+            foreach (var thread in result.Threads)
+                thread.Discord = this._discord;
+            foreach (var member in result.Members)
+            {
+                member.Discord = this._discord;
+                member._guild_id = guild_id;
+                var thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
+            }
+
+            if (firstMessages is JArray array)
+            {
+                var list = new List<DiscordMessage>();
+                foreach (var message in array)
+                {
+                    var msg = this.PrepareMessage(message);
+                    var thread = result.Threads.FirstOrDefault(t => t.Id == msg.Id);
+                    if (thread != null)
+                        thread.FirstMessage = msg;
+                    list.Add(msg);
+                }
+
+                result.FirstMessages = list;
+            }
+
+            return result;
+        }
+
+        public async Task<DiscordForumDataResult> GetForumPostDataAsync(ulong channel_id, ulong guild_id, ulong[] thread_Ids)
+        {
+            var pld = new GetForumPostDataPayload
+            {
+                ThreadIds = thread_Ids
+            };
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.POST_DATA}";
+            var bucket =this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordForumDataResult>(res.Response);
+            foreach (var thread in ret.ThreadData.Values)
+            {
+                if (thread._firstMessage != null)
+                    thread.FirstMessage = this.PrepareMessage(thread._firstMessage);
+
+                if (thread._creator != null)
+                {
+                    thread.Creator = new DiscordMember(thread._creator);
+                    thread.Creator.Discord = this._discord;
+                    thread.Creator._guild_id = guild_id;
+                }
+            }
+
+            return ret;
         }
     }
 }

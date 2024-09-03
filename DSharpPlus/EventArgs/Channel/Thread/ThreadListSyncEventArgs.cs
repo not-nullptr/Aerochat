@@ -50,6 +50,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the guild being synced.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+        public IReadOnlyList<DiscordMessage> MostRecentMessages { get; internal set; }
 
         internal ThreadListSyncEventArgs() : base() { }
     }

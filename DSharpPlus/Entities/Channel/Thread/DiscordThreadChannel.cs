@@ -54,6 +54,9 @@ namespace DSharpPlus.Entities
         [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? MemberCount { get; internal set; }
 
+        [JsonProperty("member_ids_preview", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong[] MemberIdsPreview { get; internal set; }
+
         /// <summary>
         /// Represents the current member for this thread. This will have a value if the user has joined the thread.
         /// </summary>
@@ -71,6 +74,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsNew { get; internal set; }
+
+        [JsonIgnore]
+        public DiscordMessage FirstMessage { get; internal set; }
 
         /// <summary>
         /// Gets the tags applied to this forum post.
