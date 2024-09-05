@@ -33,7 +33,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.Channel.Thread.Forum;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -92,6 +91,19 @@ namespace DSharpPlus.Net
                 this.PopulateMessage(author, ret.ReferencedMessage);
             }
 
+            if (this._discord is DiscordClient client)
+            {
+                if (client.MessageCache.TryGet(m => m.Id == ret.Id && m.ChannelId == ret.ChannelId, out var item))
+                {
+                    this.PopulateMessage(author, item);
+                    return item;
+                }
+                else
+                {
+                    client.MessageCache.Add(ret);
+                }
+            }
+
             if (ret.Channel != null)
                 return ret;
 
@@ -109,6 +121,7 @@ namespace DSharpPlus.Net
                     Discord = this._discord
                 };
             ret.Channel = channel;
+
 
             return ret;
         }

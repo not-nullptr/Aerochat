@@ -32,7 +32,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.Channel.Thread.Forum;
 using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;

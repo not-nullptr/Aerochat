@@ -28,7 +28,7 @@ using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Entities.Channel.Thread.Forum
+namespace DSharpPlus.Entities
 {
     public class DiscordForumThreadData
     {
