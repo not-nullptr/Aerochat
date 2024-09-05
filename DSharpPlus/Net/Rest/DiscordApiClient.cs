@@ -86,9 +86,9 @@ namespace DSharpPlus.Net
             var referencedMsg = msg_raw["referenced_message"];
             if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
-                author = referencedMsg["author"].ToDiscordObject<TransportUser>();
+                var replyAuthor = referencedMsg["author"].ToDiscordObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this._discord;
-                this.PopulateMessage(author, ret.ReferencedMessage);
+                this.PopulateMessage(replyAuthor, ret.ReferencedMessage);
             }
 
             if (this._discord is DiscordClient client)
