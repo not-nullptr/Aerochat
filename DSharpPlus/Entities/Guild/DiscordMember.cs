@@ -99,6 +99,10 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public override string DisplayName => this.Nickname ?? base.DisplayName;
 
+        [JsonIgnore]
+        public override string GlobalName
+            => this.User.GlobalName;
+
         /// <summary>
         /// How long this member's communication will be suppressed for.
         /// </summary>

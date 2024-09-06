@@ -414,6 +414,7 @@ namespace DSharpPlus.Entities
                             Id = member.Id,
                             Username = member.Username,
                             Discriminator = member.Discriminator,
+                            GlobalName = member.GlobalName,
                             AvatarHash = member.AvatarHash,
                             _bannerColor = member._bannerColor,
                             BannerHash = member.BannerHash,

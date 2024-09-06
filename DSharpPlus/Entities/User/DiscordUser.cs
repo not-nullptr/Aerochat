@@ -178,7 +178,7 @@ namespace DSharpPlus.Entities
         /// Gets this user's "global name".
         /// </summary>
         [JsonProperty("global_name", NullValueHandling = NullValueHandling.Ignore)]
-        public string GlobalName { get; internal set; }
+        public virtual string GlobalName { get; internal set; }
 
         /// <summary>
         /// Gets the user's mention string.

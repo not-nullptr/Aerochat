@@ -2163,7 +2163,8 @@ namespace DSharpPlus
                 IsBot = this.CurrentUser.IsBot,
                 MfaEnabled = this.CurrentUser.MfaEnabled,
                 Username = this.CurrentUser.Username,
-                Verified = this.CurrentUser.Verified
+                Verified = this.CurrentUser.Verified,
+                GlobalName = user.GlobalName
             };
 
             this.CurrentUser.AvatarHash = user.AvatarHash;
@@ -2174,6 +2175,7 @@ namespace DSharpPlus
             this.CurrentUser.MfaEnabled = user.MfaEnabled;
             this.CurrentUser.Username = user.Username;
             this.CurrentUser.Verified = user.Verified;
+            this.CurrentUser.GlobalName = user.GlobalName;
 
             var ea = new UserUpdateEventArgs
             {
