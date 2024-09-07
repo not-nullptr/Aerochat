@@ -91,7 +91,7 @@ namespace DSharpPlus.Net
                 this.PopulateMessage(replyAuthor, ret.ReferencedMessage);
             }
 
-            if (this._discord is DiscordClient client)
+            if (this._discord is DiscordClient client && client.MessageCache != null)
             {
                 if (client.MessageCache.TryGet(m => m.Id == ret.Id && m.ChannelId == ret.ChannelId, out var item))
                 {

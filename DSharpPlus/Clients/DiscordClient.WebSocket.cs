@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -151,33 +152,36 @@ namespace DSharpPlus
 
             async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
             {
-                string msg = null;
+                Stream msg = null;
                 if (e is SocketTextMessageEventArgs etext)
                 {
-                    msg = etext.Message;
+                    // so this is less efficient than before but also way less common
+                    msg = new MemoryStream(Utilities.UTF8.GetBytes(etext.Message));
                 }
                 else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
                 {
-                    using var ms = new MemoryStream();
-                    if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
+                    msg = new MemoryStream();
+                    if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), (MemoryStream)msg))
                     {
                         this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
                         return;
                     }
-
-                    ms.Position = 0;
-                    using var sr = new StreamReader(ms, Utilities.UTF8);
-                    msg = await sr.ReadToEndAsync().ConfigureAwait(false);
                 }
+
+                msg.Seek(0, SeekOrigin.Begin);
 
                 try
                 {
-                    this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
+                    //this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
                     await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, ex, "Socket handler suppressed an exception");
+                }
+                finally
+                {
+                    msg.Dispose();
                 }
             }
 
@@ -219,9 +223,13 @@ namespace DSharpPlus
 
         #region WebSocket (Events)
 
-        internal async Task HandleSocketMessageAsync(string data)
+        internal async Task HandleSocketMessageAsync(Stream data)
         {
-            var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            using var streamReader = new StreamReader(data, Utilities.UTF8);
+            using var jsonReader = new JsonTextReader(streamReader);
+            var serializer = new JsonSerializer();
+            var payload = serializer.Deserialize<GatewayPayload>(jsonReader);
+
             this._lastSequence = payload.Sequence ?? this._lastSequence;
             switch (payload.OpCode)
             {
