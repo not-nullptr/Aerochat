@@ -32,6 +32,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string AvatarHash { get; internal set; }
 
+        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong UserId { get; internal set; }
+
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public TransportUser User { get; internal set; }
 

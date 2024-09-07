@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
@@ -32,10 +34,7 @@ namespace DSharpPlus.Net.Abstractions
     /// </summary>
     internal sealed class ClientProperties
     {
-        /// <summary>
-        /// Gets the client's operating system.
-        /// </summary>
-        [JsonProperty("$os")]
+        [JsonProperty("os")]
         public string OperatingSystem
         {
             get
@@ -66,39 +65,54 @@ namespace DSharpPlus.Net.Abstractions
             }
         }
 
-        /// <summary>
-        /// Gets the client's browser.
-        /// </summary>
-        [JsonProperty("$browser")]
+        [JsonProperty("browser")]
         public string Browser
-        {
-            get
-            {
-                var a = typeof(DiscordClient).GetTypeInfo().Assembly;
-                var an = a.GetName();
-                return $"DSharpPlus {an.Version.ToString(4)}";
-            }
-        }
-
-        /// <summary>
-        /// Gets the client's device.
-        /// </summary>
-        [JsonProperty("$device")]
+            => "Chrome";
+        [JsonProperty("device")]
         public string Device
-            => this.Browser;
+            => "";
+        [JsonProperty("system_locale")]
+        public string SystemLocale
+            => CultureInfo.CurrentCulture.Name;
 
-        /// <summary>
-        /// Gets the client's referrer.
-        /// </summary>
-        [JsonProperty("$referrer")]
+        [JsonProperty("browser_user_agent")]
+        public string BrowserUserAgent
+            => Utilities.GetUserAgent();
+
+        [JsonProperty("browser_version")]
+        public string BrowserVersion
+            => $"{70 + ((DateTime.Now.Year - 2020) * 12) + DateTime.Now.Month}.0.0.0";
+
+        [JsonProperty("os_version")]
+        public string OSVersion
+            => Environment.OSVersion.Version.Major.ToString();
+
+        [JsonProperty("referrer")]
         public string Referrer
             => "";
 
-        /// <summary>
-        /// Gets the client's referring domain.
-        /// </summary>
-        [JsonProperty("$referring_domain")]
+        [JsonProperty("referring_domain")]
         public string ReferringDomain
             => "";
+
+        [JsonProperty("referrer_current")]
+        public string ReferrerCurrent
+            => "";
+
+        [JsonProperty("referring_domain_current")]
+        public string ReferringDomainCurrent
+            => "";
+
+        [JsonProperty("release_channel")]
+        public string ReleaseChannel
+            => "stable";
+
+        [JsonProperty("client_build_number")]
+        public int ClientBuildNumber
+            => 325421;
+
+        [JsonProperty("client_event_source")]
+        public object ClientEventSource
+            => null;
     }
 }

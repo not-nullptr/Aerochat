@@ -34,7 +34,7 @@ namespace DSharpPlus.Net.Abstractions
     internal class ReadyPayload
     {
         /// <summary>
-        /// Gets the gateway version the client is connectected to.
+        /// Gets the gateway version the client is connected to.
         /// </summary>
         [JsonProperty("v")]
         public int GatewayVersion { get; private set; }
@@ -75,15 +75,35 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("user_settings", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUserSettings UserSettings { get; set; }
 
-
+        /// <summary>
+        /// List of settings for guilds, includes data like muted channels 
+        /// </summary>
         [JsonProperty("user_guild_settings", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordUserGuildSettings> UserGuildSettings { get; set; }
+
+        /// <summary>
+        /// List of users extracted from elsewhere in the READY payload
+        /// </summary>
+        [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<TransportUser> Users { get; set; }
+
+        /// <summary>
+        /// List of members extracted from elsewhere in the READY payload, in the same order as <see cref="Guilds"/>
+        /// </summary>
+        [JsonProperty("merged_members", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<IReadOnlyList<TransportMember>> MergedMembers { get; set; }
 
         /// <summary>
         /// Gets the current session's ID.
         /// </summary>
         [JsonProperty("session_id")]
         public string SessionId { get; private set; }
+
+        /// <summary>
+        /// Refreshed auth token
+        /// </summary>
+        [JsonProperty("auth_token")]
+        public string AuthToken { get; private set; }
 
         /// <summary>
         /// Gets debug data sent by Discord. This contains a list of servers to which the client is connected.

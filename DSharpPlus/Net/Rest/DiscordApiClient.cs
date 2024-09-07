@@ -47,7 +47,7 @@ namespace DSharpPlus.Net
         private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
         internal BaseDiscordClient _discord { get; }
-        internal RestClient _rest { get; }
+        internal RestClient _rest { get; private set; }
 
         private string LastAckToken { get; set; } = null;
         private SemaphoreSlim TokenSemaphore { get; } = new SemaphoreSlim(1, 1);
@@ -55,12 +55,12 @@ namespace DSharpPlus.Net
         internal DiscordApiClient(BaseDiscordClient client, RestClient rest = null)
         {
             this._discord = client;
-            this._rest = rest ?? new RestClient(client.Configuration, client.Logger);
+            this._rest = rest ?? new RestClient(client.Configuration, client.Logger, client.HandleCaptchaAsync);
         }
 
         internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit, ILogger logger) // This is for meta-clients, such as the webhook client
         {
-            this._rest = new RestClient(proxy, timeout, useRelativeRateLimit, logger);
+            this._rest = new RestClient(proxy, timeout, useRelativeRateLimit, logger, null);
         }
 
         private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> values, bool post = false)
@@ -162,7 +162,7 @@ namespace DSharpPlus.Net
                 xr.Emoji.Discord = this._discord;
         }
 
-        private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
+        private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
         {
             var req = new RestRequest(client, bucket, url, method, route, headers, payload, ratelimitWaitOverride);
 
@@ -174,7 +174,7 @@ namespace DSharpPlus.Net
             return req.WaitForCompletionAsync();
         }
 
-        private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
+        private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
             IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null, bool removeFileCount = false)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, route, headers, values, files, ratelimitWaitOverride)
@@ -4055,5 +4055,8 @@ namespace DSharpPlus.Net
 
             return ret;
         }
+
+        internal void UpdateConfiguration(DiscordConfiguration configuration)
+            => this._rest = new RestClient(configuration, this._discord.Logger, this._discord.HandleCaptchaAsync);
     }
 }

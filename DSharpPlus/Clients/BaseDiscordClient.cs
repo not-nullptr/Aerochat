@@ -29,7 +29,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
@@ -120,6 +122,8 @@ namespace DSharpPlus
                 if (v.Revision > 0)
                     this.VersionString = $"{vs}, CI build {v.Revision}";
             }
+
+            this._captchaRequested = new AsyncEvent<BaseDiscordClient, CaptchaRequestEventArgs>("CAPTCHA_REQUESTED", null);
         }
 
         /// <summary>
@@ -259,6 +263,25 @@ namespace DSharpPlus
         // Furthermore, setting properties requires keeping track of where we update cache and updating repeat code.
         internal DiscordUser UpdateUserCache(DiscordUser newUser)
             => this.UserCache.AddOrUpdate(newUser.Id, newUser, (_, _) => newUser);
+
+        internal async Task<DiscordCaptchaResponse> HandleCaptchaAsync(DiscordCaptchaRequest request)
+        {
+            var ev = new CaptchaRequestEventArgs(){Request = request};
+            await _captchaRequested.InvokeAsync(this, ev);
+
+            return ev._response;
+        }
+
+        /// <summary>
+        /// Fired when multiple messages are deleted at once.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<BaseDiscordClient, CaptchaRequestEventArgs> CaptchaRequested
+        {
+            add => this._captchaRequested.Register(value);
+            remove => this._captchaRequested.Unregister(value);
+        }
+        private readonly AsyncEvent<BaseDiscordClient, CaptchaRequestEventArgs> _captchaRequested;
 
         /// <summary>
         /// Disposes this client.

@@ -24,25 +24,17 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DSharpPlus.Enums;
-using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.EventArgs
 {
-    public class DiscordRelationship : SnowflakeObject
+    public class CaptchaRequestEventArgs : DiscordEventArgs
     {
-        [JsonProperty("user")]
-        internal TransportUser InternalUser { get; set; }
+        internal DiscordCaptchaResponse _response = default;
 
-        [JsonProperty("user_id")]
-        public ulong UserId { get; internal set; }
+        public DiscordCaptchaRequest Request { get; internal set; }
 
-        [JsonIgnore]
-        public DiscordUser User
-            => this.Discord.TryGetCachedUserInternal(this.InternalUser?.Id ?? this.UserId, out var user) ? user : null;
-
-        [JsonProperty("type")]
-        public DiscordRelationshipType RelationshipType { get; internal set; }
+        public void SetResponse(DiscordCaptchaResponse response)
+            => _response = response;
     }
 }

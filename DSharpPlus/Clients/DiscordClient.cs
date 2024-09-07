@@ -270,12 +270,11 @@ namespace DSharpPlus
             this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", this.EventErrorHandler);
             this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", this.EventErrorHandler);
-
             this._relationshipAdded = new AsyncEvent<DiscordClient, RelationshipAddEventArgs>("RELATIONSHIP_ADDED", this.EventErrorHandler);
             this._relationshipRemoved = new AsyncEvent<DiscordClient, RelationshipRemoveEventArgs>("RElATIONSHIP_REMOVED", this.EventErrorHandler);
-            this._loggedOut = new AsyncEvent<DiscordClient, LoggedOutEventArgs>("LOGGED_OUT", this.EventErrorHandler);
-
             this._readStateUpdated = new AsyncEvent<DiscordClient, ReadStateUpdateEventArgs>("READ_STATE_UPDTED", this.EventErrorHandler);
+            this._authTokenUpdate = new AsyncEvent<DiscordClient, AuthTokenUpdatedEventArgs>("AUTH_TOKEN_UPDATED", this.EventErrorHandler);
+            this._loggedOut = new AsyncEvent<DiscordClient, LoggedOutEventArgs>("LOGGED_OUT", this.EventErrorHandler);
 
             #region Threads
             this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", this.EventErrorHandler);

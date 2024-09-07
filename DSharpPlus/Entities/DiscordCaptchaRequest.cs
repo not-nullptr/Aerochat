@@ -24,25 +24,29 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DSharpPlus.Enums;
-using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
-    public class DiscordRelationship : SnowflakeObject
+    public sealed class DiscordCaptchaRequest
     {
-        [JsonProperty("user")]
-        internal TransportUser InternalUser { get; set; }
+        public const string RECAPTCHA_SITEKEY = "6Lef5iQTAAAAAKeIvIY-DeexoO3gj7ryl9rLMEnn";
 
-        [JsonProperty("user_id")]
-        public ulong UserId { get; internal set; }
+        [JsonProperty("captcha_key", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Key { get; internal set; }
 
-        [JsonIgnore]
-        public DiscordUser User
-            => this.Discord.TryGetCachedUserInternal(this.InternalUser?.Id ?? this.UserId, out var user) ? user : null;
+        [JsonProperty("captcha_sitekey", NullValueHandling = NullValueHandling.Ignore)]
+        public string SiteKey { get; internal set; } = "c5fa4a68-7566-4cba-b588-dc66e9d886bc";
 
-        [JsonProperty("type")]
-        public DiscordRelationshipType RelationshipType { get; internal set; }
+        [JsonProperty("captcha_service", NullValueHandling = NullValueHandling.Ignore)]
+        public string Service { get; internal set; }
+
+        [JsonProperty("captcha_rqdata", NullValueHandling = NullValueHandling.Ignore)]
+        public string RequestData { get; internal set; }
+
+        [JsonProperty("captcha_rqtoken", NullValueHandling = NullValueHandling.Ignore)]
+        public string RequestToken { get; internal set; }
     }
+
+    public record struct DiscordCaptchaResponse(string Solution);
 }

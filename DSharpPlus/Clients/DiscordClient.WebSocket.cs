@@ -27,6 +27,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
@@ -137,7 +138,7 @@ namespace DSharpPlus
             this._webSocketClient.ExceptionThrown += SocketOnException;
 
             var gwuri = new QueryUriBuilder(this.GatewayUri)
-                .AddParameter("v", "10")
+                .AddParameter("v", Endpoints.API_VERSION)
                 .AddParameter("encoding", "json");
 
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
@@ -454,15 +455,9 @@ namespace DSharpPlus
             var identify = new GatewayIdentify
             {
                 Token = Utilities.GetFormattedToken(this),
-                Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
-                LargeThreshold = this.Configuration.LargeThreshold,
-                //ShardInfo = new ShardInfo
-                //{
-                //    ShardId = this.Configuration.ShardId,
-                //    ShardCount = this.Configuration.ShardCount
-                //},
+                Compress = false,
                 Presence = status,
-                //Intents = this.Configuration.Intents
+                Capabilities = ClientCapability.LazyUserNotes | ClientCapability.AuthTokenRefresh | ClientCapability.DedupeUserObjects /* | ClientCapability.DebounceMessageReactions*/,
             };
             var payload = new GatewayPayload
             {

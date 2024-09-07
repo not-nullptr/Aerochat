@@ -56,7 +56,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordMember(TransportMember member)
         {
-            this.Id = member.User.Id;
+            this.Id = member.User?.Id ?? member.UserId;
             this.IsDeafened = member.IsDeafened;
             this.IsMuted = member.IsMuted;
             this.JoinedAt = member.JoinedAt;

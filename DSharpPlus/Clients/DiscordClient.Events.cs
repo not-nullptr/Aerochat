@@ -976,5 +976,15 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, ChannelUnreadUpdateEventArgs> _channelUnreadUpdate;
 
+        /// <summary>
+        /// Fired when Discord provides an updated authentication token
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, AuthTokenUpdatedEventArgs> AuthTokenUpdate
+        {
+            add => this._authTokenUpdate.Register(value);
+            remove => this._authTokenUpdate.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, AuthTokenUpdatedEventArgs> _authTokenUpdate;
+
     }
 }

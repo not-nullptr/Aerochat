@@ -24,25 +24,26 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DSharpPlus.Enums;
-using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Enums
 {
-    public class DiscordRelationship : SnowflakeObject
+    [Flags]
+    public enum ClientCapability
     {
-        [JsonProperty("user")]
-        internal TransportUser InternalUser { get; set; }
-
-        [JsonProperty("user_id")]
-        public ulong UserId { get; internal set; }
-
-        [JsonIgnore]
-        public DiscordUser User
-            => this.Discord.TryGetCachedUserInternal(this.InternalUser?.Id ?? this.UserId, out var user) ? user : null;
-
-        [JsonProperty("type")]
-        public DiscordRelationshipType RelationshipType { get; internal set; }
+        LazyUserNotes = 1,
+        NoAffineUserIDs = 2,
+        VersionedReadStates = 4,
+        VersionedUserGuildSettings = 8,
+        DedupeUserObjects = 16,
+        EnableSupplimentalReady = 32,
+        MultipleGuildExperimentPopulations = 64,
+        NonChannelReadStates = 128,
+        AuthTokenRefresh = 256,
+        UserSettingsProto = 512,
+        ClientStateV2 = 1024,
+        PassiveGuildUpdate = 2048,
+        AutoCallConnect = 4096,
+        DebounceMessageReactions = 8192,
+        PassiveGuildUpdateV2 = 16384
     }
 }

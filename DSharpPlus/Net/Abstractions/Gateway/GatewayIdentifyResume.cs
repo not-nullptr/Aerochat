@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -37,6 +38,12 @@ namespace DSharpPlus.Net.Abstractions
         public string Token { get; set; }
 
         /// <summary>
+        /// Gets or sets the capabilities of the client
+        /// </summary>
+        [JsonProperty("capabilities")]
+        public ClientCapability Capabilities { get; set; }
+
+        /// <summary>
         /// Gets or sets the client's properties.
         /// </summary>
         [JsonProperty("properties")]
@@ -49,28 +56,10 @@ namespace DSharpPlus.Net.Abstractions
         public bool Compress { get; set; }
 
         /// <summary>
-        /// Gets or sets the member count at which the guild is to be considered large.
-        /// </summary>
-        [JsonProperty("large_threshold")]
-        public int LargeThreshold { get; set; }
-
-        ///// <summary>
-        ///// Gets or sets the shard info for this connection.
-        ///// </summary>
-        //[JsonProperty("shard")]
-        //public ShardInfo ShardInfo { get; set; }
-
-        /// <summary>
         /// Gets or sets the presence for this connection.
         /// </summary>
 		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
         public StatusUpdate Presence { get; set; } = null;
-
-        ///// <summary>
-        ///// Gets or sets the intent flags for this connection.
-        ///// </summary>
-        //[JsonProperty("intents")]
-        //public DiscordIntents Intents { get; set; }
     }
 
     /// <summary>

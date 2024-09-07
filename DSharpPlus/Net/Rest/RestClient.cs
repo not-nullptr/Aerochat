@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -34,8 +35,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net
 {
@@ -44,6 +50,8 @@ namespace DSharpPlus.Net
     /// </summary>
     internal sealed class RestClient : IDisposable
     {
+        public delegate Task<DiscordCaptchaResponse> CaptchaHandlerDelegate(DiscordCaptchaRequest captchaRequest);
+
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
         private HttpClient HttpClient { get; }
         private BaseDiscordClient Discord { get; }
@@ -59,15 +67,16 @@ namespace DSharpPlus.Net
         private volatile bool _cleanerRunning;
         private Task _cleanerTask;
         private volatile bool _disposed;
+        private readonly CaptchaHandlerDelegate _captchaHandler;
 
-        internal RestClient(DiscordConfiguration config, ILogger logger)
-            : this(config.Proxy, config.HttpTimeout, config.UseRelativeRatelimit, logger)
+        internal RestClient(DiscordConfiguration config, ILogger logger, CaptchaHandlerDelegate captchaHandler)
+            : this(config.Proxy, config.HttpTimeout, config.UseRelativeRatelimit, logger, captchaHandler)
         {
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit,
-            ILogger logger) // This is for meta-clients, such as the webhook client
+            ILogger logger, CaptchaHandlerDelegate captchaHandler) // This is for meta-clients, such as the webhook client
         {
             this.Logger = logger;
 
@@ -86,6 +95,7 @@ namespace DSharpPlus.Net
             };
 
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Super-Properties", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new ClientProperties()))));
 
             this.RoutesToHashes = new ConcurrentDictionary<string, string>();
             this.HashesToBuckets = new ConcurrentDictionary<string, RateLimitBucket>();
@@ -93,6 +103,8 @@ namespace DSharpPlus.Net
 
             this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
             this.UseResetAfter = useRelativeRatelimit;
+
+            this._captchaHandler = captchaHandler;
         }
 
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
@@ -255,6 +267,14 @@ namespace DSharpPlus.Net
                 switch (response.ResponseCode)
                 {
                     case 400:
+                        ex = new BadRequestException(request, response);
+                        if (await this.Handle400(request, response))
+                        {
+                            this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
+                                .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
+                        }
+
+                        break;
                     case 405:
                         ex = new BadRequestException(request, response);
                         break;
@@ -289,7 +309,8 @@ namespace DSharpPlus.Net
                                 }
                                 finally
                                 {
-                                    // we don't want to wait here until all the blocked requests have been run, additionally Set can never throw an exception that could be suppressed here
+                                    // we don't want to wait here until all the blocked requests have been run, additionally
+                                    // Set can never throw an exception that could be suppressed here
                                     _ = this.GlobalRateLimitEvent.SetAsync();
                                 }
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
@@ -462,6 +483,40 @@ namespace DSharpPlus.Net
             }
 
             return req;
+        }
+
+        private async Task<bool> Handle400(BaseRestRequest request, RestResponse response)
+        {
+            if (this._captchaHandler == null)
+                return false;
+
+            try
+            {
+                var jObject = JObject.Parse(response.Response);
+                if (jObject.TryGetValue("captcha_key", out var captcha_key) && captcha_key is JArray array)
+                {
+                    // Discord has required the user to perform a captcha, this is annoying because we now have to bubble
+                    // this all the way back up to the UI layer (if it even exists) and request a response
+
+                    var captchaRequest = jObject.ToDiscordObject<DiscordCaptchaRequest>();
+                    var captchaResponse = await this._captchaHandler(captchaRequest);
+                    if (string.IsNullOrWhiteSpace(captchaResponse.Solution))
+                        return false;
+
+                    request.Headers ??= new Dictionary<string, string>();
+                    request.Headers["X-Captcha-Key"] = captchaResponse.Solution;
+                    if (!string.IsNullOrEmpty(captchaRequest.RequestToken))
+                        request.Headers["X-Captcha-Rqtoken"] = captchaRequest.RequestToken;
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(LoggerEvents.RestError, ex, "Failed to respond to Captcha request.");
+            }
+
+            return false;
         }
 
         private void Handle429(RestResponse response, out Task wait_task, out bool global)

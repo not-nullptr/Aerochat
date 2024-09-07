@@ -77,7 +77,8 @@ namespace DSharpPlus
                 vs = v.ToString(3);
             }
 
-            VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
+            var version = 70 + ((DateTime.Now.Year - 2020) * 12) + DateTime.Now.Month;
+            VersionHeader = $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{version}.0.0.0 Safari/537.36";
         }
 
         internal static string GetApiBaseUri()

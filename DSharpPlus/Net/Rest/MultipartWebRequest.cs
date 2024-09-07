@@ -46,7 +46,7 @@ namespace DSharpPlus.Net
 
         internal bool _removeFileCount;
 
-        internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
+        internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
             IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimit_wait_override = null, bool removeFileCount = false)
             : base(client, bucket, url, method, route, headers, ratelimit_wait_override)
         {

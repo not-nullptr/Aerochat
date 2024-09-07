@@ -54,7 +54,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the headers sent with this request.
         /// </summary>
-        public IReadOnlyDictionary<string, string> Headers { get; } = null;
+        public IDictionary<string, string> Headers { get; internal set; } = null;
 
         /// <summary>
         /// Gets the override for the rate limit bucket wait time.
@@ -76,7 +76,7 @@ namespace DSharpPlus.Net
         /// <param name="route">The generic route the request url will use.</param>
         /// <param name="headers">Additional headers for this request.</param>
         /// <param name="ratelimitWaitOverride">Override for ratelimit bucket wait time.</param>
-        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
+        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
         {
             this.Discord = client;
             this.RateLimitBucket = bucket;

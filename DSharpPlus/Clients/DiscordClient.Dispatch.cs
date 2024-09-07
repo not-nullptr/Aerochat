@@ -84,7 +84,7 @@ namespace DSharpPlus
                     case "ready":
                         var glds = (JArray)dat["guilds"];
                         var dmcs = (JArray)dat["private_channels"];
-                        var presences = (JArray)dat["presences"];
+                        var presences = (JObject)dat["merged_presences"];
 
                         dat.Remove("guilds");
                         dat.Remove("private_channels");
@@ -596,7 +596,7 @@ namespace DSharpPlus
 
         #region Gateway
 
-        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels, JArray rawPresences)
+        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels, JObject merged_presences)
         {
             //ready.CurrentUser.Discord = this;
 
@@ -612,11 +612,23 @@ namespace DSharpPlus
 
             this.UserSettings = ready.UserSettings;
 
+            if (!string.IsNullOrEmpty(ready.AuthToken))
+            {
+                this.Configuration.Token = ready.AuthToken;
+                this.ApiClient.UpdateConfiguration(this.Configuration);
+
+                this.Logger.LogWarning("Discord provided an updated auth token! Please make sure you're saving this!");
+
+                await this._authTokenUpdate.InvokeAsync(this, new AuthTokenUpdatedEventArgs() { Token = ready.AuthToken });
+            }
+
             this._sessionId = ready.SessionId;
             var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
+            var users = ready.Users.Select(u => this.UpdateUserCache(new DiscordUser(u) { Discord = this }))
+                .ToDictionary(k => k.Id);
 
             this._privateChannels.Clear();
-            foreach (var rawChannel in rawDmChannels)
+            foreach (var rawChannel in rawDmChannels.Cast<JObject>())
             {
                 var channel = rawChannel.ToDiscordObject<DiscordDmChannel>();
 
@@ -626,14 +638,22 @@ namespace DSharpPlus
                 //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                 //    .ToList();
 
-                var recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
                 var recipients = new List<DiscordUser>();
-                foreach (var xr in recips_raw)
+                if (rawChannel.TryGetValue("recipient_ids", out var ids))
                 {
-                    var xu = new DiscordUser(xr) { Discord = this };
-                    xu = this.UpdateUserCache(xu);
+                    foreach (var idToken in (JArray)ids)
+                        recipients.Add(users[(ulong)idToken]);
+                }
+                else
+                {
+                    var recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
+                    foreach (var xr in recips_raw)
+                    {
+                        var xu = new DiscordUser(xr) { Discord = this };
+                        xu = this.UpdateUserCache(xu);
 
-                    recipients.Add(xu);
+                        recipients.Add(xu);
+                    }
                 }
                 channel.Recipients = recipients;
 
@@ -643,9 +663,12 @@ namespace DSharpPlus
 
             this._guilds.Clear();
 
-            var guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
-            foreach (var guild in guilds)
+            var guilds = rawGuilds.ToDiscordObject<DiscordGuild[]>();
+            for (var i = 0; i < guilds.Length; i++)
             {
+                var guild = guilds[i];
+                var merged_members = ready.MergedMembers[i];
+
                 guild.Discord = this;
                 guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
                 guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
@@ -675,21 +698,15 @@ namespace DSharpPlus
                 }
 
                 var raw_guild = raw_guild_index[guild.Id];
-                var raw_members = (JArray)raw_guild["members"];
 
                 guild._members?.Clear();
                 guild._members ??= new ConcurrentDictionary<ulong, DiscordMember>();
 
-                if (raw_members != null)
+                if (merged_members != null)
                 {
-                    foreach (var xj in raw_members)
+                    foreach (var xtm in merged_members)
                     {
-                        var xtm = xj.ToDiscordObject<TransportMember>();
-
-                        var xu = new DiscordUser(xtm.User) { Discord = this };
-                        xu = this.UpdateUserCache(xu);
-
-                        guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
+                        guild._members[xtm.UserId] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                     }
                 }
 
@@ -716,7 +733,7 @@ namespace DSharpPlus
             {
                 relationship.Discord = this;
 
-                var user = this.UpdateUserCache(new DiscordUser(relationship.InternalUser));
+                //var user = this.UpdateUserCache(new DiscordUser(relationship.InternalUser));
                 if (_relationships.TryGetValue(relationship.Id, out var oldRel))
                 {
                     oldRel.RelationshipType = relationship.RelationshipType;
@@ -742,9 +759,28 @@ namespace DSharpPlus
                 }
             }
 
-            foreach (var token in (rawPresences ?? new JArray()))
+            if (merged_presences != null)
             {
-                await this.OnPresenceUpdateEventAsync((JObject)token, (JObject)token["user"]).ConfigureAwait(false);
+                var friends = (JArray)merged_presences["friends"];
+                foreach (var presence in friends)
+                {
+                    await this.OnPresenceUpdateEventAsync((JObject)presence, (JObject)presence["user"], true).ConfigureAwait(false);
+                }
+
+                // presences are technically per guild but we dont really handle that properly :sob:
+                var guildPresences = (JArray)merged_presences["guilds"];
+                if (guildPresences != null)
+                {
+                    for (var i = 0; i < guildPresences.Count; i++)
+                    {
+                        var guildPresence = guildPresences[i];
+                        var guild = guilds[i];
+                        foreach (var presence in (JArray)guildPresence)
+                        {
+                            await this.OnPresenceUpdateEventAsync((JObject)presence, (JObject)presence["user"], true).ConfigureAwait(false);
+                        }
+                    }
+                }
             }
 
             await this._ready.InvokeAsync(this, new ReadyEventArgs()).ConfigureAwait(false);
@@ -2043,9 +2079,9 @@ namespace DSharpPlus
 
         #region User/Presence Update
 
-        internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser)
+        internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser, bool skipEvents = false)
         {
-            var uid = (ulong)rawUser["id"];
+            var uid = rawUser != null ? (ulong)rawUser["id"] : (ulong)rawPresence["user_id"];
             DiscordPresence old = null;
 
             if (this._presences.TryGetValue(uid, out var presence))
@@ -2066,7 +2102,7 @@ namespace DSharpPlus
                 presence.Discord = this;
                 presence.Activity = new DiscordActivity(presence.RawActivity);
                 presence.Activity.UpdateWith(presence.RawActivity);
-                this._presences[presence.InternalUser.Id] = presence;
+                this._presences[uid] = presence;
             }
 
             // reuse arrays / avoid linq (this is a hot zone)
@@ -2085,41 +2121,48 @@ namespace DSharpPlus
 
             if (this.UserCache.TryGetValue(uid, out var usr))
             {
-                if (old != null)
+                if (old != null && old.InternalUser != null)
                 {
                     old.InternalUser.Username = usr.Username;
                     old.InternalUser.Discriminator = usr.Discriminator;
                     old.InternalUser.AvatarHash = usr.AvatarHash;
                 }
 
-                if (rawUser["username"] is object)
-                    usr.Username = (string)rawUser["username"];
-                if (rawUser["discriminator"] is object)
-                    usr.Discriminator = (string)rawUser["discriminator"];
-                if (rawUser["avatar"] is object)
-                    usr.AvatarHash = (string)rawUser["avatar"];
+                if (rawUser != null)
+                {
+                    if (rawUser["username"] is not null)
+                        usr.Username = (string)rawUser["username"];
+                    if (rawUser["discriminator"] is not null)
+                        usr.Discriminator = (string)rawUser["discriminator"];
+                    if (rawUser["avatar"] is not null)
+                        usr.AvatarHash = (string)rawUser["avatar"];
+                }
 
+                presence.InternalUser ??= new TransportUser();
                 presence.InternalUser.Username = usr.Username;
                 presence.InternalUser.Discriminator = usr.Discriminator;
                 presence.InternalUser.AvatarHash = usr.AvatarHash;
             }
-            else
+            else if (presence.InternalUser != null)
             {
                 usr = new DiscordUser(presence.InternalUser);
                 this.UserCache[usr.Id] = usr;
             }
 
-            var ea = new PresenceUpdateEventArgs
+            if (!skipEvents)
             {
-                Status = presence.Status,
-                Activity = presence.Activity,
-                User = usr,
-                PresenceBefore = old,
-                PresenceAfter = presence,
-                UserBefore = old != null ? new DiscordUser(old.InternalUser) : usr,
-                UserAfter = usr
-            };
-            await this._presenceUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+                var ea = new PresenceUpdateEventArgs
+                {
+                    Status = presence.Status,
+                    Activity = presence.Activity,
+                    User = usr,
+                    PresenceBefore = old,
+                    PresenceAfter = presence,
+                    UserBefore = old?.InternalUser != null ? new DiscordUser(old.InternalUser) : usr,
+                    UserAfter = usr
+                };
+                await this._presenceUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+            }
         }
 
         internal async Task OnUserSettingsUpdateEventAsync(JObject json)

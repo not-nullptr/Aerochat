@@ -7,6 +7,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <RootNamespace>DSharpPlus</RootNamespace>
     <OutputType>Library</OutputType>
+    <LangVersion>10</LangVersion>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
