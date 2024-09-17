@@ -29,8 +29,16 @@ namespace Aerochat.Windows
             {
                 ViewModel.Scenes.Add(new ChangeSceneItemViewModel { Scene = scene });
             }
-            if (ThemeService.Instance.Scene is not null && ThemeService.Instance.Scene.Id > 0)
-                ViewModel.Scenes[ThemeService.Instance.Scene.Id - 1].Selected = true;
+            //if (ThemeService.Instance.Scene is not null && ThemeService.Instance.Scene.Id > 0)
+            //    ViewModel.Scenes[ThemeService.Instance.Scene.Id - 1].Selected = true;
+
+            try
+            {
+                if (ViewModel.Scenes.Count > ThemeService.Instance.Scene.Id - 1)
+                {
+                    ViewModel.Scenes[ThemeService.Instance.Scene.Id - 1].Selected = true;
+                }
+            } catch (Exception) { }
         }
 
         private async void Border_PreviewMouseDown(object sender, MouseButtonEventArgs e)
