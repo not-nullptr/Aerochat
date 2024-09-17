@@ -1,0 +1,42 @@
+﻿<Window x:Class="Aerochat.Windows.Dialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DialogViewModel}"
+        xmlns:controls="clr-namespace:Aerochat.Controls"
+        mc:Ignorable="d"
+        Title="Dialog" MinHeight="163" Width="538"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        Style="{StaticResource Window}">
+    <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
+        <Grid>
+            <Grid.Background>
+                <ImageBrush ImageSource="/Resources/Dialog/Background.png" />
+            </Grid.Background>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="16,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="32" Height="32" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                        <TextBlock TextWrapping="Wrap" Text="{Binding Title}" Foreground="#355a88" FontSize="19" />
+                        <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Foreground="#333" Text="{Binding Description}" />
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <StackPanel Margin="15,11" FlowDirection="RightToLeft" Orientation="Horizontal">
+                        <Button Click="Button_Click" Foreground="#333" Height="23" MinWidth="72" Content="Continue" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </controls:BaseTitlebar>
+</Window>

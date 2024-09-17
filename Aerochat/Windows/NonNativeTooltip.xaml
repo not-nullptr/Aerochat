@@ -1,0 +1,52 @@
+﻿<Window x:Class="Aerochat.Windows.NonNativeTooltip"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:controls="clr-namespace:Aerochat.Controls" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:NonNativeTooltipViewModel}"
+        mc:Ignorable="d"
+        AllowsTransparency="True" WindowStyle="None"
+        ResizeMode="NoResize"
+        Topmost="True"
+        UseLayoutRounding="True"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        Background="Transparent"
+        Title="NonNativeTooltip" SizeToContent="WidthAndHeight"
+        Style="{StaticResource Window}">
+    <Grid>
+        <controls:NineSlice Image="/Resources/Notification/Background.png" Slice="16,16" />
+        <StackPanel Margin="16,14,16,16" Panel.ZIndex="5">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Height="22" Click="OnItemClicked">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource TransparentStyle}"></Style>
+                            </Button.Style>
+                            <Grid>
+                                <controls:NineSlice Slice="4,4">
+                                    <controls:NineSlice.Style>
+                                        <Style TargetType="controls:NineSlice">
+                                            <!-- when the button is hovered -->
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
+                                                    <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemHover.png" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
+                                                    <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemActive.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </controls:NineSlice.Style>
+                                </controls:NineSlice>
+                                <TextBlock Text="{Binding Name}" TextAlignment="Right" VerticalAlignment="Center" Margin="10,2,8,2" />
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Grid>
+</Window>

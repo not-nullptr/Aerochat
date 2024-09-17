@@ -1,0 +1,36 @@
+﻿<Window x:Class="Aerochat.Windows.Settings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        mc:Ignorable="d"
+        Title="Settings" Height="570" Width="520"
+        Style="{StaticResource Window}">
+    <StackPanel Margin="16">
+        <Grid Margin="0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Red" />
+            <Slider x:Name="Red" ValueChanged="RefreshColor" Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
+        </Grid>
+        <Grid Margin="0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Green" />
+            <Slider x:Name="Green" ValueChanged="RefreshColor"  Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
+        </Grid>
+        <Grid Margin="0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Blue" />
+            <Slider x:Name="Blue" ValueChanged="RefreshColor" Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
+        </Grid>
+    </StackPanel>
+</Window>
