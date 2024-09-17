@@ -115,8 +115,6 @@ namespace Aerochat
 
             if (tokenFound)
             {
-                // token exists - just login directly
-                // decrypt the token and pass it to Begin
                 string token = Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser));
                 BeginLogin(token);
             } else
@@ -128,14 +126,11 @@ namespace Aerochat
         }
         public async Task<bool> BeginLogin(string givenToken, bool save = false, UserStatus status = UserStatus.Online)
         {
-            if (givenToken != null)
+            Discord.Client = new(new()
             {
-                Discord.Client = new(new()
-                {
-                    Token = givenToken,
-                    TokenType = TokenType.User,
-                });
-            }
+                Token = givenToken,
+                TokenType = TokenType.User,
+            });
             try
             {
                 await Discord.Client.ConnectAsync(status: status);
@@ -143,6 +138,16 @@ namespace Aerochat
             {
                 return false;
             }
+            Discord.Client.Ready += async (_, __) =>
+            {
+                Discord.Ready = true;
+                Dispatcher.Invoke(() => { 
+                    new Home().Show();
+                    Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
+                    loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
+                });
+                Dispatcher.Invoke(() => SetStatus(status));
+            };
             // use ProtectedData to encrypt the token
             if (save)
             {
@@ -172,22 +177,8 @@ namespace Aerochat
                     ThemeService.Instance.Scene.Color = hex;
                 }
             }
-            Dispatcher.Invoke(() => new Home());
             Dispatcher.Invoke(() =>
             {
-                Discord.Client.Ready += async (_ ,__) =>
-                {
-                    Discord.Ready = true;
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (LoginWindow != null)
-                        {
-                            LoginWindow.Close();
-                        }
-                    });
-                };
-                // set status to the given status
-                SetStatus(status);
                 Timer timer = new(5000);
                 timer.Elapsed += GCRelease;
                 timer.AutoReset = false;

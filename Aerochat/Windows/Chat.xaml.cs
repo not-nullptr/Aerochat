@@ -270,6 +270,11 @@ namespace Aerochat.Windows
                     bool isCurrentChannel = c.Id == channelId;
                     var channel = c;
                     var lastMessageId = channel.LastMessageId;
+                    if (lastMessageId is null)
+                    {
+                        item.Image = "read";
+                        continue;
+                    }
                     var lastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastMessageId >> 22) + 1420070400000)).DateTime;
                     if (lastMessageTime > lastReadMessageTime && !isCurrentChannel)
                     {
@@ -637,15 +642,6 @@ namespace Aerochat.Windows
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();
-
-            ViewModel.LastReceivedMessage = null;
-            ViewModel.Messages = null;
-            ViewModel.TypingString = null;
-            ViewModel.Channel = null;
-            ViewModel.CurrentUser = null;
-            ViewModel.Recipient = null;
-
-            ViewModel = null;
 
             System.Timers.Timer timer = new(100);
             timer.Elapsed += GCRelease;

@@ -61,11 +61,7 @@ namespace Aerochat.Windows
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
-                //c heck if we're already ready
-                if (Discord.Ready)
-                {
-                    Client_Ready(Discord.Client, null);
-                } else Discord.Client.Ready += Client_Ready;
+                Client_Ready(Discord.Client, null);
             });
         }
 
