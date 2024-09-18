@@ -24,11 +24,23 @@ namespace Aerochat.Windows
     public partial class Login : Window
     {
         public LoginWindowViewModel ViewModel { get; set; } = new LoginWindowViewModel();
-        public Login()
+        public Login(bool alreadyErrored = false)
         {
             InitializeComponent();
             DataContext = ViewModel;
             ViewModel.Scene = ThemeService.Instance.Scenes.FirstOrDefault(x => x.Default);
+            if (alreadyErrored)
+            {
+                Show();
+                ShowErrorDialog();
+            }
+        }
+
+        private void ShowErrorDialog()
+        {
+            var dialog = new Dialog("We can't sign you in to Windows Live Messenger", "The Windows Live Messenger token you entered is incorrect.", SystemIcons.Information);
+            dialog.Owner = this;
+            dialog.ShowDialog();
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -101,9 +113,7 @@ namespace Aerochat.Windows
             if (!success)
             {
                 ViewModel.NotLoggingIn = true;
-                var dialog = new Dialog("We can't sign you in to Windows Live Messenger", "The Windows Live Messenger token you entered is incorrect.", SystemIcons.Information);
-                dialog.Owner = this;
-                dialog.ShowDialog();
+                ShowErrorDialog();
             }
         }
 

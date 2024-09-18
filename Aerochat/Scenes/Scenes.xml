@@ -23,4 +23,8 @@
 	<item id="21" mimetype="image/png" contenttype="D" file="0008.png" default="false" displayname="Mesmerizing Brown" color="#614040" />
 	<item id="22" mimetype="image/png" contenttype="D" file="zune_03.png" default="false" displayname="zune_03" color="#832727" />
 	<item id="23" mimetype="image/png" contenttype="D" file="ButterflyPattern.png" default="false" displayname="Butterfly Pattern" color="#575757" />
+	<item id="24" mimetype="image/png" contenttype="D" file="BetaFish.png" default="false" displayname="Beta Fish" color="#24b3ce" />
+	<item id="25" mimetype="image/png" contenttype="D" file="Halo.png" default="false" displayname="Halo" color="#a13d12" />
+	<item id="26" mimetype="image/png" contenttype="D" file="Floral.png" default="false" displayname="Floral" color="#f9aed4" />
+	<item id="27" mimetype="image/png" contenttype="D" file="HelloKitty.png" default="false" displayname="Hello Kitty" color="#f4a1cb" />
 </package>

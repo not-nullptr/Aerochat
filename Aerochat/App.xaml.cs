@@ -93,12 +93,17 @@ namespace Aerochat
                 // no token saved - that's fine, continue. we'll catch this case later
             }
             bool tokenFound = encryptedToken != null && encryptedToken.Length > 0;
+            string token = "";
+            if (tokenFound)
+            {
+                token = Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser));
+            }
             try
             {
                 Discord.Client = new(new()
                 {
                     TokenType = TokenType.User,
-                    Token = tokenFound ? Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser)) : "",
+                    Token = tokenFound ? token : "",
                 });
             } catch (CryptographicException)
             {
@@ -115,8 +120,18 @@ namespace Aerochat
 
             if (tokenFound)
             {
-                string token = Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser));
-                BeginLogin(token);
+                Task.Run(async () =>
+                {
+                    bool success = await BeginLogin(token);
+                    if (!success)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            LoginWindow = new(true);
+                            LoginWindow.Show();
+                        });
+                    }
+                });
             } else
             {
                 // token doesn't exist - user hasn't saved it. show the login window

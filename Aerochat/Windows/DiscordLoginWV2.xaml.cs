@@ -38,42 +38,24 @@ namespace Aerochat.Windows
             LoginWebView.Source = new Uri("https://discord.com/login");
             // inject js alert("Hello, World!");
             string script = @"
-function onRes(res) {
-    if (res.captcha_key?.includes(""captcha-required"")) return;
-    if (!res.token) return;
-    window.chrome.webview.postMessage(res.token);
+function onUrlChange() {
+    window.chrome.webview.postMessage((webpackChunkdiscord_app.push([[''], {}, e => { m = []; for (let c in e.c) m.push(e.c[c]) }]), m).find(m => m?.exports?.default?.getToken !== void 0).exports.default.getToken());
 }
 
-(function (send) {
-  XMLHttpRequest.prototype.send = function (data) {
-    console.log('Request', this);
+const pushState = history.pushState;
+history.pushState = function () {
+    pushState.apply(history, arguments);
+    onUrlChange();
+};
 
-    const url = new URL(this.__sentry_xhr_v3__.url);
-    if (url.pathname === ""/api/v9/auth/login"" || url.pathname === ""/api/v9/auth/mfa/totp"") {
-    if (this.responseText) {
-        onRes(JSON.parse(this.responseText));
-    } else {
-        this.addEventListener(""readystatechange"", function () {
-            onRes(JSON.parse(this.responseText));
-        });
-    }
-    }
+const replaceState = history.replaceState;
+history.replaceState = function () {
+    replaceState.apply(history, arguments);
+    onUrlChange();
+};
 
-    send.call(this, data);
-  };
-})(XMLHttpRequest.prototype.send);
-
-function clearStorage() {
-    localStorage.clear();
-    sessionStorage.clear();
-    // all cookies
-    document.cookie.split(';').forEach(function(c) {
-        document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-    });
-}
-
-clearStorage();
-
+window.addEventListener('popstate', onUrlChange);
+window.addEventListener('hashchange', onUrlChange);
 ";
             await coreWebView.ExecuteScriptAsync(script);
         }
