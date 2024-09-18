@@ -158,7 +158,9 @@
     <None Remove="Scenes\Silhouette.jpg" />
     <None Remove="Scenes\Silhouette.png" />
     <None Remove="Scenes\VolumeBeta.png" />
+    <None Remove="Scenes\XboxGreen.png" />
     <None Remove="Scenes\XboxGrunge.png" />
+    <None Remove="Scenes\XboxPurple.png" />
     <None Remove="Scenes\Xperia1.png" />
     <None Remove="Scenes\zune_01.jpg" />
     <None Remove="Scenes\zune_01.png" />
@@ -327,7 +329,9 @@
     <Resource Include="Scenes\Silhouette.png" />
     <Resource Include="Scenes\default.png" />
     <Resource Include="Scenes\VolumeBeta.png" />
+    <Resource Include="Scenes\XboxGreen.png" />
     <Resource Include="Scenes\XboxGrunge.png" />
+    <Resource Include="Scenes\XboxPurple.png" />
     <Resource Include="Scenes\Xperia1.png" />
     <Resource Include="Scenes\zune_01.png" />
     <Resource Include="Scenes\zune_02.png" />

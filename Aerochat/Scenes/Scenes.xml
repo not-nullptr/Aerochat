@@ -31,4 +31,6 @@
 	<item id="29" credit="daftendirjerrekt909" mimetype="image/png" contenttype="D" file="XboxGrunge.png" default="false" displayname="Xbox Grunge" color="#829d4e" />
 	<item id="30" credit="C418/vadimos" mimetype="image/png" contenttype="D" file="VolumeBeta.png" default="false" displayname="Volume Beta" color="#000001" />
 	<item id="31" credit="Sony/banesrb" mimetype="image/png" contenttype="D" file="Xperia1.png" default="false" displayname="Xperia 1" color="#6a61ec" />
+	<item id="32" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxGreen.png" default="false" displayname="Xbox Green" color="#abc704" />
+	<item id="33" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxPurple.png" default="false" displayname="Xbox Purple" color="#9f698b" />
 </package>
