@@ -66,7 +66,7 @@ namespace Aerochat.Windows
             ThemeService.Instance.Scene = item.Scene;
             foreach (var wnd in Application.Current.Windows)
             {
-                if (wnd is Chat chat && !chat.ViewModel.IsDM && chat.ViewModel.Recipient is not null)
+                if (wnd is Chat chat && (!chat.ViewModel.IsDM || chat.ViewModel.IsGroupChat) && chat.ViewModel.Recipient is not null)
                 {
                     chat.ViewModel.Recipient.Scene = item.Scene;
                 }

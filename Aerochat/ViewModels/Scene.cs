@@ -23,6 +23,7 @@ namespace Aerochat.Theme
         private string _color;
         private string _textColor;
         private string _shadowColor;
+        private string _credit;
 
         public int Id
         {
@@ -65,6 +66,12 @@ namespace Aerochat.Theme
             set => SetProperty(ref _shadowColor, value);
         }
 
+        public string Credit
+        {
+            get => _credit;
+            set => SetProperty(ref _credit, value);
+        }
+
         public static SceneViewModel FromScene(XElement scene)
         {
             string colourStr = scene.Attribute("color").Value;
@@ -80,6 +87,7 @@ namespace Aerochat.Theme
                 DisplayName = scene.Attribute("displayname").Value,
                 Color = colourStr,
                 Default = bool.Parse(scene.Attribute("default").Value),
+                Credit = scene.Attribute("credit").Value,
                 TextColor = textBlack ? "#000000" : "#ffffff",
                 ShadowColor = textBlack ? "#ffffff" : "#000000"
             };

@@ -282,6 +282,8 @@
                                                 <MenuItem Header="Change display name" />
                                                 <Separator />
                                                 <MenuItem x:Name="OptionsBtn" Click="OptionsBtn_Click" Header="Options" />
+                                                <Separator />
+                                                <MenuItem x:Name="CreditsBtn" Click="CreditsBtn_Click" Header="About and Credits" />
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                     </Button>

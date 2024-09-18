@@ -656,5 +656,10 @@ namespace Aerochat.Windows
         {
             new ChangeScene().ShowDialog();
         }
+
+        private void CreditsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            new About().ShowDialog();
+        }
     }
 }

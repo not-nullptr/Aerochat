@@ -137,6 +137,7 @@
     <None Remove="Scenes\ButterflyPattern.png" />
     <None Remove="Scenes\CarbonFiber.jpg" />
     <None Remove="Scenes\CarbonFiber.png" />
+    <None Remove="Scenes\Caustics.jpg" />
     <None Remove="Scenes\default.png" />
     <None Remove="Scenes\DottieGreen.png" />
     <None Remove="Scenes\Floral.png" />
@@ -145,11 +146,14 @@
     <None Remove="Scenes\Halo.png" />
     <None Remove="Scenes\HelloKitty.png" />
     <None Remove="Scenes\MesmerizingWhite.png" />
+    <None Remove="Scenes\Miku1.png" />
     <None Remove="Scenes\Morty.png" />
     <None Remove="Scenes\Robot.jpg" />
     <None Remove="Scenes\Robot.png" />
     <None Remove="Scenes\Silhouette.jpg" />
     <None Remove="Scenes\Silhouette.png" />
+    <None Remove="Scenes\VolumeBeta.png" />
+    <None Remove="Scenes\XboxGrunge.png" />
     <None Remove="Scenes\zune_01.jpg" />
     <None Remove="Scenes\zune_01.png" />
     <None Remove="Scenes\zune_02.jpg" />
@@ -305,6 +309,7 @@
     <Resource Include="Scenes\BetaFish.png" />
     <Resource Include="Scenes\ButterflyPattern.png" />
     <Resource Include="Scenes\CarbonFiber.png" />
+    <Resource Include="Scenes\Caustics.jpg" />
     <Resource Include="Scenes\DottieGreen.png" />
     <Resource Include="Scenes\Floral.png" />
     <Resource Include="Scenes\Graffiti.png" />
@@ -315,6 +320,8 @@
     <Resource Include="Scenes\Robot.png" />
     <Resource Include="Scenes\Silhouette.png" />
     <Resource Include="Scenes\default.png" />
+    <Resource Include="Scenes\VolumeBeta.png" />
+    <Resource Include="Scenes\XboxGrunge.png" />
     <Resource Include="Scenes\zune_01.png" />
     <Resource Include="Scenes\zune_02.png" />
     <Resource Include="Scenes\zune_03.png" />

@@ -1,30 +1,33 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <package>
-	<item id="1" mimetype="image/png" contenttype="D" file="default.png" default="true" displayname="Default" color="#3bb2ea" />
-	<item id="2" mimetype="image/png" contenttype="D" file="MesmerizingWhite.png" default="false" displayname="Mesmerizing White" color="#ffffff" />
-	<item id="3" mimetype="image/png" contenttype="D" file="0001.png" default="false" displayname="Daisy Hill" color="#96e2f0" />
-	<item id="4" mimetype="image/png" contenttype="D" file="0007.png" default="false" displayname="Field" color="#fbaf2e" />
-	<item id="5" mimetype="image/png" contenttype="D" file="Silhouette.png" default="false" displayname="Silhouette" color="#f39b36" />
-	<item id="6" mimetype="image/png" contenttype="D" file="Morty.png" default="false" displayname="Morty" color="#c6dbdf" />
-	<item id="7" mimetype="image/png" contenttype="D" file="0006.png" default="false" displayname="Dawn" color="#7ba2d3" />
-	<item id="8" mimetype="image/png" contenttype="D" file="zune_02.png" default="false" displayname="zune_02" color="#de96b3" />
-	<item id="9" mimetype="image/png" contenttype="D" file="DottieGreen.png" default="false" displayname="Dottie Green" color="#97d732" />
-	<item id="10" mimetype="image/png" contenttype="D" file="0004.png" default="false" displayname="Violet Springtime" color="#663c92" />
-	<item id="11" mimetype="image/png" contenttype="D" file="0003.png" default="false" displayname="Cherry Blossoms" color="#fbdbd9" />
-	<item id="12" mimetype="image/png" contenttype="D" file="zune_05.png" default="false" displayname="zune_05" color="#252222" />
-	<item id="13" mimetype="image/png" contenttype="D" file="zune_01.png" default="false" displayname="zune_01" color="#931075" />
-	<item id="14" mimetype="image/png" contenttype="D" file="0005.png" default="false" displayname="Flourish" color="#d30563" />
-	<item id="15" mimetype="image/png" contenttype="D" file="CarbonFiber.png" default="false" displayname="Carbon Fiber" color="#010101" />
-	<item id="16" mimetype="image/png" contenttype="D" file="Robot.png" default="false" displayname="Robot" color="#374c5d" />
-	<item id="17" mimetype="image/png" contenttype="D" file="Graffiti.png" default="false" displayname="Graffiti" color="#eae7e2" />
-	<item id="18" mimetype="image/png" contenttype="D" file="0002.png" default="false" displayname="Bamboo" color="#93cb1b" />
-	<item id="19" mimetype="image/png" contenttype="D" file="zune_06.png" default="false" displayname="zune_06" color="#f4b7cc" />
-	<item id="20" mimetype="image/png" contenttype="D" file="zune_04.png" default="false" displayname="zune_04" color="#000000" />
-	<item id="21" mimetype="image/png" contenttype="D" file="0008.png" default="false" displayname="Mesmerizing Brown" color="#614040" />
-	<item id="22" mimetype="image/png" contenttype="D" file="zune_03.png" default="false" displayname="zune_03" color="#832727" />
-	<item id="23" mimetype="image/png" contenttype="D" file="ButterflyPattern.png" default="false" displayname="Butterfly Pattern" color="#575757" />
-	<item id="24" mimetype="image/png" contenttype="D" file="BetaFish.png" default="false" displayname="Beta Fish" color="#24b3ce" />
-	<item id="25" mimetype="image/png" contenttype="D" file="Halo.png" default="false" displayname="Halo" color="#a13d12" />
-	<item id="26" mimetype="image/png" contenttype="D" file="Floral.png" default="false" displayname="Floral" color="#f9aed4" />
-	<item id="27" mimetype="image/png" contenttype="D" file="HelloKitty.png" default="false" displayname="Hello Kitty" color="#f4a1cb" />
+	<item id="1" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="default.png" default="true" displayname="Default" color="#3bb2ea" />
+	<item id="2" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="MesmerizingWhite.png" default="false" displayname="Mesmerizing White" color="#ffffff" />
+	<item id="3" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0001.png" default="false" displayname="Daisy Hill" color="#96e2f0" />
+	<item id="4" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0007.png" default="false" displayname="Field" color="#fbaf2e" />
+	<item id="5" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Silhouette.png" default="false" displayname="Silhouette" color="#f39b36" />
+	<item id="6" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Morty.png" default="false" displayname="Morty" color="#c6dbdf" />
+	<item id="7" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0006.png" default="false" displayname="Dawn" color="#7ba2d3" />
+	<item id="8" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_02.png" default="false" displayname="zune_02" color="#de96b3" />
+	<item id="9" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="DottieGreen.png" default="false" displayname="Dottie Green" color="#97d732" />
+	<item id="10" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0004.png" default="false" displayname="Violet Springtime" color="#663c92" />
+	<item id="11" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0003.png" default="false" displayname="Cherry Blossoms" color="#fbdbd9" />
+	<item id="12" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_05.png" default="false" displayname="zune_05" color="#252222" />
+	<item id="13" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_01.png" default="false" displayname="zune_01" color="#931075" />
+	<item id="14" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0005.png" default="false" displayname="Flourish" color="#d30563" />
+	<item id="15" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="CarbonFiber.png" default="false" displayname="Carbon Fiber" color="#010101" />
+	<item id="16" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Robot.png" default="false" displayname="Robot" color="#374c5d" />
+	<item id="17" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Graffiti.png" default="false" displayname="Graffiti" color="#eae7e2" />
+	<item id="18" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0002.png" default="false" displayname="Bamboo" color="#93cb1b" />
+	<item id="19" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_06.png" default="false" displayname="zune_06" color="#f4b7cc" />
+	<item id="20" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_04.png" default="false" displayname="zune_04" color="#000000" />
+	<item id="21" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0008.png" default="false" displayname="Mesmerizing Brown" color="#614040" />
+	<item id="22" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_03.png" default="false" displayname="zune_03" color="#832727" />
+	<item id="23" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="ButterflyPattern.png" default="false" displayname="Butterfly Pattern" color="#575757" />
+	<item id="24" credit="Microsoft" mimetype="image/png" contenttype="D" file="BetaFish.png" default="false" displayname="Beta Fish" color="#24b3ce" />
+	<item id="25" credit="Microsoft" mimetype="image/png" contenttype="D" file="Halo.png" default="false" displayname="Halo" color="#a13d12" />
+	<item id="26" credit="maverik" mimetype="image/png" contenttype="D" file="Floral.png" default="false" displayname="Floral" color="#f9aed4" />
+	<item id="27" credit="maverik" mimetype="image/png" contenttype="D" file="HelloKitty.png" default="false" displayname="Hello Kitty" color="#f4a1cb" />
+	<item id="28" credit="supra" mimetype="image/jpg" contenttype="D" file="Caustics.jpg" default="false" displayname="Caustics" color="#265080" />
+	<item id="29" credit="daftendirjerrekt909" mimetype="image/png" contenttype="D" file="XboxGrunge.png" default="false" displayname="Xbox Grunge" color="#829d4e" />
+	<item id="30" credit="C418/vadimos" mimetype="image/png" contenttype="D" file="VolumeBeta.png" default="false" displayname="Volume Beta" color="#000001" />
 </package>
