@@ -18,5 +18,5 @@ using System.Windows;
 
 static class AssemblyInfo
 {
-    public const string Version = "0.0.0.3";
+    public const string Version = "0.0.0.4";
 }

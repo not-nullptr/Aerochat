@@ -3,6 +3,7 @@ using Aerochat.Theme;
 using Aerochat.ViewModels;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -119,10 +120,15 @@ namespace Aerochat.Windows
 
         private async void Hyperlink_Click(object sender, RoutedEventArgs e)
         {
-            // are we below windows 10 1607?
-            if (Environment.OSVersion.Version < new Version(10, 0, 1803, 0))
+            string ver = "";
+            try
             {
-                var dialog = new Dialog("Unsupported Windows version", "This feature is only available on Windows 10 version 1607 or newer.", SystemIcons.Information);
+                ver = CoreWebView2Environment.GetAvailableBrowserVersionString();
+            }
+            catch (Exception) { }
+            if (string.IsNullOrEmpty(ver))
+            {
+                var dialog = new Dialog("Unsupported configuration", "This feature requires WebView2 to be installed.", SystemIcons.Information);
                 dialog.Owner = this;
                 dialog.ShowDialog();
                 return;
