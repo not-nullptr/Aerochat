@@ -1,4 +1,5 @@
 ﻿using Aerochat.Hoarder;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace Aerochat.ViewModels
         private bool _ephemeral = false;
         private bool _special = false;
         private bool _hiddenInfo = false;
+        private string _type;
 
         public UserViewModel? Author
         {
@@ -65,24 +67,50 @@ namespace Aerochat.ViewModels
             get => _hiddenInfo;
             set => SetProperty(ref _hiddenInfo, value);
         }
+        public string Type
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
+        }
 
         public ObservableCollection<AttachmentViewModel> Attachments { get; } = new();
         public ObservableCollection<EmbedViewModel> Embeds { get; } = new();
 
         public static MessageViewModel FromMessage(DiscordMessage message, DiscordMember? member = null)
         {
-            var user = UserViewModel.FromUser(message.Author);
+            var user = member == null ? UserViewModel.FromUser(message.Author) : UserViewModel.FromMember(member);
             var vm = new MessageViewModel
             {
                 Author = user,
                 Id = message.Id,
                 Timestamp = message.Timestamp.DateTime,
                 RawMessage = message.Content,
+                Type = message.MessageType?.ToString() ?? "Unknown"
             };
             foreach (var embed in message.Embeds)
             {
                 vm.Embeds.Add(EmbedViewModel.FromEmbed(embed));
             }
+
+            // TO ANY DEVELOPER LOOKING AT THIS, THINKING "WHERE IS THIS CRASHING??"
+            // IT'S PROBABLY THE TIERONE, TIERTWO, OR TIERTHREE USERPREMIUMGUILDSUBSCRIPTIONS!!!!
+            var specialMsg = message.MessageType switch
+            {
+                MessageType.GuildMemberJoin => $"{user.Name} has entered the conversation.",
+                MessageType.UserPremiumGuildSubscription => $"{user.Name} has subscribed to {message.Channel.Guild.Name}!",
+                MessageType.TierOneUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level one!",
+                MessageType.TierTwoUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level two!",
+                MessageType.TierThreeUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level three!",
+                MessageType.RecipientAdd => $"{user.Name} has been added to the group.",
+                MessageType.RecipientRemove => $"{user.Name} has been removed from the group.",
+                MessageType.Call => $"{user.Name} has started a call.",
+                MessageType.ChannelFollowAdd => $"{user.Name} has followed the channel.",
+                MessageType.GuildDiscoveryDisqualified => $"{user.Name} has been disqualified from guild discovery.",
+                MessageType.GuildDiscoveryRequalified => $"{user.Name} has been requalified for guild discovery.",
+                MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{user.Name} has been warned for guild discovery grace period.",
+                MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{user.Name} has been warned for guild discovery grace period.",
+                _ => null
+            };
             switch (message.Content)
             {
                 case "[nudge]":
@@ -101,6 +129,12 @@ namespace Aerochat.ViewModels
                 default:
                     vm.Message = message.Content;
                     break;
+            }
+
+            if (!string.IsNullOrEmpty(specialMsg))
+            {
+                vm.Message = specialMsg;
+                vm.Special = true;
             }
 
             foreach (var attachment in message.Attachments)

@@ -1,4 +1,5 @@
 ﻿using Aerochat.Hoarder;
+using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.ViewModels;
 using DSharpPlus.Entities;
@@ -30,6 +31,15 @@ namespace Aerochat.Windows
             InitializeComponent();
             DataContext = ViewModel;
             ViewModel.Scene = ThemeService.Instance.Scenes.FirstOrDefault(x => x.Default);
+            if (!SettingsManager.Instance.WarningShown)
+            {
+                Show();
+                var dialog = new Dialog("Warning", "Using a custom Discord client is against Discord's rules. There is a non-zero chance your account will get terminated when using Aerochat. YOU WILL NOT BE WARNED AGAIN.", SystemIcons.Warning);
+                dialog.Owner = this;
+                dialog.ShowDialog();
+                SettingsManager.Instance.WarningShown = true;
+                SettingsManager.Save();
+            }
             if (alreadyErrored)
             {
                 Show();

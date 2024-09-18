@@ -18,6 +18,8 @@ namespace Aerochat.ViewModels
         private string _username;
         private PresenceViewModel? _presence;
         private SceneViewModel? _scene;
+        private string? _color = "#525252";
+        private string? _image;
 
         public required string Name
         {
@@ -52,6 +54,18 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _scene, value);
         }
 
+        public string? Color
+        {
+            get => _color;
+            set => SetProperty(ref _color, value);
+        }
+
+        public string? Image
+        {
+            get => _image;
+            set => SetProperty(ref _image, value);
+        }
+
         public static UserViewModel FromUser(DiscordUser user)
         {
             return new UserViewModel
@@ -68,13 +82,18 @@ namespace Aerochat.ViewModels
 
         public static UserViewModel FromMember(DiscordMember member)
         {
+            // find the topmost role where Icon is not null
+            var role = member.Roles.OrderByDescending(x => x.Position).FirstOrDefault(x => x.IconUrl != null);
             return new UserViewModel
             {
                 Name = string.IsNullOrEmpty(member.Nickname) ? member.DisplayName : member.Nickname,
                 Avatar = member.AvatarUrl,
                 Id = member.Id,
                 Username = member.Username,
-                Presence = member.Presence == null ? null : PresenceViewModel.FromPresence(member.Presence)
+                Presence = member.Presence == null ? null : PresenceViewModel.FromPresence(member.Presence),
+                // convert member.Color to hex string
+                Color = member.Color.ToString() == "#000000" ? "#525252" : member.Color.ToString(),
+                Image = role?.IconUrl
             };
         }
     }

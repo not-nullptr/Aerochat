@@ -187,7 +187,8 @@ namespace Aerochat.Windows
 
             foreach (var msg in messages)
             {
-                MessageViewModel message = MessageViewModel.FromMessage(msg);
+                var member = msg.Channel.Guild?.Members.FirstOrDefault(x => x.Key == msg.Author.Id).Value;
+                MessageViewModel message = MessageViewModel.FromMessage(msg, member);
                 messageViewModels.Add(message);
             }
 
@@ -410,24 +411,10 @@ namespace Aerochat.Windows
                 {
                     user = Discord.Client.GetUserAsync(args.Author.Id).Result;
                 };
-                // get the "Nickname" property on args.Author via reflection
-                string? nickname = (string?)args.Author.GetType().GetProperty("Nickname")?.GetValue(args.Author);
-                UserViewModel author = new()
-                {
-                    Avatar = args.Author.AvatarUrl,
-                    Id = args.Author.Id,
-                    Name = nickname ?? args.Author.DisplayName,
-                    Username = args.Author.Username
-                };
 
-                MessageViewModel message = new()
-                {
-                    Author = author,
-                    Message = isNudge ? $"{(args.Message.Author.Id == Discord.Client.CurrentUser.Id ? "You have just" : $"{Discord.GetName(args.Message.Author)} has just")} sent a nudge." : args.Message.Content,
-                    Timestamp = args.Message.Timestamp.DateTime,
-                    Id = args.Message.Id,
-                    Special = isNudge,
-                };
+                var member = args.Guild.Members.FirstOrDefault(x => x.Key == args.Author.Id).Value;
+
+                MessageViewModel message = MessageViewModel.FromMessage(args.Message, member ?? (DiscordMember)args.Author);
 
                 foreach (var attachment in args.Message.Attachments)
                 {

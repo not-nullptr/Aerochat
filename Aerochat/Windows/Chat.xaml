@@ -122,13 +122,13 @@
             </Grid>
             <Grid Grid.Row="2" UseLayoutRounding="True" KeyboardNavigation.TabNavigation="None">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="31"/>
+                    <RowDefinition Height="32"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="32" />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Panel.ZIndex="5" Background="{Binding Recipient.Scene.Color}">
                     <Grid.Effect>
-                        <DropShadowEffect BlurRadius="8" Opacity="0.25" Direction="270" ShadowDepth="3"/>
+                        <DropShadowEffect BlurRadius="4" Opacity="0.25" Direction="270" ShadowDepth="2"/>
                     </Grid.Effect>
                     <controls:NineSlice Image="/Resources/Message/TopBarBg.png" Slice="3,3" />
                     <ItemsControl ItemsSource="{Binding Path=ToolbarItems}" x:Name="ToolbarOverflowPanel">
@@ -298,7 +298,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="75" />
+                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="100" Height="75" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -835,8 +835,22 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="#FF525252" />
-                                                <TextBlock FontSize="13" Grid.Row="0" Text=" said:" Foreground="#FF525252" />
+                                                <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
+                                                <Image Margin="2,0,0,0" Source="{Binding Author.Image}" Width="20" Height="20">
+                                                    <Image.Style>
+                                                        <Style TargetType="Image">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Author.Image}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Author.Image}" Value="">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Image.Style>
+                                                </Image>
+                                                <TextBlock FontSize="13" Grid.Row="0" Text=" said:" Foreground="#525252" />
                                             </StackPanel>
                                             <StackPanel Grid.Row="2" Margin="8,-6,0,0">
                                                 <Grid>
@@ -856,7 +870,38 @@
                                                             </Style>
                                                         </Rectangle.Style>
                                                     </Rectangle>
-                                                    <TextBlock FontSize="13" Grid.Column="1" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding Message}" />
+                                                    <TextBlock FontSize="13" Grid.Column="1" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding Message}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="GuildMemberJoin">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="RecipientAdd">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="Call">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="RecipientAdd">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="UserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#9c038f" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierOneUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#9c038f" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierTwoUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#9c038f" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierThreeUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#9c038f" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
                                                     <Grid.Style>
                                                         <Style TargetType="Grid">
                                                             <Setter Property="Visibility" Value="Visible" />

@@ -16,7 +16,7 @@ namespace Aerochat.Theme
     public class SceneViewModel : ViewModelBase
     {
         // scene will be a scene element, containing an id, file, default, displayname and color attribute
-        private int _id;
+        private int _id = 0;
         private string _file;
         private bool _default;
         private string _displayName;

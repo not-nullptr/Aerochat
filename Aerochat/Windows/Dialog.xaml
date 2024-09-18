@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DialogViewModel}"
         xmlns:controls="clr-namespace:Aerochat.Controls"
         mc:Ignorable="d"
-        Title="Dialog" MinHeight="163" Width="538"
+        MinHeight="163" Width="538"
         SizeToContent="Height"
         ResizeMode="NoResize"
+        Title="{Binding Title}"
         Style="{StaticResource Window}">
     <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
         <Grid>
