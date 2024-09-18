@@ -152,6 +152,33 @@ namespace Aerochat.Controls
             if (Window != null)
             {
                 Window.SourceInitialized += Window_SourceInitialized;
+                Window.StateChanged += Window_StateChanged;
+            }
+        }
+
+        private void Window_StateChanged(object? sender, EventArgs e)
+        {
+            if (IsDwmEnabled) return;
+            if (Window.WindowState == WindowState.Maximized)
+            {
+                Titlebar.Visibility = Visibility.Collapsed;
+                WindowChrome.SetWindowChrome(Window, null);
+                FirstBorder.BorderThickness = new Thickness(0);
+                SecondBorder.BorderThickness = new Thickness(0);
+                // set the grid's first row to 0
+                Container.RowDefinitions[0].Height = new GridLength(0);
+            }
+            else
+            {
+                Titlebar.Visibility = Visibility.Visible;
+                WindowChrome chrome = new WindowChrome();
+                chrome.CaptionHeight = 28;
+                chrome.CornerRadius = new CornerRadius(6, 6, 0, 0);
+                chrome.GlassFrameThickness = new Thickness(0);
+                WindowChrome.SetWindowChrome(Window, chrome);
+                FirstBorder.BorderThickness = new Thickness(1);
+                SecondBorder.BorderThickness = new Thickness(1);
+                Container.RowDefinitions[0].Height = new GridLength(28);
             }
         }
 

@@ -48,5 +48,11 @@ namespace Aerochat.Controls
             if (Window.GetWindow(this) is not Window window) return;
             window.Close();
         }
+
+        private void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Window.GetWindow(this) is not Window window) return;
+            window.Close();
+        }
     }
 }
