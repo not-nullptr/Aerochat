@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup Label="Globals">
+    <WebView2LoaderPreference>Static</WebView2LoaderPreference>
+  </PropertyGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
@@ -9,6 +13,7 @@
     <Platforms>AnyCPU;x64</Platforms>
 	<NuGetAudit>false</NuGetAudit>
 	<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
@@ -154,6 +159,7 @@
     <None Remove="Scenes\Silhouette.png" />
     <None Remove="Scenes\VolumeBeta.png" />
     <None Remove="Scenes\XboxGrunge.png" />
+    <None Remove="Scenes\Xperia1.png" />
     <None Remove="Scenes\zune_01.jpg" />
     <None Remove="Scenes\zune_01.png" />
     <None Remove="Scenes\zune_02.jpg" />
@@ -322,6 +328,7 @@
     <Resource Include="Scenes\default.png" />
     <Resource Include="Scenes\VolumeBeta.png" />
     <Resource Include="Scenes\XboxGrunge.png" />
+    <Resource Include="Scenes\Xperia1.png" />
     <Resource Include="Scenes\zune_01.png" />
     <Resource Include="Scenes\zune_02.png" />
     <Resource Include="Scenes\zune_03.png" />

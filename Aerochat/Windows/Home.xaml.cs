@@ -5,7 +5,11 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Timers;
@@ -16,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static Aerochat.ViewModels.HomeListViewCategory;
 using static Vanara.PInvoke.User32;
+using Image = System.Windows.Controls.Image;
 using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
@@ -172,6 +177,56 @@ namespace Aerochat.Windows
 
                 Show();
                 Focus();
+
+                Task.Run(() =>
+                {
+                    // make a request to https://api.github.com/repos/Nostalgia-09/AeroChat/tags
+                    // get [0].name
+                    // fetch https://api.github.com/repos/Nostalgia-09/AeroChat/releases/tags/{name}
+                    // get assets[0].browser_download_url
+
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
+                    var response = httpClient.GetAsync("https://api.github.com/repos/not-nullptr/AeroChat/tags").Result;
+                    var tags = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result);
+                    var latestTag = tags.RootElement[0].GetProperty("name").GetString()?.Replace("v", "");
+                    if (latestTag == null) return;
+                    // get our local version
+                    var localVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                    if (localVersion == null) return;
+                    var remoteVersion = new Version(latestTag);
+                    if (localVersion.CompareTo(remoteVersion) < 0)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
+                            dialog.Owner = this;
+                            dialog.ShowDialog();
+                            Hide();
+                            //close all windows other than this one
+                            foreach (Window window in Application.Current.Windows)
+                            {
+                                if (window != this)
+                                    window.Close();
+                            }
+                            var releaseResponse = httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/v{latestTag}").Result;
+                            var release = JsonDocument.Parse(releaseResponse.Content.ReadAsStringAsync().Result);
+                            var assetUrl = release.RootElement.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
+
+                            // get a temp folder
+                            var tempFolder = Path.GetTempPath();
+                            var tempFile = Path.Combine(tempFolder, "AeroChatSetup.exe");
+
+                            // download the asset to the temp folder
+                            var asset = httpClient.GetAsync(assetUrl).Result;
+                            var assetBytes = asset.Content.ReadAsByteArrayAsync().Result;
+                            File.WriteAllBytes(tempFile, assetBytes);
+
+                            Process.Start(tempFile);
+                            Close();
+                        });
+                    }
+                });
             });
         }
 
@@ -573,7 +628,7 @@ namespace Aerochat.Windows
 
                 tooltip.Loaded += (s, e) =>
                 {
-                    var pos = _lastHoveredControl.PointToScreen(new Point(0, 0));
+                    var pos = _lastHoveredControl.PointToScreen(new System.Windows.Point(0, 0));
                     tooltip.Left = pos.X - tooltip.Width - 56;
                     tooltip.Top = pos.Y;
                 };

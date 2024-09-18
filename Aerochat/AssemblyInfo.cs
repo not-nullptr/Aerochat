@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Windows;
 
 [assembly: ThemeInfo(
@@ -8,3 +9,14 @@ using System.Windows;
                                                 //(used if a resource is not found in the page,
                                                 // app, or any theme specific resource dictionaries)
 )]
+
+
+[assembly: AssemblyFileVersion(AssemblyInfo.Version)]
+[assembly: AssemblyVersion(AssemblyInfo.Version)]
+[assembly: AssemblyTitle("Aerochat")]
+[assembly: AssemblyDescription("Shows whether your friends are online and lets you have online conversations.")]
+
+static class AssemblyInfo
+{
+    public const string Version = "0.0.0.3";
+}
