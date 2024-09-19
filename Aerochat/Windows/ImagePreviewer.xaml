@@ -9,24 +9,37 @@
         Title="{Binding FileName}"
         WindowStyle="None"
         KeyDown="OnKeyDown"
-        Deactivated="OnDeactivated">
-    <Grid>
-        <Grid.Background>
-            <ImageBrush ImageSource="{Binding SourceUri}" Stretch="UniformToFill" />
-        </Grid.Background>
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="13" FontWeight="DemiBold" Text="Open In Browser" Padding="10" Cursor="Hand" MouseLeftButtonDown="OpenImage">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#999999" />
-                    <Setter Property="TextDecorations" Value="None" />
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="White" />
-                            <Setter Property="TextDecorations" Value="Underline" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
+        Deactivated="OnDeactivated"
+        SizeToContent="WidthAndHeight"
+        Background="Transparent">
+    <Grid x:Name="WndContent"> 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="{Binding BottomHeight}" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.Background>
+                <ImageBrush ImageSource="{Binding SourceUri}" Stretch="Uniform" />
+            </Grid.Background>
+        </Grid>
+        <Grid UseLayoutRounding="True" Margin="0,2,4,0" Grid.Row="1">
+            <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OpenImage" Style="{StaticResource TransparentStyle}">
+                <Image Width="20" Height="19" UseLayoutRounding="True">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                    <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenHover.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                    <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenActive.png" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                            <Setter Property="Source" Value="/Resources/ImagePreviewer/Open.png" />
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+        </Grid>
     </Grid>
 </Window>

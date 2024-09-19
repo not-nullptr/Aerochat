@@ -164,6 +164,9 @@
     <None Remove="Resources\Home\TreeHover.png" />
     <None Remove="Resources\Home\TreeHoverActive.png" />
     <None Remove="Resources\Icons\DiscordIcon.png" />
+    <None Remove="Resources\ImagePreviewer\Open.png" />
+    <None Remove="Resources\ImagePreviewer\OpenActive.png" />
+    <None Remove="Resources\ImagePreviewer\OpenHover.png" />
     <None Remove="Resources\Login\Frame.png" />
     <None Remove="Resources\Message\Background.png" />
     <None Remove="Resources\Message\BottomSeperator.png" />
@@ -376,6 +379,9 @@
     <Resource Include="Resources\Emoji\ZipMouth.png" />
     <Resource Include="Resources\Home\PageClose.png" />
     <Resource Include="Resources\Home\PageOpen.png" />
+    <Resource Include="Resources\ImagePreviewer\Open.png" />
+    <Resource Include="Resources\ImagePreviewer\OpenActive.png" />
+    <Resource Include="Resources\ImagePreviewer\OpenHover.png" />
     <Resource Include="Resources\Tray\Active.ico" />
     <Resource Include="Resources\Tray\Dnd.ico" />
     <Resource Include="Resources\Tray\Idle.ico" />

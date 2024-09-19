@@ -986,21 +986,21 @@ namespace Aerochat.Windows
             var image = (sender as Image);
             if (image is null) return;
 
+            // get the rect of the image
+            var imgRect = image.TransformToAncestor(this).TransformBounds(new Rect(0, 0, image.ActualWidth, image.ActualHeight));
+            var wndRect = new Rect(Left, Top, Width, Height);
+
+            // add wndRect to imgRect so its offset properly
+            imgRect.Offset(wndRect.Left, wndRect.Top);
+
             var attachmentVm = image.DataContext as AttachmentViewModel;
             if (attachmentVm is null) return;
 
-            var imagePreviewer = new ImagePreviewer(image.Source.ToString(), attachmentVm.Name)
+            var imagePreviewer = new ImagePreviewer(image.Source.ToString(), attachmentVm.Name, imgRect, wndRect)
             {
                 Owner = this,
-                Width = attachmentVm.Width,
-                Height = attachmentVm.Height,
-                MaxWidth = 800,
-                MaxHeight = attachmentVm.Height
             };
-
-            imagePreviewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-            imagePreviewer.ShowDialog();
+            imagePreviewer.Show();
         }
     }
 }

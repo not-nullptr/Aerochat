@@ -99,6 +99,7 @@ namespace Aerochat.ViewModels
 
         public static MessageViewModel FromMessage(DiscordMessage message, DiscordMember? member = null, bool isReply = false)
         {
+            if (message == null) return new();
             var user = member == null ? UserViewModel.FromUser(message.Author) : UserViewModel.FromMember(member);
             var vm = new MessageViewModel
             {

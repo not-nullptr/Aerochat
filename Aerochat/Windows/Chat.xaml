@@ -1039,7 +1039,7 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel>
-                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonDown="OpenImage" />
+                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonUp="OpenImage" Cursor="Hand" />
                                                                 <TextBlock Margin="0,2">
                                                                     <TextBlock.Text>
                                                                         <MultiBinding StringFormat="{}{0} ({1})">

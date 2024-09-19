@@ -10,9 +10,13 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Vanara.PInvoke;
+using static Vanara.PInvoke.DwmApi;
 
 namespace Aerochat.Windows
 {
@@ -21,21 +25,115 @@ namespace Aerochat.Windows
     /// </summary>
     public partial class ImagePreviewer : Window
     {
+        private Rect _srcRect;
+        private Rect _dstRect;
+        private bool _finished = false;
+        private bool _closing = false;
         public ImagePreviewerViewModel ViewModel { get; private set; }
 
-        public ImagePreviewer(string source, string fileName)
+        public ImagePreviewer(string source, string fileName, Rect srcRect, Rect dstRect)
         {
             ViewModel = new ImagePreviewerViewModel
             {
                 FileName = fileName,
                 SourceUri = source,
+                BottomHeight = 24,
             };
+
+            System.Timers.Timer timer = new(1050);
+            timer.Elapsed += (s, e) =>
+            {
+                timer.Stop();
+                _finished = true;
+            };
+            timer.Start();
 
             DataContext = ViewModel;
             InitializeComponent();
+            _srcRect = srcRect;
+            _dstRect = dstRect;
+            Loaded += ImagePreviewer_Loaded;
+            SizeChanged += ImagePreviewer_SizeChanged;
+            Closing += Window_Closing;
         }
 
-        private void OpenImage(object sender, MouseButtonEventArgs e)
+        private void ImagePreviewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            e.Handled = true;
+            if (!_finished || _closing) return;
+            _closing = true;
+            Close();
+        }
+
+        private void ImagePreviewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            Left = _srcRect.Left + 2;
+            Top = _srcRect.Top + 16;
+            Width = _srcRect.Width + 12;
+            Height = _srcRect.Height + 28;
+
+            AnimateWindowToDstRect();
+
+            IntPtr mainWindowPtr = new WindowInteropHelper(this).Handle;
+            HwndSource mainWindowSrc = HwndSource.FromHwnd(mainWindowPtr);
+            mainWindowSrc.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+            DwmExtendFrameIntoClientArea(mainWindowPtr, new MARGINS(0, 0, 0, ViewModel.BottomHeight));
+        }
+
+
+        private void AnimateWindowToDstRect()
+        {
+            var duration = TimeSpan.FromSeconds(1);
+            var easingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut };
+
+            var leftAnimation = new DoubleAnimation
+            {
+                From = Left,
+                To = _dstRect.Left,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            BeginAnimation(Window.LeftProperty, leftAnimation);
+
+            var topAnimation = new DoubleAnimation
+            {
+                From = Top,
+                To = _dstRect.Top,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            BeginAnimation(Window.TopProperty, topAnimation);
+
+            var widthAnimation = new DoubleAnimation
+            {
+                From = Width,
+                To = _dstRect.Width,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            WndContent.BeginAnimation(Grid.WidthProperty, widthAnimation);
+
+            var heightAnimation = new DoubleAnimation
+            {
+                From = Height,
+                To = _dstRect.Height - 12,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            WndContent.BeginAnimation(Grid.HeightProperty, heightAnimation);
+
+            leftAnimation.Completed += (s, e) =>
+            {
+                SizeToContent = SizeToContent.Manual;
+                // cancel all animations
+                BeginAnimation(Window.LeftProperty, null);
+                BeginAnimation(Window.TopProperty, null);
+                WndContent.BeginAnimation(Grid.WidthProperty, null);
+                WndContent.BeginAnimation(Grid.HeightProperty, null);
+            };
+        }
+
+        private void OpenImage(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo
             {
@@ -47,10 +145,70 @@ namespace Aerochat.Windows
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Escape) return;
-
+            if (_closing) return;
+            _closing = true;
             Close();
         }
 
-        private void OnDeactivated(object sender, EventArgs e) => Close();
+        private void OnDeactivated(object sender, EventArgs e)
+        {
+            // if we're already closing, don't close again
+            if (_closing) return;
+            _closing = true;
+            Close();
+        }
+
+        private bool _ranClose = false;
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (_ranClose) return;
+            _ranClose = true;
+            e.Cancel = true;
+            // focus the owner
+            Owner.Focus();
+            var duration = TimeSpan.FromSeconds(0.5);
+            var easingFunction = new QuinticEase { EasingMode = EasingMode.EaseIn };
+
+            // animate from _dstRect to _srcRect
+            var leftAnimation = new DoubleAnimation
+            {
+                From = _dstRect.Left,
+                To = _srcRect.Left - 10,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            var topAnimation = new DoubleAnimation
+            {
+                From = _dstRect.Top,
+                To = _srcRect.Top + 40,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            var widthAnimation = new DoubleAnimation
+            {
+                From = _dstRect.Width,
+                To = _srcRect.Width,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            var heightAnimation = new DoubleAnimation
+            {
+                From = _dstRect.Height - 12,
+                To = _srcRect.Height + 16,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+
+            leftAnimation.Completed += (s, _) =>
+            {
+                Close();
+            };
+
+            BeginAnimation(Window.LeftProperty, leftAnimation);
+            BeginAnimation(Window.TopProperty, topAnimation);
+            WndContent.BeginAnimation(Grid.WidthProperty, widthAnimation);
+            WndContent.BeginAnimation(Grid.HeightProperty, heightAnimation);
+        }
     }
 }

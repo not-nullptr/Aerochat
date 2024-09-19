@@ -11,6 +11,7 @@ namespace Aerochat.ViewModels
     {
         private string _filename;
         private string _sourceUri;
+        private int _bottomHeight;
 
         public string FileName
         {
@@ -22,6 +23,12 @@ namespace Aerochat.ViewModels
         {
             get => _sourceUri;
             set => SetProperty(ref _sourceUri, value);
+        }
+
+        public int BottomHeight
+        {
+            get => _bottomHeight;
+            set => SetProperty(ref _bottomHeight, value);
         }
     }
 }
