@@ -821,7 +821,7 @@
                                                     </Style>
                                                 </Rectangle.Style>
                                             </Rectangle>
-                                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                            <StackPanel Margin="0,4">
                                                 <StackPanel.Style>
                                                     <Style TargetType="StackPanel">
                                                         <Setter Property="Visibility" Value="Visible" />
@@ -832,28 +832,13 @@
                                                             <DataTrigger Binding="{Binding Special}" Value="True">
                                                                 <Setter Property="Visibility" Value="Collapsed" />
                                                             </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsReply}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
-                                                <Image Margin="2,0,0,0" Source="{Binding Author.Image}" Width="20" Height="20">
-                                                    <Image.Style>
-                                                        <Style TargetType="Image">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Author.Image}" Value="{x:Null}">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Author.Image}" Value="">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Image.Style>
-                                                </Image>
-                                                <TextBlock FontSize="13" Grid.Row="0" Text=" said:" Foreground="#525252" />
-                                            </StackPanel>
-                                            <StackPanel Grid.Row="2" Margin="8,-6,0,0">
-                                                <Grid>
+                                                <Grid Margin="0,0,0,0">
                                                     <Grid.Style>
                                                         <Style TargetType="Grid">
                                                             <Setter Property="Visibility" Value="Collapsed" />
@@ -869,12 +854,47 @@
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
                                                     <Rectangle Grid.Column="0" Height="1" Width="6" Fill="#bbbbbb" VerticalAlignment="Top" Margin="0,10,8,0" />
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4" MouseLeftButtonDown="JumpToReply" Cursor="Hand">
-                                                        <TextBlock FontSize="9" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Text="{Binding ReplyMessage.Author.Name}" />
-                                                        <TextBlock FontSize="9" Grid.Row="1" Text=" said: " />
-                                                        <TextBlock FontSize="9" Grid.Row="2" Text="{Binding ReplyMessage.Message}" TextTrimming="WordEllipsis" MaxWidth="250" />
-                                                    </StackPanel>
+                                                    <Grid Grid.Column="1" Margin="0,4" MouseLeftButtonDown="JumpToReply" Cursor="Hand">
+                                                        <TextBlock FontSize="9" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,16,0" MaxHeight="24" TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{Binding ReplyMessage.Author.Name}" Foreground="{Binding ReplyMessage.Author.Color}" />
+                                                            <Run Text=" said: " Foreground="#525252" />
+                                                            <Run Text="{Binding ReplyMessage.Message}" Foreground="#525252" />
+                                                        </TextBlock>
+                                                    </Grid>
                                                 </Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel.Style>
+                                                        <Style TargetType="StackPanel">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HiddenInfo}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Special}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </StackPanel.Style>
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
+                                                    <Image Margin="2,0,0,0" Source="{Binding Author.Image}" Width="20" Height="20">
+                                                        <Image.Style>
+                                                            <Style TargetType="Image">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Author.Image}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Author.Image}" Value="">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Image.Style>
+                                                    </Image>
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text=" said:" Foreground="#525252" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <StackPanel Grid.Row="2" Margin="8,-6,0,0">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
