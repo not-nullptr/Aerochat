@@ -413,7 +413,9 @@ namespace Aerochat.Windows
                     user = Discord.Client.GetUserAsync(args.Author.Id).Result;
                 };
 
-                MessageViewModel message = MessageViewModel.FromMessage(args.Message);
+                var member = args.Guild?.Members.FirstOrDefault(x => x.Key == args.Author.Id).Value;
+
+                MessageViewModel message = MessageViewModel.FromMessage(args.Message, member);
 
                 foreach (var attachment in args.Message.Attachments)
                 {
