@@ -22,6 +22,8 @@ namespace Aerochat.ViewModels
         private bool _special = false;
         private bool _hiddenInfo = false;
         private string _type;
+        private bool _isReply = false;
+        private MessageViewModel? _replyMessage;
 
         public UserViewModel? Author
         {
@@ -73,10 +75,22 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _type, value);
         }
 
+        public bool IsReply
+        {
+            get => _isReply;
+            set => SetProperty(ref _isReply, value);
+        }
+
+        public MessageViewModel? ReplyMessage
+        {
+            get => _replyMessage;
+            set => SetProperty(ref _replyMessage, value);
+        }
+
         public ObservableCollection<AttachmentViewModel> Attachments { get; } = new();
         public ObservableCollection<EmbedViewModel> Embeds { get; } = new();
 
-        public static MessageViewModel FromMessage(DiscordMessage message, DiscordMember? member = null)
+        public static MessageViewModel FromMessage(DiscordMessage message, DiscordMember? member = null, bool isReply = false)
         {
             var user = member == null ? UserViewModel.FromUser(message.Author) : UserViewModel.FromMember(member);
             var vm = new MessageViewModel
@@ -85,7 +99,8 @@ namespace Aerochat.ViewModels
                 Id = message.Id,
                 Timestamp = message.Timestamp.DateTime,
                 RawMessage = message.Content,
-                Type = message.MessageType?.ToString() ?? "Unknown"
+                Type = message.MessageType?.ToString() ?? "Unknown",
+                IsReply = message.MessageType == MessageType.Reply && !isReply
             };
             foreach (var embed in message.Embeds)
             {
@@ -140,6 +155,11 @@ namespace Aerochat.ViewModels
             foreach (var attachment in message.Attachments)
             {
                 vm.Attachments.Add(AttachmentViewModel.FromAttachment(attachment));
+            }
+
+            if (vm.IsReply)
+            {
+                vm.ReplyMessage = FromMessage(message.ReferencedMessage, null, true);
             }
 
             return vm;
