@@ -248,7 +248,7 @@ namespace Aerochat.Controls
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg) {
-                case 0x31E:
+                case 0x31E: // WM_DWMCOMPOSITIONCHANGED
                     DwmIsCompositionEnabled(out bool enabled);
                     if (enabled != IsDwmEnabled)
                     {
@@ -257,7 +257,7 @@ namespace Aerochat.Controls
                     }
                     OnDwmChanged();
                     break;
-                case 0x000C:
+                case 0x000C: // WM_SETTEXT
                     string? newText = Marshal.PtrToStringAuto(wParam);
                     if (newText != null)
                     {
