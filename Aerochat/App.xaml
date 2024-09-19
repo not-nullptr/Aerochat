@@ -11,7 +11,14 @@
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="Window" TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type Window}}">
                 <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
-                <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+                
+                <!-- Set up text rendering mode respecting the user's ClearType preferences -->
+                <Setter Property="TextOptions.TextRenderingMode">
+                    <Setter.Value>
+                        <Binding Source="{x:Static local:FontAppearanceManager.Instance}" Path="TextRenderingMode"></Binding>
+                    </Setter.Value>
+                </Setter>
+                
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
             <Style TargetType="Image">
