@@ -933,7 +933,7 @@ namespace Aerochat.Windows
 
         private void JumpToReply(object sender, MouseButtonEventArgs e)
         {
-            var messageVm = (sender as StackPanel)?.DataContext as MessageViewModel;
+            var messageVm = (sender as Panel)?.DataContext as MessageViewModel;
             if (messageVm is null || !messageVm.IsReply || messageVm.ReplyMessage is null) return;
 
             var replyId = messageVm.ReplyMessage.Id;
