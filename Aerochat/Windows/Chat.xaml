@@ -853,8 +853,15 @@
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
-                                                    <Rectangle Grid.Column="0" Height="1" Width="6" Fill="#bbbbbb" VerticalAlignment="Top" Margin="0,10,8,0" />
-                                                    <Grid Grid.Column="1" Margin="0,4" MouseLeftButtonDown="JumpToReply" Cursor="Hand">
+                                                    <Grid Grid.Column="0" Margin="6,8,8,0">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="*" />
+                                                        </Grid.RowDefinitions>
+                                                        <Rectangle Grid.Row="0" Height="1" Width="6" Fill="#bbbbbb" VerticalAlignment="Center" />
+                                                        <Rectangle Grid.Row="1" Width="1" HorizontalAlignment="Left" Fill="#bbbbbb" VerticalAlignment="Stretch" />
+                                                    </Grid>
+                                                    <Grid Grid.Column="1" Margin="0,4,0,2" MouseLeftButtonDown="JumpToReply" Cursor="Hand">
                                                         <TextBlock FontSize="9" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,16,0" MaxHeight="24" TextTrimming="CharacterEllipsis">
                                                             <Run Text="{Binding ReplyMessage.Author.Name}" Foreground="{Binding ReplyMessage.Author.Color}" />
                                                             <Run Text=" said: " Foreground="#525252" />
@@ -891,7 +898,9 @@
                                                             </Style>
                                                         </Image.Style>
                                                     </Image>
-                                                    <TextBlock FontSize="13" Grid.Row="0" Text=" said:" Foreground="#525252" />
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text=" said (" Foreground="#525252" />
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Timestamp, StringFormat=HH:mm}" Foreground="#525252" />
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="):" Foreground="#525252" />
                                                 </StackPanel>
                                             </StackPanel>
                                             <StackPanel Grid.Row="2" Margin="8,-6,0,0">
@@ -912,7 +921,54 @@
                                                             </Style>
                                                         </Rectangle.Style>
                                                     </Rectangle>
-                                                    <controls:MessageParser FontSize="13" Grid.Column="1" HorizontalAlignment="Stretch" Message="{Binding MessageEntity}" />
+                                                    <controls:MessageParser FontSize="13" Grid.Column="1" HorizontalAlignment="Stretch" Message="{Binding MessageEntity}" HyperlinkClicked="MessageParser_HyperlinkClicked">
+                                                        <controls:MessageParser.Style>
+                                                            <Style TargetType="controls:MessageParser">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Special}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </controls:MessageParser.Style>
+                                                    </controls:MessageParser>
+                                                    <TextBlock Margin="0,4,0,0" FontSize="13" Grid.Column="1" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis" Text="{Binding Message}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Special}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="GuildMemberJoin">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="Call">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="RecipientAdd">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="RecipientRemove">
+                                                                        <Setter Property="Foreground" Value="#800000" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="UserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#bb32c2" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierOneUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#bb32c2" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierTwoUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#bb32c2" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="TierThreeUserPremiumGuildSubscription">
+                                                                        <Setter Property="Foreground" Value="#bb32c2" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>    
+                                                    </TextBlock>
                                                     <Grid.Style>
                                                         <Style TargetType="Grid">
                                                             <Setter Property="Visibility" Value="Visible" />

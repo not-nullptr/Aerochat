@@ -1,5 +1,6 @@
 ﻿using Aerochat.Hoarder;
 using Aerochat.Settings;
+using Aerochat.Theme;
 using Aerochat.ViewModels;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -18,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Xml.Linq;
 using static Aerochat.ViewModels.HomeListViewCategory;
 using static Vanara.PInvoke.User32;
 using Image = System.Windows.Controls.Image;
@@ -31,29 +33,7 @@ namespace Aerochat.Windows
         public HomeWindowViewModel ViewModel { get; } = new HomeWindowViewModel();
         private Timer _hoverTimer = new(50);
 
-        private static List<AdViewModel> _ads = new()
-        {
-            new()
-            {
-                Image = "/Resources/Ads/Aerochat.png",
-                Url = "https://aerochat.live"
-            },
-            new()
-            {
-                Image = "/Resources/Ads/N09.png",
-                Url = "https://discord.gg/pU4get53Zp"
-            },
-            new()
-            {
-                Image = "/Resources/Ads/Liam.png",
-                Url = "https://x.com/z2rmc"
-            },
-            new()
-            {
-                Image = "/Resources/Ads/Slobbery.png",
-                Url = "https://slobbery.wang"
-            },
-        };
+        private static List<AdViewModel> _ads = new();
 
         public int AdIndex { get; set; } = 0;
 
@@ -122,16 +102,65 @@ namespace Aerochat.Windows
                         Process.Start(new ProcessStartInfo("https://discord.gg/Jcg84hmSqM") { UseShellExecute = true });
                     }
                 });
-                Timer adTimer = new(60000);
+                var assembly = Assembly.GetExecutingAssembly();
+                string resourceName = "Aerochat.Ads.Ads.xml";
+                using Stream stream = assembly.GetManifestResourceStream(resourceName);
+                using StreamReader reader = new(stream);
+                string result = reader.ReadToEnd();
+                XDocument doc = XDocument.Parse(result);
+                foreach (XElement adXml in doc.Root?.Elements() ?? [])
+                {
+                    AdViewModel scene = AdViewModel.FromAd(adXml);
+                    _ads.Add(scene);
+                }
+                Random random = new();
+                AdIndex = random.Next(_ads.Count);
+                Dictionary<int, int> adWeights = new();
+
+                for (int i = 0; i < _ads.Count; i++)
+                {
+                    adWeights[i] = 1;
+                }
+
+                int GetNextAdIndex()
+                {
+                    int totalWeight = adWeights.Values.Sum();
+
+                    int randomWeight = random.Next(totalWeight);
+
+                    int cumulativeWeight = 0;
+                    for (int i = 0; i < _ads.Count; i++)
+                    {
+                        cumulativeWeight += adWeights[i];
+                        if (randomWeight < cumulativeWeight)
+                        {
+                            return i;
+                        }
+                    }
+                    return 0;
+                }
+
+                Timer adTimer = new(20000);
                 adTimer.Elapsed += (s, e) =>
                 {
-                    AdIndex++;
-                    if (AdIndex >= _ads.Count)
-                        AdIndex = 0;
+                    AdIndex = GetNextAdIndex();
+
+                    for (int i = 0; i < _ads.Count; i++)
+                    {
+                        if (i == AdIndex)
+                        {
+                            adWeights[i] = 1;
+                        }
+                        else
+                        {
+                            adWeights[i]++;
+                        }
+                    }
+
                     ViewModel.Ad = _ads[AdIndex];
                 };
-                ViewModel.Ad = _ads[AdIndex];
 
+                ViewModel.Ad = _ads[AdIndex];
                 adTimer.Start();
 
                 ViewModel.Categories.Add(new HomeListViewCategory

@@ -76,6 +76,7 @@ namespace Aerochat
             using StreamReader reader = new(stream);
             string result = reader.ReadToEnd();
             XDocument doc = XDocument.Parse(result);
+
             foreach (XElement sceneXml in doc.Root?.Elements() ?? [])
             {
                 SceneViewModel scene = SceneViewModel.FromScene(sceneXml);

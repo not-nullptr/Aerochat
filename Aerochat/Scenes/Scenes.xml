@@ -33,4 +33,16 @@
 	<item id="31" credit="Sony/banesrb" mimetype="image/png" contenttype="D" file="Xperia1.png" default="false" displayname="Xperia 1" color="#6a61ec" />
 	<item id="32" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxGreen.png" default="false" displayname="Xbox Green" color="#abc704" />
 	<item id="33" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxPurple.png" default="false" displayname="Xbox Purple" color="#9f698b" />
+	<item id="34" credit="CallyHam" mimetype="image/png" contenttype="D" file="Harmony.png" displayname="Harmony" color="#32b4f5" default="false" />
+	<item id="35" credit="alexander" mimetype="image/png" contenttype="D" file="MajorasMask.png" displayname="Majora's Mask" color="#0d092c" default="false" />
+	<item id="36" credit="alexander" mimetype="image/png" contenttype="D" file="Bliss.png" displayname="Bliss" color="#84aaf3" default="false" />
+	<item id="37" credit="alexander" mimetype="image/png" contenttype="D" file="BrightLines.png" displayname="Bright Lines" color="#5fcaab" default="false" />
+	<item id="38" credit="supra" mimetype="image/png" contenttype="D" file="LiveLights.png" displayname="Live Lights" color="#1da840" default="false" />
+	<item id="39" credit="Korin" mimetype="image/png" contenttype="D" file="TheSwordOfOrion.png" displayname="The Sword of Orion" color="#9f1d1f" default="false" />
+	<item id="40" credit="Harmonic Vector" mimetype="image/png" contenttype="D" file="RoadToWebTV.png" displayname="Road to WebTV" color="#000101" default="false" />
+	<item id="41" credit="liam" mimetype="image/png" contenttype="D" file="PurpleRain.png" displayname="Purple Rain" color="#7d0081" default="false" />
+	<item id="42" credit="Cupid" mimetype="image/png" contenttype="D" file="Nanami.png" displayname="Nanami" color="#55ccee" default="false" />
+	<item id="43" credit="liam" mimetype="image/png" contenttype="D" file="Arrowfunk.png" displayname="Arrowfunk" color="#747b24" default="false" />
+	<item id="44" credit="alexander" mimetype="image/png" contenttype="D" file="Nineties.png" displayname="Nineties" color="#85b3dc" default="false" />
+	<item id="45" credit="liam" mimetype="image/png" contenttype="D" file="BlueWaves.png" displayname="Blue Waves" color="#0556ac" default="false" />
 </package>

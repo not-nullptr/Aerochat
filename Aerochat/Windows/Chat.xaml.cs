@@ -22,6 +22,7 @@ using static Aerochat.ViewModels.HomeListViewCategory;
 using DSharpPlus;
 using System.Windows.Threading;
 using Aerochat.Settings;
+using System.Reflection;
 
 namespace Aerochat.Windows
 {
@@ -723,6 +724,28 @@ namespace Aerochat.Windows
             // scroll to bottom
             ScrollViewer scrollViewer = VisualTreeHelper.GetChild(MessagesListItemsControl, 0) as ScrollViewer;
             scrollViewer.ScrollToBottom();
+            // initialize a new DiscordMessage using reflection, because the constructor is internal
+            Type myClassType = typeof(DiscordMessage);
+
+            // Get the private constructor
+            ConstructorInfo? constructor = myClassType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+            if (constructor is null)
+            {
+                throw new Exception("Constructor not found!");
+            }
+
+            DiscordMessage fakeMsg = (DiscordMessage)constructor.Invoke(null);
+            fakeMsg.GetType().GetProperty("Content")?.SetValue(fakeMsg, value);
+            fakeMsg.GetType().GetProperty("Author")?.SetValue(fakeMsg, Discord.Client.CurrentUser);
+            fakeMsg.GetType().GetProperty("Channel")?.SetValue(fakeMsg, Channel);
+            fakeMsg.GetType().GetProperty("Guild")?.SetValue(fakeMsg, guild);
+            fakeMsg.GetType().GetProperty("_timestampRaw")?.SetValue(fakeMsg, DateTime.Now);
+            fakeMsg.GetType().GetProperty("Id")?.SetValue(fakeMsg, (ulong)0);
+            fakeMsg.GetType().GetProperty("Type")?.SetValue(fakeMsg, MessageType.Default);
+            // try to populate mentions
+            fakeMsg.GetType().GetProperty("_mentionedUsers")?.SetValue(fakeMsg, new List<DiscordUser>());
+            fakeMsg.GetType().GetProperty("_mentionedRoles")?.SetValue(fakeMsg, new List<DiscordRole>());
+            fakeMsg.GetType().GetProperty("_mentionedChannels")?.SetValue(fakeMsg, new List<DiscordChannel>());
             ViewModel.Messages.Add(new()
             {
                 Author = IsDM ? UserViewModel.FromUser(Discord.Client.CurrentUser) : UserViewModel.FromMember(guild.CurrentMember),
@@ -730,7 +753,8 @@ namespace Aerochat.Windows
                 Timestamp = DateTime.Now,
                 Id = 0,
                 Ephemeral = true,
-                Special = value == "[nudge]"
+                Special = value == "[nudge]",
+                MessageEntity = fakeMsg
             });
             try
             {
@@ -925,6 +949,35 @@ namespace Aerochat.Windows
 
                 container.BringIntoView();
                 return;
+            }
+        }
+
+        private async void MessageParser_HyperlinkClicked(object sender, Controls.HyperlinkClickedEventArgs e)
+        {
+            switch (e.Type)
+            {
+                case Controls.HyperlinkType.Channel:
+                    {
+                        var channel = (DiscordChannel)e.AssociatedObject;
+                        channelId = channel.Id;
+                        foreach (var category in ViewModel.Categories)
+                        {
+                            foreach (var item in category.Items)
+                            {
+                                if (item.Id == channel.Id)
+                                {
+                                    item.IsSelected = true;
+                                }
+                                else
+                                {
+                                    item.IsSelected = false;
+                                }
+                            }
+                        }
+                        await OnChannelChange().ConfigureAwait(false);
+                        // find the item in the list
+                        break;
+                    }
             }
         }
     }

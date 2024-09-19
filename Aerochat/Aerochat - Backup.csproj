@@ -24,17 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Ads\Ads.xml" />
-    <None Remove="Ads\CursorInvisible.png" />
-    <None Remove="Ads\ENA.png" />
-    <None Remove="Ads\LibreWolf.png" />
-    <None Remove="Ads\Photopea.png" />
-    <None Remove="Ads\PrismLauncher.png" />
-    <None Remove="Ads\RingRacers.png" />
-    <None Remove="Ads\SecretCult.png" />
-    <None Remove="Ads\WiiLink.png" />
-    <None Remove="Ads\Yume2kki.png" />
-    <None Remove="Ads\ZorinOS.png" />
+    <None Remove="Resources\Ads\Aerochat.png" />
+    <None Remove="Resources\Ads\Liam.png" />
+    <None Remove="Resources\Ads\N09.png" />
+    <None Remove="Resources\Ads\Slobbery.png" />
     <None Remove="Resources\bg-1.png" />
     <None Remove="Resources\ChangeScene\Active.png" />
     <None Remove="Resources\ChangeScene\Background.png" />
@@ -46,87 +39,6 @@
     <None Remove="Resources\Dropdown\DropdownExpanded.png" />
     <None Remove="Resources\Dropdown\DropdownExpandedHover.png" />
     <None Remove="Resources\Dropdown\DropdownHover.png" />
-    <None Remove="Resources\Emoji\Angel.png" />
-    <None Remove="Resources\Emoji\Anger.png" />
-    <None Remove="Resources\Emoji\Bat.png" />
-    <None Remove="Resources\Emoji\Beach.png" />
-    <None Remove="Resources\Emoji\Beer.png" />
-    <None Remove="Resources\Emoji\BrokenHeart.png" />
-    <None Remove="Resources\Emoji\Cake.png" />
-    <None Remove="Resources\Emoji\Camera.png" />
-    <None Remove="Resources\Emoji\Car.png" />
-    <None Remove="Resources\Emoji\Cat.png" />
-    <None Remove="Resources\Emoji\CellPhone.png" />
-    <None Remove="Resources\Emoji\Cigarette.png" />
-    <None Remove="Resources\Emoji\Clock.png" />
-    <None Remove="Resources\Emoji\Coffee.png" />
-    <None Remove="Resources\Emoji\Computer.png" />
-    <None Remove="Resources\Emoji\Confused.png" />
-    <None Remove="Resources\Emoji\Conversation.png" />
-    <None Remove="Resources\Emoji\CrossedFingers.png" />
-    <None Remove="Resources\Emoji\Cuffs.png" />
-    <None Remove="Resources\Emoji\Currency.png" />
-    <None Remove="Resources\Emoji\Demon.png" />
-    <None Remove="Resources\Emoji\Discontent.png" />
-    <None Remove="Resources\Emoji\Dog.png" />
-    <None Remove="Resources\Emoji\Film.png" />
-    <None Remove="Resources\Emoji\Flished.png" />
-    <None Remove="Resources\Emoji\Flushed.png" />
-    <None Remove="Resources\Emoji\Football.png" />
-    <None Remove="Resources\Emoji\Frown.png" />
-    <None Remove="Resources\Emoji\Goat.png" />
-    <None Remove="Resources\Emoji\Grin.png" />
-    <None Remove="Resources\Emoji\Heart.png" />
-    <None Remove="Resources\Emoji\HighFive.png" />
-    <None Remove="Resources\Emoji\Jump.png" />
-    <None Remove="Resources\Emoji\Lightbuild.png" />
-    <None Remove="Resources\Emoji\LipBite.png" />
-    <None Remove="Resources\Emoji\Mail.png" />
-    <None Remove="Resources\Emoji\Man.png" />
-    <None Remove="Resources\Emoji\Moon.png" />
-    <None Remove="Resources\Emoji\Music.png" />
-    <None Remove="Resources\Emoji\Nerd.png" />
-    <None Remove="Resources\Emoji\Party.png" />
-    <None Remove="Resources\Emoji\Phone.png" />
-    <None Remove="Resources\Emoji\Pizza.png" />
-    <None Remove="Resources\Emoji\Plane.png" />
-    <None Remove="Resources\Emoji\Plate.png" />
-    <None Remove="Resources\Emoji\Present.png" />
-    <None Remove="Resources\Emoji\Rabbit.png" />
-    <None Remove="Resources\Emoji\Rage.png" />
-    <None Remove="Resources\Emoji\Rain.png" />
-    <None Remove="Resources\Emoji\Rainbow.png" />
-    <None Remove="Resources\Emoji\ReachLeft.png" />
-    <None Remove="Resources\Emoji\ReachRight.png" />
-    <None Remove="Resources\Emoji\RollingEyes.png" />
-    <None Remove="Resources\Emoji\Rose.png" />
-    <None Remove="Resources\Emoji\Rose_Wilter.png" />
-    <None Remove="Resources\Emoji\Sheep.png" />
-    <None Remove="Resources\Emoji\Sick.png" />
-    <None Remove="Resources\Emoji\Smile.png" />
-    <None Remove="Resources\Emoji\Snail.png" />
-    <None Remove="Resources\Emoji\Sob.png" />
-    <None Remove="Resources\Emoji\Soup.png" />
-    <None Remove="Resources\Emoji\Star.png" />
-    <None Remove="Resources\Emoji\Sun.png" />
-    <None Remove="Resources\Emoji\Sunglasses.png" />
-    <None Remove="Resources\Emoji\Surprise.png" />
-    <None Remove="Resources\Emoji\Surprised.png" />
-    <None Remove="Resources\Emoji\Thinking.png" />
-    <None Remove="Resources\Emoji\ThumbsDown.png" />
-    <None Remove="Resources\Emoji\ThumbsUp.png" />
-    <None Remove="Resources\Emoji\Thunder.png" />
-    <None Remove="Resources\Emoji\Tongue.png" />
-    <None Remove="Resources\Emoji\Tortoise.png" />
-    <None Remove="Resources\Emoji\Umbrella.png" />
-    <None Remove="Resources\Emoji\Wine.png" />
-    <None Remove="Resources\Emoji\Wink.png" />
-    <None Remove="Resources\Emoji\WLM.png" />
-    <None Remove="Resources\Emoji\Woman.png" />
-    <None Remove="Resources\Emoji\WTF.png" />
-    <None Remove="Resources\Emoji\Xbox.png" />
-    <None Remove="Resources\Emoji\Yawn.png" />
-    <None Remove="Resources\Emoji\ZipMouth.png" />
     <None Remove="Resources\Frames\LargeFrameActive.png" />
     <None Remove="Resources\Frames\LargeFrameDnd.png" />
     <None Remove="Resources\Frames\LargeFrameIdle.png" />
@@ -226,6 +138,7 @@
     <None Remove="Scenes\0006.png" />
     <None Remove="Scenes\0007.png" />
     <None Remove="Scenes\0008.png" />
+    <None Remove="Scenes\Alexander.png" />
     <None Remove="Scenes\Arrowfunk.png" />
     <None Remove="Scenes\BetaFish.png" />
     <None Remove="Scenes\Bliss.png" />
@@ -249,7 +162,6 @@
     <None Remove="Scenes\Miku1.png" />
     <None Remove="Scenes\Morty.png" />
     <None Remove="Scenes\Nanami.png" />
-    <None Remove="Scenes\Nineties.png" />
     <None Remove="Scenes\PurpleRain.png" />
     <None Remove="Scenes\RoadToWebTV.png" />
     <None Remove="Scenes\Robot.jpg" />
@@ -283,97 +195,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Ads\Ads.xml" />
-    <Resource Include="Ads\CursorInvisible.png" />
-    <Resource Include="Ads\ENA.png" />
-    <Resource Include="Ads\LibreWolf.png" />
-    <Resource Include="Ads\Photopea.png" />
-    <Resource Include="Ads\PrismLauncher.png" />
-    <Resource Include="Ads\RingRacers.png" />
-    <Resource Include="Ads\SecretCult.png" />
-    <Resource Include="Ads\WiiLink.png" />
-    <Resource Include="Ads\Yume2kki.png" />
-    <Resource Include="Ads\ZorinOS.png" />
-    <Resource Include="Resources\Emoji\Angel.png" />
-    <Resource Include="Resources\Emoji\Anger.png" />
-    <Resource Include="Resources\Emoji\Bat.png" />
-    <Resource Include="Resources\Emoji\Beach.png" />
-    <Resource Include="Resources\Emoji\Beer.png" />
-    <Resource Include="Resources\Emoji\BrokenHeart.png" />
-    <Resource Include="Resources\Emoji\Cake.png" />
-    <Resource Include="Resources\Emoji\Camera.png" />
-    <Resource Include="Resources\Emoji\Car.png" />
-    <Resource Include="Resources\Emoji\Cat.png" />
-    <Resource Include="Resources\Emoji\CellPhone.png" />
-    <Resource Include="Resources\Emoji\Cigarette.png" />
-    <Resource Include="Resources\Emoji\Clock.png" />
-    <Resource Include="Resources\Emoji\Coffee.png" />
-    <Resource Include="Resources\Emoji\Computer.png" />
-    <Resource Include="Resources\Emoji\Confused.png" />
-    <Resource Include="Resources\Emoji\Conversation.png" />
-    <Resource Include="Resources\Emoji\CrossedFingers.png" />
-    <Resource Include="Resources\Emoji\Cuffs.png" />
-    <Resource Include="Resources\Emoji\Currency.png" />
-    <Resource Include="Resources\Emoji\Demon.png" />
-    <Resource Include="Resources\Emoji\Discontent.png" />
-    <Resource Include="Resources\Emoji\Dog.png" />
-    <Resource Include="Resources\Emoji\Film.png" />
-    <Resource Include="Resources\Emoji\Flushed.png" />
-    <Resource Include="Resources\Emoji\Football.png" />
-    <Resource Include="Resources\Emoji\Frown.png" />
-    <Resource Include="Resources\Emoji\Goat.png" />
-    <Resource Include="Resources\Emoji\Grin.png" />
-    <Resource Include="Resources\Emoji\Heart.png" />
-    <Resource Include="Resources\Emoji\HighFive.png" />
-    <Resource Include="Resources\Emoji\Jump.png" />
-    <Resource Include="Resources\Emoji\Lightbuild.png" />
-    <Resource Include="Resources\Emoji\LipBite.png" />
-    <Resource Include="Resources\Emoji\Mail.png" />
-    <Resource Include="Resources\Emoji\Man.png" />
-    <Resource Include="Resources\Emoji\Moon.png" />
-    <Resource Include="Resources\Emoji\Music.png" />
-    <Resource Include="Resources\Emoji\Nerd.png" />
-    <Resource Include="Resources\Emoji\Party.png" />
-    <Resource Include="Resources\Emoji\Phone.png" />
-    <Resource Include="Resources\Emoji\Pizza.png" />
-    <Resource Include="Resources\Emoji\Plane.png" />
-    <Resource Include="Resources\Emoji\Plate.png" />
-    <Resource Include="Resources\Emoji\Present.png" />
-    <Resource Include="Resources\Emoji\Rabbit.png" />
-    <Resource Include="Resources\Emoji\Rage.png" />
-    <Resource Include="Resources\Emoji\Rain.png" />
-    <Resource Include="Resources\Emoji\Rainbow.png" />
-    <Resource Include="Resources\Emoji\ReachLeft.png" />
-    <Resource Include="Resources\Emoji\ReachRight.png" />
-    <Resource Include="Resources\Emoji\RollingEyes.png" />
-    <Resource Include="Resources\Emoji\Rose.png" />
-    <Resource Include="Resources\Emoji\Rose_Wilter.png" />
-    <Resource Include="Resources\Emoji\Sheep.png" />
-    <Resource Include="Resources\Emoji\Sick.png" />
-    <Resource Include="Resources\Emoji\Smile.png" />
-    <Resource Include="Resources\Emoji\Snail.png" />
-    <Resource Include="Resources\Emoji\Sob.png" />
-    <Resource Include="Resources\Emoji\Soup.png" />
-    <Resource Include="Resources\Emoji\Star.png" />
-    <Resource Include="Resources\Emoji\Sun.png" />
-    <Resource Include="Resources\Emoji\Sunglasses.png" />
-    <Resource Include="Resources\Emoji\Surprise.png" />
-    <Resource Include="Resources\Emoji\Surprised.png" />
-    <Resource Include="Resources\Emoji\Thinking.png" />
-    <Resource Include="Resources\Emoji\ThumbsDown.png" />
-    <Resource Include="Resources\Emoji\ThumbsUp.png" />
-    <Resource Include="Resources\Emoji\Thunder.png" />
-    <Resource Include="Resources\Emoji\Tongue.png" />
-    <Resource Include="Resources\Emoji\Tortoise.png" />
-    <Resource Include="Resources\Emoji\Umbrella.png" />
-    <Resource Include="Resources\Emoji\Wine.png" />
-    <Resource Include="Resources\Emoji\Wink.png" />
-    <Resource Include="Resources\Emoji\WLM.png" />
-    <Resource Include="Resources\Emoji\Woman.png" />
-    <Resource Include="Resources\Emoji\WTF.png" />
-    <Resource Include="Resources\Emoji\Xbox.png" />
-    <Resource Include="Resources\Emoji\Yawn.png" />
-    <Resource Include="Resources\Emoji\ZipMouth.png" />
     <Resource Include="Resources\Home\PageClose.png" />
     <Resource Include="Resources\Home\PageOpen.png" />
     <Resource Include="Resources\Tray\Active.ico" />
@@ -410,10 +231,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Ads\Aerochat.png" />
-    <Resource Include="Ads\Liam.png" />
-    <Resource Include="Ads\N09.png" />
-    <Resource Include="Ads\Slobbery.png" />
+    <Resource Include="Resources\Ads\Aerochat.png" />
+    <Resource Include="Resources\Ads\Liam.png" />
+    <Resource Include="Resources\Ads\N09.png" />
+    <Resource Include="Resources\Ads\Slobbery.png" />
     <Resource Include="Resources\bg-1.png" />
     <Resource Include="Resources\Dialog\Background.png" />
     <Resource Include="Resources\Dropdown.png" />
@@ -505,7 +326,7 @@
     <Resource Include="Scenes\0006.png" />
     <Resource Include="Scenes\0007.png" />
     <Resource Include="Scenes\0008.png" />
-    <Resource Include="Scenes\Nineties.png" />
+    <Resource Include="Scenes\Alexander.png" />
     <Resource Include="Scenes\Arrowfunk.png" />
     <Resource Include="Scenes\BetaFish.png" />
     <Resource Include="Scenes\Bliss.png" />
@@ -570,6 +391,10 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

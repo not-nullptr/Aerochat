@@ -160,7 +160,7 @@
                 <Grid Grid.Row="0" Panel.ZIndex="3" Background="{Binding Theme.Scene.Color}">
                     <Grid>
                         <Grid.Background>
-                            <ImageBrush ImageSource="{Binding Theme.Scene.File}" Stretch="UniformToFill" AlignmentX="Right" />
+                            <ImageBrush RenderOptions.BitmapScalingMode="NearestNeighbor" ImageSource="{Binding Theme.Scene.File}" Stretch="UniformToFill" AlignmentX="Right" />
                         </Grid.Background>
                         <Grid.Style>
                             <Style TargetType="Grid">
