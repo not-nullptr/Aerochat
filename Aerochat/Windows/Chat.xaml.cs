@@ -980,5 +980,27 @@ namespace Aerochat.Windows
                     }
             }
         }
+
+        private void OpenImage(object sender, MouseButtonEventArgs e)
+        {
+            var image = (sender as Image);
+            if (image is null) return;
+
+            var attachmentVm = image.DataContext as AttachmentViewModel;
+            if (attachmentVm is null) return;
+
+            var imagePreviewer = new ImagePreviewer(image.Source.ToString(), attachmentVm.Name)
+            {
+                Owner = this,
+                Width = attachmentVm.Width,
+                Height = attachmentVm.Height,
+                MaxWidth = 800,
+                MaxHeight = attachmentVm.Height
+            };
+
+            imagePreviewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            imagePreviewer.ShowDialog();
+        }
     }
 }
