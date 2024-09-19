@@ -906,5 +906,26 @@ namespace Aerochat.Windows
             await SendMessage("[nudge]");
             ExecuteNudgePrettyPlease(Left, Top).ConfigureAwait(false);
         }
+
+        private void JumpToReply(object sender, MouseButtonEventArgs e)
+        {
+            var messageVm = (sender as StackPanel)?.DataContext as MessageViewModel;
+            if (messageVm is null || !messageVm.IsReply || messageVm.ReplyMessage is null) return;
+
+            var replyId = messageVm.ReplyMessage.Id;
+            for (var i = 0; i < MessagesListItemsControl.Items.Count; i++)
+            {
+                var item = MessagesListItemsControl.Items[i] as MessageViewModel;
+                if (item is null) return;
+
+                if (item.Id != replyId) continue;
+
+                var container = MessagesListItemsControl.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
+                if (container is null) return;
+
+                container.BringIntoView();
+                return;
+            }
+        }
     }
 }
