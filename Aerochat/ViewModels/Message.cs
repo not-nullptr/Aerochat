@@ -24,6 +24,7 @@ namespace Aerochat.ViewModels
         private string _type;
         private bool _isReply = false;
         private MessageViewModel? _replyMessage;
+        private DiscordMessage _messageEntity;
 
         public UserViewModel? Author
         {
@@ -87,6 +88,12 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _replyMessage, value);
         }
 
+        public DiscordMessage MessageEntity
+        {
+            get => _messageEntity;
+            set => SetProperty(ref _messageEntity, value);
+        }
+
         public ObservableCollection<AttachmentViewModel> Attachments { get; } = new();
         public ObservableCollection<EmbedViewModel> Embeds { get; } = new();
 
@@ -100,7 +107,8 @@ namespace Aerochat.ViewModels
                 Timestamp = message.Timestamp.DateTime,
                 RawMessage = message.Content,
                 Type = message.MessageType?.ToString() ?? "Unknown",
-                IsReply = message.MessageType == MessageType.Reply && !isReply
+                IsReply = message.MessageType == MessageType.Reply && !isReply,
+                MessageEntity = message
             };
             foreach (var embed in message.Embeds)
             {
