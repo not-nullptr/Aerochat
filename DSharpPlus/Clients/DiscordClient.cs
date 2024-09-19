@@ -977,8 +977,8 @@ namespace DSharpPlus
 
         internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
         {
-            foreach (var guild in this.Guilds.Values)
-                if (guild.Threads.TryGetValue(threadId, out var foundThread))
+            foreach (var guild in this.Guilds)
+                if (guild.Value.Threads.TryGetValue(threadId, out var foundThread))
                     return foundThread;
 
             return null;
@@ -990,8 +990,8 @@ namespace DSharpPlus
             if (this._privateChannels?.TryGetValue(channelId, out foundDmChannel) == true)
                 return foundDmChannel;
 
-            foreach (var guild in this.Guilds.Values)
-                if (guild.Channels.TryGetValue(channelId, out var foundChannel))
+            foreach (var guild in this.Guilds)
+                if (guild.Value.Channels.TryGetValue(channelId, out var foundChannel))
                     return foundChannel;
 
             return this.InternalGetCachedThread(channelId); // this may break things but might also make things crash less

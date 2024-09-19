@@ -400,10 +400,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMember CurrentMember
-            => this._current_member_lazy.Value;
-
-        [JsonIgnore]
-        private readonly Lazy<DiscordMember> _current_member_lazy;
+            => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null;
 
         /// <summary>
         /// Gets the @everyone role for this guild.
@@ -509,7 +506,6 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         {
-            this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
         }
 

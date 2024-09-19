@@ -45,11 +45,11 @@ namespace DSharpPlus.Entities
         /// Gets IDs the roles this emoji is enabled for.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<ulong> Roles => this._rolesLazy.Value;
+        public IReadOnlyList<ulong> Roles
+            => _roles;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _roles;
-        private readonly Lazy<IReadOnlyList<ulong>> _rolesLazy;
 
         /// <summary>
         /// Gets whether this emoji requires colons to use.
@@ -95,7 +95,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordEmoji()
         {
-            this._rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._roles));
+
         }
 
         /// <summary>

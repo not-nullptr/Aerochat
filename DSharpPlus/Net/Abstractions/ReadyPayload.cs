@@ -28,6 +28,15 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net.Abstractions
 {
+    internal class MergedPresences
+    {
+        [JsonProperty("friends", NullValueHandling = NullValueHandling.Ignore)]
+        public JToken[] Friends { get; private set; }
+
+        [JsonProperty("guilds", NullValueHandling = NullValueHandling.Ignore)]
+        public JArray[] Guilds { get; private set; }
+    }
+
     /// <summary>
     /// Represents data for websocket ready event payload.
     /// </summary>
@@ -92,6 +101,9 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("merged_members", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<IReadOnlyList<TransportMember>> MergedMembers { get; set; }
+
+        [JsonProperty("merged_presences", NullValueHandling = NullValueHandling.Ignore)]
+        public MergedPresences MergedPresences { get; set; }
 
         /// <summary>
         /// Gets the current session's ID.

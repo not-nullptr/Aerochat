@@ -24,6 +24,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -37,8 +38,15 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the recipients of this direct message.
         /// </summary>
-        [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
         public IReadOnlyList<DiscordUser> Recipients { get; internal set; }
+
+
+        [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
+        internal IReadOnlyList<TransportUser> InternalRecipients { get; set; }
+
+        [JsonProperty("recipient_ids", NullValueHandling = NullValueHandling.Ignore)]
+        internal IReadOnlyList<ulong> RecipientIds { get; set; }
 
         /// <summary>
         /// Gets the hash of this channel's icon.

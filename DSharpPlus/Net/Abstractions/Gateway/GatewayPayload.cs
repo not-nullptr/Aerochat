@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -28,6 +29,7 @@ namespace DSharpPlus.Net.Abstractions
     /// <summary>
     /// Represents a websocket payload exchanged between Discord and the client.
     /// </summary>
+    [JsonConverter(typeof(GatewayPayloadConverter))]
     internal sealed class GatewayPayload
     {
         /// <summary>

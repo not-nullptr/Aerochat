@@ -112,12 +112,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordOverwrite> PermissionOverwrites
-            => this._permissionOverwritesLazy.Value;
+            => _permissionOverwrites;
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordOverwrite> _permissionOverwrites = new();
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
 
         /// <summary>
         /// Gets the channel's topic. This is applicable to text channels only.
@@ -246,11 +244,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("permissions")]
         [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? UserPermissions { get; internal set; }
-
-        internal DiscordChannel()
-        {
-            this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
-        }
 
         #region Methods
 

@@ -181,7 +181,7 @@ namespace DSharpPlus
                 }
                 finally
                 {
-                    msg.Dispose();
+                    msg?.Dispose();
                 }
             }
 
@@ -226,6 +226,12 @@ namespace DSharpPlus
         internal async Task HandleSocketMessageAsync(Stream data)
         {
             using var streamReader = new StreamReader(data, Utilities.UTF8);
+#if DEBUG
+            //var strPayload = streamReader.ReadToEnd();
+            //data.Position = 0;
+
+            //this.Logger.LogTrace(LoggerEvents.GatewayWsRx, strPayload);
+#endif
             using var jsonReader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             var payload = serializer.Deserialize<GatewayPayload>(jsonReader);

@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -54,12 +55,6 @@ namespace DSharpPlus
 
         internal async Task HandleDispatchAsync(GatewayPayload payload)
         {
-            if (payload.Data is not JObject dat)
-            {
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {Op} event: {Event}; payload: {Payload}", payload.OpCode, payload.EventName, payload.Data);
-                return;
-            }
-
             DiscordChannel chn;
             DiscordThreadChannel thread;
             ulong gid;
@@ -69,7 +64,7 @@ namespace DSharpPlus
             TransportUser refUsr = default;
             TransportMember refMbr = default;
             JToken rawMbr = default;
-            var rawRefMsg = dat["referenced_message"];
+            JObject dat = payload.Data as JObject;
             JArray rawMembers = default;
             JArray rawPresences = default;
 
@@ -82,15 +77,10 @@ namespace DSharpPlus
                     #region Gateway Status
 
                     case "ready":
-                        var glds = (JArray)dat["guilds"];
-                        var dmcs = (JArray)dat["private_channels"];
-                        var presences = (JObject)dat["merged_presences"];
+                        if (payload.Data is not ReadyPayload ready)
+                            throw new InvalidOperationException();
 
-                        dat.Remove("guilds");
-                        dat.Remove("private_channels");
-                        dat.Remove("presences");
-
-                        await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs, presences).ConfigureAwait(false);
+                        await this.OnReadyEventAsync(ready).ConfigureAwait(false);
                         break;
 
                     case "resumed":
@@ -313,6 +303,7 @@ namespace DSharpPlus
                         if (rawMbr != null)
                             mbr = rawMbr.ToDiscordObject<TransportMember>();
 
+                        var rawRefMsg = dat["referenced_message"];
                         if (rawRefMsg != null && rawRefMsg.HasValues)
                         {
                             if (rawRefMsg.SelectToken("author") != null)
@@ -339,6 +330,7 @@ namespace DSharpPlus
                         if (rawMbr != null)
                             mbr = rawMbr.ToDiscordObject<TransportMember>();
 
+                        rawRefMsg = dat["referenced_message"];
                         if (rawRefMsg != null && rawRefMsg.HasValues)
                         {
                             if (rawRefMsg.SelectToken("author") != null)
@@ -596,7 +588,7 @@ namespace DSharpPlus
 
         #region Gateway
 
-        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels, JObject merged_presences)
+        internal async Task OnReadyEventAsync(ReadyPayload ready)
         {
             //ready.CurrentUser.Discord = this;
 
@@ -623,15 +615,12 @@ namespace DSharpPlus
             }
 
             this._sessionId = ready.SessionId;
-            var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
             var users = ready.Users.Select(u => this.UpdateUserCache(new DiscordUser(u) { Discord = this }))
-                .ToDictionary(k => k.Id);
+                .ToFrozenDictionary(k => k.Id);
 
             this._privateChannels.Clear();
-            foreach (var rawChannel in rawDmChannels.Cast<JObject>())
+            foreach (var channel in ready.DmChannels)
             {
-                var channel = rawChannel.ToDiscordObject<DiscordDmChannel>();
-
                 channel.Discord = this;
 
                 //xdc._recipients =
@@ -639,14 +628,14 @@ namespace DSharpPlus
                 //    .ToList();
 
                 var recipients = new List<DiscordUser>();
-                if (rawChannel.TryGetValue("recipient_ids", out var ids))
+                if (channel.RecipientIds != null)
                 {
-                    foreach (var idToken in (JArray)ids)
+                    foreach (var idToken in channel.RecipientIds)
                         recipients.Add(users[(ulong)idToken]);
                 }
                 else
                 {
-                    var recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
+                    var recips_raw = channel.InternalRecipients;
                     foreach (var xr in recips_raw)
                     {
                         var xu = new DiscordUser(xr) { Discord = this };
@@ -663,8 +652,8 @@ namespace DSharpPlus
 
             this._guilds.Clear();
 
-            var guilds = rawGuilds.ToDiscordObject<DiscordGuild[]>();
-            for (var i = 0; i < guilds.Length; i++)
+            var guilds = ready.Guilds;
+            for (var i = 0; i < guilds.Count; i++)
             {
                 var guild = guilds[i];
                 var merged_members = ready.MergedMembers[i];
@@ -673,7 +662,7 @@ namespace DSharpPlus
                 guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
                 guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
 
-                foreach (var xc in guild.Channels.Values)
+                foreach (var (_, xc) in guild.Channels)
                 {
                     xc.GuildId = guild.Id;
                     xc.Discord = this;
@@ -683,7 +672,7 @@ namespace DSharpPlus
                         xo._channel_id = xc.Id;
                     }
                 }
-                foreach (var xt in guild.Threads.Values)
+                foreach (var (_, xt) in guild.Threads)
                 {
                     xt.GuildId = guild.Id;
                     xt.Discord = this;
@@ -691,13 +680,11 @@ namespace DSharpPlus
 
                 guild._roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
 
-                foreach (var xr in guild.Roles.Values)
+                foreach (var (_, xr) in guild.Roles)
                 {
                     xr.Discord = this;
                     xr._guild_id = guild.Id;
                 }
-
-                var raw_guild = raw_guild_index[guild.Id];
 
                 guild._members?.Clear();
                 guild._members ??= new ConcurrentDictionary<ulong, DiscordMember>();
@@ -712,12 +699,12 @@ namespace DSharpPlus
 
                 guild._emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
 
-                foreach (var xe in guild.Emojis.Values)
+                foreach (var (_, xe) in guild.Emojis)
                     xe.Discord = this;
 
                 guild._voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
 
-                foreach (var xvs in guild.VoiceStates.Values)
+                foreach (var (_, xvs) in guild.VoiceStates)
                     xvs.Discord = this;
 
                 this._guilds[guild.Id] = guild;
@@ -729,7 +716,7 @@ namespace DSharpPlus
                 _userGuildSettings[item.GuildId ?? default] = item;
             }
 
-            foreach (var relationship in (ready.Relationships ?? Array.Empty<DiscordRelationship>()))
+            foreach (var relationship in ready.Relationships ?? Array.Empty<DiscordRelationship>())
             {
                 relationship.Discord = this;
 
@@ -744,7 +731,7 @@ namespace DSharpPlus
                 }
             }
 
-            foreach (var dat in (ready.ReadStates ?? Array.Empty<DiscordReadState>()))
+            foreach (var dat in ready.ReadStates ?? Array.Empty<DiscordReadState>())
             {
                 if (this._readStates.TryGetValue(dat.Id, out var state))
                 {
@@ -759,23 +746,23 @@ namespace DSharpPlus
                 }
             }
 
-            if (merged_presences != null)
+            if (ready.MergedPresences != null)
             {
-                var friends = (JArray)merged_presences["friends"];
+                var friends = ready.MergedPresences.Friends;
                 foreach (var presence in friends)
                 {
                     await this.OnPresenceUpdateEventAsync((JObject)presence, (JObject)presence["user"], true).ConfigureAwait(false);
                 }
 
                 // presences are technically per guild but we dont really handle that properly :sob:
-                var guildPresences = (JArray)merged_presences["guilds"];
+                var guildPresences = ready.MergedPresences.Guilds;
                 if (guildPresences != null)
                 {
-                    for (var i = 0; i < guildPresences.Count; i++)
+                    for (var i = 0; i < guildPresences.Length; i++)
                     {
                         var guildPresence = guildPresences[i];
                         var guild = guilds[i];
-                        foreach (var presence in (JArray)guildPresence)
+                        foreach (var presence in guildPresence)
                         {
                             await this.OnPresenceUpdateEventAsync((JObject)presence, (JObject)presence["user"], true).ConfigureAwait(false);
                         }
@@ -805,7 +792,10 @@ namespace DSharpPlus
                 xo._channel_id = channel.Id;
             }
 
-            this._guilds[channel.GuildId.Value]._channels[channel.Id] = channel;
+            if (channel.GuildId != null)
+                this._guilds[channel.GuildId.Value]._channels[channel.Id] = channel;
+            else 
+                this._privateChannels[channel.Id] = (DiscordDmChannel)channel;
 
             await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
         }
@@ -2078,7 +2068,7 @@ namespace DSharpPlus
         #endregion
 
         #region User/Presence Update
-
+         
         internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser, bool skipEvents = false)
         {
             var uid = rawUser != null ? (ulong)rawUser["id"] : (ulong)rawPresence["user_id"];

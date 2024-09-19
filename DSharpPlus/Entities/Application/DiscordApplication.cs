@@ -185,7 +185,7 @@ namespace DSharpPlus.Entities
 
             var scopeBuilder = new StringBuilder();
 
-            foreach(var v in scopes)
+            foreach (var v in scopes)
                 scopeBuilder.Append(" ").Append(this.TranslateOAuthScope(v));
 
 
@@ -400,18 +400,13 @@ namespace DSharpPlus.Entities
         /// Gets the URL of this asset.
         /// </summary>
         public override Uri Url
-            => this._url.Value;
-
-        private readonly Lazy<Uri> _url;
-
-        public DiscordSpotifyAsset()
         {
-            this._url = new Lazy<Uri>(() =>
+            get
             {
                 var ids = this.Id.Split(':');
                 var id = ids[1];
                 return new Uri($"https://i.scdn.co/image/{id}");
-            });
+            }
         }
     }
 

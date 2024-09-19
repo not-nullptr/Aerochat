@@ -39,14 +39,6 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessage()
         {
-            this._jumpLink = new Lazy<Uri>(() =>
-            {
-                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
-                var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-                var mid = this.Id.ToString(CultureInfo.InvariantCulture);
-
-                return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
-            });
         }
 
         internal DiscordMessage(DiscordMessage other)
@@ -292,8 +284,17 @@ namespace DSharpPlus.Entities
         /// Gets the jump link to this message.
         /// </summary>
         [JsonIgnore]
-        public Uri JumpLink => this._jumpLink.Value;
-        private readonly Lazy<Uri> _jumpLink;
+        public Uri JumpLink
+        {
+            get
+            {
+                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
+                var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+                var mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+                return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
+            }
+        }
 
         /// <summary>
         /// Gets stickers for this message.
