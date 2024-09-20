@@ -255,6 +255,8 @@ namespace Aerochat.Windows
                             Close();
                         });
                     }
+                    httpClient.Dispose();
+                    tags.Dispose();
                 });
             });
         }
