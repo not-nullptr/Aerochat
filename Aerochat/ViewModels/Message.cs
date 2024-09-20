@@ -129,10 +129,10 @@ namespace Aerochat.ViewModels
                 MessageType.RecipientRemove => $"{user.Name} has been removed from the group.",
                 MessageType.Call => $"{user.Name} has started a call.",
                 MessageType.ChannelFollowAdd => $"{user.Name} has followed the channel.",
-                MessageType.GuildDiscoveryDisqualified => $"{message.Channel.Guild.Name} has been disqualified from guild discovery.",
-                MessageType.GuildDiscoveryRequalified => $"{message.Channel.Guild.Name} has been requalified for guild discovery.",
-                MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{message.Channel.Guild.Name} has failed to meet the guild discovery requirements for a week.",
-                MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{message.Channel.Guild.Name} has failed to meet the guild discovery requirements for 3 weeks.",
+                MessageType.GuildDiscoveryDisqualified => $"{message.Channel.Guild.Name} has been disqualified from server discovery.",
+                MessageType.GuildDiscoveryRequalified => $"{message.Channel.Guild.Name} has been requalified for server discovery.",
+                MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for a week.",
+                MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for three weeks.",
                 MessageType.ChannelPinnedMessage => $"{user.Name} pinned a message to this channel.",
                 _ => null
             };
