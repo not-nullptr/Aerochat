@@ -267,13 +267,6 @@ namespace Aerochat
                                     }
                                 }
                             }
-                            else if (wnd is Chat chat)
-                            {
-                                if (chat.ViewModel.Recipient?.Id == e.User.Id)
-                                {
-
-                                }
-                            }
                         }
                     });
 

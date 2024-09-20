@@ -172,7 +172,7 @@ namespace Aerochat.Windows
                     Collapsed = false,
                     IsSelected = false,
                     IsVisibleProperty = true,
-                    Name = "Test"
+                    Name = ""
                 });
 
                 ViewModel.Categories[0].Items.Add(new()
@@ -343,10 +343,10 @@ namespace Aerochat.Windows
                 {
                     ViewModel.Guild = GuildViewModel.FromGuild(guild);
                     List<ChannelType> AllowedChannelTypes = new()
-                {
-                    ChannelType.Text,
-                    ChannelType.Announcement
-                };
+                    {
+                        ChannelType.Text,
+                        ChannelType.Announcement
+                    };
 
                     // firstly, get all uncategorized channels
                     var uncategorized = guild.Channels.Values
@@ -376,7 +376,13 @@ namespace Aerochat.Windows
                     }
 
                     var categories = guild.Channels.Values
-                        .Where(x => x.Type == ChannelType.Category)
+                        .Where(x => x.Type == ChannelType.Category 
+                               && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                               && guild.Channels.Values.Where(c => 
+                                    c.ParentId == x.Id 
+                                    && c.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                                    && AllowedChannelTypes.Contains(c.Type)
+                               ).Count() > 0)
                         .OrderBy(x => x.Position);
 
                     foreach (var category in categories)
