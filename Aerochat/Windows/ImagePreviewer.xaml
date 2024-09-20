@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:enums="clr-namespace:Aerochat.Enums"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ImagePreviewerViewModel}"
         xmlns:local="clr-namespace:Aerochat.Windows"
         mc:Ignorable="d"
@@ -17,11 +19,34 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="{Binding BottomHeight}" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.Background>
-                <ImageBrush ImageSource="{Binding SourceUri}" Stretch="Uniform" />
-            </Grid.Background>
-        </Grid>
+
+        <!-- TODO: Solve multiple rendering issue -->
+        <Image Grid.Row="0" Source="{Binding SourceUri}" Stretch="Uniform">
+            <Image.Style>
+                <Style TargetType="Image">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Image}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+
+        <Image Grid.Row="0" gif:AnimationBehavior.SourceUri="{Binding SourceUri}" Stretch="Uniform">
+            <Image.Style>
+                <Style TargetType="Image">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Gif}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+
         <Grid UseLayoutRounding="True" Margin="0,2,4,0" Grid.Row="1">
             <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OpenImage" Style="{StaticResource TransparentStyle}">
                 <Image Width="20" Height="19" UseLayoutRounding="True">

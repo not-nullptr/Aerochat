@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" 
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:enums="clr-namespace:Aerochat.Enums"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
         xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChatWindowViewModel}"
         mc:Ignorable="d"
@@ -1042,6 +1044,18 @@
                                                                                 </Style>
                                                                             </Image.Style>
                                                                         </Image>
+                                                                        <MediaElement Margin="0,24,0,0" Source="{Binding Video}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" MediaEnded="OnEmbedMediaEnded" UnloadedBehavior="Manual" LoadedBehavior="Play">
+                                                                            <MediaElement.Style>
+                                                                                <Style TargetType="MediaElement">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Video}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </MediaElement.Style>
+                                                                        </MediaElement>
                                                                     </StackPanel>
                                                                 </Grid>
                                                             </Border>
@@ -1052,7 +1066,30 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel>
-                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonUp="OpenImage" Cursor="Hand" />
+                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonUp="OpenMedia" Cursor="Hand">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Image}">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
+                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" gif:AnimationBehavior.SourceUri="{Binding Url}" MouseLeftButtonUp="OpenMedia" Cursor="Hand">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Gif}">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
                                                                 <TextBlock Margin="0,2">
                                                                     <TextBlock.Text>
                                                                         <MultiBinding StringFormat="{}{0} ({1})">

@@ -1,21 +1,11 @@
 ﻿using Aerochat.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Vanara.PInvoke;
 using static Vanara.PInvoke.DwmApi;
 
 namespace Aerochat.Windows
@@ -31,13 +21,14 @@ namespace Aerochat.Windows
         private bool _closing = false;
         public ImagePreviewerViewModel ViewModel { get; private set; }
 
-        public ImagePreviewer(string source, string fileName, Rect srcRect, Rect dstRect)
+        public ImagePreviewer(AttachmentViewModel attachmentVm, Rect srcRect, Rect dstRect)
         {
             ViewModel = new ImagePreviewerViewModel
             {
-                FileName = fileName,
-                SourceUri = source,
+                FileName = attachmentVm.Name,
+                SourceUri = attachmentVm.MediaType == Enums.MediaType.Video ? "" : attachmentVm.Url,
                 BottomHeight = 24,
+                MediaType = attachmentVm.MediaType
             };
 
             System.Timers.Timer timer = new(1050);
@@ -160,8 +151,11 @@ namespace Aerochat.Windows
 
         private bool _ranClose = false;
 
+        // TODO: Fix closing animation for gifs
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            return;
+
             if (_ranClose) return;
             _ranClose = true;
             e.Cancel = true;
