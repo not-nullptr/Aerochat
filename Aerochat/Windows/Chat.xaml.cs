@@ -397,6 +397,20 @@ namespace Aerochat.Windows
             base.OnClosing(e);
             Discord.Client.TypingStarted -= OnType;
             Discord.Client.MessageCreated -= OnMessageCreation;
+            // dispose of the chat
+            ViewModel.Messages.Clear();
+            TypingUsers.Clear();
+            foreach (var t in timers)
+            {
+                t.Value.Stop();
+                t.Value.Dispose();
+            }
+            timers.Clear();
+            chatSoundPlayer.Stop();
+            chatSoundPlayer.Close();
+            System.Timers.Timer timer = new(100);
+            timer.Elapsed += GCRelease;
+            timer.Start();
         }
 
         private async Task OnMessageCreation(DSharpPlus.DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs args)
@@ -627,11 +641,13 @@ namespace Aerochat.Windows
 
             Discord.Client.TypingStarted -= OnType;
             Discord.Client.MessageCreated -= OnMessageCreation;
+            Discord.Client.MessageDeleted -= OnMessageDeleted;
+            Discord.Client.MessageUpdated -= OnMessageUpdated;
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();
 
-            System.Timers.Timer timer = new(100);
+            System.Timers.Timer timer = new(2000);
             timer.Elapsed += GCRelease;
             timer.Start();
         }
