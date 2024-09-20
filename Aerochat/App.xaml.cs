@@ -22,6 +22,7 @@ using System.Configuration;
 using Aerochat.Settings;
 using System.Windows.Shell;
 using System.Windows.Media.Imaging;
+using DSharpPlus.Enums;
 
 namespace Aerochat
 {
@@ -285,7 +286,8 @@ namespace Aerochat
                     {
                         if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb) return;
                         // if the user isn't on our friends list return
-                        if (Discord.Client.Relationships.Values.FirstOrDefault(x => x.UserId == e.User.Id) == null) return;
+                        var relationship = Discord.Client.Relationships.Values.FirstOrDefault(x => x.UserId == e.User.Id);
+                        if (relationship == null || relationship.RelationshipType != DiscordRelationshipType.Friend) return;
                         var noti = new Notification(NotificationType.SignOn, new
                         {
                             e.User,

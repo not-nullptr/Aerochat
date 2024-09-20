@@ -36,7 +36,7 @@ namespace Aerochat.Windows
     {
         private MediaPlayer chatSoundPlayer = new();
         public DiscordChannel Channel;
-        private ulong channelId;
+        public ulong ChannelId;
         bool isDraggingTopSeperator = false;
         bool isDraggingBottomSeperator = false;
         int initialPos = 0;
@@ -45,26 +45,45 @@ namespace Aerochat.Windows
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
 
-        public async Task ExecuteNudgePrettyPlease(double initialLeft, double initialTop)
+        public async Task ExecuteNudgePrettyPlease(double initialLeft, double initialTop, double duration = 2, double intensity = 10, bool forceFocus = false)
         {
-            int steps = 50;
-            int stepSize = 25;
+            double GetRandomNumber(double minimum, double maximum)
+            {
+                Random random = new Random();
+                return random.NextDouble() * (maximum - minimum) + minimum;
+            }
+
+            double frequency = 16;
+            double steps = duration * 1000 / frequency;
+            int stepSize = (int)Math.Floor(frequency);
 
             Random random = new();
 
             for (int i = 0; i < steps; i++)
             {
-                double newLeft = initialLeft + random.Next(-10, 10);
-                double newTop = initialTop + random.Next(-10, 10);
+                double newLeft = initialLeft + GetRandomNumber(-intensity, intensity);
+                double newTop = initialTop + GetRandomNumber(-intensity, intensity);
 
                 await Dispatcher.InvokeAsync(() =>
                 {
                     Left = newLeft;
                     Top = newTop;
+                    WindowState = WindowState.Normal;
+                    if (forceFocus)
+                    {
+                        Activate();
+                        Show();
+                    }
                 });
 
                 await Task.Delay(stepSize);
             }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                Left = initialLeft;
+                Top = initialTop;
+            });
         }
 
         private void Chat_Loaded(object sender, RoutedEventArgs e)
@@ -99,10 +118,10 @@ namespace Aerochat.Windows
             if (ViewModel is null || ViewModel?.Messages is null) return;
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
-            Discord.Client.TryGetCachedChannel(channelId, out DiscordChannel currentChannel);
+            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
             if (currentChannel is null)
             {
-                currentChannel = await Discord.Client.GetChannelAsync(channelId);
+                currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
             }
 
             Application.Current.Dispatcher.Invoke(delegate
@@ -222,9 +241,9 @@ namespace Aerochat.Windows
 
             if (!isDM)
             {
-                if (SettingsManager.Instance.LastReadMessages.ContainsKey(channelId) && Channel.LastMessageId is not null)
+                if (SettingsManager.Instance.LastReadMessages.ContainsKey(ChannelId) && Channel.LastMessageId is not null)
                 {
-                    SettingsManager.Instance.LastReadMessages[channelId] = (ulong)Channel.LastMessageId;
+                    SettingsManager.Instance.LastReadMessages[ChannelId] = (ulong)Channel.LastMessageId;
                 }
                 SettingsManager.Save();
             }
@@ -243,7 +262,7 @@ namespace Aerochat.Windows
 
             if (!isDM)
             {
-                SettingsManager.Instance.SelectedChannels[guild.Id] = channelId;
+                SettingsManager.Instance.SelectedChannels[guild.Id] = ChannelId;
                 SettingsManager.Save();
             }
 
@@ -269,7 +288,7 @@ namespace Aerochat.Windows
                     {
                         lastReadMessageTime = SettingsManager.Instance.ReadRecieptReference;
                     }
-                    bool isCurrentChannel = c.Id == channelId;
+                    bool isCurrentChannel = c.Id == ChannelId;
                     var channel = c;
                     var lastMessageId = channel.LastMessageId;
                     if (lastMessageId is null)
@@ -288,7 +307,7 @@ namespace Aerochat.Windows
                         if (isCurrentChannel)
                         {
                             // update the last read message
-                            SettingsManager.Instance.LastReadMessages[channelId] = lastMessageId ?? 0;
+                            SettingsManager.Instance.LastReadMessages[ChannelId] = lastMessageId ?? 0;
                         }
                     }
                 }
@@ -305,10 +324,10 @@ namespace Aerochat.Windows
         public async Task BeginDiscordLoop()
         {
             await OnChannelChange();
-            Discord.Client.TryGetCachedChannel(channelId, out DiscordChannel currentChannel);
+            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
             if (currentChannel is null)
             {
-                currentChannel = await Discord.Client.GetChannelAsync(channelId);
+                currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
             }
 
             bool isDM = currentChannel is DiscordDmChannel;
@@ -418,7 +437,7 @@ namespace Aerochat.Windows
             args.Channel.GetType().GetProperty("LastMessageId")?.SetValue(args.Channel, args.Message.Id);
             Dispatcher.Invoke(UpdateChannelListerReadReciepts);
 
-            if (args.Channel.Id != channelId) return;
+            if (args.Channel.Id != ChannelId) return;
             bool isNudge = args.Message.Content == "[nudge]";
             Application.Current.Dispatcher.Invoke(delegate
             {
@@ -469,7 +488,7 @@ namespace Aerochat.Windows
 
             if (isNudge)
             {
-                Application.Current.Dispatcher.Invoke(() => ExecuteNudgePrettyPlease(Left, Top));
+                Application.Current.Dispatcher.Invoke(() => ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity));
             }
         }
 
@@ -485,9 +504,9 @@ namespace Aerochat.Windows
                 ScrollViewer scrollViewer = VisualTreeHelper.GetChild(MessagesListItemsControl, 0) as ScrollViewer;
                 if (scrollViewer != null && IsActive)
                 {
-                    if (!SettingsManager.Instance.LastReadMessages.TryGetValue(channelId, out var msgId))
+                    if (!SettingsManager.Instance.LastReadMessages.TryGetValue(ChannelId, out var msgId))
                     {
-                        SettingsManager.Instance.LastReadMessages[channelId] = message.Id ?? 0;
+                        SettingsManager.Instance.LastReadMessages[ChannelId] = message.Id ?? 0;
                     } else
                     {
                         long prevTimestamp = ((long)(msgId >> 22)) + 1420070400000;
@@ -498,7 +517,7 @@ namespace Aerochat.Windows
 
                         if (prevLastMessageTime < nextLastMessageTime)
                         {
-                            SettingsManager.Instance.LastReadMessages[channelId] = message.Id ?? 0;
+                            SettingsManager.Instance.LastReadMessages[ChannelId] = message.Id ?? 0;
                         }
                     }
 
@@ -520,7 +539,7 @@ namespace Aerochat.Windows
 
         private async Task OnType(DSharpPlus.DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)
         {
-            if (args.Channel.Id != channelId) return;
+            if (args.Channel.Id != ChannelId) return;
             if (args.User.Id == Discord.Client.CurrentUser.Id) return;
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -562,18 +581,18 @@ namespace Aerochat.Windows
                 Discord.Client.TryGetCachedChannel(id, out DiscordChannel channel);
                 if (channel is null || channel.GuildId is null)
                 {
-                    channelId = id;
+                    ChannelId = id;
                 } else
                 if (SettingsManager.Instance.SelectedChannels.TryGetValue(channel.GuildId ?? 0, out ulong selectedChannel))
                 {
-                    channelId = selectedChannel;
+                    ChannelId = selectedChannel;
                 } else
                 {
-                    channelId = id;
+                    ChannelId = id;
                 }
             } else
             {
-                channelId = id;
+                ChannelId = id;
             }
             InitializeComponent();
             Task.Run(BeginDiscordLoop);
@@ -936,7 +955,7 @@ namespace Aerochat.Windows
             else if (item is HomeListItemViewModel)
             {
                 item.IsSelected = true;
-                channelId = item.Id;
+                ChannelId = item.Id;
                 await OnChannelChange();
             }
         }
@@ -944,7 +963,7 @@ namespace Aerochat.Windows
         private async void RunNudge(object sender, MouseButtonEventArgs e)
         {
             await SendMessage("[nudge]");
-            ExecuteNudgePrettyPlease(Left, Top).ConfigureAwait(false);
+            ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity).ConfigureAwait(false);
         }
 
         private void JumpToReply(object sender, MouseButtonEventArgs e)
@@ -975,7 +994,7 @@ namespace Aerochat.Windows
                 case Controls.HyperlinkType.Channel:
                     {
                         var channel = (DiscordChannel)e.AssociatedObject;
-                        channelId = channel.Id;
+                        ChannelId = channel.Id;
                         foreach (var category in ViewModel.Categories)
                         {
                             foreach (var item in category.Items)

@@ -3,34 +3,149 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
         mc:Ignorable="d"
         Title="Settings" Height="570" Width="520"
+        Background="#f0f0f0"
         Style="{StaticResource Window}">
-    <StackPanel Margin="16">
-        <Grid Margin="0,4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="42" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Red" />
-            <Slider x:Name="Red" ValueChanged="RefreshColor" Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
+    <Grid Margin="7">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="92" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ListBox x:Name="CategoriesListBox" ItemsSource="{Binding Categories}" SelectionChanged="ListBox_SelectionChanged">
+            <ListBox.ItemContainerStyle>
+                <Style
+       TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="SnapsToDevicePixels"
+          Value="True" />
+                    <Setter Property="Padding"
+          Value="4,1" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="HorizontalContentAlignment"
+          Value="{Binding HorizontalContentAlignment,
+                          RelativeSource={RelativeSource FindAncestor,
+                                                         AncestorLevel=1,
+                                                         AncestorType={x:Type ItemsControl}}}" />
+                    <Setter Property="VerticalContentAlignment"
+          Value="{Binding VerticalContentAlignment,
+                          RelativeSource={RelativeSource FindAncestor,
+                                                         AncestorLevel=1,
+                                                         AncestorType={x:Type ItemsControl}}}" />
+                    <Setter Property="Background"
+          Value="Transparent" />
+                    <Setter Property="BorderBrush"
+          Value="Transparent" />
+                    <Setter Property="FocusVisualStyle">
+                        <Setter.Value>
+                            <Style>
+                                <Setter Property="Control.Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Rectangle Margin="2"
+                         SnapsToDevicePixels="True"
+                         Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                         StrokeDashArray="1 2"
+                         StrokeThickness="1" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border x:Name="Bd"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{TemplateBinding Padding}"
+                SnapsToDevicePixels="True">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="Selector.IsSelectionActive"
+                         Value="False" />
+                                            <Condition Property="IsSelected"
+                         Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Bd"
+                    Property="Background"
+                    Value="#3399ff" />
+                                        <Setter TargetName="Bd" Property="TextElement.Foreground" Value="White" />
+                                    </MultiTrigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                            <Condition Property="IsSelected" Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Bd" Property="Background" Value="#3399ff" />
+                                        <Setter TargetName="Bd" Property="TextElement.Foreground" Value="White" />
+                                    </MultiTrigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="28">
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Column="1" Margin="8,0,0,0">
+            <TextBlock FontWeight="Bold" Text="{Binding SelectedCategory.Name}" />
+            <ItemsControl Margin="0,24,0,0" ItemsSource="{Binding SettingsItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,4,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Boolean">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <CheckBox Click="CheckBox_Click" Tag="{Binding Name}" IsChecked="{Binding DefaultValue}" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" />
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Int32">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
+                                <TextBox TextChanged="TextBox_TextChanged" Tag="{Binding Name}" Text="{Binding DefaultValue}" PreviewTextInput="TextBox_PreviewTextInput" VerticalContentAlignment="Center" Width="150" Height="22" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
-        <Grid Margin="0,4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="42" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Green" />
-            <Slider x:Name="Green" ValueChanged="RefreshColor"  Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
-        </Grid>
-        <Grid Margin="0,4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="42" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Blue" />
-            <Slider x:Name="Blue" ValueChanged="RefreshColor" Grid.Column="2" HorizontalAlignment="Stretch" Maximum="255" TickPlacement="BottomRight" TickFrequency="10" />
-        </Grid>
-    </StackPanel>
+    </Grid>
 </Window>
