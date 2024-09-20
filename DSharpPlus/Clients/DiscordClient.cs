@@ -440,6 +440,8 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
             => this.ApiClient.GetStickerPacksAsync();
 
+        public async Task UpdateBannerColorAsync(int color) => await this.ApiClient.ModifyBannerColorAsync(color).ConfigureAwait(false);
+
         /// <summary>
         /// Gets a user
         /// </summary>

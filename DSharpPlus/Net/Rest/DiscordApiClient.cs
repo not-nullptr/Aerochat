@@ -3963,6 +3963,22 @@ namespace DSharpPlus.Net
             return new DiscordForumPostStarter(chn, msg);
         }
 
+        internal async Task ModifyBannerColorAsync(int color)
+        {
+            var pld = new RestUserProfileUpdatePayload
+            {
+                AccentColor = color
+            };
+
+            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.PROFILE}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            this._discord.CurrentUser._bannerColor = color;
+        }
+
+
         public async Task<ThreadQueryResult> SearchForumChannelAsync(
             ulong channel_id,
             ulong guild_id,
