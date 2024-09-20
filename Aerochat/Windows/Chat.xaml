@@ -341,6 +341,16 @@
                                                         <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
                                                     <Grid Grid.Row="0" Margin="0,0,0,2" PreviewMouseDown="ItemClick">
+                                                        <Grid.Style>
+                                                            <Style TargetType="Grid">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Name}" Value="">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Grid.Style>
                                                         <controls:NineSlice Slice="4,4">
                                                             <controls:NineSlice.Style>
                                                                 <Style TargetType="controls:NineSlice">
@@ -382,6 +392,9 @@
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Collapsed}" Value="False">
                                                                         <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Name}" Value="">
+                                                                        <Setter Property="Margin" Value="0,4,0,0" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -1097,6 +1110,23 @@
                                 </Grid.Style>
                                 <controls:TileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
                             </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Messages.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Loading}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBlock Margin="-16,8,0,0" Text="Start the conversation!" HorizontalAlignment="Stretch" VerticalAlignment="Top" TextAlignment="Center" FontStyle="Italic" Opacity="0.3" />
+                            </Grid>
+
                             <Grid Grid.Row="3" Margin="0,0,18,0">
                                 <StackPanel Margin="0,4,0,2">
                                     <Grid>

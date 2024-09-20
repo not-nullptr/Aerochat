@@ -278,6 +278,7 @@ namespace Aerochat.Windows
                 foreach (var item in category.Items)
                 {
                     Discord.Client.TryGetCachedChannel(item.Id, out var c);
+                    if (c == null) continue;
                     bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(c.Id, out var lastReadMessageId);
                     DateTime lastReadMessageTime;
                     if (found)
@@ -342,79 +343,88 @@ namespace Aerochat.Windows
                 if (!isDM)
                 {
                     ViewModel.Guild = GuildViewModel.FromGuild(guild);
-                    List<ChannelType> AllowedChannelTypes = new()
-                    {
-                        ChannelType.Text,
-                        ChannelType.Announcement
-                    };
-
-                    // firstly, get all uncategorized channels
-                    var uncategorized = guild.Channels.Values
-                        .Where(x => x.ParentId == null && AllowedChannelTypes.Contains(x.Type) && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels))
-                        .OrderBy(x => x.Position);
-
-                    if (uncategorized.Count() > 0)
-                    {
-                        ViewModel.Categories.Add(new()
-                        {
-                            Name = "Uncategorized",
-                            Collapsed = false,
-                            IsSelected = false,
-                            IsVisibleProperty = true,
-                        });
-
-                        foreach (var channel in uncategorized)
-                        {
-                            if ((channel.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) != Permissions.AccessChannels) continue;
-                            ViewModel.Categories[^1].Items.Add(new()
-                            {
-                                Name = channel.Name,
-                                Id = channel.Id,
-                                IsSelected = currentChannel.Id == channel.Id
-                            });
-                        }
-                    }
-
-                    var categories = guild.Channels.Values
-                        .Where(x => x.Type == ChannelType.Category 
-                               && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
-                               && guild.Channels.Values.Where(c => 
-                                    c.ParentId == x.Id 
-                                    && c.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
-                                    && AllowedChannelTypes.Contains(c.Type)
-                               ).Count() > 0)
-                        .OrderBy(x => x.Position);
-
-                    foreach (var category in categories)
-                    {
-                        ViewModel.Categories.Add(new()
-                        {
-                            Name = category.Name,
-                            Collapsed = false,
-                            IsSelected = false,
-                            IsVisibleProperty = true,
-                        });
-
-                        var channels = guild.Channels.Values
-                            .Where(x => x.ParentId == category.Id && AllowedChannelTypes.Contains(x.Type))
-                            .OrderBy(x => x.Position);
-                        foreach (var channel in channels)
-                        {
-                            if ((channel.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) != Permissions.AccessChannels) continue;
-                            ViewModel.Categories[^1].Items.Add(new()
-                            {
-                                Name = channel.Name,
-                                Id = channel.Id,
-                                IsSelected = currentChannel.Id == channel.Id
-                            });
-                        }
-                    }
-
-                    Dispatcher.Invoke(UpdateChannelListerReadReciepts);
+                    RefreshChannelList();
                 }
             });
             Dispatcher.Invoke(Show);
             if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+        }
+
+        public void RefreshChannelList()
+        {
+            if (ViewModel.Categories.Count > 0) ViewModel.Categories.Clear();
+            var guild = Channel.Guild;
+            var currentChannel = Channel;
+
+            List<ChannelType> AllowedChannelTypes = new()
+            {
+                ChannelType.Text,
+                ChannelType.Announcement
+            };
+
+            // firstly, get all uncategorized channels
+            var uncategorized = guild.Channels.Values
+                .Where(x => x.ParentId == null && AllowedChannelTypes.Contains(x.Type) && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels))
+                .OrderBy(x => x.Position);
+
+            if (uncategorized.Count() > 0)
+            {
+                ViewModel.Categories.Add(new()
+                {
+                    Name = "",
+                    Collapsed = false,
+                    IsSelected = false,
+                    IsVisibleProperty = true,
+                });
+
+                foreach (var channel in uncategorized)
+                {
+                    if ((channel.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) != Permissions.AccessChannels) continue;
+                    ViewModel.Categories[^1].Items.Add(new()
+                    {
+                        Name = channel.Name,
+                        Id = channel.Id,
+                        IsSelected = currentChannel.Id == channel.Id
+                    });
+                }
+            }
+
+            var categories = guild.Channels.Values
+                .Where(x => x.Type == ChannelType.Category
+                       && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                       && guild.Channels.Values.Where(c =>
+                            c.ParentId == x.Id
+                            && c.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                            && AllowedChannelTypes.Contains(c.Type)
+                       ).Count() > 0)
+                .OrderBy(x => x.Position);
+
+            foreach (var category in categories)
+            {
+                ViewModel.Categories.Add(new()
+                {
+                    Name = category.Name,
+                    Collapsed = false,
+                    IsSelected = false,
+                    IsVisibleProperty = true,
+                });
+
+                var channels = guild.Channels.Values
+                    .Where(x => x.ParentId == category.Id && AllowedChannelTypes.Contains(x.Type))
+                    .OrderBy(x => x.Position);
+                foreach (var channel in channels)
+                {
+                    if ((channel.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) != Permissions.AccessChannels) continue;
+                    ViewModel.Categories[^1].Items.Add(new()
+                    {
+                        Name = channel.Name,
+                        Id = channel.Id,
+                        IsSelected = currentChannel.Id == channel.Id
+                    });
+                }
+            }
+
+            Dispatcher.Invoke(UpdateChannelListerReadReciepts);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -578,25 +588,48 @@ namespace Aerochat.Windows
             
         }
 
+        public void UnavailableDialog()
+        {
+            Show();
+            Visibility = Visibility.Hidden;
+            var dialog = new Dialog("Server unavailable", "This server is unavailable right now. Please try again later", SystemIcons.Error);
+            dialog.Owner = this;
+            dialog.ShowDialog();
+            Close();
+        }
+
         public Chat(ulong id, bool allowDefault = false)
         {
             Hide();
 
             if (allowDefault)
             {
-                Discord.Client.TryGetCachedChannel(id, out DiscordChannel channel);
-                if (channel is null || channel.GuildId is null)
-                {
-                    ChannelId = id;
-                } else
-                if (SettingsManager.Instance.SelectedChannels.TryGetValue(channel.GuildId ?? 0, out ulong selectedChannel))
-                {
-                    ChannelId = selectedChannel;
-                } else
+                SettingsManager.Instance.SelectedChannels.TryGetValue(id, out ulong channelId);
+                if (Discord.Client.TryGetCachedChannel(channelId, out DiscordChannel channel))
                 {
                     ChannelId = id;
                 }
-            } else
+                else
+                {
+                    // get the key of `id` in the dictionary
+                    var key = SettingsManager.Instance.SelectedChannels.FirstOrDefault(x => x.Value == id).Key;
+                    if (Discord.Client.TryGetCachedGuild(key, out DiscordGuild guild))
+                    {
+                        // get the first channel in the guild
+                        var firstChannel = guild.Channels.Values.FirstOrDefault(x => x.Type == ChannelType.Text && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels));
+                        if (firstChannel is not null)
+                        {
+                            ChannelId = firstChannel.Id;
+                        } else
+                        {
+                            UnavailableDialog();
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            if (ChannelId == 0)
             {
                 ChannelId = id;
             }
@@ -615,12 +648,40 @@ namespace Aerochat.Windows
             Discord.Client.MessageCreated += OnMessageCreation;
             Discord.Client.MessageDeleted += OnMessageDeleted;
             Discord.Client.MessageUpdated += OnMessageUpdated;
+            Discord.Client.ChannelCreated += OnChannelCreated;
+            Discord.Client.ChannelDeleted += OnChannelDeleted;
+            Discord.Client.ChannelUpdated += OnChannelUpdated;
+        }
+
+        private async Task OnChannelUpdated(DiscordClient sender, DSharpPlus.EventArgs.ChannelUpdateEventArgs args)
+        {
+            if (args.ChannelAfter.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
+            Dispatcher.Invoke(RefreshChannelList);
+        }
+
+        private async Task OnChannelDeleted(DiscordClient sender, DSharpPlus.EventArgs.ChannelDeleteEventArgs args)
+        {
+            if (args.Channel.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
+            Dispatcher.Invoke(RefreshChannelList);
+            if (args.Channel.Id == Channel.Id)
+            {
+                var newChannel = ViewModel.Categories.ElementAt(0).Items.ElementAt(0);
+                ChannelId = newChannel.Id;
+                newChannel.IsSelected = true;
+                Dispatcher.Invoke(() => OnChannelChange());
+            }
+        }
+
+        private async Task OnChannelCreated(DiscordClient sender, DSharpPlus.EventArgs.ChannelCreateEventArgs args)
+        {
+            if (args.Channel.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
+            Dispatcher.Invoke(RefreshChannelList);
         }
 
         private async Task OnMessageUpdated(DiscordClient sender, DSharpPlus.EventArgs.MessageUpdateEventArgs args)
         {
             // get the message from the collection
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 if (ViewModel is null) return;
                 var message = ViewModel.Messages.FirstOrDefault(x => x.Id == args.Message.Id);
@@ -638,13 +699,33 @@ namespace Aerochat.Windows
 
         private async Task OnMessageDeleted(DiscordClient sender, DSharpPlus.EventArgs.MessageDeleteEventArgs args)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 if (ViewModel is null) return;
                 var message = ViewModel.Messages.FirstOrDefault(x => x.Id == args.Message.Id);
                 if (message is not null)
                 {
+                    // this is such a terrible solution i'm so sorry
                     ViewModel.Messages.Remove(message);
+                    foreach (MessageViewModel item in ViewModel.Messages)
+                    {
+                        int index = ViewModel.Messages.IndexOf(item);
+                        if (index == -1) return;
+                        if (index == 0)
+                        {
+                            item.HiddenInfo = false;
+                            continue;
+                        }
+                        MessageViewModel previous = ViewModel.Messages[index - 1];
+                        if (item.Special)
+                        {
+                            item.HiddenInfo = previous.Special;
+                            continue;
+                        }
+
+                        item.HiddenInfo = previous.Author?.Id == item.Author?.Id && !previous.Special;
+
+                    }
                 }
             });
         }
@@ -668,6 +749,9 @@ namespace Aerochat.Windows
             Discord.Client.MessageCreated -= OnMessageCreation;
             Discord.Client.MessageDeleted -= OnMessageDeleted;
             Discord.Client.MessageUpdated -= OnMessageUpdated;
+            Discord.Client.ChannelCreated -= OnChannelCreated;
+            Discord.Client.ChannelDeleted -= OnChannelDeleted;
+            Discord.Client.ChannelUpdated -= OnChannelUpdated;
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();

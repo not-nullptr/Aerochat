@@ -360,19 +360,7 @@ namespace Aerochat.Windows
                         LastMsgId = 0,
                         Id = channelsList[0].Id
                     };
-                    guildItem.DoubleClick = () =>
-                    {
-                        // see if there's a Chat window open for this guild
-                        var chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => x.ViewModel.Guild?.Id == guild.Id);
-                        if (chat is null)
-                        {
-                            new Chat(guild.Id);
-                        }
-                        else
-                        {
-                            chat.Show();
-                        }
-                    };
+
                     ViewModel.Categories[index].Items.Add(guildItem);
 
                     processedGuilds.Add(guildId);
@@ -412,19 +400,7 @@ namespace Aerochat.Windows
                     LastMsgId = 0,
                     Id = channelsList[0].Id
                 };
-                guildItem.DoubleClick = () =>
-                {
-                    // see if there's a Chat window open for this guild
-                    var chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => x.ViewModel.Guild?.Id == guild.Id);
-                    if (chat is null)
-                    {
-                        new Chat(guild.Id);
-                    }
-                    else
-                    {
-                        chat.Show();
-                    }
-                };
+
                 //ViewModel.Categories[1].Items.Add(guildItem);
                 // add to start:
                 ViewModel.Categories[1].Items.Insert(0, guildItem);
