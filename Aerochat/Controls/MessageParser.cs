@@ -113,12 +113,59 @@ namespace Aerochat.Controls
                         case 't':
                             {
                                 id = id.Replace("t:", "");
+                                string date_format = "MMMM dd, yyyy hh:mm tt";
+                                bool relative = false; //ONLY for :R
+
+                                if(id.EndsWith(":t"))
+                                {
+                                    id = id.Replace(":t", "");
+                                    date_format = "hh:mm tt";
+                                }
+                                else if (id.EndsWith(":T"))
+                                {
+                                    id = id.Replace(":T", "");
+                                    date_format = "hh:mm:ss tt";
+                                }
+                                else if (id.EndsWith(":d"))
+                                {
+                                    id = id.Replace(":d", "");
+                                    date_format = "MM/dd/yyyy";
+                                }
+                                else if (id.EndsWith(":D"))
+                                {
+                                    id = id.Replace(":D", "");
+                                    date_format = "MMMM dd, yyyy";
+                                }
+                                else if (id.EndsWith(":f")) //:f is the same as default, so ignore it.
+                                {
+                                    id = id.Replace(":f", "");
+                                }
+                                else if (id.EndsWith(":F"))
+                                {
+                                    id = id.Replace(":F", "");
+                                    date_format = "dddd, MMMM dd, yyyy hh:mm tt";
+                                }
+                                else if (id.EndsWith(":R"))
+                                {
+                                    id = id.Replace(":R", "");
+                                    relative = true;
+                                }
+
                                 if (long.TryParse(id, out long unixTimestamp))
                                 {
-                                    DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
-                                    DateTime localDateTime = dateTimeOffset.LocalDateTime;
-                                    string formattedDate = localDateTime.ToString("MMMM dd, yyyy hh:mm tt");
-                                    text = formattedDate;
+                                    if (relative)
+                                    {
+                                        text = "< relative timestamp - soon! >";
+                                    }
+                                    else
+                                    {
+                                        DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
+                                        DateTime localDateTime = dateTimeOffset.LocalDateTime;
+
+                                        string formattedDate = localDateTime.ToString(date_format);
+
+                                        text = formattedDate;
+                                    }
                                 }
                                 else
                                 {
