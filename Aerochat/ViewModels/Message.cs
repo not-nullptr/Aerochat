@@ -133,6 +133,7 @@ namespace Aerochat.ViewModels
                 MessageType.GuildDiscoveryRequalified => $"{message.Channel.Guild.Name} has been requalified for guild discovery.",
                 MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{message.Channel.Guild.Name} has failed to meet the guild discovery requirements for a week.",
                 MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{message.Channel.Guild.Name} has failed to meet the guild discovery requirements for 3 weeks.",
+                MessageType.ChannelPinnedMessage => $"{user.Name} pinned a message to this channel.",
                 _ => null
             };
             switch (message.Content)
