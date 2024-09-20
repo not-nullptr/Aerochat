@@ -350,7 +350,7 @@ namespace Aerochat.Windows
 
                     // firstly, get all uncategorized channels
                     var uncategorized = guild.Channels.Values
-                        .Where(x => x.ParentId == null && AllowedChannelTypes.Contains(x.Type))
+                        .Where(x => x.ParentId == null && AllowedChannelTypes.Contains(x.Type) && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels))
                         .OrderBy(x => x.Position);
 
                     if (uncategorized.Count() > 0)
