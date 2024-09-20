@@ -110,6 +110,22 @@ namespace Aerochat.Controls
                                 associatedObject = channel;
                                 break;
                             }
+                        case 't':
+                            {
+                                id = id.Replace("t:", "");
+                                if (long.TryParse(id, out long unixTimestamp))
+                                {
+                                    DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
+                                    DateTime localDateTime = dateTimeOffset.LocalDateTime;
+                                    string formattedDate = localDateTime.ToString("MMMM dd, yyyy hh:mm tt");
+                                    text = formattedDate;
+                                }
+                                else
+                                {
+                                    text = "Invalid Timestamp";
+                                }
+                                break;
+                            }
                     }
 
                     if (link.Inlines.Count > 0 && type != null)
