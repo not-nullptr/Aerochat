@@ -134,6 +134,7 @@ namespace Aerochat.ViewModels
                 MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for a week.",
                 MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for three weeks.",
                 MessageType.ChannelPinnedMessage => $"{user.Name} pinned a message to this channel.",
+                MessageType.ChannelNameChange => $"{user.Name} has changed the group name to {message.Content}.",
                 _ => null
             };
             switch (message.Content)
