@@ -62,20 +62,9 @@ namespace DSharpPlus.VoiceNext
         /// <param name="client">Discord sharded client to create VoiceNext instances for.</param>
         /// <param name="config">Configuration for the VoiceNext clients.</param>
         /// <returns>A dictionary of created VoiceNext clients.</returns>
-        public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
+        public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordClient client, VoiceNextConfiguration config)
         {
             var modules = new Dictionary<int, VoiceNextExtension>();
-            await client.InitializeShardsAsync().ConfigureAwait(false);
-
-            foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
-            {
-                var vnext = shard.GetExtension<VoiceNextExtension>();
-                if (vnext == null)
-                    vnext = shard.UseVoiceNext(config);
-
-                modules[shard.ShardId] = vnext;
-            }
-
             return new ReadOnlyDictionary<int, VoiceNextExtension>(modules);
         }
 
@@ -92,15 +81,10 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="client">The shard client to retrieve <see cref="VoiceNextExtension"/> instances from.</param>
         /// <returns>A dictionary containing <see cref="VoiceNextExtension"/> instances for each shard.</returns>
-        public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordShardedClient client)
+        public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordClient client)
         {
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeAsync().ConfigureAwait(false);
             var extensions = new Dictionary<int, VoiceNextExtension>();
-
-            foreach (var shard in client.ShardClients.Values)
-            {
-                extensions.Add(shard.ShardId, shard.GetExtension<VoiceNextExtension>());
-            }
 
             return new ReadOnlyDictionary<int, VoiceNextExtension>(extensions);
         }

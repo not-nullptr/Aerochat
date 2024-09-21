@@ -976,6 +976,20 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, ChannelUnreadUpdateEventArgs> _channelUnreadUpdate;
 
+        public event AsyncEventHandler<DiscordClient, ChannelRecipientAddedEventArgs> ChannelRecipientAdded
+        {
+            add => this._channelRecipientAdded.Register(value);
+            remove => this._channelRecipientAdded.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ChannelRecipientAddedEventArgs> _channelRecipientAdded;
+
+        public event AsyncEventHandler<DiscordClient, ChannelRecipientRemovedEventArgs> ChannelRecipientRemoved
+        {
+            add => this._channelRecipientRemoved.Register(value);
+            remove => this._channelRecipientRemoved.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ChannelRecipientRemovedEventArgs> _channelRecipientRemoved;
+
         /// <summary>
         /// Fired when Discord provides an updated authentication token
         /// </summary>

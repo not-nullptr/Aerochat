@@ -118,6 +118,14 @@ namespace DSharpPlus
                         await this.OnChannelUnreadUpdate(dat).ConfigureAwait(false);
                         break;
 
+                    case "channel_recipient_add":
+                        await this.OnChannelRecipientAddAsync(dat).ConfigureAwait(false);
+                        break;
+
+                    case "channel_recipient_remove":
+                        await this.OnChannelRecipientRemoveAsync(dat).ConfigureAwait(false);
+                        break;
+
                     #endregion
 
                     #region Scheduled Guild Events
@@ -941,6 +949,62 @@ namespace DSharpPlus
 
             var ev = new ChannelUnreadUpdateEventArgs() { GuildId = guildId, ReadStates = readStateDict };
             await this._channelUnreadUpdate.InvokeAsync(this, ev);
+        }
+
+        private async Task OnChannelRecipientAddAsync(JObject dat)
+        {
+            var channelId = dat["channel_id"]?.ToObject<ulong?>();
+            if (channelId == null) return;
+            var tUser = dat["user"].ToDiscordObject<TransportUser>();
+            var user = new DiscordUser(tUser)
+            {
+                Discord = this
+            };
+            user = this.UpdateUserCache(user);
+            this._privateChannels.TryGetValue(channelId ?? 0, out DiscordDmChannel channel);
+            var recipients = new List<DiscordUser>();
+            foreach (var u in channel.Recipients.Where(x => x.Id != user.Id))
+            {
+                recipients.Add(u);
+            }
+            recipients.Add(user);
+            channel.RecipientIds = recipients.Select(x => x.Id).ToList().AsReadOnly();
+            channel.Recipients = recipients;
+            if (channel.InternalRecipients != null)
+            {
+                var internalRecipients = channel.InternalRecipients.Where(x => x.Id != tUser.Id).ToList();
+                internalRecipients.Add(tUser);
+                channel.InternalRecipients = internalRecipients.AsReadOnly();
+            }
+            var ev = new ChannelRecipientAddedEventArgs { Channel = channel, User = user };
+            await this._channelRecipientAdded.InvokeAsync(this, ev);
+        }
+
+        private async Task OnChannelRecipientRemoveAsync(JObject dat)
+        {
+            var channelId = dat["channel_id"]?.ToObject<ulong?>();
+            if (channelId == null) return;
+            var tUser = dat["user"].ToDiscordObject<TransportUser>();
+            var user = new DiscordUser(tUser)
+            {
+                Discord = this
+            };
+            user = this.UpdateUserCache(user);
+            this._privateChannels.TryGetValue(channelId ?? 0, out DiscordDmChannel channel);
+            var recipients = new List<DiscordUser>();
+            foreach (var u in channel.Recipients.Where(x => x.Id != user.Id))
+            {
+                recipients.Add(u);
+            }
+            channel.RecipientIds = recipients.Select(x => x.Id).ToList().AsReadOnly();
+            channel.Recipients = recipients;
+            if (channel.InternalRecipients != null)
+            {
+                var internalRecipients = channel.InternalRecipients.Where(x => x.Id != tUser.Id).ToList();
+                channel.InternalRecipients = internalRecipients.AsReadOnly();
+            }
+            var ev = new ChannelRecipientRemovedEventArgs { Channel = channel, User = user };
+            await this._channelRecipientRemoved.InvokeAsync(this, ev);
         }
 
         #endregion
