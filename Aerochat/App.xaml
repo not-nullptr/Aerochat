@@ -8,6 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                 Source="/PresentationFramework.Aero;component/themes/Aero.NormalColor.xaml" />
+                <ResourceDictionary Source="Controls/ScrollBar/ScrollBarTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="Window" TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type Window}}">
                 <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
