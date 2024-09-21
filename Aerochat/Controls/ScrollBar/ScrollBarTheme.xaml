@@ -1,0 +1,292 @@
+﻿<!--
+    Custom scrollbar theme to look just like WLM
+    
+    Note that currently only vertical scrollbars are finished. Horizontal
+    scrollbars mostly work, but I can't find any area where they're used
+    in WLM to compare against.
+-->
+<ResourceDictionary
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:controls="clr-namespace:Aerochat.Controls"
+             xmlns:scrollbar="clr-namespace:Aerochat.Controls.ScrollBar">
+
+    <!-- TODO: Should we read from system metrics set by the user? -->
+    <system:Double x:Key="ScrollBarWidth">17</system:Double>
+
+    <scrollbar:ShowThumbGripperConverter x:Key="ShowThumbGripperConverter" />
+
+    <!-- Common background theme for ALL scrollbar buttons -->
+    <Style x:Key="ScrollBarButtonBackground" TargetType="controls:NineSlice">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Slice" Value="3, 3" />
+        <Setter Property="Image" Value="/Resources/ScrollBar/Inactive.png" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/Hover.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/Active.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ScrollBarHorizontalThumbBackground" TargetType="controls:NineSlice">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Slice" Value="3, 3" />
+        <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbInactive.png" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbHover.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbActive.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Common background theme for scrollbar direction buttons -->
+    <Style x:Key="ScrollBarDirectionButtonBackground" TargetType="controls:NineSlice">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Slice" Value="3, 3" />
+        <Style.Triggers>
+            <!-- The background of direction buttons is not shown unless the user hovers over the
+                 scrollbar. -->
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="False">
+                <Setter Property="Opacity" Value="0" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/Inactive.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+                <Setter Property="Image" Value="/Resources/ScrollBar/Active.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="TrackRepeatButton" TargetType="RepeatButton">
+        <Rectangle
+            Fill="Transparent"
+            Width="{TemplateBinding ActualWidth}"
+            Height="{TemplateBinding ActualHeight}"
+            />
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ScrollBarDirectionButton" TargetType="RepeatButton">
+        <Grid>
+            <controls:NineSlice Style="{StaticResource ScrollBarDirectionButtonBackground}" />
+            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <!-- Can't use TemplateBinding in setters
+                             https://stackoverflow.com/a/3095251 -->
+                        <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.InactiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+                                <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.HoverGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+                                <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.ActiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ScrollBarThumb" TargetType="Thumb">
+        <Grid>
+            <controls:NineSlice Style="{Binding Path=(scrollbar:ThemeProperties.BackgroundStyle), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.InactiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                                <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.HoverGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
+                                <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.ActiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            </DataTrigger>
+
+                            <!-- Hide the scrollbar gripper if the thumb is too small: -->
+                            <DataTrigger Binding="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Thumb},
+                                         Converter={StaticResource ShowThumbGripperConverter}}"
+                                         Value="False">
+                                <Setter Property="Opacity" Value="0" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Thumb},
+                                         Converter={StaticResource ShowThumbGripperConverter}}"
+                                         Value="False">
+                                <Setter Property="Opacity" Value="0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </Grid>
+    </ControlTemplate>
+
+    <!--#region Vertical scrollbar-->
+
+    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
+                <RowDefinition Height="0.0001*"/>
+                <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
+            </Grid.RowDefinitions>
+
+            <Grid.Background>
+                <ImageBrush ImageSource="/Resources/ScrollBar/VertScrollBarBg.png" />
+            </Grid.Background>
+
+            <!-- Vertical scrollbar up button -->
+            <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" Height="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/UpGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/UpGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/UpGlyphActive.png" />
+
+
+            <!-- Vertical scrollbar track -->
+            <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="True" SnapsToDevicePixels="True" VerticalAlignment="Stretch">
+                <!-- This is such an obtuse hack that Microsoft recommends but don't actually
+                     document well enough that you can figure out how it works.
+                     https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-customize-the-thumb-size-on-a-scrollbar 
+
+                     Also this can't really be refactored, so the value will have to be repeated
+                     twice in the file :P -->
+                <Track.Resources>
+                    <system:Double 
+                        x:Key="{x:Static SystemParameters.VerticalScrollBarButtonHeightKey}">
+                            25
+                    </system:Double>
+                </Track.Resources>
+                
+                <!-- Top button of the track; scrolls to position on click. -->
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageUpCommand" Template="{StaticResource TrackRepeatButton}" />
+                </Track.DecreaseRepeatButton>
+
+                <!-- Scrollbar thumb -->
+                <Track.Thumb>
+                    <Thumb Template="{StaticResource ScrollBarThumb}"
+                           scrollbar:ThemeProperties.BackgroundStyle="{StaticResource ScrollBarButtonBackground}"
+                           scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/VertThumbGripperInactive.png"
+                           scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/VertThumbGripperHover.png"
+                           scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/VertThumbGripperActive.png"/>
+                </Track.Thumb>
+
+                <!-- Bottom button of the track; scrolls to position on click. -->
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageDownCommand" Template="{StaticResource TrackRepeatButton}" />
+                </Track.IncreaseRepeatButton>
+            </Track>
+
+            <!-- Vertical scrollbar down button -->
+            <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" Height="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/DownGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/DownGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/DownGlyphActive.png" />
+
+        </Grid>
+    </ControlTemplate>
+
+    <!--#endregion-->
+
+    <!--#region Horizontal scrollbar-->
+
+    <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.Background>
+                <ImageBrush ImageSource="/Resources/ScrollBar/HorzScrollBarBg.png" />
+            </Grid.Background>
+
+            <!-- Horizontal scrollbar left button -->
+            <RepeatButton Grid.Column="0" Command="ScrollBar.LineLeftCommand" Width="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/LeftGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/LeftGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/LeftGlyphActive.png" />
+
+            <!-- Horizontal scrollbar track -->
+            <Track Grid.Column="1" Name="PART_Track" IsDirectionReversed="False" SnapsToDevicePixels="True" HorizontalAlignment="Stretch">
+                <!-- This is such an obtuse hack that Microsoft recommends but don't actually
+                     document well enough that you can figure out how it works.
+                     https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-customize-the-thumb-size-on-a-scrollbar 
+                
+                     Also this can't really be refactored, so the value will have to be repeated
+                     twice in the file :P -->
+                <Track.Resources>
+                    <system:Double 
+                        x:Key="{x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}">
+                            25
+                    </system:Double>
+                </Track.Resources>
+
+                <!-- Left button of the track; scrolls to position on click. -->
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageLeftCommand" Template="{StaticResource TrackRepeatButton}" />
+                </Track.DecreaseRepeatButton>
+
+                <!-- Scrollbar thumb -->
+                <Track.Thumb>
+                    <Thumb Template="{StaticResource ScrollBarThumb}"
+                       scrollbar:ThemeProperties.BackgroundStyle="{StaticResource ScrollBarHorizontalThumbBackground}"
+                       scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/HorzThumbGripperInactive.png"
+                       scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/HorzThumbGripperHover.png"
+                       scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/HorzThumbGripperActive.png"/>
+                </Track.Thumb>
+
+                <!-- Right button of the track; scrolls to position on click. -->
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageRightCommand" Template="{StaticResource TrackRepeatButton}" />
+                </Track.IncreaseRepeatButton>
+            </Track>
+
+            <!-- Horizontal scrollbar right button -->
+            <RepeatButton Grid.Column="2" Command="ScrollBar.LineRightCommand" Width="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/RightGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/RightGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/RightGlyphActive.png" />
+
+        </Grid>
+    </ControlTemplate>
+    
+    <!--#endregion-->
+
+    <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+        <!-- Disallow tab from selecting any scrollbar controls -->
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
+        
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False" />
+
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Width" Value="Auto"/>
+                <Setter Property="Height" Value="{StaticResource ScrollBarWidth}" />
+                <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}"></Setter>
+            </Trigger>
+            <Trigger Property="Orientation" Value="Vertical">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Width" Value="{StaticResource ScrollBarWidth}"/>
+                <Setter Property="Height" Value="Auto" />
+                <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"></Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
