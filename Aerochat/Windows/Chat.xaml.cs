@@ -167,7 +167,32 @@ namespace Aerochat.Windows
 
             if (isGroupChat)
             {
-                RefreshRecipients();
+                ViewModel.Categories.Add(new()
+                {
+                    Collapsed = false,
+                    IsSelected = false,
+                    IsVisibleProperty = true,
+                    Name = ""
+                });
+
+                ViewModel.Categories[0].Items.Add(new()
+                {
+                    Name = Discord.Client.CurrentUser.DisplayName,
+                    Id = Discord.Client.CurrentUser.Id,
+                    Image = Discord.Client.CurrentUser.AvatarUrl,
+                    Presence = Discord.Client.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(Discord.Client.CurrentUser.Presence)
+                });
+
+                foreach (var rec in ((DiscordDmChannel)currentChannel).Recipients)
+                {
+                    ViewModel.Categories[0].Items.Add(new()
+                    {
+                        Name = rec.DisplayName,
+                        Id = rec.Id,
+                        Image = rec.AvatarUrl,
+                        Presence = rec.Presence == null ? null : PresenceViewModel.FromPresence(rec.Presence)
+                    });
+                }
             }
 
             if (recipient is not null) ViewModel.Recipient = UserViewModel.FromUser(recipient);
@@ -243,37 +268,6 @@ namespace Aerochat.Windows
 
             Dispatcher.Invoke(UpdateChannelListerReadReciepts);
         }
-
-        public void RefreshRecipients()
-        {
-            if (ViewModel.Categories.Count > 0) ViewModel.Categories.Clear();
-			ViewModel.Categories.Add(new()
-			{
-				Collapsed = false,
-				IsSelected = false,
-				IsVisibleProperty = true,
-				Name = ""
-			});
-
-			ViewModel.Categories[0].Items.Add(new()
-			{
-				Name = Discord.Client.CurrentUser.DisplayName,
-				Id = Discord.Client.CurrentUser.Id,
-				Image = Discord.Client.CurrentUser.AvatarUrl,
-				Presence = Discord.Client.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(Discord.Client.CurrentUser.Presence)
-			});
-
-			foreach (var rec in ((DiscordDmChannel)Channel).Recipients)
-			{
-				ViewModel.Categories[0].Items.Add(new()
-				{
-					Name = rec.DisplayName,
-					Id = rec.Id,
-					Image = rec.AvatarUrl,
-					Presence = rec.Presence == null ? null : PresenceViewModel.FromPresence(rec.Presence)
-				});
-			}
-		}
 
         public void UpdateChannelListerReadReciepts()
         {
@@ -657,23 +651,9 @@ namespace Aerochat.Windows
             Discord.Client.ChannelCreated += OnChannelCreated;
             Discord.Client.ChannelDeleted += OnChannelDeleted;
             Discord.Client.ChannelUpdated += OnChannelUpdated;
-			Discord.Client.ChannelRecipientAdded += OnRecipientAdded;
-			Discord.Client.ChannelRecipientRemoved += OnRecipientRemoved;
-		}
+        }
 
-		private async Task OnRecipientAdded(DiscordClient sender, DSharpPlus.EventArgs.ChannelRecipientAddedEventArgs args)
-		{
-            if (args.Channel.Id != Channel.Id) return;
-            Dispatcher.Invoke(RefreshRecipients);
-		}
-
-		private async Task OnRecipientRemoved(DiscordClient sender, DSharpPlus.EventArgs.ChannelRecipientRemovedEventArgs args)
-		{
-			if (args.Channel.Id != Channel.Id) return;
-			Dispatcher.Invoke(RefreshRecipients);
-		}
-
-		private async Task OnChannelUpdated(DiscordClient sender, DSharpPlus.EventArgs.ChannelUpdateEventArgs args)
+        private async Task OnChannelUpdated(DiscordClient sender, DSharpPlus.EventArgs.ChannelUpdateEventArgs args)
         {
             if (args.ChannelAfter.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
             Dispatcher.Invoke(RefreshChannelList);
@@ -772,10 +752,8 @@ namespace Aerochat.Windows
             Discord.Client.ChannelCreated -= OnChannelCreated;
             Discord.Client.ChannelDeleted -= OnChannelDeleted;
             Discord.Client.ChannelUpdated -= OnChannelUpdated;
-            Discord.Client.ChannelRecipientAdded -= OnRecipientAdded;
-			Discord.Client.ChannelRecipientRemoved -= OnRecipientRemoved;
 
-			ViewModel.Messages.Clear();
+            ViewModel.Messages.Clear();
             TypingUsers.Clear();
 
             System.Timers.Timer timer = new(2000);

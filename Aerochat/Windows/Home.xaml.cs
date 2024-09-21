@@ -4,7 +4,6 @@ using Aerochat.Theme;
 using Aerochat.ViewModels;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -581,30 +580,7 @@ namespace Aerochat.Windows
             }
         }
 
-        private void RefreshRecipients(DiscordDmChannel channel)
-        {
-            var category = ViewModel.Categories[0].Items.FirstOrDefault(x => x.Id == channel.Id);
-            category.RecipientCount = channel.Recipients.Count;
-			// remove and re-add the item to the list to trigger a refresh
-            var index = ViewModel.Categories[0].Items.IndexOf(category);
-			ViewModel.Categories[0].Items.RemoveAt(index);
-			ViewModel.Categories[0].Items.Insert(index, category);
-            var categoryIndex = ViewModel.Categories.IndexOf(ViewModel.Categories[0]);
-			ViewModel.Categories.RemoveAt(categoryIndex);
-			ViewModel.Categories.Insert(categoryIndex, ViewModel.Categories[0]);
-		}
-
-		private async Task OnRecipientAdded(DiscordClient sender, DSharpPlus.EventArgs.ChannelRecipientAddedEventArgs args)
-		{
-			Dispatcher.Invoke(() => RefreshRecipients(args.Channel));
-		}
-
-		private async Task OnRecipientRemoved(DiscordClient sender, DSharpPlus.EventArgs.ChannelRecipientRemovedEventArgs args)
-		{
-			Dispatcher.Invoke(() => RefreshRecipients(args.Channel));
-		}
-
-		private async void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = (HomeListItemViewModel)((Button)sender).DataContext;
             // is a window already open for this item?
