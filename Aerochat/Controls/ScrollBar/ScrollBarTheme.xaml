@@ -246,37 +246,6 @@
                        scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/HorzThumbGripperInactive.png"
                        scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/HorzThumbGripperHover.png"
                        scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/HorzThumbGripperActive.png"/>
-                    <!--<Thumb>
-                        <Thumb.Template>
-                            <ControlTemplate>
-                                <Grid>
-                                    <controls:NineSlice Style="{StaticResource ScrollBarHorizontalThumbBackground}" />
-                                    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None">
-                                        <Image.Style>
-                                            <Style TargetType="Image">
-                                                <Setter Property="Source" Value="/Resources/Scrollbar/HorzThumbGripperInactive.png" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                                                        <Setter Property="Source" Value="/Resources/ScrollBar/HorzThumbGripperHover.png" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                                                        <Setter Property="Source" Value="/Resources/ScrollBar/HorzThumbGripperActive.png" />
-                                                    </DataTrigger>
-
-                                                    --><!-- Hide the scrollbar gripper if the thumb is too small: --><!--
-                                                    <DataTrigger Binding="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Thumb},
-                                                                               Converter={StaticResource ShowThumbGripperConverter}}" 
-                                                             Value="False">
-                                                        <Setter Property="Opacity" Value="0" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Image.Style>
-                                    </Image>
-                                </Grid>
-                            </ControlTemplate>
-                        </Thumb.Template>
-                    </Thumb>-->
                 </Track.Thumb>
 
                 <!-- Right button of the track; scrolls to position on click. -->
