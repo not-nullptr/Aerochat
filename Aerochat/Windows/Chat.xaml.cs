@@ -1128,14 +1128,5 @@ namespace Aerochat.Windows
 
             imagePreviewer.Show();
         }
-
-        private void OnEmbedMediaEnded(object sender, RoutedEventArgs e)
-        {
-            var media = sender as MediaElement;
-            if (media is null) return;
-
-            media.Position = TimeSpan.Zero;
-            media.Play();
-        }
     }
 }

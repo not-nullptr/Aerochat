@@ -1044,18 +1044,6 @@
                                                                                 </Style>
                                                                             </Image.Style>
                                                                         </Image>
-                                                                        <MediaElement Margin="0,24,0,0" Source="{Binding Video}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" MediaEnded="OnEmbedMediaEnded" UnloadedBehavior="Manual" LoadedBehavior="Play">
-                                                                            <MediaElement.Style>
-                                                                                <Style TargetType="MediaElement">
-                                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                                    <Style.Triggers>
-                                                                                        <DataTrigger Binding="{Binding Video}" Value="{x:Null}">
-                                                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                                                        </DataTrigger>
-                                                                                    </Style.Triggers>
-                                                                                </Style>
-                                                                            </MediaElement.Style>
-                                                                        </MediaElement>
                                                                     </StackPanel>
                                                                 </Grid>
                                                             </Border>
