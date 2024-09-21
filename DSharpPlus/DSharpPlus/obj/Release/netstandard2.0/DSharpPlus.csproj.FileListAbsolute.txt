@@ -1,0 +1,5 @@
+C:\Users\nullptr\source\repos\Aerochat\DSharpPlus\DSharpPlus\obj\Release\netstandard2.0\DSharpPlus.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nullptr\source\repos\Aerochat\DSharpPlus\DSharpPlus\obj\Release\netstandard2.0\DSharpPlus.AssemblyInfoInputs.cache
+C:\Users\nullptr\source\repos\Aerochat\DSharpPlus\DSharpPlus\obj\Release\netstandard2.0\DSharpPlus.AssemblyInfo.cs
+C:\Users\nullptr\source\repos\Aerochat\DSharpPlus\DSharpPlus\obj\Release\netstandard2.0\DSharpPlus.csproj.CoreCompileInputs.cache
+C:\Users\nullptr\source\repos\Aerochat\DSharpPlus\DSharpPlus\obj\Release\netstandard2.0\DSharpPlus.sourcelink.json
