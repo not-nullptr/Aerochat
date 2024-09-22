@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Ads>
 	<Ad Image="Aerochat.png" Url="https://aerochat.live" />
 	<Ad Image="N09.png" Url="https://discord.gg/pU4get53Zp" />
@@ -26,4 +26,10 @@
 	<Ad Image="NetRestore.png" Url="https://www.tumblr.com/netrestore/" />
 	<Ad Image="Cobalt.png" Url="https://cobalt.tools/" />
 	<Ad Image="Fin.png" Url="https://ftolnks.xyz/" />
+	<Ad Image="LightshowRUSH.png" Url="https://lightshow-rush.neocities.org/" />
+	<Ad Image="DeltarunebyTobyFox.png" Url="https://store.steampowered.com/app/1671210/DELTARUNE/" />
+	<Ad Image="Bookmarks.png" Url="https://codeberg.org/lime360/bookmarks" />
+	<Ad Image="Soulseek.png" Url="https://www.slsknet.org/" />
+	<Ad Image="Explorer7.png" Url="https://winclassic.net/thread/2588/explorer7-windows-explorer-10-11" />
+	<Ad Image="MakeYourOwnAd.png" Url="https://discord.gg/Pn5dD7EyUQ" />
 </Ads>

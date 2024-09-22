@@ -54,4 +54,5 @@
 	<item id="52" credit="SEGA, Sonic Team, forsythe80" mimetype="image/png" contenttype="D" file="SonicRivals2.png" displayname="Sonic Rivals 2" color="#1a2cb7" default="false" />
 	<item id="53" credit="King" mimetype="image/png" contenttype="D" file="Vista.png" displayname="Vista" color="#1f7783" default="false" />
 	<item id="54" credit="Valve" mimetype="image/png" contenttype="D" file="GordonFreeman.png" displayname="Gordon Freeman" color="#869295" default="false" />
+	<item id="55" credit="liam" mimetype="image/png" contenttype="D" file="Explore.png" displayname="Explore" color="#000080" default="false" />
 </package>
