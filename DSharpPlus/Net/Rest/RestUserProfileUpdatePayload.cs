@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -21,10 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
 namespace DSharpPlus.Net
 {
     internal class RestUserProfileUpdatePayload
     {
+        [JsonProperty("accent_color", NullValueHandling = NullValueHandling.Ignore)]
         public int AccentColor { get; set; }
     }
 }
