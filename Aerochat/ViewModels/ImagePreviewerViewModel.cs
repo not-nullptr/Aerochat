@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+﻿using Aerochat.Enums;
 
 namespace Aerochat.ViewModels
 {
@@ -12,6 +7,7 @@ namespace Aerochat.ViewModels
         private string _filename;
         private string _sourceUri;
         private int _bottomHeight;
+        public MediaType _mediaType;
 
         public string FileName
         {
@@ -29,6 +25,12 @@ namespace Aerochat.ViewModels
         {
             get => _bottomHeight;
             set => SetProperty(ref _bottomHeight, value);
+        }
+
+        public MediaType MediaType
+        {
+            get => _mediaType;
+            set => SetProperty(ref _mediaType, value);
         }
     }
 }

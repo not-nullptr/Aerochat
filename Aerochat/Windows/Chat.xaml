@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" 
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:enums="clr-namespace:Aerochat.Enums"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+        xmlns:helpers="clr-namespace:Aerochat.Helpers"
         xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChatWindowViewModel}"
         mc:Ignorable="d"
@@ -111,6 +114,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <helpers:ImageConverter x:Key="imageConverter"/>
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
         <Grid>
@@ -250,7 +255,7 @@
                                         </Style>
                                     </Image.Style>
                                 </Image>
-                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding Recipient.Avatar}" />
+                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding Recipient.Avatar, Converter={StaticResource imageConverter}}" />
                             </Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom">
                                 <Image Width="139" Panel.ZIndex="5" Height="139" MinWidth="139" MaxHeight="139" MinHeight="139" MaxWidth="139">
@@ -895,7 +900,7 @@
                                                         </Style>
                                                     </StackPanel.Style>
                                                     <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
-                                                    <Image Margin="2,0,0,0" Source="{Binding Author.Image}" Width="20" Height="20">
+                                                    <Image Margin="2,0,0,0" Source="{Binding Author.Image, Converter={StaticResource imageConverter}}" Width="20" Height="20">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Style.Triggers>
@@ -1028,7 +1033,7 @@
                                                                                 </Style>
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
-                                                                        <Image Margin="0,24,0,0" Source="{Binding Image.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left">
+                                                                        <Image Margin="0,24,0,0" Source="{Binding Image.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1050,7 +1055,24 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel>
-                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonUp="OpenImage" Cursor="Hand" />
+                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Cursor="Hand" MouseLeftButtonDown="OpenMedia">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Setter Property="Source" Value="{x:Null}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Image}">
+                                                                                    <Setter Property="Source" Value="{Binding Url}" />
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Gif}">
+                                                                                    <Setter Property="gif:AnimationBehavior.SourceUri" Value="{Binding Url}" />
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
                                                                 <TextBlock Margin="0,2">
                                                                     <TextBlock.Text>
                                                                         <MultiBinding StringFormat="{}{0} ({1})">
