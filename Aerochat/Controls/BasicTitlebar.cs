@@ -33,10 +33,10 @@ namespace Aerochat.Controls
         }
 
         public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
-    nameof(Color),
-    typeof(Color),
-    typeof(BaseTitlebar),
-    new PropertyMetadata(Colors.Transparent, OnColorChanged));
+            nameof(Color),
+            typeof(Color),
+            typeof(BaseTitlebar),
+            new PropertyMetadata(Colors.Transparent, OnColorChanged));
 
         public Color Color
         {
@@ -45,10 +45,10 @@ namespace Aerochat.Controls
         }
 
         public static readonly DependencyProperty BlackTextProperty = DependencyProperty.Register(
-    nameof(BlackText),
-    typeof(Color),
-    typeof(BaseTitlebar),
-    new PropertyMetadata(Colors.Transparent, OnBlackTextChanged));
+            nameof(BlackText),
+            typeof(Color),
+            typeof(BaseTitlebar),
+            new PropertyMetadata(Colors.Transparent, OnBlackTextChanged));
 
         public Color BlackText
         {
