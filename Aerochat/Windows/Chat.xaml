@@ -1127,7 +1127,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:TileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
+                                <controls:AnimatedTileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
                             </Grid>
                             <Grid Grid.Row="2">
                                 <Grid.Style>
@@ -1153,9 +1153,9 @@
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <controls:TileImage Grid.Column="0" Image="/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
-                                            <controls:TileImage.Style>
-                                                <Style TargetType="controls:TileImage">
+                                        <controls:AnimatedTileImage Grid.Column="0" Image="/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
+                                            <controls:AnimatedTileImage.Style>
+                                                <Style TargetType="controls:AnimatedTileImage">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="">
@@ -1163,8 +1163,8 @@
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </controls:TileImage.Style>
-                                        </controls:TileImage>
+                                            </controls:AnimatedTileImage.Style>
+                                        </controls:AnimatedTileImage>
                                         <TextBlock Grid.Column="1" Foreground="#888888" TextTrimming="CharacterEllipsis">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
