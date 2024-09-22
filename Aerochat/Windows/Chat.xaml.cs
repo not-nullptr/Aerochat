@@ -23,6 +23,8 @@ using DSharpPlus;
 using System.Windows.Threading;
 using Aerochat.Settings;
 using System.Reflection;
+using System.Windows.Media.Imaging;
+using XamlAnimatedGif;
 
 namespace Aerochat.Windows
 {
@@ -1106,25 +1108,26 @@ namespace Aerochat.Windows
             }
         }
 
-        private void OpenImage(object sender, MouseButtonEventArgs e)
+        private void OpenMedia(object sender, MouseButtonEventArgs e)
         {
-            var image = (sender as Image);
-            if (image is null) return;
+            var media = sender as FrameworkElement;
+            if (media is null) return;
 
             // get the rect of the image
-            var imgRect = image.TransformToAncestor(this).TransformBounds(new Rect(0, 0, image.ActualWidth, image.ActualHeight));
+            var imgRect = media.TransformToAncestor(this).TransformBounds(new Rect(0, 0, media.ActualWidth, media.ActualHeight));
             var wndRect = new Rect(Left, Top, Width, Height);
 
             // add wndRect to imgRect so its offset properly
             imgRect.Offset(wndRect.Left, wndRect.Top);
 
-            var attachmentVm = image.DataContext as AttachmentViewModel;
+            var attachmentVm = media.DataContext as AttachmentViewModel;
             if (attachmentVm is null) return;
 
-            var imagePreviewer = new ImagePreviewer(image.Source.ToString(), attachmentVm.Name, imgRect, wndRect)
+            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect)
             {
-                Owner = this,
+                Owner = this
             };
+
             imagePreviewer.Show();
         }
     }

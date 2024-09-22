@@ -1,9 +1,12 @@
-﻿using DSharpPlus.Entities;
+﻿using Aerochat.Enums;
+using DSharpPlus.Entities;
+using MimeTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Aerochat.ViewModels
 {
@@ -14,7 +17,7 @@ namespace Aerochat.ViewModels
         private int _height;
         private string _size;
         private string _name;
-        private bool _isImage;
+        private MediaType _mediaType;
         private ulong _id;
 
         public string Url
@@ -42,10 +45,10 @@ namespace Aerochat.ViewModels
             get => _name;
             set => SetProperty(ref _name, value);
         }
-        public bool IsImage
+        public MediaType MediaType
         {
-            get => _isImage;
-            set => SetProperty(ref _isImage, value);
+            get => _mediaType;
+            set => SetProperty(ref _mediaType, value);
         }
         public ulong Id
         {
@@ -66,6 +69,23 @@ namespace Aerochat.ViewModels
 
         public static AttachmentViewModel FromAttachment(DiscordAttachment attachment)
         {
+            MediaType mediaType;
+
+            if (attachment.Width <= 0 || attachment.Height <= 0)
+                mediaType = MediaType.Unknown;
+            else
+            {
+                var fileNameSects = attachment.FileName.Split('.');
+                string mimeType = MimeTypeMap.GetMimeType(fileNameSects[fileNameSects.Length - 1]);
+                if (mimeType.Contains("image"))
+                    mediaType = attachment.FileName.Contains(".gif") ? MediaType.Gif : MediaType.Image;
+                else if (mimeType.Contains("video"))
+                    mediaType = MediaType.Video;
+                else if (mimeType.Contains("audio"))
+                    mediaType = MediaType.Audio;
+                else mediaType = MediaType.Unknown;
+            }
+
 
             return new AttachmentViewModel()
             {
@@ -74,7 +94,7 @@ namespace Aerochat.ViewModels
                 Height = attachment.Height ?? 0,
                 Name = attachment.FileName,
                 Size = FormatSize(attachment.FileSize),
-                IsImage = attachment.Width > 0 && attachment.Height > 0,
+                MediaType = mediaType,
                 Id = attachment.Id,
             };
         }
