@@ -186,31 +186,7 @@
                     </controls:ColorizedNineSlice>
                 </Grid>
                 <Grid Grid.Row="0" UseLayoutRounding="True" Panel.ZIndex="4">
-                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Width="47" Height="47" Source="{Binding CurrentUser.Avatar}" Margin="19,13,0,0" />
-                    <Rectangle Fill="White" HorizontalAlignment="Left" VerticalAlignment="Top" Width="47" Height="47" Margin="19,13,0,0" Panel.ZIndex="-1" />
-                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Width="79" Height="79">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Online">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameActive.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Idle">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameIdle.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="DoNotDisturb">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameDnd.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Offline">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameOffline.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Invisible">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameOffline.png" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
+                    <controls:ProfilePictureFrame FrameSize="Large" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
                     <Grid Background="Transparent" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
                         <Grid.Resources>
                             <DropShadowEffect x:Key="StockDropShadow" ShadowDepth="0" RenderingBias="Performance" Color="{Binding Theme.Scene.ShadowColor}" BlurRadius="4" />

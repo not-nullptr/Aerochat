@@ -237,51 +237,10 @@
                                 </Style>
                             </Grid.Style>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <Image Width="139" Panel.ZIndex="5" Height="139" MinWidth="139" MaxHeight="139" MinHeight="139" MaxWidth="139">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="Online">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameActive.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="Idle">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameIdle.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="DoNotDisturb">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameDnd.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding Recipient.Avatar, Converter={StaticResource imageConverter}}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar}" />
                             </Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                                <Image Width="139" Panel.ZIndex="5" Height="139" MinWidth="139" MaxHeight="139" MinHeight="139" MaxWidth="139">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Online">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameActive.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Idle">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameIdle.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="DoNotDisturb">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameDnd.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Offline">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Invisible">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding CurrentUser.Avatar}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="0" Panel.ZIndex="50">
@@ -657,8 +616,8 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <Grid>
-                                                    <Image>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image VerticalAlignment="Center" MaxWidth="16" UseLayoutRounding="True">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Setter Property="Source" Value="{x:Null}" />
@@ -666,11 +625,11 @@
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="Playing">
                                                                         <Setter Property="Source" Value="/Resources/Status/Playing.png" />
-                                                                        <Setter Property="Margin" Value="0,0,4,0" />
+                                                                        <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="ListeningTo">
                                                                         <Setter Property="Source" Value="/Resources/Status/Listening.png" />
-                                                                        <Setter Property="Margin" Value="0,0,4,0" />
+                                                                        <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -742,7 +701,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                </Grid>
+                                                </StackPanel>
                                             </StackPanel>
                                         </Border>
                                     </Border>

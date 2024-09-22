@@ -419,8 +419,8 @@ namespace Aerochat.Windows
                 foreach (var c in Discord.Client.PrivateChannels)
                 {
                     var dm = c.Value;
-                    bool isGroupChat = dm.Recipients.Count > 1;
-                    var recipient = dm.Recipients.FirstOrDefault();
+                    bool isGroupChat = dm?.Recipients?.Count > 1;
+                    var recipient = dm?.Recipients?.FirstOrDefault();
                     if (recipient is null) continue;
 
                     // Create new item or reuse existing item's selection state

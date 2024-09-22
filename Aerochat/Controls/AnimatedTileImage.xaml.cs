@@ -12,6 +12,7 @@ namespace Aerochat.Controls
     /// </summary>
     public partial class AnimatedTileImage : UserControl
     {
+        private bool _paused = false;
         public AnimatedTileImage()
         {
             InitializeComponent();
@@ -150,7 +151,7 @@ namespace Aerochat.Controls
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (Application.Current == null) return;
+            if (Application.Current == null || _paused) return;
             if (_frameCount > 0)
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -172,6 +173,20 @@ namespace Aerochat.Controls
         public void Reset()
         {
             CurrentFrame = 0;
+            _timer.Start();
+            _paused = false;
+        }
+
+        public void Pause()
+        {
+            _timer.Stop();
+            _paused = true;
+        }
+
+        public void Play()
+        {
+            _timer.Start();
+            _paused = false;
         }
 
         protected override Size MeasureOverride(Size constraint)
