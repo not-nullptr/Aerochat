@@ -1161,6 +1161,9 @@
                                                         <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
+                                                        <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </controls:AnimatedTileImage.Style>
