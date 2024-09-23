@@ -55,4 +55,7 @@
 	<item id="53" credit="King" mimetype="image/png" contenttype="D" file="Vista.png" displayname="Vista" color="#1f7783" default="false" />
 	<item id="54" credit="Valve" mimetype="image/png" contenttype="D" file="GordonFreeman.png" displayname="Gordon Freeman" color="#869295" default="false" />
 	<item id="55" credit="liam" mimetype="image/png" contenttype="D" file="Explore.png" displayname="Explore" color="#000080" default="false" />
+	<item id="56" credit="Recreation made by me but the original is made by Rainbow S.p.A." mimetype="image/png" contenttype="D" file="FairyOfMusic.png" displayname="Fairy Of Music" color="#dd7ecf" default="false" />
+	<item id="57" credit="kauan" mimetype="image/png" contenttype="D" file="AphexTwin.png" displayname="Aphex Twin" color="#000000" default="false" />
+	<item id="58" credit="kauan" mimetype="image/png" contenttype="D" file="MrOizo.png" displayname="Mr. Oizo" color="#ffb404" default="false" />
 </package>

@@ -1099,7 +1099,7 @@
                                                 <Style TargetType="controls:AnimatedTileImage">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.TypingString, RelativeSource={RelativeSource AncestorType=Window}}" Value="">
+                                                        <DataTrigger Binding="{Binding DataContext.TypingString, RelativeSource={RelativeSource AncestorType=controls:BaseTitlebar}}" Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
           
