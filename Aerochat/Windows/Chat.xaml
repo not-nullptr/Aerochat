@@ -689,7 +689,7 @@
                                     </Border>
                                 </Grid>
                             </Grid>
-                            <ItemsControl ScrollViewer.CanContentScroll="True" VirtualizingPanel.ScrollUnit="Pixel" VirtualizingStackPanel.VirtualizationMode="Recycling" x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ScrollViewer.CanContentScroll="True" x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <ItemsControl.Style>
                                     <Style TargetType="ItemsControl">
                                         <Style.Triggers>
@@ -701,7 +701,7 @@
                                 </ItemsControl.Style>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel Orientation="Vertical" />
+                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
 
@@ -1099,12 +1099,10 @@
                                                 <Style TargetType="controls:AnimatedTileImage">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="">
+                                                        <DataTrigger Binding="{Binding DataContext.TypingString, RelativeSource={RelativeSource AncestorType=Window}}" Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="{x:Null}">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
+          
                                                     </Style.Triggers>
                                                 </Style>
                                             </controls:AnimatedTileImage.Style>
