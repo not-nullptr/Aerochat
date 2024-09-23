@@ -1123,10 +1123,7 @@ namespace Aerochat.Windows
             var attachmentVm = media.DataContext as AttachmentViewModel;
             if (attachmentVm is null) return;
 
-            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect)
-            {
-                Owner = this
-            };
+            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect);
 
             imagePreviewer.Show();
         }

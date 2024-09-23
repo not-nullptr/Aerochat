@@ -12,10 +12,11 @@
         WindowStyle="None"
         KeyDown="OnKeyDown"
         Deactivated="OnDeactivated"
-        Loaded="ImagePreviewer_Loaded"
-        SizeChanged="ImagePreviewer_SizeChanged"
-        Closing="ImagePreviewer_Closing"
-        SizeToContent="WidthAndHeight"
+        Loaded="OnImagePreviewLoaded"
+        SizeChanged="OnImagePreviewSizeChanged"
+        Closing="OnImagePreviewClosing"
+        Width="600"
+        Height="400"
         Background="Transparent">
     <Grid x:Name="WndContent"> 
         <Grid.RowDefinitions>
@@ -23,7 +24,7 @@
             <RowDefinition Height="{Binding BottomHeight}" />
         </Grid.RowDefinitions>
 
-        <Image x:Name="ImageElement" Grid.Row="0" Stretch="Uniform" >
+        <Image x:Name="ImageElement" Grid.Row="0" Stretch="Uniform">
             <Image.Style>
                 <Style TargetType="Image">
                     <Setter Property="Source" Value="{x:Null}" />
@@ -38,13 +39,111 @@
                 </Style>
             </Image.Style>
         </Image>
-        
+
+        <Button Grid.Row="0" Width="25" Height="24" UseLayoutRounding="True" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Click="OnCloseBtnClick" Style="{StaticResource TransparentStyle}" ToolTip="Close">
+            <Image Width="25" Height="24" UseLayoutRounding="True">
+                <Image.Clip>
+                    <RectangleGeometry 
+                    RadiusY="20"
+                    Rect="0,0,25,24"/>
+                </Image.Clip>
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionClose.png" />
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect
+                                        BlurRadius="20"
+                                        ShadowDepth="0" 
+                                        Opacity="0"
+                                        Color="Red" />
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <EventTrigger RoutedEvent="Image.MouseEnter">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation  
+                                                    Storyboard.TargetProperty="Effect.Opacity"
+                                                    From="0"
+                                                    To="1"                                     
+                                                    Duration="0:0:0.5">
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="Image.MouseLeave">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                    Storyboard.TargetProperty="Effect.Opacity"
+                                                    From="1"
+                                                    To="0"
+                                                    Duration="0:0:0.5">
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionHover.png" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionActive.png" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </Button>
+
         <Grid UseLayoutRounding="True" Margin="0,2,4,0" Grid.Row="1">
-            <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OpenImage" Style="{StaticResource TransparentStyle}">
+            <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" Click="OnOpenImageClick" Style="{StaticResource TransparentStyle}" ToolTip="Open in Browser">
                 <Image Width="20" Height="19" UseLayoutRounding="True">
                     <Image.Style>
                         <Style TargetType="Image">
+                            <Setter Property="Source" Value="/Resources/ImagePreviewer/Open.png" />
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect
+                                        BlurRadius="10"
+                                        ShadowDepth="0" 
+                                        Opacity="0"
+                                        Color="CornflowerBlue" />
+                                </Setter.Value>
+                            </Setter>
                             <Style.Triggers>
+                                <EventTrigger RoutedEvent="Image.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation  
+                                                    Storyboard.TargetProperty="Effect.Opacity"
+                                                    From="0"
+                                                    To="1"                                     
+                                                    Duration="0:0:0.5">
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="Image.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="Effect.Opacity"
+                                                    From="1"
+                                                    To="0"
+                                                    Duration="0:0:0.5">
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
                                     <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenHover.png" />
                                 </DataTrigger>
@@ -52,7 +151,6 @@
                                     <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenActive.png" />
                                 </DataTrigger>
                             </Style.Triggers>
-                            <Setter Property="Source" Value="/Resources/ImagePreviewer/Open.png" />
                         </Style>
                     </Image.Style>
                 </Image>

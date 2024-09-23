@@ -237,7 +237,7 @@
                                 </Style>
                             </Grid.Style>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar, Converter={StaticResource imageConverter}}" />
                             </Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom">
                                 <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
