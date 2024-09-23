@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="139" d:DesignHeight="139">
     <Grid>
         <Image Width="24" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,10,0,0" x:Name="ProfilePictureControl" />
-        <local:AnimatedTileImage HorizontalAlignment="Left" VerticalAlignment="Top" Loop="False" x:Name="ForegroundTileImage" FrameDuration="50" FrameWidth="139" FrameHeight="139" />
-        <local:AnimatedTileImage HorizontalAlignment="Left" VerticalAlignment="Top" Loop="False" x:Name="BackgroundTileImage" FrameDuration="50" FrameWidth="139" FrameHeight="139" />
+        <local:AnimatedTileImage HorizontalAlignment="Left" VerticalAlignment="Top" Loop="False" x:Name="ForegroundTileImage" FrameDuration="42" FrameWidth="139" FrameHeight="139" />
+        <local:AnimatedTileImage HorizontalAlignment="Left" VerticalAlignment="Top" Loop="False" x:Name="BackgroundTileImage" FrameDuration="42" FrameWidth="139" FrameHeight="139" />
     </Grid>
 </UserControl>

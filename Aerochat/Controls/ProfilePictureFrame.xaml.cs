@@ -111,10 +111,12 @@ namespace Aerochat.Controls
             BackgroundTileImage.BeginAnimation(UIElement.OpacityProperty, null);
 
             var totalFrames = newSource.Width / BackgroundTileImage.FrameWidth;
-            var halfTime = totalFrames * 50 / 2;
+            var halfTime = totalFrames * ForegroundTileImage.FrameDuration / 2;
+
+            double timerDuration = oldStatus == UserStatus.Invisible || oldStatus == UserStatus.Offline ? halfTime / 2 : halfTime;
 
             // in halfTime milliseconds, fade out the old frame and fade in the new frame
-            var timer = new Timer(halfTime);
+            var timer = new Timer(timerDuration);
             timer.Elapsed += (s, e) =>
             {
                 // fade out the old frame using wpf's animation system
@@ -129,13 +131,6 @@ namespace Aerochat.Controls
                 timer.Dispose();
             };
             timer.Start();
-
-            // if the status is invisible or offline, animate this control's opacity to 0.5
-            // else animate to 1
-            var targetOpacity = newStatus == UserStatus.Offline || newStatus == UserStatus.Invisible ? 0.5 : 1;
-            var opacityAnimation = new DoubleAnimation(ForegroundTileImage.Opacity, targetOpacity, TimeSpan.FromSeconds(1));
-            BeginAnimation(ProfilePictureFrame.OpacityProperty, opacityAnimation);
-
         }
 
         private static void OnFrameSizeChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -211,7 +206,22 @@ namespace Aerochat.Controls
 
             string path = $"pack://application:,,,/Aerochat;component/Resources/Frames/{sizeString}Frame{statusString}{(statusString == "Offline" || sizeString == "XS" ? "" : "Animation")}.png";
             var source = Discord.ProfileFrames.FirstOrDefault(x => x.UriSource.AbsoluteUri == path);
-            
+
+            var targetOpacity = statusString == "Offline" ? 0.5 : 1;
+            if (_initial)
+            {
+                Opacity = targetOpacity;
+            }
+            else
+            {
+                var opacityAnimation = new DoubleAnimation
+                {
+                    From = Opacity,
+                    To = targetOpacity,
+                    Duration = TimeSpan.FromSeconds(1)
+                }; BeginAnimation(ProfilePictureFrame.OpacityProperty, opacityAnimation);
+            }
+
             if (source is null) throw new ArgumentException("Invalid frame size or status.");
             return source;
         }

@@ -169,32 +169,7 @@ namespace Aerochat.Windows
 
             if (isGroupChat)
             {
-                ViewModel.Categories.Add(new()
-                {
-                    Collapsed = false,
-                    IsSelected = false,
-                    IsVisibleProperty = true,
-                    Name = ""
-                });
-
-                ViewModel.Categories[0].Items.Add(new()
-                {
-                    Name = Discord.Client.CurrentUser.DisplayName,
-                    Id = Discord.Client.CurrentUser.Id,
-                    Image = Discord.Client.CurrentUser.AvatarUrl,
-                    Presence = Discord.Client.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(Discord.Client.CurrentUser.Presence)
-                });
-
-                foreach (var rec in ((DiscordDmChannel)currentChannel).Recipients)
-                {
-                    ViewModel.Categories[0].Items.Add(new()
-                    {
-                        Name = rec.DisplayName,
-                        Id = rec.Id,
-                        Image = rec.AvatarUrl,
-                        Presence = rec.Presence == null ? null : PresenceViewModel.FromPresence(rec.Presence)
-                    });
-                }
+                Dispatcher.Invoke(RefreshGroupChat);
             }
 
             if (recipient is not null) ViewModel.Recipient = UserViewModel.FromUser(recipient);
@@ -321,6 +296,37 @@ namespace Aerochat.Windows
             foreach (var item in items)
             {
                 ViewModel.Categories.Add(item);
+            }
+        }
+
+        public void RefreshGroupChat()
+        {
+            if (ViewModel.Categories.Count > 0) ViewModel.Categories.Clear();
+            ViewModel.Categories.Add(new()
+            {
+                Collapsed = false,
+                IsSelected = false,
+                IsVisibleProperty = true,
+                Name = ""
+            });
+
+            ViewModel.Categories[0].Items.Add(new()
+            {
+                Name = Discord.Client.CurrentUser.DisplayName,
+                Id = Discord.Client.CurrentUser.Id,
+                Image = Discord.Client.CurrentUser.AvatarUrl,
+                Presence = Discord.Client.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(Discord.Client.CurrentUser.Presence)
+            });
+
+            foreach (var rec in ((DiscordDmChannel)Channel).Recipients)
+            {
+                ViewModel.Categories[0].Items.Add(new()
+                {
+                    Name = rec.DisplayName,
+                    Id = rec.Id,
+                    Image = rec.AvatarUrl,
+                    Presence = rec.Presence == null ? null : PresenceViewModel.FromPresence(rec.Presence)
+                });
             }
         }
 
@@ -653,6 +659,26 @@ namespace Aerochat.Windows
             Discord.Client.ChannelCreated += OnChannelCreated;
             Discord.Client.ChannelDeleted += OnChannelDeleted;
             Discord.Client.ChannelUpdated += OnChannelUpdated;
+            Discord.Client.PresenceUpdated += OnPresenceUpdated;
+        }
+
+        private async Task OnPresenceUpdated(DiscordClient sender, DSharpPlus.EventArgs.PresenceUpdateEventArgs args)
+        {
+            if (ViewModel.IsGroupChat)
+            {
+                var gChannel = Channel as DiscordDmChannel;
+                var recipient = gChannel?.Recipients.FirstOrDefault(x => x.Id == args.User.Id);
+                if (recipient is null) return;
+                var cat = ViewModel.Categories[0];
+                var item = cat.Items.FirstOrDefault(x => x.Id == recipient.Id);
+                if (item is null) return;
+                item.Presence = PresenceViewModel.FromPresence(args.PresenceAfter);
+            }
+            else
+            {
+                if (args.User.Id != ViewModel.Recipient?.Id) return;
+                ViewModel.Recipient.Presence = PresenceViewModel.FromPresence(args.PresenceAfter);
+            }
         }
 
         private async Task OnChannelUpdated(DiscordClient sender, DSharpPlus.EventArgs.ChannelUpdateEventArgs args)
@@ -754,6 +780,7 @@ namespace Aerochat.Windows
             Discord.Client.ChannelCreated -= OnChannelCreated;
             Discord.Client.ChannelDeleted -= OnChannelDeleted;
             Discord.Client.ChannelUpdated -= OnChannelUpdated;
+            Discord.Client.PresenceUpdated -= OnPresenceUpdated;
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();

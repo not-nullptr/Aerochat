@@ -42,8 +42,18 @@ namespace Aerochat
             {
                 if (wnd is Chat chat)
                 {
-                    if (chat.ViewModel.CurrentUser?.Presence != null)
-                        chat.ViewModel.CurrentUser.Presence.Status = status.ToString();
+                    if (chat.ViewModel.IsGroupChat)
+                    {
+                        var cat = chat.ViewModel.Categories[0];
+                        var item = cat.Items.FirstOrDefault(x => x.Id == Discord.Client.CurrentUser.Id);
+                        if (item is null) return;
+                        item.Presence.Status = status.ToString();
+                    }
+                    else
+                    {
+                        if (chat.ViewModel.CurrentUser?.Presence != null)
+                            chat.ViewModel.CurrentUser.Presence.Status = status.ToString();
+                    }
                 }
                 else if (wnd is Home home)
                 {

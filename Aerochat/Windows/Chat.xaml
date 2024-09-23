@@ -262,7 +262,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="100" Height="75" />
+                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" Height="75" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -436,7 +436,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="75" />
+                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -504,25 +504,7 @@
                                                                                         <ColumnDefinition Width="*" />
                                                                                     </Grid.ColumnDefinitions>
                                                                                     <Grid Grid.Column="0">
-                                                                                        <Image Margin="4,0,0,0" Width="45" Panel.ZIndex="5" Height="45" MinWidth="45" MaxHeight="45" MinHeight="45" MaxWidth="45">
-                                                                                            <Image.Style>
-                                                                                                <Style TargetType="Image">
-                                                                                                    <Setter Property="Source" Value="/Resources/Frames/SmallFrameOffline.png" />
-                                                                                                    <Style.Triggers>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameActive.png" />
-                                                                                                        </DataTrigger>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameIdle.png" />
-                                                                                                        </DataTrigger>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameDnd.png" />
-                                                                                                        </DataTrigger>
-                                                                                                    </Style.Triggers>
-                                                                                                </Style>
-                                                                                            </Image.Style>
-                                                                                        </Image>
-                                                                                        <Image Source="{Binding Image}" Width="24" Margin="6,0,0,0" />
+                                                                                        <controls:ProfilePictureFrame Margin="4,0,0,0" Panel.ZIndex="5" FrameSize="Small" ProfilePicture="{Binding Image}" UserStatus="{Binding Presence.Status}" />
                                                                                     </Grid>
                                                                                     <TextBlock VerticalAlignment="Center" Grid.Column="1" Text="{Binding Name}" Foreground="#333" Margin="4,0,0,0" />
                                                                                 </Grid>
