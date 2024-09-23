@@ -1,3 +1,3 @@
-[submodule "DSharpPlus"]
-	path = DSharpPlus
-	url = git@github.com:not-nullptr/DSharpPlus.git
+[submodule "DSharpPlus-Aerochat"]
+	path = DSharpPlus-Aerochat
+	url = git@github.com:not-nullptr/DSharpPlus-Aerochat.git

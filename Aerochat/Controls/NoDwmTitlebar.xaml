@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Aerochat.Controls" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:BasicTitlebarViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             KeyboardNavigation.TabNavigation="None">
     <Border Background="{Binding Color}" CornerRadius="8,8,0,0">
         <Grid>
             <Grid>
@@ -34,16 +35,16 @@
                         <Image>
                             <Image.Style>
                                 <Style TargetType="Image">
-                                    <Setter Property="Source" Value="/Resources/Titlebar/Minimize.png" />
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeImagePath}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Activated}" Value="False">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MinimizeInactive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeInactiveImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MinimizeHover.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeHoverImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MinimizeActive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeActiveImagePath}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -54,16 +55,16 @@
                         <Image>
                             <Image.Style>
                                 <Style TargetType="Image">
-                                    <Setter Property="Source" Value="/Resources/Titlebar/Maximize.png" />
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeImagePath}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Activated}" Value="False">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MaximizeInactive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeInactiveImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MaximizeHover.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeHoverImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/MaximizeActive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeActiveImagePath}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -74,16 +75,16 @@
                         <Image>
                             <Image.Style>
                                 <Style TargetType="Image">
-                                    <Setter Property="Source" Value="/Resources/Titlebar/Close.png" />
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseImagePath}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Activated}" Value="False">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/CloseInactive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseInactiveImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/CloseHover.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseHoverImagePath}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Source" Value="/Resources/Titlebar/CloseActive.png" />
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseActiveImagePath}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

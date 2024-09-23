@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Ads>
 	<Ad Image="Aerochat.png" Url="https://aerochat.live" />
 	<Ad Image="N09.png" Url="https://discord.gg/pU4get53Zp" />
@@ -14,4 +14,24 @@
 	<Ad Image="LibreWolf.png" Url="https://librewolf.net/" />
 	<Ad Image="ZorinOS.png" Url="https://zorin.com/os/" />
 	<Ad Image="Yume2kki.png" Url="https://yume.wiki/2kki/Yume_2kki_Wiki" />
+	<Ad Image="LineageOS.png" Url="https://lineageos.org" />
+	<Ad Image="Aerocat.png" Url="https://www.youtube.com/results?search_query=Cats" />
+	<Ad Image="TheMostAmazingSite.png" Url="http://www.themostamazingwebsiteontheinternet.com/" />
+	<Ad Image="MirandaNG.png" Url="https://miranda-ng.org" />
+	<Ad Image="ErrorOliver.png" Url="https://erroroliver.neocities.org/" />
+	<Ad Image="VibRibbon.png" Url="https://vibribbon.neocities.org/" />
+	<Ad Image="GameBanana.png" Url="https://gamebanana.com/" />
+	<Ad Image="Blabla.png" Url="https://blablaland.co/" />
+	<Ad Image="OpenJDK.png" Url="https://openjdk.org/" />
+	<Ad Image="NetRestore.png" Url="https://www.tumblr.com/netrestore/" />
+	<Ad Image="Cobalt.png" Url="https://cobalt.tools/" />
+	<Ad Image="Fin.png" Url="https://ftolnks.xyz/" />
+	<Ad Image="LightshowRUSH.png" Url="https://lightshow-rush.neocities.org/" />
+	<Ad Image="DeltarunebyTobyFox.png" Url="https://store.steampowered.com/app/1671210/DELTARUNE/" />
+	<Ad Image="Bookmarks.png" Url="https://codeberg.org/lime360/bookmarks" />
+	<Ad Image="Soulseek.png" Url="https://www.slsknet.org/" />
+	<Ad Image="Explorer7.png" Url="https://winclassic.net/thread/2588/explorer7-windows-explorer-10-11" />
+	<Ad Image="MakeYourOwnAd.png" Url="https://discord.gg/Pn5dD7EyUQ" />
+	<Ad Image="OpenUtau.png" Url="http://www.openutau.com/" />
+	<Ad Image="21H2to7TransformationPack.png" Url="https://www.deviantart.com/imswordqueeen/art/1081353677" />
 </Ads>

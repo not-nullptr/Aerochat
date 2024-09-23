@@ -132,7 +132,6 @@
                             </Grid.RowDefinitions>
                             <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                            <Image HorizontalAlignment="Stretch" Stretch="Fill" VerticalAlignment="Stretch" Source="/Resources/ScrollBarBg.png" Grid.Column="1" />
                             <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
                             <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                         </Grid>
@@ -187,31 +186,7 @@
                     </controls:ColorizedNineSlice>
                 </Grid>
                 <Grid Grid.Row="0" UseLayoutRounding="True" Panel.ZIndex="4">
-                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Width="47" Height="47" Source="{Binding CurrentUser.Avatar}" Margin="19,13,0,0" />
-                    <Rectangle Fill="White" HorizontalAlignment="Left" VerticalAlignment="Top" Width="47" Height="47" Margin="19,13,0,0" Panel.ZIndex="-1" />
-                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Width="79" Height="79">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Online">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameActive.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Idle">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameIdle.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="DoNotDisturb">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameDnd.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Offline">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameOffline.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Invisible">
-                                        <Setter Property="Source" Value="/Resources/Frames/LargeFrameOffline.png" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
+                    <controls:ProfilePictureFrame FrameSize="Large" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
                     <Grid Background="Transparent" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
                         <Grid.Resources>
                             <DropShadowEffect x:Key="StockDropShadow" ShadowDepth="0" RenderingBias="Performance" Color="{Binding Theme.Scene.ShadowColor}" BlurRadius="4" />
@@ -225,7 +200,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Resources>
-                        <controls:TileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
+                        <controls:AnimatedTileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
                         <Border Style="{StaticResource Shadow}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="80,-10,0,0">
                             <Border Style="{StaticResource Shadow}">
                                 <Grid>
@@ -283,6 +258,7 @@
                                                 <Separator />
                                                 <MenuItem x:Name="OptionsBtn" Click="OptionsBtn_Click" Header="Options" />
                                                 <Separator />
+                                                <MenuItem x:Name="DebugBtn" Click="DebugBtn_Click" Header="Debug Menu" />
                                                 <MenuItem x:Name="CreditsBtn" Click="CreditsBtn_Click" Header="About and Credits" />
                                             </ContextMenu>
                                         </Button.ContextMenu>
@@ -318,40 +294,53 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Grid Margin="8,-10,0,0" Grid.Row="0" Height="44" VerticalAlignment="Top">
-                        <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
-                            <TextBox.Style>
-                                <Style TargetType="{x:Type TextBox}">
-                                    <Setter Property="Cursor" Value="Arrow" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                            <Setter Property="Cursor" Value="IBeam" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                        <TextBlock TextTrimming="CharacterEllipsis" Foreground="#7F000000" Panel.ZIndex="6" IsHitTestVisible="False" Text="Search contacts or the web..." VerticalAlignment="Center" Margin="20,0,36,0">
-                            <TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="False" />
-                                                <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
-                                            </MultiDataTrigger.Conditions>
-                                            <MultiDataTrigger.Setters>
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </MultiDataTrigger.Setters>
-                                        </MultiDataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Style="{StaticResource NineSliceStyle}" Slice="16,16" />
-                        <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
-                    </Grid>
+                    <StackPanel Grid.Row="0" Margin="0,-10,0,0">
+                        <Grid Height="44" Margin="8,0,0,0">
+                            <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Setter Property="Cursor" Value="Arrow" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter Property="Cursor" Value="IBeam" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock TextTrimming="CharacterEllipsis" Foreground="#7F000000" Panel.ZIndex="6" IsHitTestVisible="False" Text="Search contacts or the web..." VerticalAlignment="Center" Margin="20,0,36,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="False" />
+                                                    <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Style="{StaticResource NineSliceStyle}" Slice="16,16" />
+                            <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
+                        </Grid>
+                        <!--<Grid Margin="8,0,8,4">
+                            <controls:NineSlice Image="/Resources/Home/Info.png" Slice="4,4" />
+                            <Grid Margin="6,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalAlignment="Top" Grid.Column="0" Source="/Resources/Home/InfoIcon.png" />
+                                <TextBlock Margin="6,0,0,0" Grid.Column="1" Foreground="#333" Text="This is a test alert. For now, you can't remove it, but this will be updated to show actual alerts in future releases of Aerochat." TextWrapping="Wrap" />
+                            </Grid>
+                        </Grid>-->
+                    </StackPanel>
                     <ScrollViewer Style="{DynamicResource HomePageScrollViewer}" VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True">
                         <Grid>
                             <ItemsControl ItemsSource="{Binding Categories}">
@@ -552,11 +541,21 @@
                                                             </Button>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
                                                 </ItemsControl>
                                             </Grid>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </Grid>
                     </ScrollViewer>

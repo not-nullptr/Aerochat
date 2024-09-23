@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -255,6 +256,8 @@ namespace Aerochat.Windows
                             Close();
                         });
                     }
+                    httpClient.Dispose();
+                    tags.Dispose();
                 });
             });
         }
@@ -357,10 +360,7 @@ namespace Aerochat.Windows
                         LastMsgId = 0,
                         Id = channelsList[0].Id
                     };
-                    guildItem.DoubleClick = () =>
-                    {
-                        new Chat(guild.Id).Show();
-                    };
+
                     ViewModel.Categories[index].Items.Add(guildItem);
 
                     processedGuilds.Add(guildId);
@@ -400,10 +400,7 @@ namespace Aerochat.Windows
                     LastMsgId = 0,
                     Id = channelsList[0].Id
                 };
-                guildItem.DoubleClick = () =>
-                {
-                    new Chat(guild.Id).Show();
-                };
+
                 //ViewModel.Categories[1].Items.Add(guildItem);
                 // add to start:
                 ViewModel.Categories[1].Items.Insert(0, guildItem);
@@ -422,8 +419,8 @@ namespace Aerochat.Windows
                 foreach (var c in Discord.Client.PrivateChannels)
                 {
                     var dm = c.Value;
-                    bool isGroupChat = dm.Recipients.Count > 1;
-                    var recipient = dm.Recipients.FirstOrDefault();
+                    bool isGroupChat = dm?.Recipients?.Count > 1;
+                    var recipient = dm?.Recipients?.FirstOrDefault();
                     if (recipient is null) continue;
 
                     // Create new item or reuse existing item's selection state
@@ -583,12 +580,23 @@ namespace Aerochat.Windows
             }
         }
 
-        private void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // get the data context of the clicked item
             var item = (HomeListItemViewModel)((Button)sender).DataContext;
-            // open a new chat window
-            new Chat(item.Id, true);
+            // is a window already open for this item?
+            var chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => x.ViewModel.Recipient?.Id == item.Id || x.Channel.Id == item.Id || (x.Channel.Guild?.Channels.Values.Select(x => x.Id).Contains(item.Id) ?? false));
+            if (chat is null)
+            {
+                new Chat(item.Id, true);
+            }
+            else
+            {
+                // move the chat to the center of this window
+                var rect = chat.RestoreBounds;
+                chat.Left = Left + (Width - rect.Width) / 2;
+                chat.Top = Top + (Height - rect.Height) / 2;
+                await chat.ExecuteNudgePrettyPlease(chat.Left, chat.Top, 0.5, 15);
+            }
         }
 
         private NonNativeTooltip? tooltip;
@@ -703,7 +711,7 @@ namespace Aerochat.Windows
         private void OptionsBtn_Click(object sender, RoutedEventArgs e)
         {
             Settings settings = new();
-            settings.Show();
+            settings.ShowDialog();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -744,6 +752,11 @@ namespace Aerochat.Windows
         private void CreditsBtn_Click(object sender, RoutedEventArgs e)
         {
             new About().ShowDialog();
+        }
+
+        private void DebugBtn_Click(object sender, RoutedEventArgs e)
+        {
+            new DebugWindow().Show();
         }
     }
 }

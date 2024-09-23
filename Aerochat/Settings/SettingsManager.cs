@@ -7,6 +7,19 @@ using System.Text.Json;
 
 namespace Aerochat.Settings
 {
+    // decorator for settings with the category name and settings display name
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+    public class SettingsAttribute : Attribute
+    {
+        public string Category { get; }
+        public string DisplayName { get; }
+
+        public SettingsAttribute(string category, string displayName)
+        {
+            Category = category;
+            DisplayName = displayName;
+        }
+    }
     public class SettingsManager : ViewModelBase
     {
         #region Boilerplate
@@ -63,13 +76,24 @@ namespace Aerochat.Settings
         }
         #endregion
 
-        #region Settings
+        #region Private Settings
         public string Token { get; set; } = "";
         public Dictionary<ulong, ulong> LastReadMessages { get; set; } = new();
         public Dictionary<ulong, ulong> SelectedChannels { get; set; } = new();
         public DateTime ReadRecieptReference { get; set; } = DateTime.MinValue;
         public bool WarningShown { get; set; } = false;
 
+        #endregion
+
+        #region Public Settings
+        [Settings("Alerts", "Nudge intensity")]
+        public int NudgeIntensity { get; set; } = 10;
+
+        [Settings("Alerts", "Nudge length")]
+        public int NudgeLength { get; set; } = 2;
+
+        [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
+        public bool XPCaptionButtons { get; set; } = false;
         #endregion
     }
 }

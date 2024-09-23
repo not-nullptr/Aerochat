@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" 
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:enums="clr-namespace:Aerochat.Enums"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+        xmlns:helpers="clr-namespace:Aerochat.Helpers"
         xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChatWindowViewModel}"
         mc:Ignorable="d"
@@ -111,6 +114,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <helpers:ImageConverter x:Key="imageConverter"/>
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
         <Grid>
@@ -232,51 +237,10 @@
                                 </Style>
                             </Grid.Style>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <Image Width="139" Panel.ZIndex="5" Height="139" MinWidth="139" MaxHeight="139" MinHeight="139" MaxWidth="139">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="Online">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameActive.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="Idle">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameIdle.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Recipient.Presence.Status}" Value="DoNotDisturb">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameDnd.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding Recipient.Avatar}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar, Converter={StaticResource imageConverter}}" />
                             </Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                                <Image Width="139" Panel.ZIndex="5" Height="139" MinWidth="139" MaxHeight="139" MinHeight="139" MaxWidth="139">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Online">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameActive.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Idle">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameIdle.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="DoNotDisturb">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameDnd.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Offline">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Invisible">
-                                                    <Setter Property="Source" Value="/Resources/Frames/XLFrameOffline.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                                <Image Margin="5,0,0,8" Width="96" Height="96" MinWidth="96" MinHeight="96" MaxWidth="96" MaxHeight="96" Source="{Binding CurrentUser.Avatar}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="0" Panel.ZIndex="50">
@@ -298,7 +262,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="100" Height="75" />
+                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" Height="75" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -318,7 +282,6 @@
                                                             </Grid.RowDefinitions>
                                                             <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
                                                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                                                            <Image HorizontalAlignment="Stretch" Stretch="Fill" VerticalAlignment="Stretch" Source="/Resources/ScrollBarBg.png" Grid.Column="1" />
                                                             <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
                                                             <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                                                         </Grid>
@@ -341,6 +304,16 @@
                                                         <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
                                                     <Grid Grid.Row="0" Margin="0,0,0,2" PreviewMouseDown="ItemClick">
+                                                        <Grid.Style>
+                                                            <Style TargetType="Grid">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Name}" Value="">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Grid.Style>
                                                         <controls:NineSlice Slice="4,4">
                                                             <controls:NineSlice.Style>
                                                                 <Style TargetType="controls:NineSlice">
@@ -382,6 +355,9 @@
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Collapsed}" Value="False">
                                                                         <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Name}" Value="">
+                                                                        <Setter Property="Margin" Value="0,4,0,0" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -460,7 +436,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="75" />
+                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -480,7 +456,6 @@
                                                             </Grid.RowDefinitions>
                                                             <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
                                                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                                                            <Image HorizontalAlignment="Stretch" Stretch="Fill" VerticalAlignment="Stretch" Source="/Resources/ScrollBarBg.png" Grid.Column="1" />
                                                             <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
                                                             <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                                                         </Grid>
@@ -529,25 +504,7 @@
                                                                                         <ColumnDefinition Width="*" />
                                                                                     </Grid.ColumnDefinitions>
                                                                                     <Grid Grid.Column="0">
-                                                                                        <Image Margin="4,0,0,0" Width="45" Panel.ZIndex="5" Height="45" MinWidth="45" MaxHeight="45" MinHeight="45" MaxWidth="45">
-                                                                                            <Image.Style>
-                                                                                                <Style TargetType="Image">
-                                                                                                    <Setter Property="Source" Value="/Resources/Frames/SmallFrameOffline.png" />
-                                                                                                    <Style.Triggers>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameActive.png" />
-                                                                                                        </DataTrigger>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameIdle.png" />
-                                                                                                        </DataTrigger>
-                                                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
-                                                                                                            <Setter Property="Source" Value="/Resources/Frames/SmallFrameDnd.png" />
-                                                                                                        </DataTrigger>
-                                                                                                    </Style.Triggers>
-                                                                                                </Style>
-                                                                                            </Image.Style>
-                                                                                        </Image>
-                                                                                        <Image Source="{Binding Image}" Width="24" Margin="6,0,0,0" />
+                                                                                        <controls:ProfilePictureFrame Margin="4,0,0,0" Panel.ZIndex="5" FrameSize="Small" ProfilePicture="{Binding Image}" UserStatus="{Binding Presence.Status}" />
                                                                                     </Grid>
                                                                                     <TextBlock VerticalAlignment="Center" Grid.Column="1" Text="{Binding Name}" Foreground="#333" Margin="4,0,0,0" />
                                                                                 </Grid>
@@ -641,8 +598,8 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <Grid>
-                                                    <Image>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image VerticalAlignment="Center" MaxWidth="16" UseLayoutRounding="True">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Setter Property="Source" Value="{x:Null}" />
@@ -650,11 +607,11 @@
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="Playing">
                                                                         <Setter Property="Source" Value="/Resources/Status/Playing.png" />
-                                                                        <Setter Property="Margin" Value="0,0,4,0" />
+                                                                        <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="ListeningTo">
                                                                         <Setter Property="Source" Value="/Resources/Status/Listening.png" />
-                                                                        <Setter Property="Margin" Value="0,0,4,0" />
+                                                                        <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -726,13 +683,13 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                </Grid>
+                                                </StackPanel>
                                             </StackPanel>
                                         </Border>
                                     </Border>
                                 </Grid>
                             </Grid>
-                            <ItemsControl ScrollViewer.CanContentScroll="True" VirtualizingPanel.ScrollUnit="Pixel" VirtualizingStackPanel.VirtualizationMode="Recycling" x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ScrollViewer.CanContentScroll="True" x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <ItemsControl.Style>
                                     <Style TargetType="ItemsControl">
                                         <Style.Triggers>
@@ -744,7 +701,7 @@
                                 </ItemsControl.Style>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel Orientation="Vertical" />
+                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
 
@@ -767,7 +724,6 @@
                                                                     </Grid.RowDefinitions>
                                                                     <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
                                                                     <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                                                                    <Image HorizontalAlignment="Stretch" Stretch="Fill" VerticalAlignment="Stretch" Source="/Resources/ScrollBarBg.png" Grid.Column="1" />
                                                                     <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
                                                                     <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                                                                 </Grid>
@@ -884,7 +840,7 @@
                                                         </Style>
                                                     </StackPanel.Style>
                                                     <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
-                                                    <Image Margin="2,0,0,0" Source="{Binding Author.Image}" Width="20" Height="20">
+                                                    <Image Margin="2,0,0,0" Source="{Binding Author.Image, Converter={StaticResource imageConverter}}" Width="20" Height="20">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
                                                                 <Style.Triggers>
@@ -967,7 +923,7 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </TextBlock.Style>    
+                                                        </TextBlock.Style>
                                                     </TextBlock>
                                                     <Grid.Style>
                                                         <Style TargetType="Grid">
@@ -1017,7 +973,7 @@
                                                                                 </Style>
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
-                                                                        <Image Margin="0,24,0,0" Source="{Binding Image.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left">
+                                                                        <Image Margin="0,24,0,0" Source="{Binding Image.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1039,7 +995,24 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel>
-                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Source="{Binding Url}" MouseLeftButtonUp="OpenImage" Cursor="Hand" />
+                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Cursor="Hand" MouseLeftButtonDown="OpenMedia">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Setter Property="Source" Value="{x:Null}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Image}">
+                                                                                    <Setter Property="Source" Value="{Binding Url}" />
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Gif}">
+                                                                                    <Setter Property="gif:AnimationBehavior.SourceUri" Value="{Binding Url}" />
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
                                                                 <TextBlock Margin="0,2">
                                                                     <TextBlock.Text>
                                                                         <MultiBinding StringFormat="{}{0} ({1})">
@@ -1095,8 +1068,25 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:TileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
+                                <controls:AnimatedTileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
                             </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Messages.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Loading}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <TextBlock Margin="-16,8,0,0" Text="Start the conversation!" HorizontalAlignment="Stretch" VerticalAlignment="Top" TextAlignment="Center" FontStyle="Italic" Opacity="0.3" />
+                            </Grid>
+
                             <Grid Grid.Row="3" Margin="0,0,18,0">
                                 <StackPanel Margin="0,4,0,2">
                                     <Grid>
@@ -1104,18 +1094,19 @@
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <controls:TileImage Grid.Column="0" Image="/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
-                                            <controls:TileImage.Style>
-                                                <Style TargetType="controls:TileImage">
+                                        <controls:AnimatedTileImage Grid.Column="0" Image="/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
+                                            <controls:AnimatedTileImage.Style>
+                                                <Style TargetType="controls:AnimatedTileImage">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="">
+                                                        <DataTrigger Binding="{Binding DataContext.TypingString, ElementName=Window}" Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
+          
                                                     </Style.Triggers>
                                                 </Style>
-                                            </controls:TileImage.Style>
-                                        </controls:TileImage>
+                                            </controls:AnimatedTileImage.Style>
+                                        </controls:AnimatedTileImage>
                                         <TextBlock Grid.Column="1" Foreground="#888888" TextTrimming="CharacterEllipsis">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">

@@ -1,581 +1,523 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Label="Globals">
-    <WebView2LoaderPreference>Static</WebView2LoaderPreference>
-  </PropertyGroup>
+	<PropertyGroup Label="Globals">
+		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <Platforms>AnyCPU;x64</Platforms>
-	<NuGetAudit>false</NuGetAudit>
-	<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<Platforms>AnyCPU;x64</Platforms>
+		<NuGetAudit>false</NuGetAudit>
+		<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Resources\Message\NewFolder\**" />
-    <EmbeddedResource Remove="Resources\Message\NewFolder\**" />
-    <None Remove="Resources\Message\NewFolder\**" />
-    <Page Remove="Resources\Message\NewFolder\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Resources\Message\NewFolder\**" />
+		<EmbeddedResource Remove="Resources\Message\NewFolder\**" />
+		<None Remove="Resources\Message\NewFolder\**" />
+		<Page Remove="Resources\Message\NewFolder\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Ads\Ads.xml" />
-    <None Remove="Ads\CursorInvisible.png" />
-    <None Remove="Ads\ENA.png" />
-    <None Remove="Ads\LibreWolf.png" />
-    <None Remove="Ads\Photopea.png" />
-    <None Remove="Ads\PrismLauncher.png" />
-    <None Remove="Ads\RingRacers.png" />
-    <None Remove="Ads\SecretCult.png" />
-    <None Remove="Ads\WiiLink.png" />
-    <None Remove="Ads\Yume2kki.png" />
-    <None Remove="Ads\ZorinOS.png" />
-    <None Remove="Resources\bg-1.png" />
-    <None Remove="Resources\ChangeScene\Active.png" />
-    <None Remove="Resources\ChangeScene\Background.png" />
-    <None Remove="Resources\ChangeScene\Bottom.png" />
-    <None Remove="Resources\ChangeScene\Hover.png" />
-    <None Remove="Resources\Dialog\Background.png" />
-    <None Remove="Resources\Dropdown.png" />
-    <None Remove="Resources\Dropdown\Dropdown.png" />
-    <None Remove="Resources\Dropdown\DropdownExpanded.png" />
-    <None Remove="Resources\Dropdown\DropdownExpandedHover.png" />
-    <None Remove="Resources\Dropdown\DropdownHover.png" />
-    <None Remove="Resources\Emoji\Angel.png" />
-    <None Remove="Resources\Emoji\Anger.png" />
-    <None Remove="Resources\Emoji\Bat.png" />
-    <None Remove="Resources\Emoji\Beach.png" />
-    <None Remove="Resources\Emoji\Beer.png" />
-    <None Remove="Resources\Emoji\BrokenHeart.png" />
-    <None Remove="Resources\Emoji\Cake.png" />
-    <None Remove="Resources\Emoji\Camera.png" />
-    <None Remove="Resources\Emoji\Car.png" />
-    <None Remove="Resources\Emoji\Cat.png" />
-    <None Remove="Resources\Emoji\CellPhone.png" />
-    <None Remove="Resources\Emoji\Cigarette.png" />
-    <None Remove="Resources\Emoji\Clock.png" />
-    <None Remove="Resources\Emoji\Coffee.png" />
-    <None Remove="Resources\Emoji\Computer.png" />
-    <None Remove="Resources\Emoji\Confused.png" />
-    <None Remove="Resources\Emoji\Conversation.png" />
-    <None Remove="Resources\Emoji\CrossedFingers.png" />
-    <None Remove="Resources\Emoji\Cuffs.png" />
-    <None Remove="Resources\Emoji\Currency.png" />
-    <None Remove="Resources\Emoji\Demon.png" />
-    <None Remove="Resources\Emoji\Discontent.png" />
-    <None Remove="Resources\Emoji\Dog.png" />
-    <None Remove="Resources\Emoji\Film.png" />
-    <None Remove="Resources\Emoji\Flished.png" />
-    <None Remove="Resources\Emoji\Flushed.png" />
-    <None Remove="Resources\Emoji\Football.png" />
-    <None Remove="Resources\Emoji\Frown.png" />
-    <None Remove="Resources\Emoji\Goat.png" />
-    <None Remove="Resources\Emoji\Grin.png" />
-    <None Remove="Resources\Emoji\Heart.png" />
-    <None Remove="Resources\Emoji\HighFive.png" />
-    <None Remove="Resources\Emoji\Jump.png" />
-    <None Remove="Resources\Emoji\Lightbuild.png" />
-    <None Remove="Resources\Emoji\LipBite.png" />
-    <None Remove="Resources\Emoji\Mail.png" />
-    <None Remove="Resources\Emoji\Man.png" />
-    <None Remove="Resources\Emoji\Moon.png" />
-    <None Remove="Resources\Emoji\Music.png" />
-    <None Remove="Resources\Emoji\Nerd.png" />
-    <None Remove="Resources\Emoji\Party.png" />
-    <None Remove="Resources\Emoji\Phone.png" />
-    <None Remove="Resources\Emoji\Pizza.png" />
-    <None Remove="Resources\Emoji\Plane.png" />
-    <None Remove="Resources\Emoji\Plate.png" />
-    <None Remove="Resources\Emoji\Present.png" />
-    <None Remove="Resources\Emoji\Rabbit.png" />
-    <None Remove="Resources\Emoji\Rage.png" />
-    <None Remove="Resources\Emoji\Rain.png" />
-    <None Remove="Resources\Emoji\Rainbow.png" />
-    <None Remove="Resources\Emoji\ReachLeft.png" />
-    <None Remove="Resources\Emoji\ReachRight.png" />
-    <None Remove="Resources\Emoji\RollingEyes.png" />
-    <None Remove="Resources\Emoji\Rose.png" />
-    <None Remove="Resources\Emoji\Rose_Wilter.png" />
-    <None Remove="Resources\Emoji\Sheep.png" />
-    <None Remove="Resources\Emoji\Sick.png" />
-    <None Remove="Resources\Emoji\Smile.png" />
-    <None Remove="Resources\Emoji\Snail.png" />
-    <None Remove="Resources\Emoji\Sob.png" />
-    <None Remove="Resources\Emoji\Soup.png" />
-    <None Remove="Resources\Emoji\Star.png" />
-    <None Remove="Resources\Emoji\Sun.png" />
-    <None Remove="Resources\Emoji\Sunglasses.png" />
-    <None Remove="Resources\Emoji\Surprise.png" />
-    <None Remove="Resources\Emoji\Surprised.png" />
-    <None Remove="Resources\Emoji\Thinking.png" />
-    <None Remove="Resources\Emoji\ThumbsDown.png" />
-    <None Remove="Resources\Emoji\ThumbsUp.png" />
-    <None Remove="Resources\Emoji\Thunder.png" />
-    <None Remove="Resources\Emoji\Tongue.png" />
-    <None Remove="Resources\Emoji\Tortoise.png" />
-    <None Remove="Resources\Emoji\Umbrella.png" />
-    <None Remove="Resources\Emoji\Wine.png" />
-    <None Remove="Resources\Emoji\Wink.png" />
-    <None Remove="Resources\Emoji\WLM.png" />
-    <None Remove="Resources\Emoji\Woman.png" />
-    <None Remove="Resources\Emoji\WTF.png" />
-    <None Remove="Resources\Emoji\Xbox.png" />
-    <None Remove="Resources\Emoji\Yawn.png" />
-    <None Remove="Resources\Emoji\ZipMouth.png" />
-    <None Remove="Resources\Frames\LargeFrameActive.png" />
-    <None Remove="Resources\Frames\LargeFrameDnd.png" />
-    <None Remove="Resources\Frames\LargeFrameIdle.png" />
-    <None Remove="Resources\Frames\LargeFrameOffline.png" />
-    <None Remove="Resources\Frames\MediumFrameActive.png" />
-    <None Remove="Resources\Frames\MediumFrameDnd.png" />
-    <None Remove="Resources\Frames\MediumFrameIdle.png" />
-    <None Remove="Resources\Frames\MediumFrameOffline.png" />
-    <None Remove="Resources\Frames\PlaceholderPfp.png" />
-    <None Remove="Resources\Frames\SmallFrameActive.png" />
-    <None Remove="Resources\Frames\SmallFrameDnd.png" />
-    <None Remove="Resources\Frames\SmallFrameIdle.png" />
-    <None Remove="Resources\Frames\SmallFrameOffline.png" />
-    <None Remove="Resources\Frames\XLFrameActive.png" />
-    <None Remove="Resources\Frames\XLFrameDnd.png" />
-    <None Remove="Resources\Frames\XLFrameIdle.png" />
-    <None Remove="Resources\Frames\XLFrameOffline.png" />
-    <None Remove="Resources\Frames\XSFrameActive.png" />
-    <None Remove="Resources\Frames\XSFrameActiveM.png" />
-    <None Remove="Resources\Frames\XSFrameDnd.png" />
-    <None Remove="Resources\Frames\XSFrameDndM.png" />
-    <None Remove="Resources\Frames\XSFrameIdle.png" />
-    <None Remove="Resources\Frames\XSFrameIdleM.png" />
-    <None Remove="Resources\Frames\XSFrameOffline.png" />
-    <None Remove="Resources\Frames\XSFrameOfflineM.png" />
-    <None Remove="Resources\Home\BottomSeperator.png" />
-    <None Remove="Resources\Home\PageClose.png" />
-    <None Remove="Resources\Home\PageOpen.png" />
-    <None Remove="Resources\Home\SearchBar.png" />
-    <None Remove="Resources\Home\SearchBarActive.png" />
-    <None Remove="Resources\Home\SearchBarHover.png" />
-    <None Remove="Resources\Home\SearchIconBlue.png" />
-    <None Remove="Resources\Home\SearchIconGray.png" />
-    <None Remove="Resources\Home\TreeActive.png" />
-    <None Remove="Resources\Home\TreeHover.png" />
-    <None Remove="Resources\Home\TreeHoverActive.png" />
-    <None Remove="Resources\Icons\DiscordIcon.png" />
-    <None Remove="Resources\ImagePreviewer\Open.png" />
-    <None Remove="Resources\ImagePreviewer\OpenActive.png" />
-    <None Remove="Resources\ImagePreviewer\OpenHover.png" />
-    <None Remove="Resources\Login\Frame.png" />
-    <None Remove="Resources\Message\Background.png" />
-    <None Remove="Resources\Message\BottomSeperator.png" />
-    <None Remove="Resources\Message\BottomToolbar.png" />
-    <None Remove="Resources\Message\Embed.png" />
-    <None Remove="Resources\Message\Expand.png" />
-    <None Remove="Resources\Message\Group.png" />
-    <None Remove="Resources\Message\InputBackground.png" />
-    <None Remove="Resources\Message\Nudge.png" />
-    <None Remove="Resources\Message\Seperator.png" />
-    <None Remove="Resources\Message\SpeechBubbleArrow.png" />
-    <None Remove="Resources\Message\ToolbarActive.png" />
-    <None Remove="Resources\Message\ToolbarHover.png" />
-    <None Remove="Resources\Message\TopBarBg.png" />
-    <None Remove="Resources\Message\Typing.png" />
-    <None Remove="Resources\msgres_4000_1473_var.png" />
-    <None Remove="Resources\NonNativeTooltip\ItemActive.png" />
-    <None Remove="Resources\NonNativeTooltip\ItemHover.png" />
-    <None Remove="Resources\Notification\Background.png" />
-    <None Remove="Resources\Notification\Close.png" />
-    <None Remove="Resources\Notification\CloseHover.png" />
-    <None Remove="Resources\Notification\Logo.png" />
-    <None Remove="Resources\ScrollBarBg.png" />
-    <None Remove="Resources\Sounds\newalert.mp3" />
-    <None Remove="Resources\Sounds\newemail.mp3" />
-    <None Remove="Resources\Sounds\nudge.mp3" />
-    <None Remove="Resources\Sounds\online.mp3" />
-    <None Remove="Resources\Sounds\outgoing.mp3" />
-    <None Remove="Resources\Sounds\phone.mp3" />
-    <None Remove="Resources\Sounds\type.mp3" />
-    <None Remove="Resources\Speen.png" />
-    <None Remove="Resources\Status\Listening.png" />
-    <None Remove="Resources\Status\Playing.png" />
-    <None Remove="Resources\Titlebar\Close.png" />
-    <None Remove="Resources\Titlebar\CloseActive.png" />
-    <None Remove="Resources\Titlebar\CloseHover.png" />
-    <None Remove="Resources\Titlebar\CloseInactive.png" />
-    <None Remove="Resources\Titlebar\Maximize.png" />
-    <None Remove="Resources\Titlebar\MaximizeActive.png" />
-    <None Remove="Resources\Titlebar\MaximizeHover.png" />
-    <None Remove="Resources\Titlebar\MaximizeInactive.png" />
-    <None Remove="Resources\Titlebar\Minimize.png" />
-    <None Remove="Resources\Titlebar\MinimizeActive.png" />
-    <None Remove="Resources\Titlebar\MinimizeHover.png" />
-    <None Remove="Resources\Titlebar\MinimizeInactive.png" />
-    <None Remove="Resources\Titlebar\Separator.png" />
-    <None Remove="Resources\top-blue-thing-transparent.png" />
-    <None Remove="Resources\top-blue-thing.png" />
-    <None Remove="Resources\Tray\Active.ico" />
-    <None Remove="Resources\Tray\Dnd.ico" />
-    <None Remove="Resources\Tray\Idle.ico" />
-    <None Remove="Resources\Tray\Offline.ico" />
-    <None Remove="Scenes\0001.png" />
-    <None Remove="Scenes\0002.jpg" />
-    <None Remove="Scenes\0002.png" />
-    <None Remove="Scenes\0003.jpg" />
-    <None Remove="Scenes\0003.png" />
-    <None Remove="Scenes\0004.png" />
-    <None Remove="Scenes\0005.png" />
-    <None Remove="Scenes\0006.png" />
-    <None Remove="Scenes\0007.png" />
-    <None Remove="Scenes\0008.png" />
-    <None Remove="Scenes\Arrowfunk.png" />
-    <None Remove="Scenes\BetaFish.png" />
-    <None Remove="Scenes\Bliss.png" />
-    <None Remove="Scenes\BlueWaves.png" />
-    <None Remove="Scenes\BrightLines.png" />
-    <None Remove="Scenes\ButterflyPattern.png" />
-    <None Remove="Scenes\CarbonFiber.jpg" />
-    <None Remove="Scenes\CarbonFiber.png" />
-    <None Remove="Scenes\Caustics.jpg" />
-    <None Remove="Scenes\default.png" />
-    <None Remove="Scenes\DottieGreen.png" />
-    <None Remove="Scenes\Floral.png" />
-    <None Remove="Scenes\Graffiti.jpg" />
-    <None Remove="Scenes\Graffiti.png" />
-    <None Remove="Scenes\Halo.png" />
-    <None Remove="Scenes\Harmony.png" />
-    <None Remove="Scenes\HelloKitty.png" />
-    <None Remove="Scenes\LiveLights.png" />
-    <None Remove="Scenes\MajorasMask.png" />
-    <None Remove="Scenes\MesmerizingWhite.png" />
-    <None Remove="Scenes\Miku1.png" />
-    <None Remove="Scenes\Morty.png" />
-    <None Remove="Scenes\Nanami.png" />
-    <None Remove="Scenes\Nineties.png" />
-    <None Remove="Scenes\PurpleRain.png" />
-    <None Remove="Scenes\RoadToWebTV.png" />
-    <None Remove="Scenes\Robot.jpg" />
-    <None Remove="Scenes\Robot.png" />
-    <None Remove="Scenes\Silhouette.jpg" />
-    <None Remove="Scenes\Silhouette.png" />
-    <None Remove="Scenes\TheSwordOfOrion.png" />
-    <None Remove="Scenes\VolumeBeta.png" />
-    <None Remove="Scenes\XboxGreen.png" />
-    <None Remove="Scenes\XboxGrunge.png" />
-    <None Remove="Scenes\XboxPurple.png" />
-    <None Remove="Scenes\Xperia1.png" />
-    <None Remove="Scenes\zune_01.jpg" />
-    <None Remove="Scenes\zune_01.png" />
-    <None Remove="Scenes\zune_02.jpg" />
-    <None Remove="Scenes\zune_02.png" />
-    <None Remove="Scenes\zune_03.jpg" />
-    <None Remove="Scenes\zune_03.png" />
-    <None Remove="Scenes\zune_04.jpg" />
-    <None Remove="Scenes\zune_04.png" />
-    <None Remove="Scenes\zune_05.jpg" />
-    <None Remove="Scenes\zune_05.png" />
-    <None Remove="Scenes\zune_06.jpg" />
-    <None Remove="Scenes\zune_06.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Ads\Ads.xml" />
+		<None Remove="Ads\*.png" />
+		<None Remove="Ads\*.jpg" />
+		<None Remove="Resources\bg-1.png" />
+		<None Remove="Resources\ChangeScene\Active.png" />
+		<None Remove="Resources\ChangeScene\Background.png" />
+		<None Remove="Resources\ChangeScene\Bottom.png" />
+		<None Remove="Resources\ChangeScene\Hover.png" />
+		<None Remove="Resources\Dialog\Background.png" />
+		<None Remove="Resources\Dropdown.png" />
+		<None Remove="Resources\Dropdown\Dropdown.png" />
+		<None Remove="Resources\Dropdown\DropdownExpanded.png" />
+		<None Remove="Resources\Dropdown\DropdownExpandedHover.png" />
+		<None Remove="Resources\Dropdown\DropdownHover.png" />
+		<None Remove="Resources\Emoji\Angel.png" />
+		<None Remove="Resources\Emoji\Anger.png" />
+		<None Remove="Resources\Emoji\Bat.png" />
+		<None Remove="Resources\Emoji\Beach.png" />
+		<None Remove="Resources\Emoji\Beer.png" />
+		<None Remove="Resources\Emoji\BrokenHeart.png" />
+		<None Remove="Resources\Emoji\Cake.png" />
+		<None Remove="Resources\Emoji\Camera.png" />
+		<None Remove="Resources\Emoji\Car.png" />
+		<None Remove="Resources\Emoji\Cat.png" />
+		<None Remove="Resources\Emoji\CellPhone.png" />
+		<None Remove="Resources\Emoji\Cigarette.png" />
+		<None Remove="Resources\Emoji\Clock.png" />
+		<None Remove="Resources\Emoji\Coffee.png" />
+		<None Remove="Resources\Emoji\Computer.png" />
+		<None Remove="Resources\Emoji\Confused.png" />
+		<None Remove="Resources\Emoji\Conversation.png" />
+		<None Remove="Resources\Emoji\CrossedFingers.png" />
+		<None Remove="Resources\Emoji\Cuffs.png" />
+		<None Remove="Resources\Emoji\Currency.png" />
+		<None Remove="Resources\Emoji\Demon.png" />
+		<None Remove="Resources\Emoji\Discontent.png" />
+		<None Remove="Resources\Emoji\Dog.png" />
+		<None Remove="Resources\Emoji\Film.png" />
+		<None Remove="Resources\Emoji\Flished.png" />
+		<None Remove="Resources\Emoji\Flushed.png" />
+		<None Remove="Resources\Emoji\Football.png" />
+		<None Remove="Resources\Emoji\Frown.png" />
+		<None Remove="Resources\Emoji\Goat.png" />
+		<None Remove="Resources\Emoji\Grin.png" />
+		<None Remove="Resources\Emoji\Heart.png" />
+		<None Remove="Resources\Emoji\HighFive.png" />
+		<None Remove="Resources\Emoji\Jump.png" />
+		<None Remove="Resources\Emoji\Lightbuild.png" />
+		<None Remove="Resources\Emoji\LipBite.png" />
+		<None Remove="Resources\Emoji\Mail.png" />
+		<None Remove="Resources\Emoji\Man.png" />
+		<None Remove="Resources\Emoji\Moon.png" />
+		<None Remove="Resources\Emoji\Music.png" />
+		<None Remove="Resources\Emoji\Nerd.png" />
+		<None Remove="Resources\Emoji\Party.png" />
+		<None Remove="Resources\Emoji\Phone.png" />
+		<None Remove="Resources\Emoji\Pizza.png" />
+		<None Remove="Resources\Emoji\Plane.png" />
+		<None Remove="Resources\Emoji\Plate.png" />
+		<None Remove="Resources\Emoji\Present.png" />
+		<None Remove="Resources\Emoji\Rabbit.png" />
+		<None Remove="Resources\Emoji\Rage.png" />
+		<None Remove="Resources\Emoji\Rain.png" />
+		<None Remove="Resources\Emoji\Rainbow.png" />
+		<None Remove="Resources\Emoji\ReachLeft.png" />
+		<None Remove="Resources\Emoji\ReachRight.png" />
+		<None Remove="Resources\Emoji\RollingEyes.png" />
+		<None Remove="Resources\Emoji\Rose.png" />
+		<None Remove="Resources\Emoji\Rose_Wilter.png" />
+		<None Remove="Resources\Emoji\Sheep.png" />
+		<None Remove="Resources\Emoji\Sick.png" />
+		<None Remove="Resources\Emoji\Smile.png" />
+		<None Remove="Resources\Emoji\Snail.png" />
+		<None Remove="Resources\Emoji\Sob.png" />
+		<None Remove="Resources\Emoji\Soup.png" />
+		<None Remove="Resources\Emoji\Star.png" />
+		<None Remove="Resources\Emoji\Sun.png" />
+		<None Remove="Resources\Emoji\Sunglasses.png" />
+		<None Remove="Resources\Emoji\Surprise.png" />
+		<None Remove="Resources\Emoji\Surprised.png" />
+		<None Remove="Resources\Emoji\Thinking.png" />
+		<None Remove="Resources\Emoji\ThumbsDown.png" />
+		<None Remove="Resources\Emoji\ThumbsUp.png" />
+		<None Remove="Resources\Emoji\Thunder.png" />
+		<None Remove="Resources\Emoji\Tongue.png" />
+		<None Remove="Resources\Emoji\Tortoise.png" />
+		<None Remove="Resources\Emoji\Umbrella.png" />
+		<None Remove="Resources\Emoji\Wine.png" />
+		<None Remove="Resources\Emoji\Wink.png" />
+		<None Remove="Resources\Emoji\WLM.png" />
+		<None Remove="Resources\Emoji\Woman.png" />
+		<None Remove="Resources\Emoji\WTF.png" />
+		<None Remove="Resources\Emoji\Xbox.png" />
+		<None Remove="Resources\Emoji\Yawn.png" />
+		<None Remove="Resources\Emoji\ZipMouth.png" />
+		<None Remove="Resources\Frames\*.png" />
+		<None Remove="Resources\Home\BottomSeperator.png" />
+		<None Remove="Resources\Home\Error.png" />
+		<None Remove="Resources\Home\ErrorIcon.png" />
+		<None Remove="Resources\Home\Info.png" />
+		<None Remove="Resources\Home\InfoIcon.png" />
+		<None Remove="Resources\Home\PageClose.png" />
+		<None Remove="Resources\Home\PageOpen.png" />
+		<None Remove="Resources\Home\SearchBar.png" />
+		<None Remove="Resources\Home\SearchBarActive.png" />
+		<None Remove="Resources\Home\SearchBarHover.png" />
+		<None Remove="Resources\Home\SearchIconBlue.png" />
+		<None Remove="Resources\Home\SearchIconGray.png" />
+		<None Remove="Resources\Home\TreeActive.png" />
+		<None Remove="Resources\Home\TreeHover.png" />
+		<None Remove="Resources\Home\TreeHoverActive.png" />
+		<None Remove="Resources\Home\Warning.png" />
+		<None Remove="Resources\Home\WarningIcon.png" />
+		<None Remove="Resources\Icons\DiscordIcon.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionActive.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionClose.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionHover.png" />
+		<None Remove="Resources\ImagePreviewer\Open.png" />
+		<None Remove="Resources\ImagePreviewer\OpenActive.png" />
+		<None Remove="Resources\ImagePreviewer\OpenHover.png" />
+		<None Remove="Resources\Login\Frame.png" />
+		<None Remove="Resources\Message\Background.png" />
+		<None Remove="Resources\Message\BottomSeperator.png" />
+		<None Remove="Resources\Message\BottomToolbar.png" />
+		<None Remove="Resources\Message\Embed.png" />
+		<None Remove="Resources\Message\Expand.png" />
+		<None Remove="Resources\Message\Group.png" />
+		<None Remove="Resources\Message\InputBackground.png" />
+		<None Remove="Resources\Message\Nudge.png" />
+		<None Remove="Resources\Message\Seperator.png" />
+		<None Remove="Resources\Message\SpeechBubbleArrow.png" />
+		<None Remove="Resources\Message\ToolbarActive.png" />
+		<None Remove="Resources\Message\ToolbarHover.png" />
+		<None Remove="Resources\Message\TopBarBg.png" />
+		<None Remove="Resources\Message\Typing.png" />
+		<None Remove="Resources\msgres_4000_1473_var.png" />
+		<None Remove="Resources\NonNativeTooltip\ItemActive.png" />
+		<None Remove="Resources\NonNativeTooltip\ItemHover.png" />
+		<None Remove="Resources\Notification\Background.png" />
+		<None Remove="Resources\Notification\Close.png" />
+		<None Remove="Resources\Notification\CloseHover.png" />
+		<None Remove="Resources\Notification\Logo.png" />
+		<None Remove="Resources\ScrollBar\HorzScrollBarBg.png" />
+		<None Remove="Resources\ScrollBar\Active.png" />
+		<None Remove="Resources\ScrollBar\DownGlyphActive.png" />
+		<None Remove="Resources\ScrollBar\DownGlyphHover.png" />
+		<None Remove="Resources\ScrollBar\DownGlyphInactive.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbActive.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbGripperActive.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbGripperHover.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbGripperInactive.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbHover.png" />
+		<None Remove="Resources\ScrollBar\HorzThumbInactive.png" />
+		<None Remove="Resources\ScrollBar\Hover.png" />
+		<None Remove="Resources\ScrollBar\Inactive.png" />
+		<None Remove="Resources\ScrollBar\LeftGlyphActive.png" />
+		<None Remove="Resources\ScrollBar\LeftGlyphHover.png" />
+		<None Remove="Resources\ScrollBar\LeftGlyphInactive.png" />
+		<None Remove="Resources\ScrollBar\RightGlyphActive.png" />
+		<None Remove="Resources\ScrollBar\RightGlyphHover.png" />
+		<None Remove="Resources\ScrollBar\RightGlyphInactive.png" />
+		<None Remove="Resources\ScrollBar\UpGlyphActive.png" />
+		<None Remove="Resources\ScrollBar\UpGlyphHover.png" />
+		<None Remove="Resources\ScrollBar\UpGlyphInactive.png" />
+		<None Remove="Resources\ScrollBar\VertScrollBarBg.png" />
+		<None Remove="Resources\ScrollBar\VertThumbGripperActive.png" />
+		<None Remove="Resources\ScrollBar\VertThumbGripperHover.png" />
+		<None Remove="Resources\ScrollBar\VertThumbGripperInactive.png" />
+		<None Remove="Resources\Sounds\newalert.mp3" />
+		<None Remove="Resources\Sounds\newemail.mp3" />
+		<None Remove="Resources\Sounds\nudge.mp3" />
+		<None Remove="Resources\Sounds\online.mp3" />
+		<None Remove="Resources\Sounds\outgoing.mp3" />
+		<None Remove="Resources\Sounds\phone.mp3" />
+		<None Remove="Resources\Sounds\type.mp3" />
+		<None Remove="Resources\Speen.png" />
+		<None Remove="Resources\Status\Listening.png" />
+		<None Remove="Resources\Status\Playing.png" />
+		<None Remove="Resources\Titlebar\Separator.png" />
+		<None Remove="Resources\Titlebar\Vista\Close.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseActive.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseHover.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseInactive.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseSingle.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseSingleActive.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseSingleHover.png" />
+		<None Remove="Resources\Titlebar\Vista\CloseSingleInactive.png" />
+		<None Remove="Resources\Titlebar\Vista\Maximize.png" />
+		<None Remove="Resources\Titlebar\Vista\MaximizeActive.png" />
+		<None Remove="Resources\Titlebar\Vista\MaximizeHover.png" />
+		<None Remove="Resources\Titlebar\Vista\MaximizeInactive.png" />
+		<None Remove="Resources\Titlebar\Vista\Minimize.png" />
+		<None Remove="Resources\Titlebar\Vista\MinimizeActive.png" />
+		<None Remove="Resources\Titlebar\Vista\MinimizeHover.png" />
+		<None Remove="Resources\Titlebar\Vista\MinimizeInactive.png" />
+		<None Remove="Resources\Titlebar\XP\Close.png" />
+		<None Remove="Resources\Titlebar\XP\CloseActive.png" />
+		<None Remove="Resources\Titlebar\XP\CloseHover.png" />
+		<None Remove="Resources\Titlebar\XP\CloseInactive.png" />
+		<None Remove="Resources\Titlebar\XP\CloseSingle.png" />
+		<None Remove="Resources\Titlebar\XP\CloseSingleActive.png" />
+		<None Remove="Resources\Titlebar\XP\CloseSingleHover.png" />
+		<None Remove="Resources\Titlebar\XP\CloseSingleInactive.png" />
+		<None Remove="Resources\Titlebar\XP\Maximize.png" />
+		<None Remove="Resources\Titlebar\XP\MaximizeActive.png" />
+		<None Remove="Resources\Titlebar\XP\MaximizeHover.png" />
+		<None Remove="Resources\Titlebar\XP\MaximizeInactive.png" />
+		<None Remove="Resources\Titlebar\XP\Minimize.png" />
+		<None Remove="Resources\Titlebar\XP\MinimizeActive.png" />
+		<None Remove="Resources\Titlebar\XP\MinimizeHover.png" />
+		<None Remove="Resources\Titlebar\XP\MinimizeInactive.png" />
+		<None Remove="Resources\top-blue-thing-transparent.png" />
+		<None Remove="Resources\top-blue-thing.png" />
+		<None Remove="Resources\Tray\Active.ico" />
+		<None Remove="Resources\Tray\Dnd.ico" />
+		<None Remove="Resources\Tray\Idle.ico" />
+		<None Remove="Resources\Tray\Offline.ico" />
+		<None Remove="Scenes\*.png" />
+		<None Remove="Scenes\*.jpg" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Icons\MainWnd.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Icons\MainWnd.ico">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Ads\Ads.xml" />
-    <Resource Include="Ads\CursorInvisible.png" />
-    <Resource Include="Ads\ENA.png" />
-    <Resource Include="Ads\LibreWolf.png" />
-    <Resource Include="Ads\Photopea.png" />
-    <Resource Include="Ads\PrismLauncher.png" />
-    <Resource Include="Ads\RingRacers.png" />
-    <Resource Include="Ads\SecretCult.png" />
-    <Resource Include="Ads\WiiLink.png" />
-    <Resource Include="Ads\Yume2kki.png" />
-    <Resource Include="Ads\ZorinOS.png" />
-    <Resource Include="Resources\Emoji\Angel.png" />
-    <Resource Include="Resources\Emoji\Anger.png" />
-    <Resource Include="Resources\Emoji\Bat.png" />
-    <Resource Include="Resources\Emoji\Beach.png" />
-    <Resource Include="Resources\Emoji\Beer.png" />
-    <Resource Include="Resources\Emoji\BrokenHeart.png" />
-    <Resource Include="Resources\Emoji\Cake.png" />
-    <Resource Include="Resources\Emoji\Camera.png" />
-    <Resource Include="Resources\Emoji\Car.png" />
-    <Resource Include="Resources\Emoji\Cat.png" />
-    <Resource Include="Resources\Emoji\CellPhone.png" />
-    <Resource Include="Resources\Emoji\Cigarette.png" />
-    <Resource Include="Resources\Emoji\Clock.png" />
-    <Resource Include="Resources\Emoji\Coffee.png" />
-    <Resource Include="Resources\Emoji\Computer.png" />
-    <Resource Include="Resources\Emoji\Confused.png" />
-    <Resource Include="Resources\Emoji\Conversation.png" />
-    <Resource Include="Resources\Emoji\CrossedFingers.png" />
-    <Resource Include="Resources\Emoji\Cuffs.png" />
-    <Resource Include="Resources\Emoji\Currency.png" />
-    <Resource Include="Resources\Emoji\Demon.png" />
-    <Resource Include="Resources\Emoji\Discontent.png" />
-    <Resource Include="Resources\Emoji\Dog.png" />
-    <Resource Include="Resources\Emoji\Film.png" />
-    <Resource Include="Resources\Emoji\Flushed.png" />
-    <Resource Include="Resources\Emoji\Football.png" />
-    <Resource Include="Resources\Emoji\Frown.png" />
-    <Resource Include="Resources\Emoji\Goat.png" />
-    <Resource Include="Resources\Emoji\Grin.png" />
-    <Resource Include="Resources\Emoji\Heart.png" />
-    <Resource Include="Resources\Emoji\HighFive.png" />
-    <Resource Include="Resources\Emoji\Jump.png" />
-    <Resource Include="Resources\Emoji\Lightbuild.png" />
-    <Resource Include="Resources\Emoji\LipBite.png" />
-    <Resource Include="Resources\Emoji\Mail.png" />
-    <Resource Include="Resources\Emoji\Man.png" />
-    <Resource Include="Resources\Emoji\Moon.png" />
-    <Resource Include="Resources\Emoji\Music.png" />
-    <Resource Include="Resources\Emoji\Nerd.png" />
-    <Resource Include="Resources\Emoji\Party.png" />
-    <Resource Include="Resources\Emoji\Phone.png" />
-    <Resource Include="Resources\Emoji\Pizza.png" />
-    <Resource Include="Resources\Emoji\Plane.png" />
-    <Resource Include="Resources\Emoji\Plate.png" />
-    <Resource Include="Resources\Emoji\Present.png" />
-    <Resource Include="Resources\Emoji\Rabbit.png" />
-    <Resource Include="Resources\Emoji\Rage.png" />
-    <Resource Include="Resources\Emoji\Rain.png" />
-    <Resource Include="Resources\Emoji\Rainbow.png" />
-    <Resource Include="Resources\Emoji\ReachLeft.png" />
-    <Resource Include="Resources\Emoji\ReachRight.png" />
-    <Resource Include="Resources\Emoji\RollingEyes.png" />
-    <Resource Include="Resources\Emoji\Rose.png" />
-    <Resource Include="Resources\Emoji\Rose_Wilter.png" />
-    <Resource Include="Resources\Emoji\Sheep.png" />
-    <Resource Include="Resources\Emoji\Sick.png" />
-    <Resource Include="Resources\Emoji\Smile.png" />
-    <Resource Include="Resources\Emoji\Snail.png" />
-    <Resource Include="Resources\Emoji\Sob.png" />
-    <Resource Include="Resources\Emoji\Soup.png" />
-    <Resource Include="Resources\Emoji\Star.png" />
-    <Resource Include="Resources\Emoji\Sun.png" />
-    <Resource Include="Resources\Emoji\Sunglasses.png" />
-    <Resource Include="Resources\Emoji\Surprise.png" />
-    <Resource Include="Resources\Emoji\Surprised.png" />
-    <Resource Include="Resources\Emoji\Thinking.png" />
-    <Resource Include="Resources\Emoji\ThumbsDown.png" />
-    <Resource Include="Resources\Emoji\ThumbsUp.png" />
-    <Resource Include="Resources\Emoji\Thunder.png" />
-    <Resource Include="Resources\Emoji\Tongue.png" />
-    <Resource Include="Resources\Emoji\Tortoise.png" />
-    <Resource Include="Resources\Emoji\Umbrella.png" />
-    <Resource Include="Resources\Emoji\Wine.png" />
-    <Resource Include="Resources\Emoji\Wink.png" />
-    <Resource Include="Resources\Emoji\WLM.png" />
-    <Resource Include="Resources\Emoji\Woman.png" />
-    <Resource Include="Resources\Emoji\WTF.png" />
-    <Resource Include="Resources\Emoji\Xbox.png" />
-    <Resource Include="Resources\Emoji\Yawn.png" />
-    <Resource Include="Resources\Emoji\ZipMouth.png" />
-    <Resource Include="Resources\Home\PageClose.png" />
-    <Resource Include="Resources\Home\PageOpen.png" />
-    <Resource Include="Resources\ImagePreviewer\Open.png" />
-    <Resource Include="Resources\ImagePreviewer\OpenActive.png" />
-    <Resource Include="Resources\ImagePreviewer\OpenHover.png" />
-    <Resource Include="Resources\Tray\Active.ico" />
-    <Resource Include="Resources\Tray\Dnd.ico" />
-    <Resource Include="Resources\Tray\Idle.ico" />
-    <Resource Include="Resources\Tray\Offline.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Ads\Ads.xml" />
+		<Resource Include="Ads\*.png" />
+		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Resources\Emoji\Angel.png" />
+		<Resource Include="Resources\Emoji\Anger.png" />
+		<Resource Include="Resources\Emoji\Bat.png" />
+		<Resource Include="Resources\Emoji\Beach.png" />
+		<Resource Include="Resources\Emoji\Beer.png" />
+		<Resource Include="Resources\Emoji\BrokenHeart.png" />
+		<Resource Include="Resources\Emoji\Cake.png" />
+		<Resource Include="Resources\Emoji\Camera.png" />
+		<Resource Include="Resources\Emoji\Car.png" />
+		<Resource Include="Resources\Emoji\Cat.png" />
+		<Resource Include="Resources\Emoji\CellPhone.png" />
+		<Resource Include="Resources\Emoji\Cigarette.png" />
+		<Resource Include="Resources\Emoji\Clock.png" />
+		<Resource Include="Resources\Emoji\Coffee.png" />
+		<Resource Include="Resources\Emoji\Computer.png" />
+		<Resource Include="Resources\Emoji\Confused.png" />
+		<Resource Include="Resources\Emoji\Conversation.png" />
+		<Resource Include="Resources\Emoji\CrossedFingers.png" />
+		<Resource Include="Resources\Emoji\Cuffs.png" />
+		<Resource Include="Resources\Emoji\Currency.png" />
+		<Resource Include="Resources\Emoji\Demon.png" />
+		<Resource Include="Resources\Emoji\Discontent.png" />
+		<Resource Include="Resources\Emoji\Dog.png" />
+		<Resource Include="Resources\Emoji\Film.png" />
+		<Resource Include="Resources\Emoji\Flushed.png" />
+		<Resource Include="Resources\Emoji\Football.png" />
+		<Resource Include="Resources\Emoji\Frown.png" />
+		<Resource Include="Resources\Emoji\Goat.png" />
+		<Resource Include="Resources\Emoji\Grin.png" />
+		<Resource Include="Resources\Emoji\Heart.png" />
+		<Resource Include="Resources\Emoji\HighFive.png" />
+		<Resource Include="Resources\Emoji\Jump.png" />
+		<Resource Include="Resources\Emoji\Lightbuild.png" />
+		<Resource Include="Resources\Emoji\LipBite.png" />
+		<Resource Include="Resources\Emoji\Mail.png" />
+		<Resource Include="Resources\Emoji\Man.png" />
+		<Resource Include="Resources\Emoji\Moon.png" />
+		<Resource Include="Resources\Emoji\Music.png" />
+		<Resource Include="Resources\Emoji\Nerd.png" />
+		<Resource Include="Resources\Emoji\Party.png" />
+		<Resource Include="Resources\Emoji\Phone.png" />
+		<Resource Include="Resources\Emoji\Pizza.png" />
+		<Resource Include="Resources\Emoji\Plane.png" />
+		<Resource Include="Resources\Emoji\Plate.png" />
+		<Resource Include="Resources\Emoji\Present.png" />
+		<Resource Include="Resources\Emoji\Rabbit.png" />
+		<Resource Include="Resources\Emoji\Rage.png" />
+		<Resource Include="Resources\Emoji\Rain.png" />
+		<Resource Include="Resources\Emoji\Rainbow.png" />
+		<Resource Include="Resources\Emoji\ReachLeft.png" />
+		<Resource Include="Resources\Emoji\ReachRight.png" />
+		<Resource Include="Resources\Emoji\RollingEyes.png" />
+		<Resource Include="Resources\Emoji\Rose.png" />
+		<Resource Include="Resources\Emoji\Rose_Wilter.png" />
+		<Resource Include="Resources\Emoji\Sheep.png" />
+		<Resource Include="Resources\Emoji\Sick.png" />
+		<Resource Include="Resources\Emoji\Smile.png" />
+		<Resource Include="Resources\Emoji\Snail.png" />
+		<Resource Include="Resources\Emoji\Sob.png" />
+		<Resource Include="Resources\Emoji\Soup.png" />
+		<Resource Include="Resources\Emoji\Star.png" />
+		<Resource Include="Resources\Emoji\Sun.png" />
+		<Resource Include="Resources\Emoji\Sunglasses.png" />
+		<Resource Include="Resources\Emoji\Surprise.png" />
+		<Resource Include="Resources\Emoji\Surprised.png" />
+		<Resource Include="Resources\Emoji\Thinking.png" />
+		<Resource Include="Resources\Emoji\ThumbsDown.png" />
+		<Resource Include="Resources\Emoji\ThumbsUp.png" />
+		<Resource Include="Resources\Emoji\Thunder.png" />
+		<Resource Include="Resources\Emoji\Tongue.png" />
+		<Resource Include="Resources\Emoji\Tortoise.png" />
+		<Resource Include="Resources\Emoji\Umbrella.png" />
+		<Resource Include="Resources\Emoji\Wine.png" />
+		<Resource Include="Resources\Emoji\Wink.png" />
+		<Resource Include="Resources\Emoji\WLM.png" />
+		<Resource Include="Resources\Emoji\Woman.png" />
+		<Resource Include="Resources\Emoji\WTF.png" />
+		<Resource Include="Resources\Emoji\Xbox.png" />
+		<Resource Include="Resources\Emoji\Yawn.png" />
+		<Resource Include="Resources\Emoji\ZipMouth.png" />
+		<Resource Include="Resources\Home\Error.png" />
+		<Resource Include="Resources\Home\ErrorIcon.png" />
+		<Resource Include="Resources\Home\Info.png" />
+		<Resource Include="Resources\Home\InfoIcon.png" />
+		<Resource Include="Resources\Home\PageClose.png" />
+		<Resource Include="Resources\Home\PageOpen.png" />
+		<Resource Include="Resources\Home\Warning.png" />
+		<Resource Include="Resources\Home\WarningIcon.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionActive.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionClose.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionHover.png" />
+		<Resource Include="Resources\ImagePreviewer\Open.png" />
+		<Resource Include="Resources\ImagePreviewer\OpenActive.png" />
+		<Resource Include="Resources\ImagePreviewer\OpenHover.png" />
+		<Resource Include="Resources\ScrollBar\Active.png" />
+		<Resource Include="Resources\ScrollBar\DownGlyphActive.png" />
+		<Resource Include="Resources\ScrollBar\DownGlyphHover.png" />
+		<Resource Include="Resources\ScrollBar\DownGlyphInactive.png" />
+		<Resource Include="Resources\ScrollBar\HorzScrollBarBg.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbActive.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbGripperActive.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbGripperHover.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbGripperInactive.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbHover.png" />
+		<Resource Include="Resources\ScrollBar\HorzThumbInactive.png" />
+		<Resource Include="Resources\ScrollBar\Hover.png" />
+		<Resource Include="Resources\ScrollBar\Inactive.png" />
+		<Resource Include="Resources\ScrollBar\LeftGlyphActive.png" />
+		<Resource Include="Resources\ScrollBar\LeftGlyphHover.png" />
+		<Resource Include="Resources\ScrollBar\LeftGlyphInactive.png" />
+		<Resource Include="Resources\ScrollBar\RightGlyphActive.png" />
+		<Resource Include="Resources\ScrollBar\RightGlyphHover.png" />
+		<Resource Include="Resources\ScrollBar\RightGlyphInactive.png" />
+		<Resource Include="Resources\ScrollBar\VertThumbGripperActive.png" />
+		<Resource Include="Resources\ScrollBar\VertThumbGripperHover.png" />
+		<Resource Include="Resources\ScrollBar\VertThumbGripperInactive.png" />
+		<Resource Include="Resources\ScrollBar\UpGlyphActive.png" />
+		<Resource Include="Resources\ScrollBar\UpGlyphHover.png" />
+		<Resource Include="Resources\ScrollBar\UpGlyphInactive.png" />
+		<Resource Include="Resources\Titlebar\Vista\Close.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseActive.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseHover.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseInactive.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseSingle.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseSingleActive.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseSingleHover.png" />
+		<Resource Include="Resources\Titlebar\Vista\CloseSingleInactive.png" />
+		<Resource Include="Resources\Titlebar\Vista\Maximize.png" />
+		<Resource Include="Resources\Titlebar\Vista\MaximizeActive.png" />
+		<Resource Include="Resources\Titlebar\Vista\MaximizeHover.png" />
+		<Resource Include="Resources\Titlebar\Vista\MaximizeInactive.png" />
+		<Resource Include="Resources\Titlebar\Vista\Minimize.png" />
+		<Resource Include="Resources\Titlebar\Vista\MinimizeActive.png" />
+		<Resource Include="Resources\Titlebar\Vista\MinimizeHover.png" />
+		<Resource Include="Resources\Titlebar\Vista\MinimizeInactive.png" />
+		<Resource Include="Resources\Titlebar\XP\Close.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseActive.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseHover.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseInactive.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseSingle.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseSingleActive.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseSingleHover.png" />
+		<Resource Include="Resources\Titlebar\XP\CloseSingleInactive.png" />
+		<Resource Include="Resources\Titlebar\XP\Maximize.png" />
+		<Resource Include="Resources\Titlebar\XP\MaximizeActive.png" />
+		<Resource Include="Resources\Titlebar\XP\MaximizeHover.png" />
+		<Resource Include="Resources\Titlebar\XP\MaximizeInactive.png" />
+		<Resource Include="Resources\Titlebar\XP\Minimize.png" />
+		<Resource Include="Resources\Titlebar\XP\MinimizeActive.png" />
+		<Resource Include="Resources\Titlebar\XP\MinimizeHover.png" />
+		<Resource Include="Resources\Titlebar\XP\MinimizeInactive.png" />
+		<Resource Include="Resources\Tray\Active.ico" />
+		<Resource Include="Resources\Tray\Dnd.ico" />
+		<Resource Include="Resources\Tray\Idle.ico" />
+		<Resource Include="Resources\Tray\Offline.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Scenes\Scenes.xml" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Scenes\Scenes.xml" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Resources\ChangeScene\Active.png" />
-    <Resource Include="Resources\ChangeScene\Background.png" />
-    <Resource Include="Resources\ChangeScene\Bottom.png" />
-    <Resource Include="Resources\ChangeScene\Hover.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\ChangeScene\Active.png" />
+		<Resource Include="Resources\ChangeScene\Background.png" />
+		<Resource Include="Resources\ChangeScene\Bottom.png" />
+		<Resource Include="Resources\ChangeScene\Hover.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.5.0" />
-    <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="MdXaml" Version="1.27.0" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
-    <PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.0.3" />
-    <PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.3" />
-    <PackageReference Include="Vanara.PInvoke.User32" Version="4.0.3" />
-    <PackageReference Include="Websocket.Client" Version="5.1.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Markdig" Version="0.37.0" />
+		<PackageReference Include="MdXaml" Version="1.27.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
+		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+		<PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.0.3" />
+		<PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.3" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.3" />
+		<PackageReference Include="Websocket.Client" Version="5.1.2" />
+		<PackageReference Include="XamlAnimatedGif" Version="2.3.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\DSharpPlus-Aerochat\DSharpPlus\DSharpPlus.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Ads\Aerochat.png" />
-    <Resource Include="Ads\Liam.png" />
-    <Resource Include="Ads\N09.png" />
-    <Resource Include="Ads\Slobbery.png" />
-    <Resource Include="Resources\bg-1.png" />
-    <Resource Include="Resources\Dialog\Background.png" />
-    <Resource Include="Resources\Dropdown.png" />
-    <Resource Include="Resources\Dropdown\Dropdown.png" />
-    <Resource Include="Resources\Dropdown\DropdownExpanded.png" />
-    <Resource Include="Resources\Dropdown\DropdownExpandedHover.png" />
-    <Resource Include="Resources\Dropdown\DropdownHover.png" />
-    <Resource Include="Resources\Frames\LargeFrameActive.png" />
-    <Resource Include="Resources\Frames\LargeFrameDnd.png" />
-    <Resource Include="Resources\Frames\LargeFrameIdle.png" />
-    <Resource Include="Resources\Frames\LargeFrameOffline.png" />
-    <Resource Include="Resources\Frames\MediumFrameActive.png" />
-    <Resource Include="Resources\Frames\MediumFrameDnd.png" />
-    <Resource Include="Resources\Frames\MediumFrameIdle.png" />
-    <Resource Include="Resources\Frames\MediumFrameOffline.png" />
-    <Resource Include="Resources\Frames\PlaceholderPfp.png" />
-    <Resource Include="Resources\Frames\SmallFrameActive.png" />
-    <Resource Include="Resources\Frames\SmallFrameDnd.png" />
-    <Resource Include="Resources\Frames\SmallFrameIdle.png" />
-    <Resource Include="Resources\Frames\SmallFrameOffline.png" />
-    <Resource Include="Resources\Frames\XLFrameActive.png" />
-    <Resource Include="Resources\Frames\XLFrameDnd.png" />
-    <Resource Include="Resources\Frames\XLFrameIdle.png" />
-    <Resource Include="Resources\Frames\XLFrameOffline.png" />
-    <Resource Include="Resources\Frames\XSFrameActive.png" />
-    <Resource Include="Resources\Frames\XSFrameActiveM.png" />
-    <Resource Include="Resources\Frames\XSFrameDnd.png" />
-    <Resource Include="Resources\Frames\XSFrameDndM.png" />
-    <Resource Include="Resources\Frames\XSFrameIdle.png" />
-    <Resource Include="Resources\Frames\XSFrameIdleM.png" />
-    <Resource Include="Resources\Frames\XSFrameOffline.png" />
-    <Resource Include="Resources\Frames\XSFrameOfflineM.png" />
-    <Resource Include="Resources\Home\BottomSeperator.png" />
-    <Resource Include="Resources\Home\SearchBar.png" />
-    <Resource Include="Resources\Home\SearchBarActive.png" />
-    <Resource Include="Resources\Home\SearchBarHover.png" />
-    <Resource Include="Resources\Home\SearchIconBlue.png" />
-    <Resource Include="Resources\Home\SearchIconGray.png" />
-    <Resource Include="Resources\Home\TreeActive.png" />
-    <Resource Include="Resources\Home\TreeHover.png" />
-    <Resource Include="Resources\Home\TreeHoverActive.png" />
-    <Resource Include="Resources\Icons\DiscordIcon.png" />
-    <Resource Include="Resources\Login\Frame.png" />
-    <Resource Include="Resources\Message\BottomSeperator.png" />
-    <Resource Include="Resources\Message\BottomToolbar.png" />
-    <Resource Include="Resources\Message\Embed.png" />
-    <Resource Include="Resources\Message\Expand.png" />
-    <Resource Include="Resources\Message\Group.png" />
-    <Resource Include="Resources\Message\InputBackground.png" />
-    <Resource Include="Resources\Message\Background.png" />
-    <Resource Include="Resources\Message\Nudge.png" />
-    <Resource Include="Resources\Message\Seperator.png" />
-    <Resource Include="Resources\Message\SpeechBubbleArrow.png" />
-    <Resource Include="Resources\Message\ToolbarActive.png" />
-    <Resource Include="Resources\Message\ToolbarHover.png" />
-    <Resource Include="Resources\Message\TopBarBg.png" />
-    <Resource Include="Resources\Message\Typing.png" />
-    <Resource Include="Resources\msgres_4000_1473_var.png" />
-    <Resource Include="Resources\NonNativeTooltip\ItemActive.png" />
-    <Resource Include="Resources\NonNativeTooltip\ItemHover.png" />
-    <Resource Include="Resources\Notification\Background.png" />
-    <Resource Include="Resources\Notification\Close.png" />
-    <Resource Include="Resources\Notification\CloseHover.png" />
-    <Resource Include="Resources\Notification\Logo.png" />
-    <Resource Include="Resources\ScrollBarBg.png" />
-    <Resource Include="Resources\Speen.png" />
-    <Resource Include="Resources\Status\Listening.png" />
-    <Resource Include="Resources\Status\Playing.png" />
-    <Resource Include="Resources\Titlebar\Close.png" />
-    <Resource Include="Resources\Titlebar\CloseActive.png" />
-    <Resource Include="Resources\Titlebar\CloseHover.png" />
-    <Resource Include="Resources\Titlebar\CloseInactive.png" />
-    <Resource Include="Resources\Titlebar\Maximize.png" />
-    <Resource Include="Resources\Titlebar\MaximizeActive.png" />
-    <Resource Include="Resources\Titlebar\MaximizeHover.png" />
-    <Resource Include="Resources\Titlebar\MaximizeInactive.png" />
-    <Resource Include="Resources\Titlebar\Minimize.png" />
-    <Resource Include="Resources\Titlebar\MinimizeActive.png" />
-    <Resource Include="Resources\Titlebar\MinimizeHover.png" />
-    <Resource Include="Resources\Titlebar\MinimizeInactive.png" />
-    <Resource Include="Resources\Titlebar\Separator.png" />
-    <Resource Include="Resources\top-blue-thing-transparent.png" />
-    <Resource Include="Resources\top-blue-thing.png" />
-    <Resource Include="Scenes\0001.png" />
-    <Resource Include="Scenes\0002.png" />
-    <Resource Include="Scenes\0003.png" />
-    <Resource Include="Scenes\0004.png" />
-    <Resource Include="Scenes\0005.png" />
-    <Resource Include="Scenes\0006.png" />
-    <Resource Include="Scenes\0007.png" />
-    <Resource Include="Scenes\0008.png" />
-    <Resource Include="Scenes\Nineties.png" />
-    <Resource Include="Scenes\Arrowfunk.png" />
-    <Resource Include="Scenes\BetaFish.png" />
-    <Resource Include="Scenes\Bliss.png" />
-    <Resource Include="Scenes\BlueWaves.png" />
-    <Resource Include="Scenes\BrightLines.png" />
-    <Resource Include="Scenes\ButterflyPattern.png" />
-    <Resource Include="Scenes\CarbonFiber.png" />
-    <Resource Include="Scenes\Caustics.jpg" />
-    <Resource Include="Scenes\DottieGreen.png" />
-    <Resource Include="Scenes\Floral.png" />
-    <Resource Include="Scenes\Graffiti.png" />
-    <Resource Include="Scenes\Halo.png" />
-    <Resource Include="Scenes\Harmony.png" />
-    <Resource Include="Scenes\HelloKitty.png" />
-    <Resource Include="Scenes\LiveLights.png" />
-    <Resource Include="Scenes\MajorasMask.png" />
-    <Resource Include="Scenes\MesmerizingWhite.png" />
-    <Resource Include="Scenes\Morty.png" />
-    <Resource Include="Scenes\Nanami.png" />
-    <Resource Include="Scenes\PurpleRain.png" />
-    <Resource Include="Scenes\RoadToWebTV.png" />
-    <Resource Include="Scenes\Robot.png" />
-    <Resource Include="Scenes\Silhouette.png" />
-    <Resource Include="Scenes\default.png" />
-    <Resource Include="Scenes\TheSwordOfOrion.png" />
-    <Resource Include="Scenes\VolumeBeta.png" />
-    <Resource Include="Scenes\XboxGreen.png" />
-    <Resource Include="Scenes\XboxGrunge.png" />
-    <Resource Include="Scenes\XboxPurple.png" />
-    <Resource Include="Scenes\Xperia1.png" />
-    <Resource Include="Scenes\zune_01.png" />
-    <Resource Include="Scenes\zune_02.png" />
-    <Resource Include="Scenes\zune_03.png" />
-    <Resource Include="Scenes\zune_04.png" />
-    <Resource Include="Scenes\zune_05.png" />
-    <Resource Include="Scenes\zune_06.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\bg-1.png" />
+		<Resource Include="Resources\Dialog\Background.png" />
+		<Resource Include="Resources\Dropdown.png" />
+		<Resource Include="Resources\Dropdown\Dropdown.png" />
+		<Resource Include="Resources\Dropdown\DropdownExpanded.png" />
+		<Resource Include="Resources\Dropdown\DropdownExpandedHover.png" />
+		<Resource Include="Resources\Dropdown\DropdownHover.png" />
+		<Resource Include="Resources\Frames\*.png" />
+		<Resource Include="Resources\Home\BottomSeperator.png" />
+		<Resource Include="Resources\Home\SearchBar.png" />
+		<Resource Include="Resources\Home\SearchBarActive.png" />
+		<Resource Include="Resources\Home\SearchBarHover.png" />
+		<Resource Include="Resources\Home\SearchIconBlue.png" />
+		<Resource Include="Resources\Home\SearchIconGray.png" />
+		<Resource Include="Resources\Home\TreeActive.png" />
+		<Resource Include="Resources\Home\TreeHover.png" />
+		<Resource Include="Resources\Home\TreeHoverActive.png" />
+		<Resource Include="Resources\Icons\DiscordIcon.png" />
+		<Resource Include="Resources\Login\Frame.png" />
+		<Resource Include="Resources\Message\BottomSeperator.png" />
+		<Resource Include="Resources\Message\BottomToolbar.png" />
+		<Resource Include="Resources\Message\Embed.png" />
+		<Resource Include="Resources\Message\Expand.png" />
+		<Resource Include="Resources\Message\Group.png" />
+		<Resource Include="Resources\Message\InputBackground.png" />
+		<Resource Include="Resources\Message\Background.png" />
+		<Resource Include="Resources\Message\Nudge.png" />
+		<Resource Include="Resources\Message\Seperator.png" />
+		<Resource Include="Resources\Message\SpeechBubbleArrow.png" />
+		<Resource Include="Resources\Message\ToolbarActive.png" />
+		<Resource Include="Resources\Message\ToolbarHover.png" />
+		<Resource Include="Resources\Message\TopBarBg.png" />
+		<Resource Include="Resources\Message\Typing.png" />
+		<Resource Include="Resources\msgres_4000_1473_var.png" />
+		<Resource Include="Resources\NonNativeTooltip\ItemActive.png" />
+		<Resource Include="Resources\NonNativeTooltip\ItemHover.png" />
+		<Resource Include="Resources\Notification\Background.png" />
+		<Resource Include="Resources\Notification\Close.png" />
+		<Resource Include="Resources\Notification\CloseHover.png" />
+		<Resource Include="Resources\Notification\Logo.png" />
+		<Resource Include="Resources\ScrollBar\VertScrollBarBg.png" />
+		<Resource Include="Resources\Speen.png" />
+		<Resource Include="Resources\Status\Listening.png" />
+		<Resource Include="Resources\Status\Playing.png" />
+		<Resource Include="Resources\Titlebar\Separator.png" />
+		<Resource Include="Resources\top-blue-thing-transparent.png" />
+		<Resource Include="Resources\top-blue-thing.png" />
+		<Resource Include="Scenes\*.png" />
+		<Resource Include="Scenes\*.jpg" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Resources\Sounds\newalert.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\newemail.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\nudge.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\online.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\outgoing.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\phone.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Sounds\type.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="WebDir\hCaptcha.html">
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Resources\Sounds\newalert.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\newemail.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\nudge.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\online.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\outgoing.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\phone.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Sounds\type.wav">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="WebDir\hCaptcha.html">
+			<Generator>MSBuild:Compile</Generator>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

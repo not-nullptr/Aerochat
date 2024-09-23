@@ -10,6 +10,7 @@ namespace Aerochat.ViewModels
     public class GuildViewModel : ViewModelBase
     {
         private string _name;
+        private ulong _id;
 
         public string Name
         {
@@ -17,11 +18,18 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _name, value);
         }
 
+        public ulong Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
         public static GuildViewModel FromGuild(DiscordGuild guild)
         {
             return new GuildViewModel
             {
-                Name = guild.Name
+                Name = guild.Name,
+                Id = guild.Id
             };
         }
     }

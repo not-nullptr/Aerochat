@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <package>
 	<item id="1" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="default.png" default="true" displayname="Default" color="#3bb2ea" />
 	<item id="2" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="MesmerizingWhite.png" default="false" displayname="Mesmerizing White" color="#ffffff" />
@@ -45,4 +45,17 @@
 	<item id="43" credit="liam" mimetype="image/png" contenttype="D" file="Arrowfunk.png" displayname="Arrowfunk" color="#747b24" default="false" />
 	<item id="44" credit="alexander" mimetype="image/png" contenttype="D" file="Nineties.png" displayname="Nineties" color="#85b3dc" default="false" />
 	<item id="45" credit="liam" mimetype="image/png" contenttype="D" file="BlueWaves.png" displayname="Blue Waves" color="#0556ac" default="false" />
+	<item id="46" credit="supra" mimetype="image/png" contenttype="D" file="HydroTouch.png" displayname="Hydro Touch" color="#6197a9" default="false" />
+	<item id="47" credit="supra" mimetype="image/png" contenttype="D" file="AeroTrail.png" displayname="Aero Trail" color="#7ac5d2" default="false" />
+	<item id="48" credit="Redd" mimetype="image/png" contenttype="D" file="hexes.png" displayname="hexes" color="#b171cd" default="false" />
+	<item id="49" credit="supra" mimetype="image/png" contenttype="D" file="TropicalLeafs.png" displayname="Tropical Leafs" color="#70dc64" default="false" />
+	<item id="50" credit="supra" mimetype="image/png" contenttype="D" file="RunningFigure.png" displayname="Running Figure" color="#141414" default="false" />
+	<item id="51" credit="Tom Alphin" mimetype="image/png" contenttype="D" file="Lighthouse.png" displayname="Lighthouse" color="#141416" default="false" />
+	<item id="52" credit="SEGA, Sonic Team, forsythe80" mimetype="image/png" contenttype="D" file="SonicRivals2.png" displayname="Sonic Rivals 2" color="#1a2cb7" default="false" />
+	<item id="53" credit="King" mimetype="image/png" contenttype="D" file="Vista.png" displayname="Vista" color="#1f7783" default="false" />
+	<item id="54" credit="Valve" mimetype="image/png" contenttype="D" file="GordonFreeman.png" displayname="Gordon Freeman" color="#869295" default="false" />
+	<item id="55" credit="liam" mimetype="image/png" contenttype="D" file="Explore.png" displayname="Explore" color="#000080" default="false" />
+	<item id="56" credit="Recreation made by me but the original is made by Rainbow S.p.A." mimetype="image/png" contenttype="D" file="FairyOfMusic.png" displayname="Fairy Of Music" color="#dd7ecf" default="false" />
+	<item id="57" credit="kauan" mimetype="image/png" contenttype="D" file="AphexTwin.png" displayname="Aphex Twin" color="#000000" default="false" />
+	<item id="58" credit="kauan" mimetype="image/png" contenttype="D" file="MrOizo.png" displayname="Mr. Oizo" color="#ffb404" default="false" />
 </package>

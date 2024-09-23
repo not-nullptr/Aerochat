@@ -22,6 +22,7 @@ using System.Configuration;
 using Aerochat.Settings;
 using System.Windows.Shell;
 using System.Windows.Media.Imaging;
+using DSharpPlus.Enums;
 
 namespace Aerochat
 {
@@ -41,8 +42,18 @@ namespace Aerochat
             {
                 if (wnd is Chat chat)
                 {
-                    if (chat.ViewModel.CurrentUser?.Presence != null)
-                        chat.ViewModel.CurrentUser.Presence.Status = status.ToString();
+                    if (chat.ViewModel.IsGroupChat)
+                    {
+                        var cat = chat.ViewModel.Categories[0];
+                        var item = cat.Items.FirstOrDefault(x => x.Id == Discord.Client.CurrentUser.Id);
+                        if (item is null) return;
+                        item.Presence.Status = status.ToString();
+                    }
+                    else
+                    {
+                        if (chat.ViewModel.CurrentUser?.Presence != null)
+                            chat.ViewModel.CurrentUser.Presence.Status = status.ToString();
+                    }
                 }
                 else if (wnd is Home home)
                 {
@@ -266,13 +277,6 @@ namespace Aerochat
                                     }
                                 }
                             }
-                            else if (wnd is Chat chat)
-                            {
-                                if (chat.ViewModel.Recipient?.Id == e.User.Id)
-                                {
-
-                                }
-                            }
                         }
                     });
 
@@ -285,7 +289,8 @@ namespace Aerochat
                     {
                         if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb) return;
                         // if the user isn't on our friends list return
-                        if (Discord.Client.Relationships.Values.FirstOrDefault(x => x.UserId == e.User.Id) == null) return;
+                        var relationship = Discord.Client.Relationships.Values.FirstOrDefault(x => x.UserId == e.User.Id);
+                        if (relationship == null || relationship.RelationshipType != DiscordRelationshipType.Friend) return;
                         var noti = new Notification(NotificationType.SignOn, new
                         {
                             e.User,
