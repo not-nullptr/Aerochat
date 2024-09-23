@@ -587,7 +587,7 @@ namespace Aerochat.Windows
                 if (!TypingUsers.Contains(args.User))
                     TypingUsers.Add(args.User);
             });
-            
+
         }
 
         public void UnavailableDialog()
@@ -630,7 +630,7 @@ namespace Aerochat.Windows
                     }
                 }
             }
-            
+
             if (ChannelId == 0)
             {
                 ChannelId = id;
@@ -816,7 +816,7 @@ namespace Aerochat.Windows
                     }
 
                     item.HiddenInfo = previous.Author?.Id == item.Author?.Id && !previous.Special;
-                    
+
                 }
             }
             // set ViewModel.LastMessage to the last message in the collection
@@ -1123,10 +1123,7 @@ namespace Aerochat.Windows
             var attachmentVm = media.DataContext as AttachmentViewModel;
             if (attachmentVm is null) return;
 
-            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect)
-            {
-                Owner = this
-            };
+            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect);
 
             imagePreviewer.Show();
         }
