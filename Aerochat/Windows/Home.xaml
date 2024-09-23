@@ -258,6 +258,7 @@
                                                 <Separator />
                                                 <MenuItem x:Name="OptionsBtn" Click="OptionsBtn_Click" Header="Options" />
                                                 <Separator />
+                                                <MenuItem x:Name="DebugBtn" Click="DebugBtn_Click" Header="Debug Menu" />
                                                 <MenuItem x:Name="CreditsBtn" Click="CreditsBtn_Click" Header="About and Credits" />
                                             </ContextMenu>
                                         </Button.ContextMenu>

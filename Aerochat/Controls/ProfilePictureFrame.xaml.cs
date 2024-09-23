@@ -26,11 +26,12 @@ namespace Aerochat.Controls
         Small,
         Medium,
         Large,
-        ExtraLarge
+        ExtraLarge,
+        Unknown
     }
     public partial class ProfilePictureFrame : UserControl
     {
-        public static readonly DependencyProperty FrameSizeProperty = DependencyProperty.Register("FrameSize", typeof(ProfileFrameSize), typeof(ProfilePictureFrame), new PropertyMetadata(ProfileFrameSize.Medium, OnFrameSizeChange));
+        public static readonly DependencyProperty FrameSizeProperty = DependencyProperty.Register("FrameSize", typeof(ProfileFrameSize), typeof(ProfilePictureFrame), new PropertyMetadata(ProfileFrameSize.Unknown, OnFrameSizeChange));
         public static readonly DependencyProperty UserStatusProperty = DependencyProperty.Register("UserStatus", typeof(UserStatus), typeof(ProfilePictureFrame), new PropertyMetadata(UserStatus.Offline, OnStatusChange));
         public static readonly DependencyProperty ProfilePictureProperty = DependencyProperty.Register("ProfilePicture", typeof(BitmapSource), typeof(ProfilePictureFrame), new PropertyMetadata(null, OnProfilePictureChange));
 
@@ -58,7 +59,7 @@ namespace Aerochat.Controls
         {
             InitializeComponent();
             var size = SizeToPixels(FrameSize);
-            if (size == -1) throw new ArgumentException("Invalid frame size.");
+            if (size == -1) return;
             ForegroundTileImage.FrameWidth = size;
             ForegroundTileImage.FrameHeight = size;
             BackgroundTileImage.FrameWidth = size;
@@ -140,6 +141,8 @@ namespace Aerochat.Controls
                 frame.UpdateFrameSize(e);
             }
         }
+
+        private bool _frameSizeInitial = true;
 
         private void UpdateFrameSize(DependencyPropertyChangedEventArgs e)
         {

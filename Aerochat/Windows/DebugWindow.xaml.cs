@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Aerochat.ViewModels;
+using DSharpPlus.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +21,21 @@ namespace Aerochat.Windows
     /// </summary>
     public partial class DebugWindow : Window
     {
+        public DebugWindowViewModel ViewModel { get; } = new DebugWindowViewModel();
         public DebugWindow()
         {
             InitializeComponent();
+            // add all UserStatuses to StatusesComboBox
+            StatusesComboBox.ItemsSource = Enum.GetValues(typeof(UserStatus)).Cast<UserStatus>();
+            DataContext = ViewModel;
+            StatusesComboBox.SelectionChanged += StatusesComboBox_SelectionChanged;
+            // default to Online
+            StatusesComboBox.SelectedItem = UserStatus.Online;
+        }
+
+        private void StatusesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ViewModel.UserStatus = (UserStatus)StatusesComboBox.SelectedItem;
         }
     }
 }

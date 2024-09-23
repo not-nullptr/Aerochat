@@ -753,5 +753,10 @@ namespace Aerochat.Windows
         {
             new About().ShowDialog();
         }
+
+        private void DebugBtn_Click(object sender, RoutedEventArgs e)
+        {
+            new DebugWindow().Show();
+        }
     }
 }
