@@ -1151,7 +1151,9 @@ namespace Aerochat.Windows
             if (attachmentVm is null) return;
 
             var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect);
-
+            // set its position to the center of this window
+            imagePreviewer.Left = Left + (Width - imagePreviewer.Width) / 2;
+            imagePreviewer.Top = Top + (Height - imagePreviewer.Height) / 2;
             imagePreviewer.Show();
         }
     }
