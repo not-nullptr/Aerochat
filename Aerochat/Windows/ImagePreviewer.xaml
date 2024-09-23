@@ -109,7 +109,7 @@
                             <Setter Property="Effect">
                                 <Setter.Value>
                                     <DropShadowEffect
-                                        BlurRadius="10"
+                                        BlurRadius="15"
                                         ShadowDepth="0" 
                                         Opacity="0"
                                         Color="CornflowerBlue" />
