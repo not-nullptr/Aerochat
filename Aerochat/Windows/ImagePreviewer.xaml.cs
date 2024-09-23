@@ -1,4 +1,5 @@
-﻿using Aerochat.ViewModels;
+﻿using Aerochat.Enums;
+using Aerochat.ViewModels;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,103 +29,105 @@ namespace Aerochat.Windows
             {
                 FileName = attachmentVm.Name,
                 SourceUri = attachmentVm.MediaType == Enums.MediaType.Video ? "" : attachmentVm.Url,
-                BottomHeight = 24,
+                BottomHeight = 40,
                 MediaType = attachmentVm.MediaType
             };
 
-            System.Timers.Timer timer = new(1050);
-            timer.Elapsed += (s, e) =>
-            {
-                timer.Stop();
-                Dispatcher.Invoke(() => Focus());
-                _finished = true;
-            };
-            timer.Start();
-
             DataContext = ViewModel;
             InitializeComponent();
-            _srcRect = srcRect;
-            _dstRect = dstRect;
+            //_srcRect = srcRect;
+            //_dstRect = dstRect;
         }
 
-        private void ImagePreviewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void OnImagePreviewSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            e.Handled = true;
-            if (!_finished || _closing) return;
-            _closing = true;
-            Close();
+            //e.Handled = true;
+            //if (!_finished || _closing) return;
+            //_closing = true;
+            //Close();
         }
 
-        private void ImagePreviewer_Loaded(object sender, RoutedEventArgs e)
+        private void OnImagePreviewLoaded(object sender, RoutedEventArgs e)
         {
-            Left = _srcRect.Left + 2;
-            Top = _srcRect.Top + 16;
-            Width = _srcRect.Width + 12;
-            Height = _srcRect.Height + 28;
+            // Without this, resizing the image viewer makes the app freak out and hang
+            if (ViewModel.MediaType == MediaType.Gif)
+                AnimationBehavior.SetCacheFramesInMemory(ImageElement, true);
 
-            AnimateWindowToDstRect();
+            //Left = _srcRect.Left + 2;
+            //Top = _srcRect.Top + 16;
+            //Width = _srcRect.Width + 12;
+            //Height = _srcRect.Height + 28;
+
+            //AnimateWindowToDstRect();
 
             IntPtr mainWindowPtr = new WindowInteropHelper(this).Handle;
             HwndSource mainWindowSrc = HwndSource.FromHwnd(mainWindowPtr);
             mainWindowSrc.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
             DwmExtendFrameIntoClientArea(mainWindowPtr, new MARGINS(0, 0, 0, ViewModel.BottomHeight));
+
+            Task.Run(async () =>
+            {
+                await Task.Delay(10);
+                Dispatcher.Invoke(Focus);
+                _finished = true;
+            });
         }
 
 
-        private void AnimateWindowToDstRect()
-        {
-            var duration = TimeSpan.FromSeconds(1);
-            var easingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut };
+        //private void AnimateWindowToDstRect()
+        //{
+        //    var duration = TimeSpan.FromSeconds(1);
+        //    var easingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut };
 
-            var leftAnimation = new DoubleAnimation
-            {
-                From = Left,
-                To = _dstRect.Left,
-                Duration = duration,
-                EasingFunction = easingFunction
-            };
-            BeginAnimation(Window.LeftProperty, leftAnimation);
+        //    var leftAnimation = new DoubleAnimation
+        //    {
+        //        From = Left,
+        //        To = _dstRect.Left,
+        //        Duration = duration,
+        //        EasingFunction = easingFunction
+        //    };
+        //    BeginAnimation(Window.LeftProperty, leftAnimation);
 
-            var topAnimation = new DoubleAnimation
-            {
-                From = Top,
-                To = _dstRect.Top,
-                Duration = duration,
-                EasingFunction = easingFunction
-            };
-            BeginAnimation(Window.TopProperty, topAnimation);
+        //    var topAnimation = new DoubleAnimation
+        //    {
+        //        From = Top,
+        //        To = _dstRect.Top,
+        //        Duration = duration,
+        //        EasingFunction = easingFunction
+        //    };
+        //    BeginAnimation(Window.TopProperty, topAnimation);
 
-            var widthAnimation = new DoubleAnimation
-            {
-                From = Width,
-                To = _dstRect.Width,
-                Duration = duration,
-                EasingFunction = easingFunction
-            };
-            WndContent.BeginAnimation(Grid.WidthProperty, widthAnimation);
+        //    var widthAnimation = new DoubleAnimation
+        //    {
+        //        From = Width,
+        //        To = _dstRect.Width,
+        //        Duration = duration,
+        //        EasingFunction = easingFunction
+        //    };
+        //    WndContent.BeginAnimation(Grid.WidthProperty, widthAnimation);
 
 
-            var heightAnimation = new DoubleAnimation
-            {
-                From = Height,
-                To = _dstRect.Height - 12,
-                Duration = duration,
-                EasingFunction = easingFunction
-            };
-            WndContent.BeginAnimation(Grid.HeightProperty, heightAnimation);
+        //    var heightAnimation = new DoubleAnimation
+        //    {
+        //        From = Height,
+        //        To = _dstRect.Height - 12,
+        //        Duration = duration,
+        //        EasingFunction = easingFunction
+        //    };
+        //    WndContent.BeginAnimation(Grid.HeightProperty, heightAnimation);
 
-            leftAnimation.Completed += (s, e) =>
-            {
-                SizeToContent = SizeToContent.Manual;
-                // cancel all animations
-                BeginAnimation(Window.LeftProperty, null);
-                BeginAnimation(Window.TopProperty, null);
-                WndContent.BeginAnimation(Grid.WidthProperty, null);
-                WndContent.BeginAnimation(Grid.HeightProperty, null);
-            };
-        }
+        //    leftAnimation.Completed += (s, e) =>
+        //    {
+        //        SizeToContent = SizeToContent.Manual;
+        //        // cancel all animations
+        //        BeginAnimation(Window.LeftProperty, null);
+        //        BeginAnimation(Window.TopProperty, null);
+        //        WndContent.BeginAnimation(Grid.WidthProperty, null);
+        //        WndContent.BeginAnimation(Grid.HeightProperty, null);
+        //    };
+        //}
 
-        private void OpenImage(object sender, RoutedEventArgs e)
+        private void OnOpenImageClick(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo
             {
@@ -137,8 +140,16 @@ namespace Aerochat.Windows
         {
             if (e.Key != Key.Escape) return;
             if (_closing) return;
-            _closing = true;
-            Close();
+
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else
+            {
+                _closing = true;
+                Close();
+            }
         }
 
         private void OnDeactivated(object sender, EventArgs e)
@@ -149,12 +160,22 @@ namespace Aerochat.Windows
             Close();
         }
 
+        private void OnCloseBtnClick(object sender, RoutedEventArgs e)
+        {
+            if (!_finished || _closing) return;
+            _closing = true;
+            Close();
+        }
+
         private bool _ranClose = false;
 
         // TODO: Fix closing animation for gifs
-        private void ImagePreviewer_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        private void OnImagePreviewClosing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            Owner.Focus();
+            if (ViewModel.MediaType == MediaType.Gif)
+                AnimationBehavior.SetCacheFramesInMemory(ImageElement, false);
+
+            //Owner.Focus();
 
             //if (_ranClose) return;
             //_ranClose = true;

@@ -138,6 +138,9 @@
 		<None Remove="Resources\Home\Warning.png" />
 		<None Remove="Resources\Home\WarningIcon.png" />
 		<None Remove="Resources\Icons\DiscordIcon.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionActive.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionClose.png" />
+		<None Remove="Resources\ImagePreviewer\CaptionHover.png" />
 		<None Remove="Resources\ImagePreviewer\Open.png" />
 		<None Remove="Resources\ImagePreviewer\OpenActive.png" />
 		<None Remove="Resources\ImagePreviewer\OpenHover.png" />
@@ -340,6 +343,9 @@
 		<Resource Include="Resources\Home\PageOpen.png" />
 		<Resource Include="Resources\Home\Warning.png" />
 		<Resource Include="Resources\Home\WarningIcon.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionActive.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionClose.png" />
+		<Resource Include="Resources\ImagePreviewer\CaptionHover.png" />
 		<Resource Include="Resources\ImagePreviewer\Open.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenActive.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenHover.png" />

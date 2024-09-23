@@ -114,7 +114,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <helpers:ImageConverter x:Key="imageConverter"/>
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
@@ -237,7 +237,7 @@
                                 </Style>
                             </Grid.Style>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar}" />
+                                <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding Recipient.Presence.Status}" ProfilePicture="{Binding Recipient.Avatar, Converter={StaticResource imageConverter}}" />
                             </Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom">
                                 <controls:ProfilePictureFrame FrameSize="ExtraLarge" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
@@ -923,7 +923,7 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </TextBlock.Style>    
+                                                        </TextBlock.Style>
                                                     </TextBlock>
                                                     <Grid.Style>
                                                         <Style TargetType="Grid">
