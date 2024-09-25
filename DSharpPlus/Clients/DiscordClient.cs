@@ -951,6 +951,24 @@ namespace DSharpPlus
             await _webSocketClient.SendMessageAsync(guild_syncstr);
         }
 
+        public async Task UpdateVoiceStateAsync(ulong guildId, ulong? channelId, bool selfMute, bool selfDeaf)
+        {
+            var vs = new GatewayPayload
+            {
+                OpCode = GatewayOpCode.VoiceStateUpdate,
+                Data = new JObject()
+                {
+                    ["guild_id"] = guildId.ToString(),
+                    ["channel_id"] = channelId?.ToString(),
+                    ["self_mute"] = selfMute,
+                    ["self_deaf"] = selfDeaf
+                }
+            };
+            
+            var vsstr = JsonConvert.SerializeObject(vs);
+            await _webSocketClient.SendMessageAsync(vsstr);
+        }
+
         #endregion
 
         #region Public Cache Methods

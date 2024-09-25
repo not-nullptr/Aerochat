@@ -9,6 +9,7 @@
     <OutputType>Library</OutputType>
     <LangVersion>10</LangVersion>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
