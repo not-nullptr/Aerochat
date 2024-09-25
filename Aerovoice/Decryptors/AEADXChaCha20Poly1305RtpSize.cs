@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Aerovoice.Decryptors
 {
-    public class AEADXChaCha20Poly1305RtpSize : BaseDecryptor
+    public class AeadXChaCha20Poly1305RtpSize : BaseDecryptor
     {
         public static new string Name => "aead_xchacha20_poly1305_rtpsize";
         public override byte[] Decrypt(byte[] data, byte[] key)

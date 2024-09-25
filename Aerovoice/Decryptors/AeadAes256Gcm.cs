@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Aerovoice.Decryptors
 {
-    public class AeadAes256GcmRtpSize : BaseDecryptor
+    public class AeadAes256Gcm : BaseDecryptor
     {
-        public static new string Name => "aead_aes256_gcm_rtpsize";
+        public static new string Name => "aead_aes256_gcm";
 
         public override byte[] Decrypt(byte[] data, byte[] key)
         {
@@ -29,7 +29,6 @@ namespace Aerovoice.Decryptors
 
             var nonce = new byte[12];
             Array.Copy(opusSpan, opusSpan.Length - 4, nonce, 0, 4);
-            // remove nonce from data
             opusSpan = opusSpan.Take(opusSpan.Length - 4).ToArray();
             var result = SecretAeadAes.Decrypt(opusSpan, nonce, key, header);
             return isExtended ? result.Skip(len * 4).ToArray() : result;
