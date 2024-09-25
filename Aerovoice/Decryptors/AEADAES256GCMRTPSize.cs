@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Aerovoice.Decryptors
 {
-    public class AEADAES256GCMRTPSize(byte[] key) : BaseDecryptor(key)
+    public class AEADAES256GCMRTPSize : BaseDecryptor
     {
         public static new string Name => "aead_aes256_gcm_rtpsize";
 
-        public override byte[] Decrypt(byte[] data)
+        public override byte[] Decrypt(byte[] data, byte[] key)
         {
             var type = data[0];
             var toSkip = 1 + 1 + 2 + 4 + 4;
@@ -27,12 +27,11 @@ namespace Aerovoice.Decryptors
             var header = data.Take(toSkip).ToArray();
             var opusSpan = data.Skip(toSkip).ToArray();
 
-            var nonce = new byte[24];
+            var nonce = new byte[12];
             Array.Copy(opusSpan, opusSpan.Length - 4, nonce, 0, 4);
             // remove nonce from data
             opusSpan = opusSpan.Take(opusSpan.Length - 4).ToArray();
             var result = SecretAeadAes.Decrypt(opusSpan, nonce, key, header);
-            // skip len * 4 bytes
             return isExtended ? result.Skip(len * 4).ToArray() : result;
         }
     }

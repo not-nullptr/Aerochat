@@ -41,6 +41,8 @@ namespace Aerovoice.Clients
         private bool _connected = false;
         private List<string> _availableEncryptionModes;
 
+        public string? ForceEncryptionName;
+
         public async Task SendMessage(JObject message)
         {
             _socket.Send(message.ToString());
@@ -116,7 +118,6 @@ namespace Aerovoice.Clients
                     {
                         _decryptor = GetPreferredEncryption();
                     }
-                    _decryptor.SetKey(secretKey);
                     break;
                 }
             }
@@ -132,6 +133,10 @@ namespace Aerovoice.Clients
                     var address = Encoding.UTF8.GetString(e, 8, 64).TrimEnd('\0');
                     var port = (ushort)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(e, 72));
                     Logger.Log($"IP discovery was successful, your info is {address}:{port}.");
+                    if (_decryptor is null)
+                    {
+                        _decryptor = GetPreferredEncryption();
+                    }
                     await SendMessage(JObject.FromObject(new
                     {
                         op = 1,
@@ -165,7 +170,7 @@ namespace Aerovoice.Clients
                     {
                         if (_decryptor is null) return;
                         byte[] decryptedData = [];
-                        decryptedData = _decryptor.Decrypt(e);
+                        decryptedData = _decryptor.Decrypt(e, _secretKey);
                         if (decryptedData.Length == 0) return;
                         // ssrc is at offset 4 and is a 4 byte (32 bit) unsigned big-endian integer
                         var ssrc = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(8));
@@ -180,17 +185,57 @@ namespace Aerovoice.Clients
         public BaseDecryptor GetPreferredEncryption()
         {
             var decryptors = typeof(BaseDecryptor).Assembly.GetTypes().Where(x => x.Namespace == "Aerovoice.Decryptors" && x.IsSubclassOf(typeof(BaseDecryptor)) && _availableEncryptionModes.Contains((string)x.GetProperty("Name")!.GetValue(null)!));
-            // filter decryptors to ones where the static class property "Name" is in the priority list
             var priority = new[] { "aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize" };
-            foreach (var p in priority)
+            BaseDecryptor? decryptor = null;
+            if (ForceEncryptionName != null)
             {
-                var decryptor = decryptors.FirstOrDefault(x => x.GetProperty("Name")!.GetValue(null)!.Equals(p));
-                if (decryptor != null)
+                var forced = decryptors.FirstOrDefault(x => x.GetProperty("Name")!.GetValue(null)!.Equals(ForceEncryptionName));
+                if (forced != null)
                 {
-                    return (BaseDecryptor)Activator.CreateInstance(decryptor, _secretKey)!;
+                    decryptor = (BaseDecryptor)Activator.CreateInstance(forced)!;
+                } else
+                {
+                    Logger.Log($"\"{ForceEncryptionName}\" is not supported, falling back to default.");
                 }
             }
-            return (BaseDecryptor)Activator.CreateInstance(decryptors.First(), _secretKey)!;
+            if (decryptor == null)
+            {
+                foreach (var p in priority)
+                {
+                    var d = decryptors.FirstOrDefault(x => x.GetProperty("Name")!.GetValue(null)!.Equals(p));
+                    if (d != null && _availableEncryptionModes.Contains(p))
+                    {
+                        decryptor = (BaseDecryptor)Activator.CreateInstance(d)!;
+                        break;
+                    }
+                }
+            }
+
+            decryptor = decryptor ?? (BaseDecryptor)Activator.CreateInstance(decryptors.FirstOrDefault(x => _availableEncryptionModes.Contains(x.GetProperty("Name")!.GetValue(null))!)!)!;
+            // log all encryption modes but make the preferred one bold
+            Logger.Log($"Encryption mode selected:");
+            var names = decryptors.Select(x => (string)x.GetProperty("Name")!.GetValue(null)!);
+            // sort the modes such that the preferred one is first, then the supported ones, then the unsupported ones
+            // unsupported modes are modes where Name isn't in names
+            _availableEncryptionModes = _availableEncryptionModes.OrderBy(x => x != decryptor.PName).ThenBy(x => !names.Contains(x)).ThenBy(x => x).ToList();
+            foreach (var mode in _availableEncryptionModes)
+            {
+                if (mode == decryptor.PName)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                } 
+                else if (!names.Contains(mode))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                Console.WriteLine($"- {mode}");
+                Console.ResetColor();
+            }
+            return decryptor;
         }
 
         public async Task ConnectAsync(DiscordChannel channel)
