@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus-Aerochat\DSharpPlus\DSharpPlus.csproj" />
+    <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>

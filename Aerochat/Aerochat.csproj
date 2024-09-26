@@ -437,10 +437,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DSharpPlus-Aerochat\DSharpPlus\DSharpPlus.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Resource Include="Resources\bg-1.png" />
 		<Resource Include="Resources\Dialog\Background.png" />
 		<Resource Include="Resources\Dropdown.png" />
@@ -490,6 +486,11 @@
 		<Resource Include="Resources\top-blue-thing.png" />
 		<Resource Include="Scenes\*.png" />
 		<Resource Include="Scenes\*.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
+	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
