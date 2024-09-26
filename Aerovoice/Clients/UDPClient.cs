@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Aerovoice.Clients;
-public class UDPClient
+public class UDPClient : IDisposable
 {
     private UdpClient _client;
     private IPEndPoint _remoteEndPoint;
@@ -66,5 +66,11 @@ public class UDPClient
     {
         _cancellationTokenSource.Cancel();
         _client.Close();
+    }
+
+    public void Dispose() {
+        Close();
+        _client.Dispose();
+        _cancellationTokenSource.Dispose();
     }
 }

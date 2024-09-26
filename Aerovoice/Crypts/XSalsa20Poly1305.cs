@@ -3,15 +3,15 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aerovoice.Decryptors
+namespace Aerovoice.Crypts
 {
-    public class AeadXChaCha20Poly1305RtpSize : BaseDecryptor
+    public class XSalsa20Poly1305 : BaseCrypt
     {
-        public static new string Name => "aead_xchacha20_poly1305_rtpsize";
+        public static new string Name => "xsalsa20_poly1305";
+
         public override byte[] Decrypt(byte[] data, byte[] key)
         {
             var type = data[0];
@@ -28,12 +28,14 @@ namespace Aerovoice.Decryptors
             var opusSpan = data.Skip(toSkip).ToArray();
 
             var nonce = new byte[24];
-            Array.Copy(opusSpan, opusSpan.Length - 4, nonce, 0, 4);
-            // remove nonce from data
-            opusSpan = opusSpan.Take(opusSpan.Length - 4).ToArray();
-            var result = SecretAeadXChaCha20Poly1305.Decrypt(opusSpan, nonce, key, header);
-            // skip len * 4 bytes
+            Array.Copy(header, nonce, header.Length);
+
+            var result = SecretBox.Open(opusSpan, nonce, key);
             return isExtended ? result.Skip(len * 4).ToArray() : result;
+        }
+        public override byte[] Encrypt(byte[] data, byte[] key)
+        {
+            throw new NotImplementedException();
         }
     }
 }

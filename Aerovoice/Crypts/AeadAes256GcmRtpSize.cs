@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aerovoice.Decryptors
+namespace Aerovoice.Crypts
 {
-    public class AeadAes256Gcm : BaseDecryptor
+    public class AeadAes256GcmRtpSize : BaseCrypt
     {
-        public static new string Name => "aead_aes256_gcm";
+        public static new string Name => "aead_aes256_gcm_rtpsize";
+        private int _i = 0;
 
         public override byte[] Decrypt(byte[] data, byte[] key)
         {
@@ -29,9 +30,27 @@ namespace Aerovoice.Decryptors
 
             var nonce = new byte[12];
             Array.Copy(opusSpan, opusSpan.Length - 4, nonce, 0, 4);
+            // remove nonce from data
             opusSpan = opusSpan.Take(opusSpan.Length - 4).ToArray();
             var result = SecretAeadAes.Decrypt(opusSpan, nonce, key, header);
             return isExtended ? result.Skip(len * 4).ToArray() : result;
+        }
+        public override byte[] Encrypt(byte[] data, byte[] key)
+        {
+            if (key is null) return [];
+            var header = new byte[12];
+            Array.Copy(data, header, 12);
+            var opusSpan = data.Skip(12).ToArray();
+            var nonce = new byte[12];
+            BinaryPrimitives.WriteInt32BigEndian(nonce, _i++);
+            var encrypted = SecretAeadAes.Encrypt(opusSpan, nonce, key, header);
+            // add nonce to data
+            var result = new byte[encrypted.Length + 4 + 12];
+            // copy the header, then the opus span, then the nonce
+            Array.Copy(header, result, 12);
+            Array.Copy(encrypted, 0, result, 12, encrypted.Length);
+            Array.Copy(nonce, 0, result, 12 + encrypted.Length, 4);
+            return result;
         }
     }
 }

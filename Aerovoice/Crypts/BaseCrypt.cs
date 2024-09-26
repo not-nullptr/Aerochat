@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aerovoice.Decryptors
+namespace Aerovoice.Crypts
 {
-    public abstract class BaseDecryptor
+    public abstract class BaseCrypt
     {
-        public BaseDecryptor()
+        public BaseCrypt()
         {
             Logger.Log($"Encryption initialized! (\"{PName}\")");
         }
@@ -18,5 +18,6 @@ namespace Aerovoice.Decryptors
         public string PName => (string)GetType().GetProperty("Name")!.GetValue(null)!;
 
         public abstract byte[] Decrypt(byte[] data, byte[] key);
+        public abstract byte[] Encrypt(byte[] data, byte[] key);
     }
 }

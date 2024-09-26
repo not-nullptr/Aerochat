@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aerovoice.Decryptors
+namespace Aerovoice.Crypts
 {
-    public class XSalsa20Poly1305Lite : BaseDecryptor
+    public class XSalsa20Poly1305LiteRtpSize : BaseCrypt
     {
-        public static new string Name => "xsalsa20_poly1305_lite";
+        public static new string Name => "xsalsa20_poly1305_lite_rtpsize";
 
         public override byte[] Decrypt(byte[] data, byte[] key)
         {
@@ -35,6 +35,10 @@ namespace Aerovoice.Decryptors
 
             var result = SecretBox.Open(opusSpan, nonce, key);
             return isExtended ? result.Skip(len * 4).ToArray() : result;
+        }
+        public override byte[] Encrypt(byte[] data, byte[] key)
+        {
+            throw new NotImplementedException();
         }
     }
 }

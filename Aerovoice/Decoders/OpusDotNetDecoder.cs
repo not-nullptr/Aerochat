@@ -1,5 +1,6 @@
 ﻿using OpusDotNet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,13 @@ namespace Aerovoice.Decoders
 {
     public class OpusDotNetDecoder : IDecoder
     {
-        private OpusDecoder opusDecoder = new(48000, 2);
-        public byte[] Decode(byte[] data, int length, out int decodedLength)
+        private readonly ConcurrentDictionary<uint, OpusDecoder> opusDecoders = new();
+        public byte[] Decode(byte[] data, int length, out int decodedLength, uint ssrc)
         {
-            var decoded = opusDecoder.Decode(data, length, out decodedLength);
+            //var decoded = opusDecoders[ssrc].Decode(data, length, out decodedLength);
+            //return decoded;
+            var decoder = opusDecoders.GetOrAdd(ssrc, _ => new OpusDecoder(48000, 2));
+            var decoded = decoder.Decode(data, length, out decodedLength);
             return decoded;
         }
     }

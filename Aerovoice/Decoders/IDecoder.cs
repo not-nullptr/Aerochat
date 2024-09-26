@@ -8,6 +8,6 @@ namespace Aerovoice.Decoders
 {
     public interface IDecoder
     {
-        public byte[] Decode(byte[] data, int length, out int decodedLength);
+        public byte[] Decode(byte[] data, int length, out int decodedLength, uint ssrc);
     }
 }
