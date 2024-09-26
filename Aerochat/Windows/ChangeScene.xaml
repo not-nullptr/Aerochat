@@ -1,0 +1,83 @@
+﻿<Window x:Class="Aerochat.Windows.ChangeScene"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:controls="clr-namespace:Aerochat.Controls" 
+        xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:ChangeSceneViewModel}"
+        mc:Ignorable="d"
+        Title="Scene" Height="587" Width="535"
+        ResizeMode="NoResize"
+        Style="{StaticResource Window}">
+    <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
+        <Grid>
+            <Grid.Background>
+                <ImageBrush ImageSource="/Resources/ChangeScene/Background.png" />
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Margin="16">
+                <TextBlock Foreground="#888888" Text="The people you chat with will see the scene and color scheme you choose." />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1" Margin="0,10,0,0">
+                        <TextBlock FontSize="16" Margin="4,0,0,0" Text="Select a scene" Foreground="#0355a8" />
+                        <ScrollViewer x:Name="SceneList" VerticalScrollBarVisibility="Auto" Height="276" Margin="0,10,0,0">
+                            <ItemsControl ItemsSource="{Binding Scenes}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Width="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ActualWidth}" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="108" Height="60" UseLayoutRounding="True" PreviewMouseDown="Border_PreviewMouseDown">
+                                            <Grid UseLayoutRounding="True">
+                                                <controls:NineSlice Slice="4,4">
+                                                    <controls:NineSlice.Style>
+                                                        <Style TargetType="controls:NineSlice">
+                                                            <Setter Property="Image" Value="{x:Null}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Selected}" Value="True">
+                                                                    <Setter Property="Image" Value="/Resources/ChangeScene/Active.png" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}" Value="True">
+                                                                    <Setter Property="Image" Value="/Resources/ChangeScene/Hover.png" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </controls:NineSlice.Style>
+                                                </controls:NineSlice>
+                                                <Rectangle Margin="4,4,0,0" UseLayoutRounding="True" Width="96" Height="48" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="#33aacc" />
+                                                <Image Margin="4,4,0,0" UseLayoutRounding="True" Width="96" Height="48" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{Binding Scene.File}" Stretch="Fill">
+                                                    <Image.Effect>
+                                                        <DropShadowEffect Opacity="0.4" Color="Black" BlurRadius="6" Direction="315" />
+                                                    </Image.Effect>
+                                                </Image>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <Grid Grid.Row="1">
+                <controls:NineSlice Slice="1,6" Image="/Resources/ChangeScene/Bottom.png" />
+                <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="OkButton" Click="Button_Click" MinWidth="72" Content="OK" Margin="5,0,0,0" />
+                    <Button x:Name="CloseButton" Click="Button_Click" MinWidth="72" Content="Close" Margin="5,0,0,0" />
+                    <Button x:Name="ApplyButton" Click="Button_Click" MinWidth="72" Content="Apply" Margin="5,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </controls:BaseTitlebar>
+</Window>

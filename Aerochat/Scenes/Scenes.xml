@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package>
+	<item id="1" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="default.png" default="true" displayname="Default" color="#3bb2ea" />
+	<item id="2" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="MesmerizingWhite.png" default="false" displayname="Mesmerizing White" color="#ffffff" />
+	<item id="3" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0001.png" default="false" displayname="Daisy Hill" color="#96e2f0" />
+	<item id="4" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0007.png" default="false" displayname="Field" color="#fbaf2e" />
+	<item id="5" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Silhouette.png" default="false" displayname="Silhouette" color="#f39b36" />
+	<item id="6" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Morty.png" default="false" displayname="Morty" color="#c6dbdf" />
+	<item id="7" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0006.png" default="false" displayname="Dawn" color="#7ba2d3" />
+	<item id="8" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_02.png" default="false" displayname="zune_02" color="#de96b3" />
+	<item id="9" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="DottieGreen.png" default="false" displayname="Dottie Green" color="#97d732" />
+	<item id="10" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0004.png" default="false" displayname="Violet Springtime" color="#663c92" />
+	<item id="11" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0003.png" default="false" displayname="Cherry Blossoms" color="#fbdbd9" />
+	<item id="12" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_05.png" default="false" displayname="zune_05" color="#252222" />
+	<item id="13" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_01.png" default="false" displayname="zune_01" color="#931075" />
+	<item id="14" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0005.png" default="false" displayname="Flourish" color="#d30563" />
+	<item id="15" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="CarbonFiber.png" default="false" displayname="Carbon Fiber" color="#010101" />
+	<item id="16" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Robot.png" default="false" displayname="Robot" color="#374c5d" />
+	<item id="17" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="Graffiti.png" default="false" displayname="Graffiti" color="#eae7e2" />
+	<item id="18" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0002.png" default="false" displayname="Bamboo" color="#93cb1b" />
+	<item id="19" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_06.png" default="false" displayname="zune_06" color="#f4b7cc" />
+	<item id="20" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_04.png" default="false" displayname="zune_04" color="#000000" />
+	<item id="21" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="0008.png" default="false" displayname="Mesmerizing Brown" color="#614040" />
+	<item id="22" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="zune_03.png" default="false" displayname="zune_03" color="#832727" />
+	<item id="23" credit="Windows Live Messenger Team" mimetype="image/png" contenttype="D" file="ButterflyPattern.png" default="false" displayname="Butterfly Pattern" color="#575757" />
+	<item id="24" credit="Microsoft" mimetype="image/png" contenttype="D" file="BetaFish.png" default="false" displayname="Beta Fish" color="#24b3ce" />
+	<item id="25" credit="Microsoft" mimetype="image/png" contenttype="D" file="Halo.png" default="false" displayname="Halo" color="#a13d12" />
+	<item id="26" credit="maverik" mimetype="image/png" contenttype="D" file="Floral.png" default="false" displayname="Floral" color="#f9aed4" />
+	<item id="27" credit="maverik" mimetype="image/png" contenttype="D" file="HelloKitty.png" default="false" displayname="Hello Kitty" color="#f4a1cb" />
+	<item id="28" credit="supra" mimetype="image/jpg" contenttype="D" file="Caustics.jpg" default="false" displayname="Caustics" color="#265080" />
+	<item id="29" credit="daftendirjerrekt909" mimetype="image/png" contenttype="D" file="XboxGrunge.png" default="false" displayname="Xbox Grunge" color="#829d4e" />
+	<item id="30" credit="C418/vadimos" mimetype="image/png" contenttype="D" file="VolumeBeta.png" default="false" displayname="Volume Beta" color="#000001" />
+	<item id="31" credit="Sony/banesrb" mimetype="image/png" contenttype="D" file="Xperia1.png" default="false" displayname="Xperia 1" color="#6a61ec" />
+	<item id="32" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxGreen.png" default="false" displayname="Xbox Green" color="#abc704" />
+	<item id="33" credit="Microsoft/banesrb/izzy" mimetype="image/png" contenttype="D" file="XboxPurple.png" default="false" displayname="Xbox Purple" color="#9f698b" />
+	<item id="34" credit="CallyHam" mimetype="image/png" contenttype="D" file="Harmony.png" displayname="Harmony" color="#32b4f5" default="false" />
+	<item id="35" credit="alexander" mimetype="image/png" contenttype="D" file="MajorasMask.png" displayname="Majora's Mask" color="#0d092c" default="false" />
+	<item id="36" credit="alexander" mimetype="image/png" contenttype="D" file="Bliss.png" displayname="Bliss" color="#84aaf3" default="false" />
+	<item id="37" credit="alexander" mimetype="image/png" contenttype="D" file="BrightLines.png" displayname="Bright Lines" color="#5fcaab" default="false" />
+	<item id="38" credit="supra" mimetype="image/png" contenttype="D" file="LiveLights.png" displayname="Live Lights" color="#1da840" default="false" />
+	<item id="39" credit="Korin" mimetype="image/png" contenttype="D" file="TheSwordOfOrion.png" displayname="The Sword of Orion" color="#9f1d1f" default="false" />
+	<item id="40" credit="Harmonic Vector" mimetype="image/png" contenttype="D" file="RoadToWebTV.png" displayname="Road to WebTV" color="#000101" default="false" />
+	<item id="41" credit="liam" mimetype="image/png" contenttype="D" file="PurpleRain.png" displayname="Purple Rain" color="#7d0081" default="false" />
+	<item id="42" credit="Cupid" mimetype="image/png" contenttype="D" file="Inori.png" displayname="Inori" color="#55ccee" default="false" />
+	<item id="43" credit="liam" mimetype="image/png" contenttype="D" file="Arrowfunk.png" displayname="Arrowfunk" color="#747b24" default="false" />
+	<item id="44" credit="alexander" mimetype="image/png" contenttype="D" file="Nineties.png" displayname="Nineties" color="#85b3dc" default="false" />
+	<item id="45" credit="liam" mimetype="image/png" contenttype="D" file="BlueWaves.png" displayname="Blue Waves" color="#0556ac" default="false" />
+	<item id="46" credit="supra" mimetype="image/png" contenttype="D" file="HydroTouch.png" displayname="Hydro Touch" color="#6197a9" default="false" />
+	<item id="47" credit="supra" mimetype="image/png" contenttype="D" file="AeroTrail.png" displayname="Aero Trail" color="#7ac5d2" default="false" />
+	<item id="48" credit="Redd" mimetype="image/png" contenttype="D" file="hexes.png" displayname="hexes" color="#b171cd" default="false" />
+	<item id="49" credit="supra" mimetype="image/png" contenttype="D" file="TropicalLeafs.png" displayname="Tropical Leafs" color="#70dc64" default="false" />
+	<item id="50" credit="supra" mimetype="image/png" contenttype="D" file="RunningFigure.png" displayname="Running Figure" color="#141414" default="false" />
+	<item id="51" credit="Tom Alphin" mimetype="image/png" contenttype="D" file="Lighthouse.png" displayname="Lighthouse" color="#141416" default="false" />
+	<item id="52" credit="SEGA, Sonic Team, forsythe80" mimetype="image/png" contenttype="D" file="SonicRivals2.png" displayname="Sonic Rivals 2" color="#1a2cb7" default="false" />
+	<item id="53" credit="King" mimetype="image/png" contenttype="D" file="Vista.png" displayname="Vista" color="#1f7783" default="false" />
+	<item id="54" credit="Valve" mimetype="image/png" contenttype="D" file="GordonFreeman.png" displayname="Gordon Freeman" color="#869295" default="false" />
+	<item id="55" credit="liam" mimetype="image/png" contenttype="D" file="Explore.png" displayname="Explore" color="#000080" default="false" />
+	<item id="56" credit="Recreation made by me but the original is made by Rainbow S.p.A." mimetype="image/png" contenttype="D" file="FairyOfMusic.png" displayname="Fairy Of Music" color="#dd7ecf" default="false" />
+	<item id="57" credit="kauan" mimetype="image/png" contenttype="D" file="AphexTwin.png" displayname="Aphex Twin" color="#000000" default="false" />
+	<item id="58" credit="kauan" mimetype="image/png" contenttype="D" file="MrOizo.png" displayname="Mr. Oizo" color="#ffb404" default="false" />
+</package>

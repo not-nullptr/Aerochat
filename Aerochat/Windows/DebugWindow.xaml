@@ -1,0 +1,21 @@
+﻿<Window x:Class="Aerochat.Windows.DebugWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Aerochat.Controls" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DebugWindowViewModel}"
+        mc:Ignorable="d"
+        Title="DebugWindow" Height="450" Width="800">
+    <Grid UseLayoutRounding="True">
+        <ScrollViewer>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraSmall" />
+                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Small" />
+                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Medium" />
+                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
+                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
+                <ComboBox x:Name="StatusesComboBox" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

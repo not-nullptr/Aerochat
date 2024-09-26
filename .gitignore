@@ -1,3 +1,6 @@
-bin/
+Aerochat/bin
+Aerochat/obj
+Aerochat/Aerochat.csproj.user
+.vsbin/
 obj/
 .vs/

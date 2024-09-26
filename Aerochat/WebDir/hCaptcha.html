@@ -1,0 +1,66 @@
+﻿﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beep Boop! Boop Beep?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://js.hcaptcha.com/1/api.js?host=discord.com&onload=onLoad&render=explicit" async defer></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: table;
+            width: 100vw;
+            height: 100vh;
+            text-align: center;
+            background: #F3F3F3;
+        }
+
+        #captcha {
+            margin-top: 5px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        /* overwrite hCaptcha iframe overlay which adds a #FFF background with opacity 0.05 */
+        div > div:nth-child(2) {
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #2b2b2b;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        async function onLoad() {
+            const gotToken = (token) => {
+                window.chrome.webview.postMessage({
+                    op: "captcha_complete",
+                    token
+                })
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const sitekey = params.get("siteKey");
+            const theme = params.get("theme");
+
+            const widget = hcaptcha.render('captcha', {
+                theme,
+                sitekey,
+                callback: gotToken,
+            })
+            const response = hcaptcha.execute(widget, { async: true });
+        }
+    </script>
+    <div id="captcha" class="h-captcha"></div>
+</body>
+</html>

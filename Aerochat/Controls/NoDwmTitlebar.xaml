@@ -1,0 +1,99 @@
+﻿<UserControl x:Class="Aerochat.Controls.NoDwmTitlebar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Aerochat.Controls" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:BasicTitlebarViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             KeyboardNavigation.TabNavigation="None">
+    <Border Background="{Binding Color}" CornerRadius="8,8,0,0">
+        <Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button WindowChrome.IsHitTestVisibleInChrome="True" MouseDoubleClick="Button_MouseDoubleClick" Grid.Column="1" Style="{StaticResource TransparentStyle}">
+                    <Image Source="{Binding Icon}" />
+                </Button>
+                <TextBlock Grid.Column="2" Foreground="{Binding TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Text="{Binding Title}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Activated}" Value="False">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" Height="18" Orientation="Horizontal" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,8,0">
+                    <Button x:Name="Minimize" Click="Minimize_Click" Style="{StaticResource TransparentStyle}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeImagePath}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Activated}" Value="False">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeInactiveImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeHoverImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MinimizeActiveImagePath}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                    <Button x:Name="Maximize" Click="Maximize_Click" Style="{StaticResource TransparentStyle}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeImagePath}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Activated}" Value="False">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeInactiveImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeHoverImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=MaximizeActiveImagePath}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                    <Button x:Name="Close" Click="Close_Click" Style="{StaticResource TransparentStyle}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseImagePath}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Activated}" Value="False">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseInactiveImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseHoverImagePath}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Source" Value="{Binding Source={x:Static local:TitlebarThemeManager.Instance}, Path=CloseActiveImagePath}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Fill="#77FFFFFF" Height="1" />
+        </Grid>
+    </Border>
+</UserControl>

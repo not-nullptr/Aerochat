@@ -1,0 +1,635 @@
+﻿<Window x:Class="Aerochat.Windows.Home"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:HomeWindowViewModel}"
+        mc:Ignorable="d"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        Closing="Window_Closing"
+        Title="Windows Live Messenger" Height="650" Width="400"
+        Style="{StaticResource Window}">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="TaskbarInfo" />
+    </Window.TaskbarItemInfo>
+    <Window.Resources>
+        <Storyboard x:Key="FadeOutStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             Duration="0:0:0.3"
+                             FillBehavior="HoldEnd"/>
+        </Storyboard>
+        <Storyboard x:Key="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             Duration="0:0:0.3"
+                             FillBehavior="HoldEnd"/>
+        </Storyboard>
+        <Style TargetType="Image" x:Key="DropdownIconStyle">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Source" Value="/Resources/Dropdown/Dropdown.png" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsVisibleProperty}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard Storyboard="{StaticResource FadeOutStoryboard}"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Source" Value="/Resources/Dropdown/DropdownHover.png" />
+                </Trigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}" Value="False" />
+                        <Condition Binding="{Binding Collapsed}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpanded.png" />
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}" Value="True" />
+                        <Condition Binding="{Binding Collapsed}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpandedHover.png" />
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HoverStuff" TargetType="controls:NineSlice">
+            <Setter Property="Image" Value="{x:Null}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, ElementName=Rahh}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="DropdownStyle1" TargetType="controls:NineSlice">
+            <Setter Property="Image" Value="{x:Null}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button }}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Message/ToolbarHover.png"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button }}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Message/ToolbarActive.png"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ContextMenu.IsOpen, RelativeSource={RelativeSource AncestorType=Button }}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Message/ToolbarActive.png"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="DropdownStyle2" TargetType="controls:NineSlice">
+            <Setter Property="Image" Value="{x:Null}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, ElementName=StatusDropdown}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Message/ToolbarHover.png"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsPressed, ElementName=StatusDropdown}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Message/ToolbarActive.png"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="NineSliceStyle" TargetType="controls:ColorizedNineSlice">
+            <Setter Property="Image" Value="/Resources/Home/SearchBarActive.png"/>
+            <Setter Property="Darken" Value="0.3" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=SearchInput}" Value="">
+                    <Setter Property="Image" Value="/Resources/Home/SearchBar.png"/>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsMouseOver, ElementName=SearchInput}" Value="True" />
+                        <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Image" Value="/Resources/Home/SearchBarHover.png"/>
+                    <Setter Property="Darken" Value="0" />
+                </MultiDataTrigger>
+                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="True">
+                    <Setter Property="Image" Value="/Resources/Home/SearchBarActive.png"/>
+                    <Setter Property="Darken" Value="0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HomePageScrollViewer" TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
+                            <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <controls:BaseTitlebar Color="{Binding Theme.Scene.Color}" BlackText="{Binding Theme.Scene.TextColor}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Panel.ZIndex="5" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Panel.ZIndex="3" Background="{Binding Theme.Scene.Color}">
+                    <Grid>
+                        <Grid.Background>
+                            <ImageBrush RenderOptions.BitmapScalingMode="NearestNeighbor" ImageSource="{Binding Theme.Scene.File}" Stretch="UniformToFill" AlignmentX="Right" />
+                        </Grid.Background>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                    </Grid>
+                    <controls:ColorizedNineSlice Image="/Scenes/default.png" Slice="1,1" TintColor="{Binding Theme.Scene.Color}">
+                        <controls:ColorizedNineSlice.Style>
+                            <Style TargetType="controls:ColorizedNineSlice">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:ColorizedNineSlice.Style>
+                    </controls:ColorizedNineSlice>
+                </Grid>
+                <Grid Grid.Row="0" UseLayoutRounding="True" Panel.ZIndex="4">
+                    <controls:ProfilePictureFrame FrameSize="Large" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
+                    <Grid Background="Transparent" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
+                        <Grid.Resources>
+                            <DropShadowEffect x:Key="StockDropShadow" ShadowDepth="0" RenderingBias="Performance" Color="{Binding Theme.Scene.ShadowColor}" BlurRadius="4" />
+                            <DropShadowEffect x:Key="ForceWhiteDropShadow" ShadowDepth="0" RenderingBias="Performance" Color="White" BlurRadius="6" />
+                            <Style x:Key="Shadow" TargetType="Border">
+                                <Setter Property="Effect" Value="{StaticResource StockDropShadow}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                        <Setter Property="Effect" Value="{StaticResource ForceWhiteDropShadow}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Resources>
+                        <controls:AnimatedTileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
+                        <Border Style="{StaticResource Shadow}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="80,-10,0,0">
+                            <Border Style="{StaticResource Shadow}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Button Click="NameDropdown_Click" ContextMenuService.Placement="Bottom" Style="{StaticResource TransparentStyle}" VerticalAlignment="Center" Grid.Row="0" HorizontalAlignment="Left" x:Name="NameDropdown" BorderThickness="0">
+                                        <Grid>
+                                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding CurrentUser.Name}" FontSize="19" Margin="6,2,6,3" Panel.ZIndex="5">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                <Setter Property="Foreground" Value="Black" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <controls:NineSlice Style="{StaticResource DropdownStyle1}"  Slice="4,4" />
+                                        </Grid>
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Available" x:Name="Available" Click="Available_Click">
+                                                    <MenuItem.Icon>
+                                                        <Image Width="16" Height="16" Source="/Resources/Frames/XSFrameActive.png" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Busy" x:Name="Busy" Click="Busy_Click">
+                                                    <MenuItem.Icon>
+                                                        <Image Width="16" Height="16" Source="/Resources/Frames/XSFrameDnd.png" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Away" x:Name="Away" Click="Away_Click">
+                                                    <MenuItem.Icon>
+                                                        <Image Width="16" Height="16" Source="/Resources/Frames/XSFrameIdle.png" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Appear offline" x:Name="AppearOffline" Click="AppearOffline_Click">
+                                                    <MenuItem.Icon>
+                                                        <Image Width="16" Height="16" Source="/Resources/Frames/XSFrameOffline.png" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator />
+                                                <MenuItem Header="More statuses">
+                                                    <MenuItem Header="Personalized status..." />
+                                                </MenuItem>
+                                                <Separator />
+                                                <MenuItem x:Name="SignOut" Click="SignOut_Click" Header="Sign out from here" />
+                                                <Separator />
+                                                <MenuItem Header="Change display picture" />
+                                                <MenuItem Header="Change display name" />
+                                                <Separator />
+                                                <MenuItem x:Name="OptionsBtn" Click="OptionsBtn_Click" Header="Options" />
+                                                <Separator />
+                                                <MenuItem x:Name="DebugBtn" Click="DebugBtn_Click" Header="Debug Menu" />
+                                                <MenuItem x:Name="CreditsBtn" Click="CreditsBtn_Click" Header="About and Credits" />
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                    <Button VerticalAlignment="Center" Style="{StaticResource TransparentStyle}" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0">
+                                        <Grid>
+                                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Share a quick message" Margin="6,2,6,4" Panel.ZIndex="5">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                <Setter Property="Foreground" Value="Black" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <controls:NineSlice Style="{StaticResource DropdownStyle1}" Slice="4,4" />
+                                        </Grid>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Border>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="1" Panel.ZIndex="4" UseLayoutRounding="True">
+                    <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1" Margin="0,0,0,6" Image="/Resources/Message/Seperator.png" />
+                </Grid>
+                <Grid Grid.Row="2" Margin="0,0" Panel.ZIndex="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="0,-10,0,0">
+                        <Grid Height="44" Margin="8,0,0,0">
+                            <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Setter Property="Cursor" Value="Arrow" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter Property="Cursor" Value="IBeam" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock TextTrimming="CharacterEllipsis" Foreground="#7F000000" Panel.ZIndex="6" IsHitTestVisible="False" Text="Search contacts or the web..." VerticalAlignment="Center" Margin="20,0,36,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="False" />
+                                                    <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Style="{StaticResource NineSliceStyle}" Slice="16,16" />
+                            <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
+                        </Grid>
+                        <!--<Grid Margin="8,0,8,4">
+                            <controls:NineSlice Image="/Resources/Home/Info.png" Slice="4,4" />
+                            <Grid Margin="6,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalAlignment="Top" Grid.Column="0" Source="/Resources/Home/InfoIcon.png" />
+                                <TextBlock Margin="6,0,0,0" Grid.Column="1" Foreground="#333" Text="This is a test alert. For now, you can't remove it, but this will be updated to show actual alerts in future releases of Aerochat." TextWrapping="Wrap" />
+                            </Grid>
+                        </Grid>-->
+                    </StackPanel>
+                    <ScrollViewer Style="{DynamicResource HomePageScrollViewer}" VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True">
+                        <Grid>
+                            <ItemsControl ItemsSource="{Binding Categories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid Grid.Row="0" Margin="0,0,0,2">
+                                                <controls:NineSlice Slice="4,4">
+                                                    <controls:NineSlice.Style>
+                                                        <Style TargetType="controls:NineSlice">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
+                                                                    <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                </DataTrigger>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
+                                                                        <Condition Binding="{Binding IsSelected}" Value="True" />
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <MultiDataTrigger.Setters>
+                                                                        <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                    </MultiDataTrigger.Setters>
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </controls:NineSlice.Style>
+                                                </controls:NineSlice>
+                                                <Grid Height="24" PreviewMouseDown="ItemClick">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="12" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
+                                                    <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
+                                                        <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#355a88" />
+                                                    </Grid>
+                                                </Grid>
+                                            </Grid>
+                                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="1">
+                                                <Grid.Style>
+                                                    <Style TargetType="Grid">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Collapsed}" Value="False">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>
+                                                <ItemsControl ItemsSource="{Binding Items}" Margin="0,-2,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
+                                                                <Grid Height="20" PreviewMouseDown="ItemClick">
+                                                                    <controls:NineSlice Slice="4,4">
+                                                                        <controls:NineSlice.Style>
+                                                                            <Style TargetType="controls:NineSlice">
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
+                                                                                        <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                                    </DataTrigger>
+                                                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                                        <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                                    </DataTrigger>
+                                                                                    <MultiDataTrigger>
+                                                                                        <MultiDataTrigger.Conditions>
+                                                                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
+                                                                                            <Condition Binding="{Binding IsSelected}" Value="True" />
+                                                                                        </MultiDataTrigger.Conditions>
+                                                                                        <MultiDataTrigger.Setters>
+                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                                        </MultiDataTrigger.Setters>
+                                                                                    </MultiDataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </controls:NineSlice.Style>
+                                                                    </controls:NineSlice>
+                                                                    <Grid VerticalAlignment="Center">
+                                                                        <Grid Margin="16,0">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="16" />
+                                                                                <ColumnDefinition Width="*" />
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Image MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" Grid.Column="0" Width="16" Height="16">
+                                                                                <Image.Style>
+                                                                                    <Style TargetType="Image">
+                                                                                        <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                                        <Style.Triggers>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameActive.png" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameIdle.png" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameDnd.png" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Offline">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Invisible">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="">
+                                                                                                <Setter Property="Source" Value="{Binding Image}" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameActiveM.png" />
+                                                                                            </DataTrigger>
+                                                                                        </Style.Triggers>
+                                                                                    </Style>
+                                                                                </Image.Style>
+                                                                            </Image>
+                                                                            <DockPanel HorizontalAlignment="Stretch" Grid.Column="1">
+                                                                                <TextBlock Foreground="#333333" MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" HorizontalAlignment="Left" Text="{Binding Name}" TextTrimming="CharacterEllipsis">
+                                                                                    <TextBlock.Style>
+                                                                                        <Style TargetType="TextBlock">
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding Presence.Status}" Value="">
+                                                                                                    <Setter Property="Margin" Value="2,0,0,0" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </TextBlock.Style>
+                                                                                </TextBlock>
+                                                                                <DockPanel>
+                                                                                    <TextBlock Foreground="#333333" Text=" - " TextTrimming="CharacterEllipsis">
+                                                                                        <TextBlock.Style>
+                                                                                            <Style TargetType="TextBlock">
+                                                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Presence.Presence}" Value="">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                                                    </DataTrigger>
+                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </TextBlock.Style>
+                                                                                    </TextBlock>
+                                                                                    <Image Width="16" Height="16" Margin="1,0,3,0">
+                                                                                        <Image.Style>
+                                                                                            <Style TargetType="Image">
+                                                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Presence.Type}" Value="Playing">
+                                                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                                                        <Setter Property="Source" Value="/Resources/Status/Playing.png" />
+                                                                                                    </DataTrigger>
+                                                                                                    <DataTrigger Binding="{Binding Presence.Type}" Value="ListeningTo">
+                                                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                                                        <Setter Property="Source" Value="/Resources/Status/Listening.png" />
+                                                                                                    </DataTrigger>
+                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </Image.Style>
+                                                                                    </Image>
+                                                                                    <TextBlock Foreground="#888888" TextTrimming="CharacterEllipsis">
+                                                                                        <TextBlock.Style>
+                                                                                            <Style TargetType="TextBlock">
+                                                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                                                <Setter Property="Text" Value="{Binding Presence.Presence}" />
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding Presence.Presence}" Value="">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                                                    </DataTrigger>
+                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                                                        <Setter Property="Text">
+                                                                                                            <Setter.Value>
+                                                                                                                <MultiBinding StringFormat="{}{0} members">
+                                                                                                                    <Binding Path="RecipientCount" />
+                                                                                                                </MultiBinding>
+                                                                                                            </Setter.Value>
+                                                                                                        </Setter>
+                                                                                                    </DataTrigger>
+
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </TextBlock.Style>
+                                                                                    </TextBlock>
+                                                                                </DockPanel>
+                                                                            </DockPanel>
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                </ItemsControl>
+                                            </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </ScrollViewer>
+                    <Grid Grid.Row="3" Margin="-16,0" Height="136">
+                        <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1">
+                            <controls:ColorizedNineSlice.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#f3f3f3" Offset="0"/>
+                                    <GradientStop Color="#ccc" Offset="1"/>
+                                </LinearGradientBrush>
+                            </controls:ColorizedNineSlice.Background>
+
+                        </controls:ColorizedNineSlice>
+                        <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
+                        <Grid Margin="32,4,32,16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="64" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <ItemsControl ItemsSource="{Binding Buttons}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Height="44" Style="{StaticResource TransparentStyle}" Width="Auto" Click="Button_Click">
+                                                <Grid Width="Auto">
+                                                    <controls:NineSlice Slice="4,4">
+                                                        <controls:NineSlice.Style>
+                                                            <Style TargetType="controls:NineSlice">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
+                                                                        <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemHover.png" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
+                                                                        <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemActive.png" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </controls:NineSlice.Style>
+                                                    </controls:NineSlice>
+                                                    <Image Margin="8" Source="/Resources/Icons/DiscordIcon.png" />
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                            <Grid Grid.Row="1" UseLayoutRounding="True">
+                                <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
+                                    <Image Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Cursor" Value="Hand" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Ad.Url}" Value="">
+                                                        <Setter Property="Cursor" Value="Arrow" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid Margin="0,80,0,0" Background="{Binding Theme.Scene.Color}">
+                <controls:ColorizedNineSlice Slice="1,1" Image="/Resources/Message/Background.png" TintColor="{Binding Theme.Scene.Color}" />
+            </Grid>
+        </Grid>
+    </controls:BaseTitlebar>
+</Window>
