@@ -951,7 +951,7 @@ namespace DSharpPlus
             await _webSocketClient.SendMessageAsync(guild_syncstr);
         }
 
-        public async Task UpdateVoiceStateAsync(ulong guildId, ulong? channelId, bool selfMute, bool selfDeaf)
+        public async Task UpdateVoiceStateAsync(ulong? guildId, ulong? channelId, bool selfMute, bool selfDeaf)
         {
             var vs = new GatewayPayload
             {
