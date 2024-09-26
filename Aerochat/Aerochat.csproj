@@ -28,6 +28,11 @@
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
 		<None Remove="Resources\bg-1.png" />
+		<None Remove="Resources\Button\Disabled.png" />
+		<None Remove="Resources\Button\Focused.png" />
+		<None Remove="Resources\Button\Hover.png" />
+		<None Remove="Resources\Button\Normal.png" />
+		<None Remove="Resources\Button\Pressed.png" />
 		<None Remove="Resources\ChangeScene\Active.png" />
 		<None Remove="Resources\ChangeScene\Background.png" />
 		<None Remove="Resources\ChangeScene\Bottom.png" />
@@ -255,6 +260,11 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Resources\Button\Disabled.png" />
+		<Resource Include="Resources\Button\Focused.png" />
+		<Resource Include="Resources\Button\Hover.png" />
+		<Resource Include="Resources\Button\Normal.png" />
+		<Resource Include="Resources\Button\Pressed.png" />
 		<Resource Include="Resources\Emoji\Angel.png" />
 		<Resource Include="Resources\Emoji\Anger.png" />
 		<Resource Include="Resources\Emoji\Bat.png" />
