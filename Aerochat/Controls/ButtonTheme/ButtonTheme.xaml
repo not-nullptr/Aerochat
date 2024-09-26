@@ -1,0 +1,108 @@
+﻿<!--
+    Custom button theme to look just like WLM
+-->
+<ResourceDictionary
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:controls="clr-namespace:Aerochat.Controls"
+             xmlns:buttontheme="clr-namespace:Aerochat.Controls.ButtonTheme"> 
+
+    <Style x:Key="ButtonBackgroundStyle" TargetType="{x:Type controls:NineSlice}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+
+        <Setter Property="Image" Value="/Resources/Button/Normal.png" />
+        <Setter Property="Slice" Value="3, 3" />
+        
+        <Style.Triggers>
+            <!-- This rule must go first since it should be trumped by hover and pressed states: -->
+            <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                <Setter Property="Image" Value="/Resources/Button/Focused.png" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                <Setter Property="Image" Value="/Resources/Button/Hover.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                <Setter Property="Image" Value="/Resources/Button/Pressed.png" />
+            </DataTrigger>
+            
+            
+            <!-- This rule must go last to make the disabled state override all other ones: -->
+            <!-- TODO: Optimise loading. If a button defaults to the disabled state, then it will
+                       render the normal state for a split second. -->
+            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="False">
+                <Setter Property="Image" Value="/Resources/Button/Disabled.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="BaseButtonStyle" TargetType="{x:Type ButtonBase}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center"/>
+        <Setter Property="VerticalContentAlignment"
+                Value="Center"/>
+        <Setter Property="Padding"
+                Value="1"/>
+
+        <!-- Disable the native keyboard tabbing border -->
+        <Setter Property="FocusVisualStyle">
+            <Setter.Value>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Rectangle Margin="3"
+                                           StrokeThickness="1"
+                                           Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                                           StrokeDashArray="1 2"
+                                           SnapsToDevicePixels="true"/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <!-- BEWARE!! Do not touch this grid or its children without accounting for it in 
+                         ButtonBackgroundImage.cs -->
+                    <Grid>
+                        <buttontheme:ButtonBackgroundImage x:Name="BackgroundImage" Style="{StaticResource ButtonBackgroundStyle}" IsTabStop="False" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- From Aero.NormalColor.xaml -->
+                        <Trigger Property="IsEnabled"
+                                 Value="false">
+                            <Setter Property="Foreground"
+                                    Value="#ADADAD"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type ToggleButton}" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource BaseButtonStyle}" />
+    
+    <Style x:Key="{x:Type RepeatButton}" TargetType="{x:Type RepeatButton}" BasedOn="{StaticResource BaseButtonStyle}">
+        <!-- From Aero.NormalColor.xaml -->
+        <Setter Property="Stylus.IsPressAndHoldEnabled"
+                Value="false"/>
+    </Style>
+    
+    <Style x:Key="{x:Type Button}" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}" />
+</ResourceDictionary>
