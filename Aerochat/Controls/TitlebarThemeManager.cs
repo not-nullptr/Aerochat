@@ -33,7 +33,9 @@ namespace Aerochat.Controls
         {
             if (args.PropertyName == "XPCaptionButtons")
             {
-                //ReloadTheme();
+                // This needs to run on the UI thread or it will throw an exception
+                // and silently break the program otherwise.
+                Application.Current.Dispatcher.Invoke(ReloadTheme);
             }
         }
 
