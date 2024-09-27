@@ -37,7 +37,7 @@ namespace Aerovoice.Clients
 
         public IPlayer Player = new NAudioPlayer();
         public IDecoder Decoder = new OpusDotNetDecoder();
-        public IEncoder Encoder = new OpusDotNetEncoder();
+        public IEncoder Encoder = new ConcentusEncoder();
         public BaseRecorder Recorder = new NAudioRecorder();
         public string? ForceEncryptionName;
 
@@ -56,18 +56,17 @@ namespace Aerovoice.Clients
 
         public bool Speaking { get; private set; } = false;
 
+        System.Timers.Timer _timer;
+
         public VoiceSocket(DiscordClient client)
         {
             _client = client;
             // every 1/60 seconds, on another thread, incrementTimestamp using 3840
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(1000 / 60);
-                    _timestamp.Increment(3840);
-                }
-            });
+            _timer = new();
+            _timer.Interval = 16.666666666666668;
+            _timer.AutoReset = true;
+            _timer.Elapsed += (s, e) => _timestamp.Increment(3840);
+            _timer.Start();
         }
 
         public async Task SendMessage(JObject message)
@@ -288,61 +287,64 @@ namespace Aerovoice.Clients
         private int _bufferOffset = 0;
         private bool _bufferFilled = false;
 
-        private void Recorder_DataAvailable(object? sender, byte[] e)
+        private async void Recorder_DataAvailable(object? sender, byte[] e)
         {
-            // Append incoming 20ms audio to the circular buffer
-            AddToCircularBuffer(e);
-
-            // Check if the user is speaking using the circular buffer
-            var sampleIsSpeaking = IsSpeaking(_circularBuffer, _bufferFilled ? BufferSizeBytes : _bufferOffset);
-
-            if (sampleIsSpeaking)
+            await Task.Run(() =>
             {
-                if (Speaking)
+                // Append incoming 20ms audio to the circular buffer
+                AddToCircularBuffer(e);
+
+                // Check if the user is speaking using the circular buffer
+                var sampleIsSpeaking = IsSpeaking(_circularBuffer, _bufferFilled ? BufferSizeBytes : _bufferOffset);
+
+                if (sampleIsSpeaking)
                 {
-                    SendMessage(JObject.FromObject(new
+                    if (Speaking)
+                    {
+                        _ = SendMessage(JObject.FromObject(new
+                        {
+                            op = 5,
+                            d = new
+                            {
+                                speaking = 0, // not speaking
+                                delay = 0,
+                                ssrc = _ssrc
+                            }
+                        }));
+                    }
+                    Speaking = false;
+                    return;
+                }
+
+                if (!Speaking)
+                {
+                    _ = SendMessage(JObject.FromObject(new
                     {
                         op = 5,
                         d = new
                         {
-                            speaking = 0, // not speaking
+                            speaking = 1 << 0, // VOICE
                             delay = 0,
                             ssrc = _ssrc
                         }
                     }));
+                    Speaking = true;
                 }
-                Speaking = false;
-                return;
-            }
 
-            if (!Speaking)
-            {
-                SendMessage(JObject.FromObject(new
-                {
-                    op = 5,
-                    d = new
-                    {
-                        speaking = 1 << 0, // VOICE
-                        delay = 0,
-                        ssrc = _ssrc
-                    }
-                }));
-                Speaking = true;
-            }
-
-            if (cryptor is null) return;
-            var opus = Encoder.Encode(e);
-            var header = new byte[12];
-            header[0] = 0x80; // Version + Flags
-            header[1] = 0x78; // Payload Type
-            BinaryPrimitives.WriteInt16BigEndian(header.AsSpan(2), _udpSequence++); // Sequence
-            BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), _timestamp.GetCurrentTimestamp()); // Timestamp
-            BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(8), _ssrc); // SSRC
-            var packet = new byte[header.Length + opus.Length];
-            Array.Copy(header, 0, packet, 0, header.Length);
-            Array.Copy(opus, 0, packet, header.Length, opus.Length);
-            var encrypted = cryptor.Encrypt(packet, _secretKey);
-            UdpClient.SendMessage(encrypted);
+                if (cryptor is null) return;
+                var opus = Encoder.Encode(e);
+                var header = new byte[12];
+                header[0] = 0x80; // Version + Flags
+                header[1] = 0x78; // Payload Type
+                BinaryPrimitives.WriteInt16BigEndian(header.AsSpan(2), _udpSequence++); // Sequence
+                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), _timestamp.GetCurrentTimestamp()); // Timestamp
+                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(8), _ssrc); // SSRC
+                var packet = new byte[header.Length + opus.Length];
+                Array.Copy(header, 0, packet, 0, header.Length);
+                Array.Copy(opus, 0, packet, header.Length, opus.Length);
+                var encrypted = cryptor.Encrypt(packet, _secretKey);
+                UdpClient.SendMessage(encrypted);
+            });
         }
 
         private void AddToCircularBuffer(byte[] data)
@@ -379,7 +381,7 @@ namespace Aerovoice.Clients
             double rms = Math.Sqrt(sum / samples);
 
             // Threshold for speaking detection
-            const double threshold = 400; // Adjust this value based on the microphone and environment
+            const double threshold = 300; // Adjust this value based on the microphone and environment
             return rms < threshold;
         }
         private async Task _client_VoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
@@ -446,6 +448,7 @@ namespace Aerovoice.Clients
             _socket?.Dispose();
             UdpClient?.Dispose();
             Recorder?.Dispose();
+            _timer.Dispose();
         }
     }
 }

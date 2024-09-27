@@ -371,6 +371,7 @@ namespace Aerochat.Windows
         {
             if (ViewModel.Categories.Count > 0) ViewModel.Categories.Clear();
             var guild = Channel.Guild;
+            if (guild is null) return;
             var currentChannel = Channel;
 
             List<ChannelType> AllowedChannelTypes = new()
@@ -1111,6 +1112,15 @@ namespace Aerochat.Windows
                 {
                     case ChannelType.Voice:
                         if (prev is not null) prev.IsSelected = true;
+                        if (!SettingsManager.Instance.HasWarnedAboutVoiceChat)
+                        {
+                            SettingsManager.Instance.HasWarnedAboutVoiceChat = true;
+                            SettingsManager.Save();
+                            var dialog = new Dialog("Call warning", "Calling is currently in beta and WILL PROBABLY CRASH YOUR CLIENT. It uses your default microphone and speakers in the Windows settings, so please make sure those are properly configured. This warning will not be shown again; click the call again to join.", SystemIcons.Warning);
+                            dialog.Owner = this;
+                            dialog.ShowDialog();
+                            return;
+                        }
                         await VoiceManager.Instance.JoinVoiceChannel(channel);
                         break;
                     default:
@@ -1198,6 +1208,11 @@ namespace Aerochat.Windows
             imagePreviewer.Left = Left + (Width - imagePreviewer.Width) / 2;
             imagePreviewer.Top = Top + (Height - imagePreviewer.Height) / 2;
             imagePreviewer.Show();
+        }
+
+        private async void LeaveCallButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            await VoiceManager.Instance.LeaveVoiceChannel();
         }
     }
 }

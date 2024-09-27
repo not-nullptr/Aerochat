@@ -1333,7 +1333,7 @@
                                 </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
-                        <Image UseLayoutRounding="True" Margin="8,0,0,0" Source="/Resources/Message/Call.png" Width="16" Height="16" />
+                        <Image UseLayoutRounding="True" Margin="8,0,0,0" x:Name="LeaveCallButton" PreviewMouseLeftButtonUp="LeaveCallButton_PreviewMouseLeftButtonUp" Cursor="Hand" Source="/Resources/Message/LeaveCall.png" Width="16" Height="16" />
                     </StackPanel>
                 </Grid>
             </Grid>

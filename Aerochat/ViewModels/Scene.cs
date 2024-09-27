@@ -88,7 +88,7 @@ namespace Aerochat.Theme
                 Color = colourStr,
                 Default = bool.Parse(scene.Attribute("default").Value),
                 Credit = scene.Attribute("credit").Value,
-                TextColor = textBlack ? "#000000" : "#ffffff",
+                TextColor = textBlack ? "#333333" : "#ffffff",
                 ShadowColor = textBlack ? "#ffffff" : "#000000"
             };
         }

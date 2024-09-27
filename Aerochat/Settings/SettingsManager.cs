@@ -82,6 +82,7 @@ namespace Aerochat.Settings
         public Dictionary<ulong, ulong> SelectedChannels { get; set; } = new();
         public DateTime ReadRecieptReference { get; set; } = DateTime.MinValue;
         public bool WarningShown { get; set; } = false;
+        public bool HasWarnedAboutVoiceChat { get; set; } = false;
 
         #endregion
 

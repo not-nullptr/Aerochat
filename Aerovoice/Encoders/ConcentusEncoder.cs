@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Aerovoice.Encoders
 {
-    public class OpusDotNetEncoder : IEncoder
+    public class ConcentusEncoder : IEncoder
     {
         private IOpusEncoder encoder = OpusCodecFactory.CreateEncoder(48000, 2);
         public byte[] Encode(byte[] data)

@@ -125,11 +125,15 @@
 		<None Remove="Resources\Emoji\Yawn.png" />
 		<None Remove="Resources\Emoji\ZipMouth.png" />
 		<None Remove="Resources\Frames\*.png" />
+		<None Remove="Resources\Home\AddFriend.png" />
 		<None Remove="Resources\Home\BottomSeperator.png" />
+		<None Remove="Resources\Home\ChangeLayout.png" />
+		<None Remove="Resources\Home\Dropdown.png" />
 		<None Remove="Resources\Home\Error.png" />
 		<None Remove="Resources\Home\ErrorIcon.png" />
 		<None Remove="Resources\Home\Info.png" />
 		<None Remove="Resources\Home\InfoIcon.png" />
+		<None Remove="Resources\Home\Mail.png" />
 		<None Remove="Resources\Home\PageClose.png" />
 		<None Remove="Resources\Home\PageOpen.png" />
 		<None Remove="Resources\Home\SearchBar.png" />
@@ -137,6 +141,7 @@
 		<None Remove="Resources\Home\SearchBarHover.png" />
 		<None Remove="Resources\Home\SearchIconBlue.png" />
 		<None Remove="Resources\Home\SearchIconGray.png" />
+		<None Remove="Resources\Home\ShowMenu.png" />
 		<None Remove="Resources\Home\TreeActive.png" />
 		<None Remove="Resources\Home\TreeHover.png" />
 		<None Remove="Resources\Home\TreeHoverActive.png" />
@@ -153,11 +158,11 @@
 		<None Remove="Resources\Message\Background.png" />
 		<None Remove="Resources\Message\BottomSeperator.png" />
 		<None Remove="Resources\Message\BottomToolbar.png" />
-		<None Remove="Resources\Message\Call.png" />
 		<None Remove="Resources\Message\Embed.png" />
 		<None Remove="Resources\Message\Expand.png" />
 		<None Remove="Resources\Message\Group.png" />
 		<None Remove="Resources\Message\InputBackground.png" />
+		<None Remove="Resources\Message\LeaveCall.png" />
 		<None Remove="Resources\Message\Nudge.png" />
 		<None Remove="Resources\Message\Seperator.png" />
 		<None Remove="Resources\Message\SpeechBubbleArrow.png" />
@@ -346,12 +351,16 @@
 		<Resource Include="Resources\Emoji\Xbox.png" />
 		<Resource Include="Resources\Emoji\Yawn.png" />
 		<Resource Include="Resources\Emoji\ZipMouth.png" />
+		<Resource Include="Resources\Home\AddFriend.png" />
+		<Resource Include="Resources\Home\ChangeLayout.png" />
+		<Resource Include="Resources\Home\Dropdown.png" />
 		<Resource Include="Resources\Home\Error.png" />
 		<Resource Include="Resources\Home\ErrorIcon.png" />
 		<Resource Include="Resources\Home\Info.png" />
 		<Resource Include="Resources\Home\InfoIcon.png" />
 		<Resource Include="Resources\Home\PageClose.png" />
 		<Resource Include="Resources\Home\PageOpen.png" />
+		<Resource Include="Resources\Home\ShowMenu.png" />
 		<Resource Include="Resources\Home\Warning.png" />
 		<Resource Include="Resources\Home\WarningIcon.png" />
 		<Resource Include="Resources\ImagePreviewer\CaptionActive.png" />
@@ -360,7 +369,7 @@
 		<Resource Include="Resources\ImagePreviewer\Open.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenActive.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenHover.png" />
-		<Resource Include="Resources\Message\Call.png" />
+		<Resource Include="Resources\Message\LeaveCall.png" />
 		<Resource Include="Resources\ScrollBar\Active.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphActive.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphHover.png" />
@@ -498,6 +507,10 @@
 		<Resource Include="Resources\top-blue-thing.png" />
 		<Resource Include="Scenes\*.png" />
 		<Resource Include="Scenes\*.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\Home\Mail.png" />
 	</ItemGroup>
 
 	<ItemGroup>

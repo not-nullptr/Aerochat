@@ -201,8 +201,15 @@
                             </Style>
                         </Grid.Resources>
                         <controls:AnimatedTileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
-                        <Border Style="{StaticResource Shadow}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="80,-10,0,0">
-                            <Border Style="{StaticResource Shadow}">
+                        <Grid Width="39" Height="35" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Grid.ToolTip>
+                                <ToolTip Content="Open your e-mail inbox" />
+                            </Grid.ToolTip>
+                            <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" />
+                            <Image IsHitTestVisible="False" Source="/Resources/Home/Mail.png" />
+                        </Grid>
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="80,12,48,0">
+                            <Border>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
@@ -210,19 +217,70 @@
                                     </Grid.RowDefinitions>
                                     <Button Click="NameDropdown_Click" ContextMenuService.Placement="Bottom" Style="{StaticResource TransparentStyle}" VerticalAlignment="Center" Grid.Row="0" HorizontalAlignment="Left" x:Name="NameDropdown" BorderThickness="0">
                                         <Grid>
-                                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding CurrentUser.Name}" FontSize="19" Margin="6,2,6,3" Panel.ZIndex="5">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
-                                                                <Setter Property="Foreground" Value="Black" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
+                                            <Grid.ToolTip>
+                                                <ToolTip Content="{Binding CurrentUser.Name}" />
+                                            </Grid.ToolTip>
                                             <controls:NineSlice Style="{StaticResource DropdownStyle1}"  Slice="4,4" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Style="{StaticResource Shadow}">
+                                                    <Border Style="{StaticResource Shadow}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid Grid.Column="0">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock TextTrimming="CharacterEllipsis" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding CurrentUser.Name}" FontSize="19" Margin="6,2,6,3" Panel.ZIndex="5">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#333" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <TextBlock TextTrimming="CharacterEllipsis" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,6,0,0" Panel.ZIndex="5">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                                            <Setter Property="Text" Value="{Binding CurrentUser.Presence.Status}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#333" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Online">
+                                                                                    <Setter Property="Text" Value="(Available)" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="DoNotDisturb">
+                                                                                    <Setter Property="Text" Value="(Busy)" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Idle">
+                                                                                    <Setter Property="Text" Value="(Away)" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding CurrentUser.Presence.Status}" Value="Invisible">
+                                                                                    <Setter Property="Text" Value="(Appear offline)" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                </Border>
+                                                <Image HorizontalAlignment="Right" VerticalAlignment="Top" Margin="7,16,8,0" Grid.Column="1" Source="/Resources/Home/Dropdown.png" Width="5" />
+                                            </Grid>
                                         </Grid>
                                         <Button.ContextMenu>
                                             <ContextMenu>
@@ -265,19 +323,33 @@
                                     </Button>
                                     <Button VerticalAlignment="Center" Style="{StaticResource TransparentStyle}" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0">
                                         <Grid>
-                                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Share a quick message" Margin="6,2,6,4" Panel.ZIndex="5">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
-                                                                <Setter Property="Foreground" Value="Black" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
+                                            <Grid.ToolTip>
+                                                <ToolTip Content="Enter a personal message or a link you want to share" />
+                                            </Grid.ToolTip>
                                             <controls:NineSlice Style="{StaticResource DropdownStyle1}" Slice="4,4" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Style="{StaticResource Shadow}">
+                                                    <Border Style="{StaticResource Shadow}">
+                                                        <TextBlock MaxHeight="36" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Share a quick message" Margin="6,2,6,4" Panel.ZIndex="5">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                            <Setter Property="Foreground" Value="#333" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </Border>
+                                                <Image HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4,9,8,0" Grid.Column="1" Source="/Resources/Home/Dropdown.png" Width="5" />
+                                            </Grid>
                                         </Grid>
                                     </Button>
                                 </Grid>
@@ -294,40 +366,75 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Margin="0,-10,0,0">
-                        <Grid Height="44" Margin="8,0,0,0">
-                            <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
-                                <TextBox.Style>
-                                    <Style TargetType="{x:Type TextBox}">
-                                        <Setter Property="Cursor" Value="Arrow" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                                <Setter Property="Cursor" Value="IBeam" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBox.Style>
-                            </TextBox>
-                            <TextBlock TextTrimming="CharacterEllipsis" Foreground="#7F000000" Panel.ZIndex="6" IsHitTestVisible="False" Text="Search contacts or the web..." VerticalAlignment="Center" Margin="20,0,36,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="False" />
-                                                    <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
-                                                </MultiDataTrigger.Conditions>
-                                                <MultiDataTrigger.Setters>
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </MultiDataTrigger.Setters>
-                                            </MultiDataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Style="{StaticResource NineSliceStyle}" Slice="16,16" />
-                            <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
+                    <Grid Grid.Row="0" Margin="0,-10,0,0">
+                        <Grid Grid.Column="0" Height="44" Margin="8,0,4,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
+                                    <TextBox.Style>
+                                        <Style TargetType="{x:Type TextBox}">
+                                            <Setter Property="Cursor" Value="Arrow" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                    <Setter Property="Cursor" Value="IBeam" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <TextBlock TextTrimming="CharacterEllipsis" Foreground="#7F000000" Panel.ZIndex="6" IsHitTestVisible="False" Text="Search contacts or the web..." VerticalAlignment="Center" Margin="20,0,36,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SearchInput}" Value="False" />
+                                                        <Condition Binding="{Binding Text, ElementName=SearchInput}" Value="" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <MultiDataTrigger.Setters>
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </MultiDataTrigger.Setters>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Style="{StaticResource NineSliceStyle}" Slice="16,16" />
+                                <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
+                            </Grid>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Grid>
+                                    <Grid.ToolTip>
+                                        <ToolTip Content="Add a contact or group" />
+                                    </Grid.ToolTip>
+                                    <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" />
+                                    <StackPanel Margin="6" Orientation="Horizontal">
+                                        <Image Width="16" Height="16" IsHitTestVisible="False" Source="/Resources/Home/AddFriend.png" />
+                                        <Image Margin="4,0,0,0" Width="5" Source="/Resources/Home/Dropdown.png" />
+                                    </StackPanel>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ToolTip>
+                                        <ToolTip Content="Change contact list layout" />
+                                    </Grid.ToolTip>
+                                    <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" />
+                                    <Image Margin="6" Width="16" Height="16" IsHitTestVisible="False" Source="/Resources/Home/ChangeLayout.png" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ToolTip>
+                                        <ToolTip Content="Show menu" />
+                                    </Grid.ToolTip>
+                                    <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" />
+                                    <StackPanel Margin="6" Orientation="Horizontal">
+                                        <Image Width="16" Height="16" IsHitTestVisible="False" Source="/Resources/Home/ShowMenu.png" />
+                                        <Image Margin="4,0,0,0" Width="5" Source="/Resources/Home/Dropdown.png" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
                         </Grid>
                         <!--<Grid Margin="8,0,8,4">
                             <controls:NineSlice Image="/Resources/Home/Info.png" Slice="4,4" />
@@ -340,7 +447,7 @@
                                 <TextBlock Margin="6,0,0,0" Grid.Column="1" Foreground="#333" Text="This is a test alert. For now, you can't remove it, but this will be updated to show actual alerts in future releases of Aerochat." TextWrapping="Wrap" />
                             </Grid>
                         </Grid>-->
-                    </StackPanel>
+                    </Grid>
                     <ScrollViewer Style="{DynamicResource HomePageScrollViewer}" VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True">
                         <Grid>
                             <ItemsControl ItemsSource="{Binding Categories}">
@@ -397,6 +504,19 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Grid.Style>
+                                                <Grid>
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Items.Count}" Value="0">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Grid.Style>
+                                                    <TextBlock Margin="20,0,0,2" Opacity="0.5" Text="There are no items in this category." />
+                                                </Grid>
                                                 <ItemsControl ItemsSource="{Binding Items}" Margin="0,-2,0,0">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
@@ -462,6 +582,9 @@
                                                                                 </Image.Style>
                                                                             </Image>
                                                                             <DockPanel HorizontalAlignment="Stretch" Grid.Column="1">
+                                                                                <DockPanel.ToolTip>
+                                                                                    <ToolTip Content="{Binding Name}" />
+                                                                                </DockPanel.ToolTip>
                                                                                 <TextBlock Foreground="#333333" MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" HorizontalAlignment="Left" Text="{Binding Name}" TextTrimming="CharacterEllipsis">
                                                                                     <TextBlock.Style>
                                                                                         <Style TargetType="TextBlock">

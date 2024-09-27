@@ -1,4 +1,5 @@
-﻿using Aerochat.ViewModels;
+﻿using Aerochat.Settings;
+using Aerochat.ViewModels;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,13 @@ namespace Aerochat.Windows
         private void StatusesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ViewModel.UserStatus = (UserStatus)StatusesComboBox.SelectedItem;
+        }
+
+        private void ClearWarnings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Instance.WarningShown = false;
+            SettingsManager.Instance.HasWarnedAboutVoiceChat = false;
+            SettingsManager.Save();
         }
     }
 }

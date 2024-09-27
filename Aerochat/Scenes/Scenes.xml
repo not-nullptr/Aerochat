@@ -56,6 +56,19 @@
 	<item id="54" credit="Valve" mimetype="image/png" contenttype="D" file="GordonFreeman.png" displayname="Gordon Freeman" color="#869295" default="false" />
 	<item id="55" credit="liam" mimetype="image/png" contenttype="D" file="Explore.png" displayname="Explore" color="#000080" default="false" />
 	<item id="56" credit="Recreation made by me but the original is made by Rainbow S.p.A." mimetype="image/png" contenttype="D" file="FairyOfMusic.png" displayname="Fairy Of Music" color="#dd7ecf" default="false" />
-	<item id="57" credit="kauan" mimetype="image/png" contenttype="D" file="AphexTwin.png" displayname="Aphex Twin" color="#000000" default="false" />
+	<item id="57" credit="kauan" mimetype="image/png" contenttype="D" file="AphexTwin.png" displayname="Aphex Twin" color="#040404" default="false" />
 	<item id="58" credit="kauan" mimetype="image/png" contenttype="D" file="MrOizo.png" displayname="Mr. Oizo" color="#ffb404" default="false" />
+	<item id="59" credit="Joel Filipe" mimetype="image/jpg" contenttype="D" file="AbstractTurquoise.jpg" displayname="Abstract Turquoise" color="#007da1" default="false" />
+	<item id="60" credit="Digginbloke" mimetype="image/jpg" contenttype="D" file="CosmicSkies.jpg" displayname="Cosmic Skies" color="#000040" default="false" />
+	<item id="61" credit="Luca Dugaro on Unsplash" mimetype="image/png" contenttype="D" file="SunsetClouds.png" displayname="Sunset Clouds" color="#F9B672" default="false" />
+	<item id="62" credit="Canonical" mimetype="image/png" contenttype="D" file="20YearHumanity.png" displayname="20 Year Humanity" color="#8b7053" default="false" />
+	<item id="63" credit="Canonical" mimetype="image/png" contenttype="D" file="Ambiance.png" displayname="Ambiance" color="#e95420" default="false" />
+	<item id="64" credit="Deepthi Clicks" mimetype="image/png" contenttype="D" file="Oranges.png" displayname="Oranges" color="#aae1f8" default="false" />
+	<item id="65" credit="Scott Webb" mimetype="image/png" contenttype="D" file="RedBuilding.png" displayname="Red Building" color="#ff2734" default="false" />
+	<item id="66" credit="maverik" mimetype="image/png" contenttype="D" file="HelloKittyCRT.png" displayname="Hello Kitty CRT" color="#F567B2" default="false" />
+	<item id="67" credit="Marbles (marbles0976)" mimetype="image/png" contenttype="D" file="HarmonyTrans.png" displayname="Harmony (Trans)" color="#F5A9B8" default="false" />
+	<item id="68" credit="Microsoft" mimetype="image/png" contenttype="D" file="Windows7Setup.png" displayname="Windows 7 Setup" color="#22a5e6" default="false" />
+	<item id="69" credit="ImSwordQueen" mimetype="image/png" contenttype="D" file="VirtualInsanity.png" displayname="Virtual Insanity" color="#97A8BC" default="false" />
+	<item id="70" credit="Evolta" mimetype="image/png" contenttype="D" file="MinecraftLCETU9.png" displayname="Minecraft LCE TU9" color="#3f6c2e" default="false" />
+	<item id="71" credit="レイーン" mimetype="image/png" contenttype="D" file="TomodachiCollection.png" displayname="Tomodachi Collection" color="#fd835e" default="false" />
 </package>

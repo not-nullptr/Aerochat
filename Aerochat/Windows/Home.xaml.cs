@@ -112,8 +112,8 @@ namespace Aerochat.Windows
                 XDocument doc = XDocument.Parse(result);
                 foreach (XElement adXml in doc.Root?.Elements() ?? [])
                 {
-                    AdViewModel scene = AdViewModel.FromAd(adXml);
-                    _ads.Add(scene);
+                    AdViewModel ad = AdViewModel.FromAd(adXml);
+                    _ads.Add(ad);
                 }
                 Random random = new();
                 AdIndex = random.Next(_ads.Count);
@@ -693,8 +693,15 @@ namespace Aerochat.Windows
 
         private void Image_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // open ViewModel.Ad.Url in the user's default browser
-            Process.Start(new ProcessStartInfo(ViewModel.Ad.Url) { UseShellExecute = true });
+            UriBuilder builder = new(ViewModel.Ad.Url);
+            var segments = builder.Path.Split('/');
+            if (builder.Host == "web.archive.org" && segments.Length > 2 && !segments[2].EndsWith("if_"))
+            {
+                segments[2] += "if_";
+            }
+            builder.Path = string.Join("/", segments);
+            var uri = builder.Uri;
+            Process.Start(new ProcessStartInfo(uri.ToString()) { UseShellExecute = true });
         }
 
         private void NameDropdown_Click(object sender, RoutedEventArgs e)

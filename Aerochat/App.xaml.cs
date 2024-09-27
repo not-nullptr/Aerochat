@@ -94,6 +94,11 @@ namespace Aerochat
             foreach (XElement sceneXml in doc.Root?.Elements() ?? [])
             {
                 SceneViewModel scene = SceneViewModel.FromScene(sceneXml);
+                var existing = ThemeService.Instance.Scenes.FirstOrDefault(x => x.Color == scene.Color);
+                if (existing != null)
+                {
+                    throw new Exception($"Duplicate scene color {scene.Color}");
+                }
                 ThemeService.Instance.Scenes.Add(scene);
             }
             // see if we can get the token from the config

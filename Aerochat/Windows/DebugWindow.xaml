@@ -15,6 +15,7 @@
                 <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
                 <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
                 <ComboBox x:Name="StatusesComboBox" />
+                <Button Margin="0,16,0,0" x:Name="ClearWarnings" Click="ClearWarnings_Click" Content="Clear all warnings" />
             </StackPanel>
         </ScrollViewer>
     </Grid>
