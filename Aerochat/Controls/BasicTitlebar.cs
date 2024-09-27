@@ -280,16 +280,9 @@ namespace Aerochat.Controls
                 {
                     System.Windows.Point point = PointFromNcHit(lParam);
 
-                    Debug.WriteLine(point.X + ", " + point.Y);
-
                     if (Titlebar != null && Titlebar.SystemMenuButton != null && Titlebar.SystemMenuButton.Visibility == Visibility.Visible)
                     {
                         HitTestResult? hitResult = VisualTreeHelper.HitTest(Window, point);
-
-                        if (hitResult != null)
-                        {
-                            Debug.WriteLine(hitResult.VisualHit.GetType().Name);
-                        }
 
                         if (hitResult != null &&
                             (hitResult.VisualHit == Titlebar.SystemMenuImage ||
