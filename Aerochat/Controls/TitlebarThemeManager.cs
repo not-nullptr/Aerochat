@@ -1,6 +1,7 @@
 ﻿using Aerochat.Settings;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,16 @@ namespace Aerochat.Controls
         public TitlebarThemeManager()
         {
             ReloadTheme();
+
+            SettingsManager.Instance.PropertyChanged += OnSettingsChange;
+        }
+
+        private void OnSettingsChange(object? sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == "XPCaptionButtons")
+            {
+                ReloadTheme();
+            }
         }
 
         public void ReloadTheme()
