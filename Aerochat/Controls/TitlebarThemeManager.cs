@@ -33,7 +33,7 @@ namespace Aerochat.Controls
         {
             if (args.PropertyName == "XPCaptionButtons")
             {
-                ReloadTheme();
+                //ReloadTheme();
             }
         }
 
