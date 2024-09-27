@@ -158,8 +158,6 @@ namespace Aerochat.Controls
 
         private void Window_StateChanged(object? sender, EventArgs e)
         {
-            if (IsDwmEnabled) return;
-
             RefreshTitlebarState();
         }
 
@@ -193,6 +191,11 @@ namespace Aerochat.Controls
 
         private void RefreshTitlebarState()
         {
+            if (IsDwmEnabled)
+            {
+                return;
+            }
+
             if (Titlebar == null || Window == null) return;
 
             // WindowChrome adds a new window procedure hook which takes precedent
@@ -204,12 +207,7 @@ namespace Aerochat.Controls
 
             if (Window.WindowState == WindowState.Maximized)
             {
-                Titlebar.Visibility = Visibility.Collapsed;
-                WindowChrome.SetWindowChrome(Window, null);
-                FirstBorder.BorderThickness = new Thickness(0);
-                SecondBorder.BorderThickness = new Thickness(0);
-                // set the grid's first row to 0
-                Container.RowDefinitions[0].Height = new GridLength(0);
+                HideCustomTitlebar();
             }
             else
             {
@@ -228,6 +226,16 @@ namespace Aerochat.Controls
             HwndSource.FromHwnd(hWnd).AddHook(WndProc);
         }
 
+        private void HideCustomTitlebar()
+        {
+            Titlebar.Visibility = Visibility.Collapsed;
+            WindowChrome.SetWindowChrome(Window, null);
+            FirstBorder.BorderThickness = new Thickness(0);
+            SecondBorder.BorderThickness = new Thickness(0);
+            // set the grid's first row to 0
+            Container.RowDefinitions[0].Height = new GridLength(0);
+        }
+
         private void Window_Deactivated(object? sender, EventArgs e)
         {
             Titlebar.ViewModel.Activated = false;
@@ -242,7 +250,14 @@ namespace Aerochat.Controls
         {
             if (Titlebar == null || Window == null) return;
 
-            RefreshTitlebarState();
+            if (IsDwmEnabled)
+            {
+                HideCustomTitlebar();
+            }
+            else
+            {
+                RefreshTitlebarState();
+            }
         }
 
         private System.Windows.Point PointFromNcHit(IntPtr lParam)
