@@ -16,8 +16,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Button WindowChrome.IsHitTestVisibleInChrome="True" MouseDoubleClick="Button_MouseDoubleClick" Grid.Column="1" Style="{StaticResource TransparentStyle}">
-                    <Image Source="{Binding Icon}" />
+                <Button x:Name="SystemMenuButton" Grid.Column="1" Style="{StaticResource TransparentStyle}">
+                    <Image x:Name="SystemMenuImage" Source="{Binding Icon}" />
                 </Button>
                 <TextBlock Grid.Column="2" Foreground="{Binding TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Text="{Binding Title}">
                     <TextBlock.Style>
