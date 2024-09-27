@@ -1,4 +1,5 @@
 ﻿using Aerochat.Theme;
+using Aerochat.Voice;
 using Aerochat.Windows;
 using System;
 using System.Collections.Generic;
@@ -158,5 +159,7 @@ namespace Aerochat.ViewModels
             get => _isGroupChat;
             set => SetProperty(ref _isGroupChat, value);
         }
+
+        public VoiceManager VoiceManager { get; } = VoiceManager.Instance;
     }
 }

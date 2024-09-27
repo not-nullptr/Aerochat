@@ -23,6 +23,7 @@ using Aerochat.Settings;
 using System.Windows.Shell;
 using System.Windows.Media.Imaging;
 using DSharpPlus.Enums;
+using Aerovoice.Clients;
 
 namespace Aerochat
 {
@@ -35,6 +36,7 @@ namespace Aerochat
 
         public bool LoggingOut = false;
         private Dictionary<UserStatus, ImageSource> _taskbarPresences = new();
+        private VoiceSocket voiceSocket;
         public static async Task SetStatus(UserStatus status)
         {
             await Discord.Client.UpdateStatusAsync(userStatus:status);
@@ -64,6 +66,7 @@ namespace Aerochat
                 }
             }
         }
+
         public App()
         {
             SettingsManager.Load();

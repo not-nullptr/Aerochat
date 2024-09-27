@@ -5,6 +5,7 @@ using Aerochat.ViewModels;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -177,6 +178,7 @@ namespace Aerochat.Windows
                 Discord.Client.PresenceUpdated += InvokeUpdateStatuses;
                 Discord.Client.ChannelCreated += ChannelCreatedEvent;
                 Discord.Client.ChannelDeleted += ChannelDeletedEvent;
+                Discord.Client.VoiceStateUpdated += VoiceStateUpdatedEvent;
 
                 UpdateStatuses();
                 AddGuilds();
@@ -260,6 +262,21 @@ namespace Aerochat.Windows
                     tags.Dispose();
                 });
             });
+        }
+
+        private async Task VoiceStateUpdatedEvent(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
+        {
+            if (args.Guild is null) return;
+            var voiceStates = args.Guild.GetType().GetField("_voiceStates", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(args.Guild) as ConcurrentDictionary<ulong, DiscordVoiceState>;
+            if (voiceStates is null) return;
+            if (args.Channel is null)
+            {
+                voiceStates.TryRemove(args.User.Id, out _);
+            }
+            else
+            {
+                voiceStates[args.User.Id] = args.After;
+            }
         }
 
         private async Task OnTyping(DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)

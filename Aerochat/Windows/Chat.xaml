@@ -365,50 +365,103 @@
                                                         <ItemsControl ItemsSource="{Binding Items}" Margin="0,-2,0,0">
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Button HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
-                                                                        <Grid Height="20" PreviewMouseDown="ItemClick">
-                                                                            <controls:NineSlice Slice="4,4">
-                                                                                <controls:NineSlice.Style>
-                                                                                    <Style TargetType="controls:NineSlice">
+                                                                    <Border>
+                                                                        <Border.Style>
+                                                                            <Style TargetType="Border">
+                                                                                <Setter Property="BorderBrush" Value="#44000000" />
+                                                                                <Setter Property="BorderThickness" Value="1" />
+                                                                                <Setter Property="CornerRadius" Value="2" />
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding ConnectedUsers.Count}" Value="0">
+                                                                                        <Setter Property="BorderThickness" Value="0" />
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </Border.Style>
+                                                                        <Grid>
+                                                                            <Border>
+                                                                                <Border.Style>
+                                                                                    <Style TargetType="Border">
+                                                                                        <Setter Property="BorderBrush" Value="#FFFFFF" />
+                                                                                        <Setter Property="BorderThickness" Value="1" />
+                                                                                        <Setter Property="CornerRadius" Value="2" />
                                                                                         <Style.Triggers>
-                                                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                                            <DataTrigger Binding="{Binding ConnectedUsers.Count}" Value="0">
+                                                                                                <Setter Property="BorderThickness" Value="0" />
                                                                                             </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
-                                                                                            </DataTrigger>
-                                                                                            <MultiDataTrigger>
-                                                                                                <MultiDataTrigger.Conditions>
-                                                                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
-                                                                                                    <Condition Binding="{Binding IsSelected}" Value="True" />
-                                                                                                </MultiDataTrigger.Conditions>
-                                                                                                <MultiDataTrigger.Setters>
-                                                                                                    <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
-                                                                                                </MultiDataTrigger.Setters>
-                                                                                            </MultiDataTrigger>
                                                                                         </Style.Triggers>
                                                                                     </Style>
-                                                                                </controls:NineSlice.Style>
-                                                                            </controls:NineSlice>
-                                                                            <Grid VerticalAlignment="Center">
-                                                                                <Grid Margin="16,0,0,0">
-                                                                                    <Grid.Style>
-                                                                                        <Style TargetType="Grid">
-                                                                                            <Style.Triggers>
-                                                                                                <DataTrigger Binding="{Binding Image}" Value="unread">
-                                                                                                    <Setter Property="Opacity" Value="1" />
-                                                                                                </DataTrigger>
-                                                                                                <DataTrigger Binding="{Binding Image}" Value="read">
-                                                                                                    <Setter Property="Opacity" Value="0.5" />
-                                                                                                </DataTrigger>
-                                                                                            </Style.Triggers>
-                                                                                        </Style>
-                                                                                    </Grid.Style>
-                                                                                    <TextBlock Text="{Binding Name}" Foreground="#000" Margin="6,0,0,0" />
-                                                                                </Grid>
-                                                                            </Grid>
+                                                                                </Border.Style>
+                                                                            </Border>
+                                                                            <StackPanel>
+                                                                                <StackPanel.Style>
+                                                                                    <Style TargetType="StackPanel">
+                                                                                        <Setter Property="Margin" Value="0,4" />
+                                                                                        <Style.Triggers>
+                                                                                            <DataTrigger Binding="{Binding ConnectedUsers.Count}" Value="0">
+                                                                                                <Setter Property="Margin" Value="0" />
+                                                                                            </DataTrigger>
+                                                                                        </Style.Triggers>
+                                                                                    </Style>
+                                                                                </StackPanel.Style>
+                                                                                <Button HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
+                                                                                    <Grid Height="20" PreviewMouseDown="ItemClick">
+                                                                                        <controls:NineSlice Slice="4,4">
+                                                                                            <controls:NineSlice.Style>
+                                                                                                <Style TargetType="controls:NineSlice">
+                                                                                                    <Style.Triggers>
+                                                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
+                                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                                                        </DataTrigger>
+                                                                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                                                        </DataTrigger>
+                                                                                                        <MultiDataTrigger>
+                                                                                                            <MultiDataTrigger.Conditions>
+                                                                                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
+                                                                                                                <Condition Binding="{Binding IsSelected}" Value="True" />
+                                                                                                            </MultiDataTrigger.Conditions>
+                                                                                                            <MultiDataTrigger.Setters>
+                                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                                                            </MultiDataTrigger.Setters>
+                                                                                                        </MultiDataTrigger>
+                                                                                                    </Style.Triggers>
+                                                                                                </Style>
+                                                                                            </controls:NineSlice.Style>
+                                                                                        </controls:NineSlice>
+                                                                                        <Grid VerticalAlignment="Center">
+                                                                                            <Grid Margin="16,0,0,0">
+                                                                                                <Grid.Style>
+                                                                                                    <Style TargetType="Grid">
+                                                                                                        <Setter Property="Opacity" Value="1" />
+                                                                                                        <Style.Triggers>
+                                                                                                            <DataTrigger Binding="{Binding Image}" Value="read">
+                                                                                                                <Setter Property="Opacity" Value="0.5" />
+                                                                                                            </DataTrigger>
+                                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Voice">
+                                                                                                                <Setter Property="Opacity" Value="1" />
+                                                                                                            </DataTrigger>
+                                                                                                        </Style.Triggers>
+                                                                                                    </Style>
+                                                                                                </Grid.Style>
+                                                                                                <TextBlock Text="{Binding Name}" Foreground="#000" Margin="6,0,0,0" />
+                                                                                            </Grid>
+                                                                                        </Grid>
+                                                                                    </Grid>
+                                                                                </Button>
+                                                                                <ItemsControl ItemsSource="{Binding ConnectedUsers}">
+                                                                                    <ItemsControl.ItemTemplate>
+                                                                                        <DataTemplate>
+                                                                                            <StackPanel Orientation="Horizontal" Margin="4,2,0,2">
+                                                                                                <controls:ProfilePictureFrame FrameSize="ExtraSmall" UserStatus="{Binding Presence.Status}" />
+                                                                                                <TextBlock Margin="4,0,0,0" Opacity="0.5" Text="{Binding Name}" />
+                                                                                            </StackPanel>
+                                                                                        </DataTemplate>
+                                                                                    </ItemsControl.ItemTemplate>
+                                                                                </ItemsControl>
+                                                                            </StackPanel>
                                                                         </Grid>
-                                                                    </Button>
+                                                                    </Border>
                                                                 </DataTemplate>
                                                             </ItemsControl.ItemTemplate>
                                                         </ItemsControl>
@@ -1239,24 +1292,49 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="2">
-                    <TextBlock FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="14,8">
-                    <Hyperlink>
-                        <Hyperlink.Style>
-                            <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">
-                                <Setter Property="Foreground" Value="#333333"/>
-                                <Setter Property="TextDecorations" Value="None" />
+                <Grid Grid.Row="2" UseLayoutRounding="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="14,8">
+                        <Hyperlink>
+                            <Hyperlink.Style>
+                                <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">
+                                    <Setter Property="Foreground" Value="#333333"/>
+                                    <Setter Property="TextDecorations" Value="None" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#0066cc" />
+                                            <Setter Property="TextDecorations" Value="Underline" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Hyperlink.Style>
+                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat Beta by nullptr" />
+                        </Hyperlink>
+                    </TextBlock>
+                    <StackPanel Margin="0,2,4,0" Orientation="Horizontal" Grid.Column="1" Height="24">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible" />
                                 <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="#0066cc" />
-                                        <Setter Property="TextDecorations" Value="Underline" />
-                                    </Trigger>
+                                    <DataTrigger Binding="{Binding VoiceManager.ChannelVM}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Hyperlink.Style>
-                        <TextBlock HorizontalAlignment="Stretch" Text="Aerochat Beta by nullptr" />
-                    </Hyperlink>
-                </TextBlock>
+                        </StackPanel.Style>
+                        <TextBlock Foreground="#333333" FontWeight="Bold" VerticalAlignment="Center">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="Connected to {0} in {1}">
+                                    <Binding Path="VoiceManager.ChannelVM.Name" />
+                                    <Binding Path="VoiceManager.ChannelVM.Guild.Name" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <Image UseLayoutRounding="True" Margin="8,0,0,0" Source="/Resources/Message/Call.png" Width="16" Height="16" />
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Grid>

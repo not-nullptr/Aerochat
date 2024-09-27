@@ -48,7 +48,7 @@ namespace Aerovoice.Clients
         private string _sessionId;
         private string _voiceToken;
         private Uri _endpoint;
-        private DiscordChannel _channel;
+        public DiscordChannel Channel { get; private set; }
         private bool _connected = false;
         private List<string> _availableEncryptionModes;
         private RTPTimestamp _timestamp = new(3840);
@@ -269,8 +269,8 @@ namespace Aerovoice.Clients
         public async Task ConnectAsync(DiscordChannel channel)
         {
             if (_disposed) throw new InvalidOperationException("This voice socket has been disposed!");
-            _channel = channel;
-            await _client.UpdateVoiceStateAsync(_channel.Guild?.Id ?? _channel.Id, _channel.Id, false, false);
+            Channel = channel;
+            await _client.UpdateVoiceStateAsync(Channel.Guild?.Id ?? Channel.Id, Channel.Id, false, false);
             _client.VoiceStateUpdated += _client_VoiceStateUpdated;
             _client.VoiceServerUpdated += _client_VoiceServerUpdated;
             Recorder.DataAvailable += Recorder_DataAvailable;
@@ -428,7 +428,7 @@ namespace Aerovoice.Clients
                 op = 0,
                 d = new
                 {
-                    server_id = _channel.Guild?.Id ?? _channel.Id,
+                    server_id = Channel.Guild?.Id ?? Channel.Id,
                     user_id = _client.CurrentUser.Id,
                     session_id = _sessionId,
                     token = _voiceToken
@@ -442,7 +442,7 @@ namespace Aerovoice.Clients
             if (!_connected) return;
             _connected = false;
             _disposed = true;
-            await _client.UpdateVoiceStateAsync(null, null, false, false);
+            await _client.UpdateVoiceStateAsync(Channel.GuildId, null, false, false);
             _socket?.Dispose();
             UdpClient?.Dispose();
             Recorder?.Dispose();

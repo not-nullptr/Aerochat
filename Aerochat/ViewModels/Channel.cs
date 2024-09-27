@@ -15,6 +15,7 @@ namespace Aerochat.ViewModels
         private string _topic;
         private ulong _id;
         private bool _canTalk;
+        private GuildViewModel? _guild;
 
         public required string Name
         {
@@ -40,6 +41,12 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _canTalk, value);
         }
 
+        public GuildViewModel? Guild
+        {
+            get => _guild;
+            set => SetProperty(ref _guild, value);
+        }
+
         public static ChannelViewModel FromChannel(DiscordChannel channel)
         {
             return new ChannelViewModel
@@ -47,7 +54,8 @@ namespace Aerochat.ViewModels
                 Name = channel is DiscordDmChannel ? channel.Name ?? string.Join(", ", ((DiscordDmChannel)channel).Recipients.Select(x => x.DisplayName)) : channel.Name,
                 Topic = channel.Topic ?? "",
                 Id = channel.Id,
-                CanTalk = channel.Guild == null || (channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages
+                CanTalk = channel.Guild == null || (channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages,
+                Guild = channel.Guild != null ? GuildViewModel.FromGuild(channel.Guild) : null
             };
         }
     }

@@ -153,6 +153,7 @@
 		<None Remove="Resources\Message\Background.png" />
 		<None Remove="Resources\Message\BottomSeperator.png" />
 		<None Remove="Resources\Message\BottomToolbar.png" />
+		<None Remove="Resources\Message\Call.png" />
 		<None Remove="Resources\Message\Embed.png" />
 		<None Remove="Resources\Message\Expand.png" />
 		<None Remove="Resources\Message\Group.png" />
@@ -359,6 +360,7 @@
 		<Resource Include="Resources\ImagePreviewer\Open.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenActive.png" />
 		<Resource Include="Resources\ImagePreviewer\OpenHover.png" />
+		<Resource Include="Resources\Message\Call.png" />
 		<Resource Include="Resources\ScrollBar\Active.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphActive.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphHover.png" />

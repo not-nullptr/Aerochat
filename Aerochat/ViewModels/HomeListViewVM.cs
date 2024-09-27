@@ -106,6 +106,8 @@ namespace Aerochat.ViewModels
                 get => _recipientCount;
                 set => SetProperty(ref _recipientCount, value);
             }
+
+            public ObservableCollection<UserViewModel> ConnectedUsers { get; } = new();
         }
     }
 }

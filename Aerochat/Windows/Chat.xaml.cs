@@ -25,6 +25,9 @@ using Aerochat.Settings;
 using System.Reflection;
 using System.Windows.Media.Imaging;
 using XamlAnimatedGif;
+using Aerovoice.Clients;
+using System.Collections.Concurrent;
+using Aerochat.Voice;
 
 namespace Aerochat.Windows
 {
@@ -43,6 +46,7 @@ namespace Aerochat.Windows
         bool isDraggingBottomSeperator = false;
         int initialPos = 0;
         private Dictionary<ulong, System.Timers.Timer> timers = new();
+        private VoiceSocket voiceSocket;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
@@ -269,6 +273,11 @@ namespace Aerochat.Windows
                     bool isCurrentChannel = c.Id == ChannelId;
                     var channel = c;
                     var lastMessageId = channel.LastMessageId;
+                    if (channel.Type == ChannelType.Voice)
+                    {
+                        item.Image = "unread";
+                        continue;
+                    }
                     if (lastMessageId is null)
                     {
                         item.Image = "read";
@@ -367,7 +376,8 @@ namespace Aerochat.Windows
             List<ChannelType> AllowedChannelTypes = new()
             {
                 ChannelType.Text,
-                ChannelType.Announcement
+                ChannelType.Announcement,
+                ChannelType.Voice
             };
 
             // firstly, get all uncategorized channels
@@ -394,6 +404,10 @@ namespace Aerochat.Windows
                         Id = channel.Id,
                         IsSelected = currentChannel.Id == channel.Id
                     });
+                    foreach (var voiceState in channel.Guild.VoiceStates.Where(x => x.Value.Channel.Id == channel.Id).ToList().OrderBy(x => x.Value.User.Username))
+                    {
+                        ViewModel.Categories[^1].Items[^1].ConnectedUsers.Add(UserViewModel.FromUser(voiceState.Value.User));
+                    }
                 }
             }
 
@@ -429,6 +443,10 @@ namespace Aerochat.Windows
                         Id = channel.Id,
                         IsSelected = currentChannel.Id == channel.Id
                     });
+                    foreach (var voiceState in channel.Guild.VoiceStates.Where(x => x.Value.Channel.Id == channel.Id).ToList().OrderBy(x => x.Value.User.Username))
+                    {
+                        ViewModel.Categories[^1].Items[^1].ConnectedUsers.Add(UserViewModel.FromUser(voiceState.Value.User));
+                    }
                 }
             }
 
@@ -438,6 +456,11 @@ namespace Aerochat.Windows
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
+            // disconnect from the chat
+            if (Channel.Guild?.Channels.Select(x => x.Key).ToList().Contains(VoiceManager.Instance.Channel?.Id ?? 0) ?? false)
+            {
+                _ = VoiceManager.Instance.LeaveVoiceChannel();
+            }
             Discord.Client.TypingStarted -= OnType;
             Discord.Client.MessageCreated -= OnMessageCreation;
             // dispose of the chat
@@ -660,6 +683,12 @@ namespace Aerochat.Windows
             Discord.Client.ChannelDeleted += OnChannelDeleted;
             Discord.Client.ChannelUpdated += OnChannelUpdated;
             Discord.Client.PresenceUpdated += OnPresenceUpdated;
+            Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
+        }
+
+        private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
+        {
+            Dispatcher.Invoke(RefreshChannelList);
         }
 
         private async Task OnPresenceUpdated(DiscordClient sender, DSharpPlus.EventArgs.PresenceUpdateEventArgs args)
@@ -781,6 +810,7 @@ namespace Aerochat.Windows
             Discord.Client.ChannelDeleted -= OnChannelDeleted;
             Discord.Client.ChannelUpdated -= OnChannelUpdated;
             Discord.Client.PresenceUpdated -= OnPresenceUpdated;
+            Discord.Client.VoiceStateUpdated -= OnVoiceStateUpdated;
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();
@@ -1056,12 +1086,14 @@ namespace Aerochat.Windows
 
         private async void ItemClick(object sender, MouseButtonEventArgs e)
         {
+            HomeListItemViewModel? prev = null;
             // set all items to not selected
             foreach (var i in ViewModel.Categories)
             {
                 i.IsSelected = false;
                 foreach (var x in i.Items)
                 {
+                    if (x.IsSelected) prev = x;
                     x.IsSelected = false;
                 }
             }
@@ -1073,9 +1105,20 @@ namespace Aerochat.Windows
             }
             else if (item is HomeListItemViewModel)
             {
-                item.IsSelected = true;
-                ChannelId = item.Id;
-                await OnChannelChange();
+                // get the channel
+                if (!Discord.Client.TryGetCachedChannel(item.Id, out DiscordChannel channel)) return;
+                switch (channel.Type)
+                {
+                    case ChannelType.Voice:
+                        if (prev is not null) prev.IsSelected = true;
+                        await VoiceManager.Instance.JoinVoiceChannel(channel);
+                        break;
+                    default:
+                        item.IsSelected = true;
+                        ChannelId = item.Id;
+                        await OnChannelChange();
+                        break;
+                }
             }
         }
 
