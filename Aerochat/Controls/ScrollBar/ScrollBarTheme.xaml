@@ -9,6 +9,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:acconverter="clr-namespace:Aerochat.Converter"
              xmlns:controls="clr-namespace:Aerochat.Controls"
              xmlns:scrollbar="clr-namespace:Aerochat.Controls.ScrollBar">
 
@@ -16,6 +17,8 @@
     <system:Double x:Key="ScrollBarWidth">17</system:Double>
 
     <scrollbar:ShowThumbGripperConverter x:Key="ShowThumbGripperConverter" />
+    <acconverter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
     <!-- Common background theme for ALL scrollbar buttons -->
     <Style x:Key="ScrollBarButtonBackground" TargetType="controls:NineSlice">
@@ -59,7 +62,7 @@
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="True">
                 <Setter Property="Image" Value="/Resources/ScrollBar/Inactive.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
                 <Setter Property="Image" Value="/Resources/ScrollBar/Active.png" />
             </DataTrigger>
         </Style.Triggers>
@@ -73,7 +76,7 @@
             />
     </ControlTemplate>
 
-    <ControlTemplate x:Key="ScrollBarDirectionButton" TargetType="RepeatButton">
+    <ControlTemplate x:Key="ScrollBarDirectionButton" TargetType="ButtonBase">
         <Grid>
             <controls:NineSlice Style="{StaticResource ScrollBarDirectionButtonBackground}" />
             <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None">
@@ -83,10 +86,10 @@
                              https://stackoverflow.com/a/3095251 -->
                         <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.InactiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
                                 <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.HoverGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=RepeatButton}}" Value="True">
+                            <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
                                 <Setter Property="Source" Value="{Binding Path=(scrollbar:ThemeProperties.ActiveGlyph), RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -134,17 +137,29 @@
     <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
         <Grid>
             <Grid.RowDefinitions>
+                <scrollbar:HidableRowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" 
+                                IsHidden="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToTop), Converter={StaticResource InverseBooleanConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                 <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
                 <RowDefinition Height="0.0001*"/>
                 <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
+                <scrollbar:HidableRowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" 
+                                IsHidden="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToBottom), Converter={StaticResource InverseBooleanConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Grid.RowDefinitions>
 
             <Grid.Background>
                 <ImageBrush ImageSource="/Resources/ScrollBar/VertScrollBarBg.png" />
             </Grid.Background>
 
+            <!-- Vertical scrollbar jump-to-top button -->
+            <Button Grid.Row="0" Command="ScrollBar.ScrollToTopCommand" Height="{StaticResource ScrollBarWidth}"
+                    Template="{StaticResource ScrollBarDirectionButton}"
+                    scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToTopInactive.png"
+                    scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToTopHover.png"
+                    scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToTopActive.png"
+                    Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToTop), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+
             <!-- Vertical scrollbar up button -->
-            <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" Height="{StaticResource ScrollBarWidth}"
+            <RepeatButton Grid.Row="1" Command="ScrollBar.LineUpCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
                 scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/UpGlyphInactive.png"
                 scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/UpGlyphHover.png"
@@ -152,7 +167,7 @@
 
 
             <!-- Vertical scrollbar track -->
-            <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="True" SnapsToDevicePixels="True" VerticalAlignment="Stretch">
+            <Track Grid.Row="2" Name="PART_Track" IsDirectionReversed="True" SnapsToDevicePixels="True" VerticalAlignment="Stretch">
                 <!-- This is such an obtuse hack that Microsoft recommends but don't actually
                      document well enough that you can figure out how it works.
                      https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-customize-the-thumb-size-on-a-scrollbar 
@@ -187,11 +202,19 @@
             </Track>
 
             <!-- Vertical scrollbar down button -->
-            <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" Height="{StaticResource ScrollBarWidth}"
+            <RepeatButton Grid.Row="3" Command="ScrollBar.LineDownCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
                 scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/DownGlyphInactive.png"
                 scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/DownGlyphHover.png"
                 scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/DownGlyphActive.png" />
+
+            <!-- Vertical scrollbar jump-to-bottom button -->
+            <Button Grid.Row="4" Command="ScrollBar.ScrollToBottomCommand" Height="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToBottomInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToBottomHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToBottomActive.png"
+                Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToBottom), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
         </Grid>
     </ControlTemplate>
@@ -203,24 +226,36 @@
     <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
         <Grid>
             <Grid.ColumnDefinitions>
+                <scrollbar:HidableColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" 
+                        IsHidden="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToLeft), Converter={StaticResource InverseBooleanConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <scrollbar:HidableColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" 
+                        IsHidden="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToRight), Converter={StaticResource InverseBooleanConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Grid.ColumnDefinitions>
             
             <Grid.Background>
                 <ImageBrush ImageSource="/Resources/ScrollBar/HorzScrollBarBg.png" />
             </Grid.Background>
 
+            <!-- Horizontal scrollbar jump-to-left button -->
+            <Button Grid.Column="0" Command="ScrollBar.ScrollToLeftEndCommand" Height="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToLeftInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToLeftHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToLeftActive.png"
+                Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToLeft), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+
             <!-- Horizontal scrollbar left button -->
-            <RepeatButton Grid.Column="0" Command="ScrollBar.LineLeftCommand" Width="{StaticResource ScrollBarWidth}"
+            <RepeatButton Grid.Column="1" Command="ScrollBar.LineLeftCommand" Width="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
                 scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/LeftGlyphInactive.png"
                 scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/LeftGlyphHover.png"
                 scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/LeftGlyphActive.png" />
 
             <!-- Horizontal scrollbar track -->
-            <Track Grid.Column="1" Name="PART_Track" IsDirectionReversed="False" SnapsToDevicePixels="True" HorizontalAlignment="Stretch">
+            <Track Grid.Column="2" Name="PART_Track" IsDirectionReversed="False" SnapsToDevicePixels="True" HorizontalAlignment="Stretch">
                 <!-- This is such an obtuse hack that Microsoft recommends but don't actually
                      document well enough that you can figure out how it works.
                      https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-customize-the-thumb-size-on-a-scrollbar 
@@ -255,11 +290,19 @@
             </Track>
 
             <!-- Horizontal scrollbar right button -->
-            <RepeatButton Grid.Column="2" Command="ScrollBar.LineRightCommand" Width="{StaticResource ScrollBarWidth}"
+            <RepeatButton Grid.Column="3" Command="ScrollBar.LineRightCommand" Width="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
                 scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/RightGlyphInactive.png"
                 scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/RightGlyphHover.png"
                 scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/RightGlyphActive.png" />
+
+            <!-- Horizontal scrollbar jump-to-right button -->
+            <Button Grid.Column="4" Command="ScrollBar.ScrollToRightEndCommand" Height="{StaticResource ScrollBarWidth}"
+                Template="{StaticResource ScrollBarDirectionButton}"
+                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToRightInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToRightHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToRightActive.png"
+                Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToRight), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
         </Grid>
     </ControlTemplate>
