@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" 
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:scrollbar="clr-namespace:Aerochat.Controls.ScrollBar"
         xmlns:enums="clr-namespace:Aerochat.Enums"
         xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
         xmlns:helpers="clr-namespace:Aerochat.Helpers"
@@ -777,7 +778,7 @@
                                                                     </Grid.RowDefinitions>
                                                                     <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
                                                                     <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                                                                    <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
+                                                                    <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" scrollbar:ScrollBarProperties.ShowJumpToBottom="True" />
                                                                     <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                                                                 </Grid>
                                                             </ControlTemplate>

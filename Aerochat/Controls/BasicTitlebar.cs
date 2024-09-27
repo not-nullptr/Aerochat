@@ -159,33 +159,16 @@ namespace Aerochat.Controls
         private void Window_StateChanged(object? sender, EventArgs e)
         {
             if (IsDwmEnabled) return;
-            if (Window.WindowState == WindowState.Maximized)
-            {
-                Titlebar.Visibility = Visibility.Collapsed;
-                WindowChrome.SetWindowChrome(Window, null);
-                FirstBorder.BorderThickness = new Thickness(0);
-                SecondBorder.BorderThickness = new Thickness(0);
-                // set the grid's first row to 0
-                Container.RowDefinitions[0].Height = new GridLength(0);
-            }
-            else
-            {
-                Titlebar.Visibility = Visibility.Visible;
-                WindowChrome chrome = new WindowChrome();
-                chrome.CaptionHeight = 28;
-                chrome.CornerRadius = new CornerRadius(6, 6, 0, 0);
-                chrome.GlassFrameThickness = new Thickness(0);
-                WindowChrome.SetWindowChrome(Window, chrome);
-                FirstBorder.BorderThickness = new Thickness(1);
-                SecondBorder.BorderThickness = new Thickness(1);
-                Container.RowDefinitions[0].Height = new GridLength(28);
-            }
+
+            RefreshTitlebarState();
         }
 
         private void Window_SourceInitialized(object? sender, EventArgs e)
         {
+            // Install the initial window procedure hook:
             IntPtr handle = new WindowInteropHelper(Window).Handle;
             HwndSource.FromHwnd(handle).AddHook(WndProc);
+
             OnDwmChanged();
 
             Window.Activated += Window_Activated;
@@ -208,21 +191,18 @@ namespace Aerochat.Controls
             Titlebar.ViewModel.Activated = true;
         }
 
-        private void Window_Deactivated(object? sender, EventArgs e)
-        {
-            Titlebar.ViewModel.Activated = false;
-        }
-
-        private void Window_Activated(object? sender, EventArgs e)
-        {
-            Titlebar.ViewModel.Activated = true;
-        }
-
-        public void OnDwmChanged()
+        private void RefreshTitlebarState()
         {
             if (Titlebar == null || Window == null) return;
-            // add window chrome if DWM is enabled
-            if (IsDwmEnabled)
+
+            // WindowChrome adds a new window procedure hook which takes precedent
+            // over our own and breaks our custom WM_NCHITTEST handler. As such,
+            // we need to uninstall and reinstall our main hook to maintain
+            // precedence.
+            IntPtr hWnd = new WindowInteropHelper(Window).Handle;
+            HwndSource.FromHwnd(hWnd).RemoveHook(WndProc);
+
+            if (Window.WindowState == WindowState.Maximized)
             {
                 Titlebar.Visibility = Visibility.Collapsed;
                 WindowChrome.SetWindowChrome(Window, null);
@@ -243,12 +223,144 @@ namespace Aerochat.Controls
                 SecondBorder.BorderThickness = new Thickness(1);
                 Container.RowDefinitions[0].Height = new GridLength(28);
             }
+
+            // Restore our primary window procedure hook:
+            HwndSource.FromHwnd(hWnd).AddHook(WndProc);
         }
+
+        private void Window_Deactivated(object? sender, EventArgs e)
+        {
+            Titlebar.ViewModel.Activated = false;
+        }
+
+        private void Window_Activated(object? sender, EventArgs e)
+        {
+            Titlebar.ViewModel.Activated = true;
+        }
+
+        public void OnDwmChanged()
+        {
+            if (Titlebar == null || Window == null) return;
+
+            RefreshTitlebarState();
+        }
+
+        private System.Windows.Point PointFromNcHit(IntPtr lParam)
+        {
+            int bounds = lParam.ToInt32();
+
+            int screenX = bounds << 16 >> 16;
+            int screenY = bounds >> 16;
+
+            return PointFromScreen(new(screenX, screenY));
+        }
+
+        private bool _sysMenuRightClickHack = false;
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            switch (msg) {
+            switch (msg)
+            {
+                case 0x84: // WM_NCHITTEST
+                {
+                    System.Windows.Point point = PointFromNcHit(lParam);
+
+                    Debug.WriteLine(point.X + ", " + point.Y);
+
+                    if (Titlebar != null && Titlebar.SystemMenuButton != null && Titlebar.SystemMenuButton.Visibility == Visibility.Visible)
+                    {
+                        HitTestResult? hitResult = VisualTreeHelper.HitTest(Window, point);
+
+                        if (hitResult != null)
+                        {
+                            Debug.WriteLine(hitResult.VisualHit.GetType().Name);
+                        }
+
+                        if (hitResult != null &&
+                            (hitResult.VisualHit == Titlebar.SystemMenuImage ||
+                            hitResult.VisualHit == Titlebar.SystemMenuButton)
+                        )
+                        {
+                            handled = true;
+
+                            if (_sysMenuRightClickHack)
+                            {
+                                // For some reason, the OS refuses to open the menu when right
+                                // clicking if we return HTCAPTION. I do not know why this is;
+                                // from what I've analysed of DefWindowProc, this very case
+                                // should always work and yet somehow it doesn't. This hack is
+                                // a workaround so the icon behaves like native windows do.
+
+                                return 2; // HTCAPTION
+                            }
+
+                            return 3; // HTSYSMENU
+                        }
+                    }
+
+                    break;
+                }
+
+                case 0xA4: // WM_NCRBUTTONDOWN
+                {
+                    System.Windows.Point point = PointFromNcHit(lParam);
+
+                    if (Titlebar != null && Titlebar.SystemMenuButton != null && Titlebar.SystemMenuButton.Visibility == Visibility.Visible)
+                    {
+                        HitTestResult? hitResult = VisualTreeHelper.HitTest(Window, point);
+
+                        if (hitResult != null &&
+                            (hitResult.VisualHit == Titlebar.SystemMenuImage ||
+                            hitResult.VisualHit == Titlebar.SystemMenuButton)
+                        )
+                        {
+                            // Enable the hack to fix right clicking the system menu button:
+                            _sysMenuRightClickHack = true;
+
+                            handled = true;
+                            return 0;
+                        }
+                    }
+
+                    break;
+                }
+
+                case 0xA5: // WM_NCRBUTTONUP
+                {
+                    System.Windows.Point point = PointFromNcHit(lParam);
+
+                    if (Titlebar != null && Titlebar.SystemMenuButton != null && Titlebar.SystemMenuButton.Visibility == Visibility.Visible)
+                    {
+                        HitTestResult? hitResult = VisualTreeHelper.HitTest(Window, point);
+
+                        if (hitResult != null &&
+                            (hitResult.VisualHit == Titlebar.SystemMenuImage ||
+                            hitResult.VisualHit == Titlebar.SystemMenuButton)
+                        )
+                        {
+                            // On right click, we need to also open the system menu.
+                            // WPF does not handle this correctly, but oddly enough
+                            // we need to.
+                            //s_sysMenuRightClickHack = false;
+                            DefWindowProc(hwnd, msg, wParam, lParam);
+
+                            // Now that we've handled the case, we want to disable the
+                            // system menu hack so that left clicking the menu works.
+                            _sysMenuRightClickHack = false;
+
+                            return 0;
+                        }
+                    }
+
+                    // Disable the system menu hack; no matter what, if we released the
+                    // right mouse button, then this needs to be reset.
+                    _sysMenuRightClickHack = false;
+
+                    break;
+                }
+
                 case 0x31E: // WM_DWMCOMPOSITIONCHANGED
+                {
                     DwmIsCompositionEnabled(out bool enabled);
                     if (enabled != IsDwmEnabled)
                     {
@@ -257,16 +369,22 @@ namespace Aerochat.Controls
                     }
                     OnDwmChanged();
                     break;
+                }
                 case 0x000C: // WM_SETTEXT
+                {
                     string? newText = Marshal.PtrToStringAuto(wParam);
                     if (newText != null)
                     {
                         Titlebar.ViewModel.Title = newText;
                     }
                     break;
+                }
             }
             return IntPtr.Zero;
         }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr DefWindowProc(IntPtr hWnd, IntPtr uMsg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmIsCompositionEnabled(out bool enabled);
