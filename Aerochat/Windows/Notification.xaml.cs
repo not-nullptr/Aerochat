@@ -21,8 +21,17 @@ namespace Aerochat.Windows
         Message,
         SignOn
     }
+
+    public enum NotificationState
+    {
+        Opening,
+        Open,
+        Closing,
+    }
+
     public partial class Notification : Window
     {
+        public NotificationState State = NotificationState.Opening;
         public int ScreenWidth => (int)SystemParameters.WorkArea.Width;
         public int ScreenHeight => (int)SystemParameters.WorkArea.Height;
         public int ScreenX => (int)SystemParameters.WorkArea.X;
@@ -31,8 +40,19 @@ namespace Aerochat.Windows
 
         public async void RunOpenAnimation()
         {
+            var windows = Application.Current.Windows;
+            int offset = 0;
+            foreach (var window in windows)
+            {
+                if (window is Notification notification)
+                {
+                    if (notification == this) continue;
+                    offset += (int)notification.ActualHeight + 18;
+                    notification.Closing += Notification_Closing;
+                }
+            }
             double startTop = ScreenHeight;
-            double endTop = ScreenHeight - Height - 10;
+            double endTop = ScreenHeight - Height - 10 - offset;
 
             // Animate via an interval
             int animationTime = 500;
@@ -63,6 +83,7 @@ namespace Aerochat.Windows
             {
                 Top = endTop;
                 Opacity = endOpacity;
+                State = NotificationState.Open;
             });
 
             // In 5 seconds, run the close animation
@@ -70,8 +91,15 @@ namespace Aerochat.Windows
             RunCloseAnimation();
         }
 
+        private void Notification_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (State != NotificationState.Open) return;
+            Top += ((Notification)sender).ActualHeight + 18;
+        }
+
         public async void RunCloseAnimation()
         {
+            State = NotificationState.Closing;
             double startTop = Top;
             double endTop = ScreenHeight;
 

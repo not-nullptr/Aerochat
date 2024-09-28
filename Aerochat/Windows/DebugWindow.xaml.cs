@@ -1,4 +1,5 @@
-﻿using Aerochat.Settings;
+﻿using Aerochat.Hoarder;
+using Aerochat.Settings;
 using Aerochat.ViewModels;
 using DSharpPlus.Entities;
 using System;
@@ -45,6 +46,15 @@ namespace Aerochat.Windows
             SettingsManager.Instance.HasWarnedAboutVoiceChat = false;
             SettingsManager.Instance.ViewedNotices.Clear();
             SettingsManager.Save();
+        }
+
+        private void MakeNoti_Click(object sender, RoutedEventArgs e)
+        {
+             new Notification(NotificationType.SignOn, new
+             {
+                 User = Discord.Client.CurrentUser,
+                 Presence = Discord.Client.Presences.First().Value
+             }).Show();
         }
     }
 }

@@ -16,6 +16,7 @@
                 <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
                 <ComboBox x:Name="StatusesComboBox" />
                 <Button Margin="0,16,0,0" x:Name="ClearWarnings" Click="ClearWarnings_Click" Content="Clear all warnings and visible things" Padding="16,0" />
+                <Button Margin="0,16,0,0" x:Name="MakeNoti" Click="MakeNoti_Click" Content="Spawn a notification" Padding="16,0" />
             </StackPanel>
         </ScrollViewer>
     </Grid>

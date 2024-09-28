@@ -753,7 +753,7 @@
                         </controls:ColorizedNineSlice>
                         <StackPanel Margin="16,0" VerticalAlignment="Bottom">
                             <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
-                            <Grid Height="86">
+                            <Grid Height="90">
                                 <StackPanel Margin="16,8,16,0">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="What's new" Foreground="#355a88" FontSize="15" Margin="0,0,16,0" />
@@ -854,7 +854,7 @@
                                 </Grid>
                                 <Grid Grid.Row="1" UseLayoutRounding="True">
                                     <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
-                                        <Image Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
+                                        <Image Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Cursor" Value="Hand" />

@@ -93,6 +93,28 @@ namespace Aerochat.Windows
             }
         }
 
+        private Random _random = new();
+        Dictionary<int, int> adWeights = new();
+
+        private int GetNextAdIndex()
+        {
+            int totalWeight = adWeights.Values.Sum();
+
+            int randomWeight = _random.Next(totalWeight);
+
+            int cumulativeWeight = 0;
+            for (int i = 0; i < _ads.Count; i++)
+            {
+                cumulativeWeight += adWeights[i];
+                if (randomWeight < cumulativeWeight)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+
         private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
         {
             Dispatcher.Invoke(() =>
@@ -120,29 +142,10 @@ namespace Aerochat.Windows
                 }
                 Random random = new();
                 AdIndex = random.Next(_ads.Count);
-                Dictionary<int, int> adWeights = new();
 
                 for (int i = 0; i < _ads.Count; i++)
                 {
                     adWeights[i] = 1;
-                }
-
-                int GetNextAdIndex()
-                {
-                    int totalWeight = adWeights.Values.Sum();
-
-                    int randomWeight = random.Next(totalWeight);
-
-                    int cumulativeWeight = 0;
-                    for (int i = 0; i < _ads.Count; i++)
-                    {
-                        cumulativeWeight += adWeights[i];
-                        if (randomWeight < cumulativeWeight)
-                        {
-                            return i;
-                        }
-                    }
-                    return 0;
                 }
 
                 Timer adTimer = new(20000);
@@ -224,6 +227,26 @@ namespace Aerochat.Windows
                     }
                 });
             });
+        }
+
+
+        private void Image_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            AdIndex = GetNextAdIndex();
+
+            for (int i = 0; i < _ads.Count; i++)
+            {
+                if (i == AdIndex)
+                {
+                    adWeights[i] = 1;
+                }
+                else
+                {
+                    adWeights[i]++;
+                }
+            }
+
+            ViewModel.Ad = _ads[AdIndex];
         }
 
         private void NewsTimer_Elapsed(object? sender, ElapsedEventArgs e)
