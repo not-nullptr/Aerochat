@@ -14,10 +14,13 @@
 
         <Setter Property="Image" Value="/Resources/Button/Normal.png" />
         <Setter Property="Slice" Value="3, 3" />
-        
+
         <Style.Triggers>
             <!-- This rule must go first since it should be trumped by hover and pressed states: -->
             <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                <Setter Property="Image" Value="/Resources/Button/Focused.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsDefault, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
                 <Setter Property="Image" Value="/Resources/Button/Focused.png" />
             </DataTrigger>
 
@@ -43,7 +46,7 @@
         <Setter Property="OverridesDefaultStyle" Value="True"/>
 
         <Setter Property="Foreground"
-                Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                Value="#333"/>
         <Setter Property="HorizontalContentAlignment"
                 Value="Center"/>
         <Setter Property="VerticalContentAlignment"

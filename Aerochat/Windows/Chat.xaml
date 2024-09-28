@@ -1206,6 +1206,7 @@
                                     <TextBox ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
                                         <TextBox.Style>
                                             <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
                                                 <Setter Property="BorderThickness" Value="0"/>
                                                 <Setter Property="AllowDrop" Value="true"/>
                                                 <Setter Property="Template">
@@ -1220,6 +1221,16 @@
                                             </Style>
                                         </TextBox.Style>
                                     </TextBox>
+                                    <Grid Margin="2,2,2,0" Panel.ZIndex="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <InkCanvas Grid.Column="0" Background="Transparent" />
+                                        <Grid Grid.Column="1" Margin="8,4,4,4">
+                                            <Button IsDefault="True" Width="72" Content="Send" />
+                                        </Grid>
+                                    </Grid>
                                     <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
