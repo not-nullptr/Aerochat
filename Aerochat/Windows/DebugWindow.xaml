@@ -8,14 +8,14 @@
         Title="DebugWindow" Height="450" Width="800">
     <Grid UseLayoutRounding="True">
         <ScrollViewer>
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraSmall" />
-                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Small" />
-                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Medium" />
-                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
-                <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraSmall" />
+                <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Small" />
+                <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Medium" />
+                <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
+                <controls:ProfilePictureFrame HorizontalAlignment="Center" ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
                 <ComboBox x:Name="StatusesComboBox" />
-                <Button Margin="0,16,0,0" x:Name="ClearWarnings" Click="ClearWarnings_Click" Content="Clear all warnings" />
+                <Button Margin="0,16,0,0" x:Name="ClearWarnings" Click="ClearWarnings_Click" Content="Clear all warnings and visible things" Padding="16,0" />
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -10,6 +10,11 @@ namespace Aerochat.ViewModels
 {
     public class HomeWindowViewModel : ViewModelBase
     {
+        public HomeWindowViewModel()
+        {
+            Notices.CollectionChanged += (_, _) => InvokePropertyChanged(nameof(CurrentNotice));
+        }
+
         private UserViewModel _currentUser = new()
         {
             Avatar = "/Resources/Frames/PlaceholderPfp.png",
@@ -36,5 +41,24 @@ namespace Aerochat.ViewModels
         public ObservableCollection<HomeButtonViewModel> Buttons { get; } = new();
 
         public ThemeService Theme { get; } = ThemeService.Instance;
+
+        public ObservableCollection<NoticeViewModel> Notices { get; } = new();
+
+        public NoticeViewModel? CurrentNotice => Notices.FirstOrDefault();
+
+        private bool _isVisible = true;
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set => SetProperty(ref _isVisible, value);
+        }
+
+        public ObservableCollection<NewsViewModel> News { get; } = new();
+        private NewsViewModel? _currentNews;
+        public NewsViewModel? CurrentNews
+        {
+            get => _currentNews;
+            set => SetProperty(ref _currentNews, value);
+        }
     }
 }

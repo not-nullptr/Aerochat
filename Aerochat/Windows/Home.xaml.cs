@@ -20,6 +20,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using static Aerochat.ViewModels.HomeListViewCategory;
@@ -96,6 +97,8 @@ namespace Aerochat.Windows
         {
             Dispatcher.Invoke(() =>
             {
+                newsTimer.Elapsed += NewsTimer_Elapsed;
+                newsTimer.Start();
                 ViewModel.Buttons.Add(new()
                 {
                     Image = "/Resources/Icons/DiscordIcon.png",
@@ -210,58 +213,160 @@ namespace Aerochat.Windows
                 Show();
                 Focus();
 
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    // make a request to https://api.github.com/repos/Nostalgia-09/AeroChat/tags
-                    // get [0].name
-                    // fetch https://api.github.com/repos/Nostalgia-09/AeroChat/releases/tags/{name}
-                    // get assets[0].browser_download_url
-
-                    var httpClient = new HttpClient();
-                    httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
-                    var response = httpClient.GetAsync("https://api.github.com/repos/not-nullptr/AeroChat/tags").Result;
-                    var tags = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result);
-                    var latestTag = tags.RootElement[0].GetProperty("name").GetString()?.Replace("v", "");
-                    if (latestTag == null) return;
-                    // get our local version
-                    var localVersion = Assembly.GetExecutingAssembly().GetName().Version;
-                    if (localVersion == null) return;
-                    var remoteVersion = new Version(latestTag);
-                    if (localVersion.CompareTo(remoteVersion) < 0)
+                    while (true)
                     {
-                        Dispatcher.Invoke(() =>
-                        {
-                            var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
-                            dialog.Owner = this;
-                            dialog.ShowDialog();
-                            Hide();
-                            //close all windows other than this one
-                            foreach (Window window in Application.Current.Windows)
-                            {
-                                if (window != this)
-                                    window.Close();
-                            }
-                            var releaseResponse = httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/v{latestTag}").Result;
-                            var release = JsonDocument.Parse(releaseResponse.Content.ReadAsStringAsync().Result);
-                            var assetUrl = release.RootElement.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
-
-                            // get a temp folder
-                            var tempFolder = Path.GetTempPath();
-                            var tempFile = Path.Combine(tempFolder, "AeroChatSetup.exe");
-
-                            // download the asset to the temp folder
-                            var asset = httpClient.GetAsync(assetUrl).Result;
-                            var assetBytes = asset.Content.ReadAsByteArrayAsync().Result;
-                            File.WriteAllBytes(tempFile, assetBytes);
-
-                            Process.Start(tempFile);
-                            Close();
-                        });
+                        _ = CheckForUpdates();
+                        _ = GetNewNews();
+                        _ = GetNewNotices();
+                        await Task.Delay(120000);
                     }
-                    httpClient.Dispose();
-                    tags.Dispose();
                 });
             });
+        }
+
+        private void NewsTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            // go to the next news item
+            Dispatcher.Invoke(() =>
+            {
+                var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
+                if (index == ViewModel.News.Count - 1)
+                {
+                    ViewModel.CurrentNews = ViewModel.News[0];
+                }
+                else
+                {
+                    ViewModel.CurrentNews = ViewModel.News[index + 1];
+                }
+            });
+        }
+
+        private Timer newsTimer = new(20000);
+
+        public void SetNews(NewsViewModel news)
+        {
+            ViewModel.CurrentNews = news;
+            var animation = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromSeconds(0.5)));
+            NewsText.BeginAnimation(OpacityProperty, animation);
+            // reset the timer
+            newsTimer.Stop();
+            newsTimer.Start();
+        }
+
+        public async Task GetNewNews()
+        {
+            // news is at https://gist.githubusercontent.com/not-nullptr/62b1fdeb4533c905b8145bc076af108e/raw/news.json?breaker={TIMESTAMP}
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
+            var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/62b1fdeb4533c905b8145bc076af108e/raw/news.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
+            var news = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+            {
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip,
+            });
+            var newsList = new List<NewsViewModel>();
+            foreach (var n in news.RootElement.EnumerateArray())
+            {
+                newsList.Add(NewsViewModel.FromNews(n));
+            }
+
+            Dispatcher.Invoke(() =>
+            {
+                ViewModel.News.Clear();
+                foreach (var n in newsList)
+                {
+                    ViewModel.News.Add(n);
+                }
+
+                ViewModel.CurrentNews = ViewModel.News.FirstOrDefault(x => x.Date == ViewModel.CurrentNews?.Date) ?? ViewModel.News.FirstOrDefault();
+            });
+        }
+
+        public async Task GetNewNotices()
+        {
+            var noticesList = new List<NoticeViewModel>();
+            // get the latest notices from https://gist.githubusercontent.com/not-nullptr/26108f2ac8fcb8a24965a148fcf17363/raw/notices.json?breaker={TIMESTAMP}
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
+            var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/26108f2ac8fcb8a24965a148fcf17363/raw/notices.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
+            var notices = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+            { 
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip,
+            });
+            // this is an array so iterate through it
+            foreach (var notice in notices.RootElement.EnumerateArray())
+            {
+                var noticeViewModel = NoticeViewModel.FromNotice(notice);
+                if (!noticeViewModel.IsTargeted || SettingsManager.Instance.ViewedNotices.Contains(noticeViewModel.Date)) continue;
+                noticesList.Add(noticeViewModel);
+            }
+
+            Dispatcher.Invoke(() =>
+            {
+                ViewModel.Notices.Clear();
+                foreach (var n in noticesList)
+                {
+                    ViewModel.Notices.Add(n);
+                }
+            });
+        }
+        private void CloseNoticeButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var notice = ViewModel.Notices[0];
+            SettingsManager.Instance.ViewedNotices.Add(notice.Date);
+            ViewModel.Notices.Remove(notice);
+            SettingsManager.Save();
+        }
+
+        public async Task CheckForUpdates()
+        {
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
+            var response = await httpClient.GetAsync("https://api.github.com/repos/not-nullptr/AeroChat/tags");
+            var tags = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var latestTag = tags.RootElement[0].GetProperty("name").GetString()?.Replace("v", "");
+            if (latestTag == null) return;
+            var localVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            if (localVersion == null) return;
+            var remoteVersion = new Version(latestTag);
+            if (localVersion.CompareTo(remoteVersion) < 0)
+            {
+                _ = Dispatcher.Invoke(async () =>
+                {
+                    var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
+                    dialog.Owner = this;
+                    dialog.ShowDialog();
+                    Hide();
+                    //close all windows other than this one
+                    foreach (Window window in Application.Current.Windows)
+                    {
+                        if (window != this)
+                            window.Close();
+                    }
+                    _ = Task.Run(async () =>
+                    {
+                        var releaseResponse = await httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/v{latestTag}");
+                        var release = JsonDocument.Parse(await releaseResponse.Content.ReadAsStringAsync());
+                        var assetUrl = release.RootElement.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
+
+                        // get a temp folder
+                        var tempFolder = Path.GetTempPath();
+                        var tempFile = Path.Combine(tempFolder, "AeroChatSetup.exe");
+
+                        // download the asset to the temp folder
+                        var asset = await httpClient.GetAsync(assetUrl);
+                        var assetBytes = await asset.Content.ReadAsByteArrayAsync();
+                        File.WriteAllBytes(tempFile, assetBytes);
+                        Process.Start(tempFile);
+                        Dispatcher.Invoke(Close);
+                    });
+                });
+            }
+            httpClient.Dispose();
+            tags.Dispose();
         }
 
         private async Task VoiceStateUpdatedEvent(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
@@ -548,6 +653,8 @@ namespace Aerochat.Windows
             {
                 item.IsVisibleProperty = prop;
             }
+
+            ViewModel.IsVisible = prop;
         }
 
         private void HomeListView_Loaded(object sender, RoutedEventArgs e)
@@ -781,6 +888,21 @@ namespace Aerochat.Windows
         private void DebugBtn_Click(object sender, RoutedEventArgs e)
         {
             new DebugWindow().Show();
+        }
+
+        private void PreviousNewsItem_Click(object sender, RoutedEventArgs e)
+        {
+            // get the current index
+            if (ViewModel.CurrentNews is null) return;
+            var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
+            SetNews(ViewModel.News[(index - 1 + ViewModel.News.Count) % ViewModel.News.Count]);
+        }
+
+        private void NextNewsItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.CurrentNews is null) return;
+            var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
+            SetNews(ViewModel.News[(index + 1) % ViewModel.News.Count]);
         }
     }
 }

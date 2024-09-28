@@ -43,6 +43,7 @@ namespace Aerochat.Windows
         {
             SettingsManager.Instance.WarningShown = false;
             SettingsManager.Instance.HasWarnedAboutVoiceChat = false;
+            SettingsManager.Instance.ViewedNotices.Clear();
             SettingsManager.Save();
         }
     }

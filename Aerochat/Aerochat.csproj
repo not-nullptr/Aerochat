@@ -128,14 +128,22 @@
 		<None Remove="Resources\Home\AddFriend.png" />
 		<None Remove="Resources\Home\BottomSeperator.png" />
 		<None Remove="Resources\Home\ChangeLayout.png" />
+		<None Remove="Resources\Home\Close.png" />
+		<None Remove="Resources\Home\CloseHover.png" />
 		<None Remove="Resources\Home\Dropdown.png" />
 		<None Remove="Resources\Home\Error.png" />
 		<None Remove="Resources\Home\ErrorIcon.png" />
 		<None Remove="Resources\Home\Info.png" />
 		<None Remove="Resources\Home\InfoIcon.png" />
+		<None Remove="Resources\Home\Left.png" />
+		<None Remove="Resources\Home\LeftActive.png" />
+		<None Remove="Resources\Home\LeftHover.png" />
 		<None Remove="Resources\Home\Mail.png" />
 		<None Remove="Resources\Home\PageClose.png" />
 		<None Remove="Resources\Home\PageOpen.png" />
+		<None Remove="Resources\Home\Right.png" />
+		<None Remove="Resources\Home\RightActive.png" />
+		<None Remove="Resources\Home\RightHover.png" />
 		<None Remove="Resources\Home\SearchBar.png" />
 		<None Remove="Resources\Home\SearchBarActive.png" />
 		<None Remove="Resources\Home\SearchBarHover.png" />
@@ -365,13 +373,21 @@
 		<Resource Include="Resources\Emoji\ZipMouth.png" />
 		<Resource Include="Resources\Home\AddFriend.png" />
 		<Resource Include="Resources\Home\ChangeLayout.png" />
+		<Resource Include="Resources\Home\Close.png" />
+		<Resource Include="Resources\Home\CloseHover.png" />
 		<Resource Include="Resources\Home\Dropdown.png" />
 		<Resource Include="Resources\Home\Error.png" />
 		<Resource Include="Resources\Home\ErrorIcon.png" />
 		<Resource Include="Resources\Home\Info.png" />
 		<Resource Include="Resources\Home\InfoIcon.png" />
+		<Resource Include="Resources\Home\Left.png" />
+		<Resource Include="Resources\Home\LeftActive.png" />
+		<Resource Include="Resources\Home\LeftHover.png" />
 		<Resource Include="Resources\Home\PageClose.png" />
 		<Resource Include="Resources\Home\PageOpen.png" />
+		<Resource Include="Resources\Home\Right.png" />
+		<Resource Include="Resources\Home\RightActive.png" />
+		<Resource Include="Resources\Home\RightHover.png" />
 		<Resource Include="Resources\Home\ShowMenu.png" />
 		<Resource Include="Resources\Home\Warning.png" />
 		<Resource Include="Resources\Home\WarningIcon.png" />
@@ -568,6 +584,10 @@
 			<Generator>MSBuild:Compile</Generator>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="NewFolder\" />
 	</ItemGroup>
 
 </Project>

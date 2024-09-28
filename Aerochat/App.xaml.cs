@@ -209,7 +209,6 @@ namespace Aerochat
                         TextColor = scene.TextColor,
                         ShadowColor = scene.ShadowColor,
                     };
-                    ThemeService.Instance.Scene.Color = hex;
                 }
             }
             Dispatcher.Invoke(() =>
