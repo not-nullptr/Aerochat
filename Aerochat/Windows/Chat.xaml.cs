@@ -465,12 +465,15 @@ namespace Aerochat.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
-            // disconnect from the chat
-            if (Channel.Guild?.Channels.Select(x => x.Key).ToList().Contains(VoiceManager.Instance.Channel?.Id ?? 0) ?? false)
+            try
             {
-                _ = VoiceManager.Instance.LeaveVoiceChannel();
+                if (Channel.Guild?.Channels?.Select(x => x.Key).ToList().Contains(VoiceManager.Instance.Channel?.Id ?? 0) ?? false)
+                {
+                    Task.Run(VoiceManager.Instance.LeaveVoiceChannel);
+                }
             }
+            catch (Exception) { }
+            base.OnClosing(e);
             Discord.Client.TypingStarted -= OnType;
             Discord.Client.MessageCreated -= OnMessageCreation;
             // dispose of the chat
@@ -484,7 +487,7 @@ namespace Aerochat.Windows
             timers.Clear();
             chatSoundPlayer.Stop();
             chatSoundPlayer.Close();
-            System.Timers.Timer timer = new(100);
+            System.Timers.Timer timer = new(2000);
             timer.Elapsed += GCRelease;
             timer.Start();
         }
