@@ -24,11 +24,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1471,39 +1473,66 @@ namespace DSharpPlus.Net
 
             pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
-            if (builder.Files.Count == 0)
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+
+            List<JObject> attachments = new();
+            foreach (var f in builder.Files)
             {
-                var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
-                var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
-
-                var url = Utilities.GetApiUriFor(path);
-                var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
-
-                var ret = this.PrepareMessage(JObject.Parse(res.Response));
-                return ret;
-            }
-            else
-            {
-                var values = new Dictionary<string, string>
+                var resp = await UploadAttachment(f.FileName, f.Stream, channel_id);
+                foreach (var obj in resp)
                 {
-                    ["payload_json"] = DiscordJson.SerializeObject(pld)
-                };
-
-                var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
-                var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
-
-                var url = Utilities.GetApiUriFor(path);
-                var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
-
-                var ret = this.PrepareMessage(JObject.Parse(res.Response));
-
-                foreach (var file in builder._files.Where(x => x.ResetPositionTo.HasValue))
-                {
-                    file.Stream.Position = file.ResetPositionTo.Value;
+                    var uploadUrl = obj.Value<string>("upload_url");
+                    var uploadFilename = obj.Value<string>("upload_filename");
+                    // use regular HttpClient to PUT the stream to uploadUrl
+                    using (var client = new HttpClient())
+                    {
+                        // set the stream position to 0
+                        f.Stream.Position = 0;
+                        var content = new StreamContent(f.Stream);
+                        var response = await client.PutAsync(uploadUrl, content);
+                        response.EnsureSuccessStatusCode();
+                    }
+                    attachments.Add((JObject)obj);
                 }
 
-                return ret;
             }
+
+            // this is the worst hack ever
+            var initialJson = DiscordJson.SerializeObject(pld);
+            var parsed = JObject.Parse(initialJson);
+            // empty the attachments array
+            var attachmentsArray = new JArray();
+            foreach (var attachment in attachments)
+            {
+                var obj = new JObject();
+                obj["filename"] = "attachment.png";
+                obj["uploaded_filename"] = attachment["upload_filename"];
+                obj["id"] = attachment["id"];
+                attachmentsArray.Add(obj);
+            }
+            parsed["attachments"] = attachmentsArray;
+
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: parsed.ToString()).ConfigureAwait(false);
+
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
+            return ret;
+        }
+
+        internal async Task<JArray> UploadAttachment(string name, Stream stream, ulong channelId)
+        {
+            // firstly, post to /channels/{id}/attachments
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.ATTACHMENTS}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id = channelId }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            // post using a generic object, body should be { files: [ { filename: "file", file_size: 0, id: "0", is_clip: false } ] }
+
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(new { files = new[] { new { filename = name, file_size = stream.Length, id = "0", is_clip = false } } })).ConfigureAwait(false);
+            var parser = (JArray)JObject.Parse(res.Response)["attachments"];
+            return parser;
         }
 
         internal async Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guild_id)

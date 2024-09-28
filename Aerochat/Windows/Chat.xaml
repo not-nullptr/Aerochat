@@ -578,11 +578,11 @@
                         </Grid>
                         <Grid Grid.Column="1">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="{Binding TopHeight, Mode=OneWay}" />
+                                <RowDefinition Height="{Binding TopHeight}" />
                                 <RowDefinition Height="8" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{Binding BottomHeight, Mode=OneWay}" />
+                                <RowDefinition Height="{Binding BottomHeight}" />
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
                                 <Grid Cursor="SizeNS" VerticalAlignment="Bottom" x:Name="Seperator" PreviewMouseDown="Seperator_PreviewMouseDown">
@@ -1203,10 +1203,9 @@
                                     <RowDefinition Height="30" />
                                 </Grid.RowDefinitions>
                                 <Grid VerticalAlignment="Stretch" Panel.ZIndex="5" Margin="-1,0,0,0">
-                                    <TextBox ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
+                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
                                         <TextBox.Style>
                                             <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
-                                                <Setter Property="Visibility" Value="Collapsed" />
                                                 <Setter Property="BorderThickness" Value="0"/>
                                                 <Setter Property="AllowDrop" Value="true"/>
                                                 <Setter Property="Template">
@@ -1221,14 +1220,14 @@
                                             </Style>
                                         </TextBox.Style>
                                     </TextBox>
-                                    <Grid Margin="2,2,2,0" Panel.ZIndex="10">
+                                    <Grid Margin="2,2,2,0" Panel.ZIndex="10" x:Name="DrawingContainer" Visibility="Collapsed">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <InkCanvas Grid.Column="0" Background="Transparent" />
+                                        <InkCanvas x:Name="DrawingCanvas" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
                                         <Grid Grid.Column="1" Margin="8,4,4,4">
-                                            <Button IsDefault="True" Width="72" Content="Send" />
+                                            <Button x:Name="CanvasButton" Click="CanvasButton_Click" IsDefault="True" Width="72" Content="Send" />
                                         </Grid>
                                     </Grid>
                                     <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
@@ -1293,12 +1292,47 @@
                                             </Style>
                                         </controls:ColorizedNineSlice.Style>
                                     </controls:ColorizedNineSlice>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Grid Height="30" MouseUp="RunNudge">
-                                            <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                            <Image Margin="4,0" Source="/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
-                                        </Grid>
-                                    </StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel.Style>
+                                                    <Style TargetType="StackPanel">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Path=Visibility, ElementName=DrawingContainer}" Value="Visible">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </StackPanel.Style>
+                                                <Grid Height="30" MouseUp="ShowColorMenu">
+                                                    <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                                                        <Image Margin="4,0" Source="/Resources/Message/Colors.png" Width="24" Height="16" />
+                                                        <Image Margin="2,0,6,0" Source="/Resources/Home/Dropdown.png" Width="5" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                            <Grid Height="30" MouseUp="RunNudge">
+                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
+                                            </Grid>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,4,0" Grid.Column="1" Orientation="Horizontal">
+                                            <Grid Width="24" Height="30" x:Name="SwitchToDraw" MouseUp="SwitchToDraw_MouseUp">
+                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
+                                            </Grid>
+                                            <Grid Height="30" Width="24" x:Name="SwitchToText" MouseUp="SwitchToText_MouseUp">
+                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Resources/Message/Text.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="13" Height="13" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>

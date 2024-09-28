@@ -1,0 +1,124 @@
+﻿<Window x:Class="Aerochat.Windows.ColorPicker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        mc:Ignorable="d"
+        Title="ColorPicker" Height="122" Width="122"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <Style x:Key="CustomButton" TargetType="Button" BasedOn="{StaticResource TransparentStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="BorderBrush" Value="#316ac5"/>
+                                            <Setter Property="Background" Value="#d8e3f4"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="BorderBrush" Value="#316ac5"/>
+                                            <Setter Property="Background" Value="#d8e3f4"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                                <ContentPresenter/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+        </Style>
+    </Window.Resources>
+    <Border BorderBrush="#dedede" BorderThickness="1">
+        <WrapPanel Margin="8">
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="2" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#000000" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#404040" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#808080" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#FFFFFF" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#000080" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#0000FF" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#00FFFF" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#008080" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#800000" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#FF0000" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#FF00FF" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#800080" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#008000" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#00FF00" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#808000" />
+                </Border>
+            </Button>
+            <Button Width="26" Click="SelectColor" Height="26" Style="{StaticResource CustomButton}">
+                <Border Margin="3" BorderThickness="1" BorderBrush="Black">
+                    <Rectangle Fill="#ffff00" />
+                </Border>
+            </Button>
+        </WrapPanel>
+    </Border>
+</Window>

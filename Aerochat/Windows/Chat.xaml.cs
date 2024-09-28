@@ -31,6 +31,11 @@ using Aerochat.Voice;
 using Brushes = System.Windows.Media.Brushes;
 using System.Globalization;
 using Size = System.Windows.Size;
+using Microsoft.Win32;
+using System.IO;
+using System.Windows.Ink;
+using Point = System.Windows.Point;
+using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
@@ -491,21 +496,18 @@ namespace Aerochat.Windows
 
             if (args.Channel.Id != ChannelId) return;
             bool isNudge = args.Message.Content == "[nudge]";
+            if (!Discord.Client.TryGetCachedUser(args.Author.Id, out DiscordUser user))
+            {
+                if (args.Author == null) user = await Discord.Client.GetUserAsync(args.Author.Id);
+                else user = args.Author;
+            };
+
             Application.Current.Dispatcher.Invoke(delegate
             {
-                if (!Discord.Client.TryGetCachedUser(args.Author.Id, out DiscordUser user))
-                {
-                    user = Discord.Client.GetUserAsync(args.Author.Id).Result;
-                };
 
                 var member = args.Guild?.Members.FirstOrDefault(x => x.Key == args.Author.Id).Value;
 
                 MessageViewModel message = MessageViewModel.FromMessage(args.Message, member);
-
-                foreach (var attachment in args.Message.Attachments)
-                {
-                    message.Attachments.Add(AttachmentViewModel.FromAttachment(attachment));
-                }
 
                 MessageViewModel? eph = ViewModel.Messages.FirstOrDefault(x => x.Ephemeral && x.Message == message.Message);
                 if (eph != null)
@@ -636,6 +638,8 @@ namespace Aerochat.Windows
 
         public Chat(ulong id, bool allowDefault = false)
         {
+            typingTimer.Elapsed += TypingTimer_Elapsed;
+            typingTimer.AutoReset = false;
             Hide();
 
             if (allowDefault)
@@ -689,6 +693,7 @@ namespace Aerochat.Windows
             Discord.Client.ChannelUpdated += OnChannelUpdated;
             Discord.Client.PresenceUpdated += OnPresenceUpdated;
             Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
+            DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
         }
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
@@ -903,7 +908,7 @@ namespace Aerochat.Windows
 
         }
 
-        private async Task SendMessage(string value)
+        private async Task SendMessage(string value, Stream? attachment = null, int attachmentWidth = 0, int attachmentHeight = 0)
         {
             bool IsDM = Channel is DiscordDmChannel;
             if (!Discord.Client.TryGetCachedGuild(Channel.GuildId ?? 0, out DiscordGuild guild) && !IsDM)
@@ -943,11 +948,39 @@ namespace Aerochat.Windows
                 Id = 0,
                 Ephemeral = true,
                 Special = value == "[nudge]",
-                MessageEntity = fakeMsg
+                MessageEntity = fakeMsg,
             });
+
+            if (attachment != null)
+            {
+                ViewModel.Messages[^1].Attachments.Add(new()
+                {
+                    Id = 0,
+                    Width = attachmentWidth,
+                    Height = attachmentHeight,
+                    MediaType = Enums.MediaType.Image,
+                    Url = "",
+                    Name = "attachment.png",
+                    Size = "Uploading..."
+                });
+            }
             try
             {
-                await Channel.SendMessageAsync(value);
+
+                //await new DiscordMessageBuilder()
+                //    .WithContent(value)
+                //    .AddFile("attachment.png", attachment!)
+                //    .SendAsync(Channel);
+
+                var builder = new DiscordMessageBuilder()
+                    .WithContent(value);
+
+                if (attachment != null)
+                {
+                    builder.AddFile("attachment.png", attachment);
+                }
+
+                await builder.SendAsync(Channel);
             }
             catch (Exception)
             {
@@ -967,12 +1000,9 @@ namespace Aerochat.Windows
                 string value = new(text.Text);
                 if (value.Trim() == string.Empty) return;
                 text.Text = "";
-                ViewModel.BottomHeight = 60;
+                ViewModel.BottomHeight = 64;
                 sizeTainted = false;
                 await SendMessage(value);
-            } else
-            {
-                await Channel.TriggerTypingAsync().ConfigureAwait(false);
             }
         }
 
@@ -1040,7 +1070,7 @@ namespace Aerochat.Windows
             if (isDraggingBottomSeperator)
             {
                 ViewModel.BottomHeight -= pos - initialPos;
-                int min = 60;
+                int min = 64;
                 int max = 200;
                 ViewModel.BottomHeight = Math.Clamp(ViewModel.BottomHeight, min, max);
                 if (ViewModel.BottomHeight != min && ViewModel.BottomHeight != max) initialPos = pos;
@@ -1228,7 +1258,214 @@ namespace Aerochat.Windows
             var textBox = (TextBox)sender;
             var newHeight = (int)textBox.ExtentHeight + 40;
             if ((ViewModel.BottomHeight > newHeight && sizeTainted) || newHeight > 200) return;
-            ViewModel.BottomHeight = newHeight;
+            ViewModel.BottomHeight = Math.Max(newHeight, 64);
         }
+
+        private async void CanvasButton_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = DrawingCanvas;
+            var width = (int)canvas.ActualWidth;
+            var height = (int)canvas.ActualHeight;
+
+            var renderTarget = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+            renderTarget.Render(canvas);
+
+            var writeableBitmap = new WriteableBitmap(renderTarget);
+            var stride = writeableBitmap.PixelWidth * (writeableBitmap.Format.BitsPerPixel / 8);
+            var pixelData = new byte[stride * writeableBitmap.PixelHeight];
+            writeableBitmap.CopyPixels(pixelData, stride, 0);
+
+            int minX = width, minY = height, maxX = 0, maxY = 0;
+            bool foundNonTransparentPixel = false;
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = (y * stride) + (x * 4);
+                    byte alpha = pixelData[index + 3];
+
+                    if (alpha != 0)
+                    {
+                        foundNonTransparentPixel = true;
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+
+            if (!foundNonTransparentPixel)
+            {
+                return;
+            }
+
+            int croppedWidth = maxX - minX + 1;
+            int croppedHeight = maxY - minY + 1;
+
+            var croppedBitmap = new CroppedBitmap(writeableBitmap, new Int32Rect(minX, minY, croppedWidth, croppedHeight));
+
+            int padding = 10;
+            int paddedWidth = croppedWidth + (2 * padding);
+            int paddedHeight = croppedHeight + (2 * padding);
+
+            var whiteBackgroundBitmap = new RenderTargetBitmap(paddedWidth, paddedHeight, 96, 96, PixelFormats.Pbgra32);
+            var drawingVisual = new DrawingVisual();
+
+            using (var drawingContext = drawingVisual.RenderOpen())
+            {
+                drawingContext.DrawRectangle(Brushes.White, null, new Rect(0, 0, paddedWidth, paddedHeight));
+                drawingContext.DrawImage(croppedBitmap, new Rect(padding, padding, croppedWidth, croppedHeight));
+            }
+
+            whiteBackgroundBitmap.Render(drawingVisual);
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(whiteBackgroundBitmap));
+
+            canvas.Strokes.Clear();
+
+            //using (MemoryStream ms = new())
+            //{
+            //    encoder.Save(ms);
+            //    await SendMessage("", ms);
+            //}
+
+            // write to tmp.png next to the .exe
+            using (var ms = new MemoryStream())
+            {
+                encoder.Save(ms);
+                await SendMessage("", ms, encoder.Frames[0].PixelWidth, encoder.Frames[0].PixelHeight);
+            }
+        }
+
+        private int _drawingHeight = 120;
+        private int _writingHeight = 64;
+
+        private Stack<Stroke> _undoStack = new();
+        private Stack<Stroke> _redoStack = new();
+
+        private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
+        {
+            if (e.Added.Count > 0)
+            {
+                _undoStack.Push(e.Added[0]);
+                _redoStack.Clear();
+            }
+        }
+
+        public void Undo()
+        {
+            if (DrawingCanvas.Strokes.Count == 0) return;
+            var stroke = DrawingCanvas.Strokes.Last();
+            _redoStack.Push(stroke);
+            _undoStack.Pop();
+            DrawingCanvas.Strokes.Remove(stroke);
+        }
+
+        public void Redo()
+        {
+            if (_redoStack.Count == 0) return;
+            var stroke = _redoStack.Pop();
+            DrawingCanvas.Strokes.StrokesChanged -= Strokes_StrokesChanged; // Disable the event
+            DrawingCanvas.Strokes.Add(stroke);
+            DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged; // Re-enable the event
+            _undoStack.Push(stroke);
+        }
+
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            // handle (ctrl) + z | v
+            if (!e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.LeftCtrl)) && !e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.RightCtrl))) return;
+            if (e.Key == Key.Z)
+            {
+                Undo();
+            }
+            else if (e.Key == Key.Y)
+            {
+                Redo();
+            }
+        }
+
+        private void SwitchToText_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (MessageTextBox.Visibility == Visibility.Visible) return;
+            _drawingHeight = ViewModel.BottomHeight;
+            ViewModel.BottomHeight = _writingHeight;
+            MessageTextBox.Visibility = Visibility.Visible;
+            DrawingContainer.Visibility = Visibility.Collapsed;
+        }
+
+        private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (MessageTextBox.Visibility == Visibility.Collapsed) return;
+            _writingHeight = ViewModel.BottomHeight;
+            ViewModel.BottomHeight = _drawingHeight;
+            MessageTextBox.Visibility = Visibility.Collapsed;
+            DrawingContainer.Visibility = Visibility.Visible;
+        }
+
+        private void ShowColorMenu(object sender, MouseButtonEventArgs e)
+        {
+            var picker = new ColorPicker();
+            // set the position of the picker to be below the button
+            var button = (FrameworkElement)sender;
+            var point = button.PointToScreen(new Point(0, button.ActualHeight));
+            picker.Left = point.X;
+            picker.Top = point.Y;
+            picker.Show();
+            picker.Closing += (s, e) =>
+            {
+                var brush = picker.SelectedColor;
+                if (brush is null) return;
+                DrawingCanvas.DefaultDrawingAttributes.Color = brush.Color;
+            };
+        }
+
+        private bool _isTyping = false;
+        private string _lastValue = "";
+
+        Timer typingTimer = new(1000)
+        { 
+            AutoReset = false
+        };
+
+        private void TypingTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (!_isTyping) return;
+                if (MessageTextBox.Text == _lastValue || MessageTextBox.Text == string.Empty)
+                {
+                    _isTyping = false;
+                    return;
+                }
+                _lastValue = MessageTextBox.Text;
+                Task.Run(async () =>
+                {
+                    await Channel.TriggerTypingAsync();
+                });
+                typingTimer.Start();
+            });
+        }
+
+        private void MessageTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_isTyping)
+            {
+                _isTyping = true;
+                TypingTimer_Elapsed(null, null!);
+                typingTimer.Start();
+            };
+        }
+    }
+
+    public struct DoStroke
+    {
+        public string ActionFlag { get; set; }
+        public System.Windows.Ink.Stroke Stroke { get; set; }
     }
 }
