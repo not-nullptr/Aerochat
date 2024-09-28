@@ -491,7 +491,7 @@
                                         </Style>
                                     </Image.Style>
                                 </Image>
-                                <TextBlock Margin="6,0,0,0" Grid.Column="1" Foreground="#333" Text="{Binding CurrentNotice.Message}" TextWrapping="Wrap" />
+                                <controls:BBCode Margin="6,0,0,0" Grid.Column="1" Foreground="#333" Text="{Binding CurrentNotice.Message}" TextWrapping="Wrap" />
                                 <Image PreviewMouseLeftButtonUp="CloseNoticeButton_PreviewMouseLeftButtonUp" x:Name="CloseNoticeButton" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Width="16" Height="16">
                                     <Image.Style>
                                         <Style TargetType="Image">
