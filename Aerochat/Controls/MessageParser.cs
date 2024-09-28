@@ -218,6 +218,10 @@ namespace Aerochat.Controls
         {
             MainPanel = new WrapPanel();
             Content = MainPanel;
+            Loaded += (_, _) => Window.GetWindow(this).Closing += (s, e) =>
+            {
+                
+            };
         }
     }
 

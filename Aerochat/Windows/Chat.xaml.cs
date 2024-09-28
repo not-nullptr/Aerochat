@@ -28,6 +28,9 @@ using XamlAnimatedGif;
 using Aerovoice.Clients;
 using System.Collections.Concurrent;
 using Aerochat.Voice;
+using Brushes = System.Windows.Media.Brushes;
+using System.Globalization;
+using Size = System.Windows.Size;
 
 namespace Aerochat.Windows
 {
@@ -47,6 +50,7 @@ namespace Aerochat.Windows
         int initialPos = 0;
         private Dictionary<ulong, System.Timers.Timer> timers = new();
         private VoiceSocket voiceSocket;
+        private bool sizeTainted = false;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
@@ -963,6 +967,8 @@ namespace Aerochat.Windows
                 string value = new(text.Text);
                 if (value.Trim() == string.Empty) return;
                 text.Text = "";
+                ViewModel.BottomHeight = 60;
+                sizeTainted = false;
                 await SendMessage(value);
             } else
             {
@@ -1034,10 +1040,11 @@ namespace Aerochat.Windows
             if (isDraggingBottomSeperator)
             {
                 ViewModel.BottomHeight -= pos - initialPos;
-                int min = 70;
+                int min = 60;
                 int max = 200;
                 ViewModel.BottomHeight = Math.Clamp(ViewModel.BottomHeight, min, max);
                 if (ViewModel.BottomHeight != min && ViewModel.BottomHeight != max) initialPos = pos;
+                sizeTainted = true;
             }
         }
 
@@ -1213,6 +1220,15 @@ namespace Aerochat.Windows
         private async void LeaveCallButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             await VoiceManager.Instance.LeaveVoiceChannel();
+        }
+
+        private void MessageTextBox_SizeChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (isDraggingBottomSeperator) return;
+            var textBox = (TextBox)sender;
+            var newHeight = (int)textBox.ExtentHeight + 40;
+            if ((ViewModel.BottomHeight > newHeight && sizeTainted) || newHeight > 200) return;
+            ViewModel.BottomHeight = newHeight;
         }
     }
 }

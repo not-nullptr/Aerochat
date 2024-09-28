@@ -1203,7 +1203,7 @@
                                     <RowDefinition Height="30" />
                                 </Grid.RowDefinitions>
                                 <Grid VerticalAlignment="Stretch" Panel.ZIndex="5" Margin="-1,0,0,0">
-                                    <TextBox IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
+                                    <TextBox ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
                                         <TextBox.Style>
                                             <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
                                                 <Setter Property="BorderThickness" Value="0"/>

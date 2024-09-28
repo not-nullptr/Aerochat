@@ -58,7 +58,7 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _topHeight, value);
         }
 
-        private int _bottomHeight = 70;
+        private int _bottomHeight = 60;
 
         public int BottomHeight
         {
