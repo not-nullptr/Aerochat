@@ -53,7 +53,7 @@ namespace Aerochat.Windows
         bool isDraggingTopSeperator = false;
         bool isDraggingBottomSeperator = false;
         int initialPos = 0;
-        private Dictionary<ulong, System.Timers.Timer> timers = new();
+        private Dictionary<ulong, Timer> timers = new();
         private VoiceSocket voiceSocket;
         private bool sizeTainted = false;
 
@@ -261,61 +261,76 @@ namespace Aerochat.Windows
 
         public void UpdateChannelListerReadReciepts()
         {
-            bool isDM = Channel is DiscordDmChannel;
-            if (isDM) return;
-            foreach (var category in ViewModel.Categories)
+            Task.Run(() =>
             {
-                foreach (var item in category.Items)
+                bool isDM = Channel is DiscordDmChannel;
+                if (isDM) return;
+
+                foreach (var category in ViewModel.Categories)
                 {
-                    Discord.Client.TryGetCachedChannel(item.Id, out var c);
-                    if (c == null) continue;
-                    bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(c.Id, out var lastReadMessageId);
-                    DateTime lastReadMessageTime;
-                    if (found)
+                    foreach (var item in category.Items)
                     {
-                        lastReadMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastReadMessageId >> 22) + 1420070400000)).DateTime;
-                    }
-                    else
-                    {
-                        lastReadMessageTime = SettingsManager.Instance.ReadRecieptReference;
-                    }
-                    bool isCurrentChannel = c.Id == ChannelId;
-                    var channel = c;
-                    var lastMessageId = channel.LastMessageId;
-                    if (channel.Type == ChannelType.Voice)
-                    {
-                        item.Image = "unread";
-                        continue;
-                    }
-                    if (lastMessageId is null)
-                    {
-                        item.Image = "read";
-                        continue;
-                    }
-                    var lastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastMessageId >> 22) + 1420070400000)).DateTime;
-                    if (lastMessageTime > lastReadMessageTime && !isCurrentChannel)
-                    {
-                        item.Image = "unread";
-                    }
-                    else
-                    {
-                        item.Image = "read";
-                        if (isCurrentChannel)
+                        Discord.Client.TryGetCachedChannel(item.Id, out var c);
+                        if (c == null) continue;
+
+                        bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(c.Id, out var lastReadMessageId);
+                        DateTime lastReadMessageTime;
+
+                        if (found)
                         {
-                            // update the last read message
-                            SettingsManager.Instance.LastReadMessages[ChannelId] = lastMessageId ?? 0;
+                            lastReadMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastReadMessageId >> 22) + 1420070400000)).DateTime;
+                        }
+                        else
+                        {
+                            lastReadMessageTime = SettingsManager.Instance.ReadRecieptReference;
+                        }
+
+                        bool isCurrentChannel = c.Id == ChannelId;
+                        var channel = c;
+                        var lastMessageId = channel.LastMessageId;
+
+                        if (channel.Type == ChannelType.Voice)
+                        {
+                            item.Image = "unread";
+                            continue;
+                        }
+                        if (lastMessageId is null)
+                        {
+                            item.Image = "read";
+                            continue;
+                        }
+
+                        var lastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastMessageId >> 22) + 1420070400000)).DateTime;
+
+                        if (lastMessageTime > lastReadMessageTime && !isCurrentChannel)
+                        {
+                            item.Image = "unread";
+                        }
+                        else
+                        {
+                            item.Image = "read";
+                            if (isCurrentChannel)
+                            {
+                                // update the last read message
+                                SettingsManager.Instance.LastReadMessages[ChannelId] = lastMessageId ?? 0;
+                            }
                         }
                     }
                 }
-            }
 
-            var items = ViewModel.Categories.ToList();
-            ViewModel.Categories.Clear();
-            foreach (var item in items)
-            {
-                ViewModel.Categories.Add(item);
-            }
+                // Use Dispatcher to modify the ViewModel on the UI thread
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var items = ViewModel.Categories.ToList();
+                    ViewModel.Categories.Clear();
+                    foreach (var item in items)
+                    {
+                        ViewModel.Categories.Add(item);
+                    }
+                });
+            });
         }
+
 
         public void RefreshGroupChat()
         {
@@ -496,9 +511,7 @@ namespace Aerochat.Windows
         {
             if (args.Channel.Id != ChannelId) return;
             args.Channel.GetType().GetProperty("LastMessageId")?.SetValue(args.Channel, args.Message.Id);
-            Dispatcher.Invoke(UpdateChannelListerReadReciepts);
-
-            if (args.Channel.Id != ChannelId) return;
+            //Dispatcher.Invoke(UpdateChannelListerReadReciepts);
             bool isNudge = args.Message.Content == "[nudge]";
             DiscordUser user = args.Author;
             if (user is null) return;
@@ -518,16 +531,18 @@ namespace Aerochat.Windows
 
             Dispatcher.Invoke(() =>
             {
-                if (messageIndex != -1)
-                {
-                    ViewModel.Messages.RemoveAt(messageIndex);
-                }
+                if (messageIndex != -1) ViewModel.Messages.RemoveAt(messageIndex);
 
                 ViewModel.LastReceivedMessage = message;
                 ViewModel.Messages.Add(message);
+
+                // Limit messages to 50
+                while (ViewModel.Messages.Count > 50)
+                {
+                    ViewModel.Messages.RemoveAt(0);
+                }
             });
 
-            // if the user is in the typing users list, remove them
             if (TypingUsers.Contains(args.Author))
             {
                 TypingUsers.Remove(args.Author);
@@ -544,12 +559,13 @@ namespace Aerochat.Windows
                     if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id) chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                 }
             });
-            Dispatcher.Invoke(ProcessLastRead);
 
-            if (isNudge)
-            {
-                Application.Current.Dispatcher.Invoke(() => ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity));
-            }
+            //Dispatcher.Invoke(ProcessLastRead);
+
+            //if (isNudge)
+            //{
+            //    Application.Current.Dispatcher.Invoke(() => ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity));
+            //}
         }
 
         private void ProcessLastRead()
@@ -704,6 +720,7 @@ namespace Aerochat.Windows
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
         {
+            if (args.Guild.Id != Channel.Guild?.Id) return;
             Dispatcher.Invoke(RefreshChannelList);
         }
 

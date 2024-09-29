@@ -223,7 +223,7 @@ namespace Aerochat.Windows
                         _ = CheckForUpdates();
                         _ = GetNewNews();
                         _ = GetNewNotices();
-                        await Task.Delay(120000);
+                        await Task.Delay(60 * 5 * 1000);
                     }
                 });
             });
@@ -344,8 +344,11 @@ namespace Aerochat.Windows
             SettingsManager.Save();
         }
 
+        private bool showingUpdate = false;
+
         public async Task CheckForUpdates()
         {
+            if (showingUpdate) return;
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
             var response = await httpClient.GetAsync("https://api.github.com/repos/not-nullptr/AeroChat/tags");
@@ -359,6 +362,7 @@ namespace Aerochat.Windows
             {
                 _ = Dispatcher.Invoke(async () =>
                 {
+                    showingUpdate = true;
                     var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
                     dialog.Owner = this;
                     dialog.ShowDialog();
@@ -387,9 +391,11 @@ namespace Aerochat.Windows
                         Dispatcher.Invoke(Close);
                     });
                 });
+            } else
+            {
+                httpClient.Dispose();
+                tags.Dispose();
             }
-            httpClient.Dispose();
-            tags.Dispose();
         }
 
         private async Task VoiceStateUpdatedEvent(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
