@@ -494,54 +494,57 @@ namespace Aerochat.Windows
 
         private async Task OnMessageCreation(DSharpPlus.DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs args)
         {
+            if (args.Channel.Id != ChannelId) return;
             args.Channel.GetType().GetProperty("LastMessageId")?.SetValue(args.Channel, args.Message.Id);
             Dispatcher.Invoke(UpdateChannelListerReadReciepts);
 
             if (args.Channel.Id != ChannelId) return;
             bool isNudge = args.Message.Content == "[nudge]";
-            if (!Discord.Client.TryGetCachedUser(args.Author.Id, out DiscordUser user))
+            DiscordUser user = args.Author;
+            if (user is null) return;
+
+            var member = args.Guild?.Members.FirstOrDefault(x => x.Key == args.Author.Id).Value;
+
+            MessageViewModel message = MessageViewModel.FromMessage(args.Message, member);
+
+            MessageViewModel? eph = ViewModel.Messages.FirstOrDefault(x => x.Ephemeral && x.Message == message.Message);
+
+            int messageIndex = -1;
+
+            if (eph != null)
             {
-                if (args.Author == null) user = await Discord.Client.GetUserAsync(args.Author.Id);
-                else user = args.Author;
-            };
+                messageIndex = ViewModel.Messages.IndexOf(eph);
+            }
 
-            Application.Current.Dispatcher.Invoke(delegate
+            Dispatcher.Invoke(() =>
             {
-
-                var member = args.Guild?.Members.FirstOrDefault(x => x.Key == args.Author.Id).Value;
-
-                MessageViewModel message = MessageViewModel.FromMessage(args.Message, member);
-
-                MessageViewModel? eph = ViewModel.Messages.FirstOrDefault(x => x.Ephemeral && x.Message == message.Message);
-                if (eph != null)
+                if (messageIndex != -1)
                 {
-                    int messageIndex = ViewModel.Messages.IndexOf(eph);
-                    if (messageIndex != -1)
-                    {
-                        ViewModel.Messages.RemoveAt(messageIndex);
-                    }
+                    ViewModel.Messages.RemoveAt(messageIndex);
                 }
 
                 ViewModel.LastReceivedMessage = message;
-
                 ViewModel.Messages.Add(message);
+            });
 
-                // if the user is in the typing users list, remove them
-                if (TypingUsers.Contains(args.Author))
-                {
-                    TypingUsers.Remove(args.Author);
-                }
+            // if the user is in the typing users list, remove them
+            if (TypingUsers.Contains(args.Author))
+            {
+                TypingUsers.Remove(args.Author);
+            }
 
+            Dispatcher.Invoke(() =>
+            {
                 if (isNudge)
                 {
                     chatSoundPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
                 }
                 else
                 {
-                    if (IsActive && message.Author.Id != Discord.Client.CurrentUser.Id) chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                    if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id) chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                 }
-                ProcessLastRead();
             });
+            Dispatcher.Invoke(ProcessLastRead);
 
             if (isNudge)
             {
