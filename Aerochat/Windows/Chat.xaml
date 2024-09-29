@@ -1190,10 +1190,7 @@
                                         <Setter Property="Opacity" Value="1" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Channel.CanTalk}" Value="False">
-                                                <Setter Property="Opacity" Value="0.4" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsDM}" Value="True">
-                                                <Setter Property="Opacity" Value="1" />
+                                                <Setter Property="Opacity" Value="0.5" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1245,16 +1242,16 @@
                                             </Style>
                                         </controls:ColorizedNineSlice.Style>
                                     </controls:ColorizedNineSlice>
-                                    <TextBlock Text="You do not have permission to talk in this chat." FontStyle="Italic" Margin="6,4" TextTrimming="CharacterEllipsis">
+                                    <TextBlock Opacity="0.7" Text="You do not have permission to talk in this chat." FontStyle="Italic" Margin="6,4" TextTrimming="CharacterEllipsis">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Channel.CanTalk}" Value="False">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsDM}" Value="True">
                                                         <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Channel.CanTalk}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

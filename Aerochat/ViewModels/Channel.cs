@@ -3,6 +3,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,12 +50,13 @@ namespace Aerochat.ViewModels
 
         public static ChannelViewModel FromChannel(DiscordChannel channel)
         {
+            Debug.WriteLine((channel is DiscordDmChannel d ? !d.Recipients.Select(x => x.Id).ToList().Contains(643945264868098049) : true));
             return new ChannelViewModel
             {
                 Name = channel is DiscordDmChannel ? channel.Name ?? string.Join(", ", ((DiscordDmChannel)channel).Recipients.Select(x => x.DisplayName)) : channel.Name,
                 Topic = channel.Topic ?? "",
                 Id = channel.Id,
-                CanTalk = channel.Guild == null || (channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages,
+                CanTalk = channel is not DiscordDmChannel dmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages) : !dmChannel.Recipients.Select(x => x.Id).ToList().Contains(643945264868098049),
                 Guild = channel.Guild != null ? GuildViewModel.FromGuild(channel.Guild) : null
             };
         }

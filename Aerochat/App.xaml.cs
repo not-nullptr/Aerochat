@@ -166,6 +166,16 @@ namespace Aerochat
                 Token = givenToken,
                 TokenType = TokenType.User,
             });
+            Discord.Client.Ready += async (_, __) =>
+            {
+                Discord.Ready = true;
+                Dispatcher.Invoke(() => {
+                    new Home().Show();
+                    Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
+                    loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
+                });
+                await Dispatcher.Invoke(() => SetStatus(status));
+            };
             try
             {
                 await Discord.Client.ConnectAsync(status: status);
@@ -173,16 +183,6 @@ namespace Aerochat
             {
                 return false;
             }
-            Discord.Client.Ready += async (_, __) =>
-            {
-                Discord.Ready = true;
-                Dispatcher.Invoke(() => { 
-                    new Home().Show();
-                    Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
-                    loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
-                });
-                Dispatcher.Invoke(() => SetStatus(status));
-            };
             // use ProtectedData to encrypt the token
             if (save)
             {
