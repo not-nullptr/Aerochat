@@ -3754,15 +3754,13 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
 
-
-
         internal async Task AcknowledgeMessageAsync(ulong msg_id, ulong channel_id)
         {
             await this.TokenSemaphore.WaitAsync().ConfigureAwait(false);
 
             var pld = new AcknowledgePayload
             {
-                Token =this.LastAckToken
+                Token = this.LastAckToken
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/{msg_id}{Endpoints.ACK}";

@@ -407,18 +407,21 @@ namespace DSharpPlus
                 cl?.Set();
         }
 
-        public Task ReconnectAsync(bool startNewSession = false)
-            => this.InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+        public async Task ReconnectAsync(bool startNewSession = false)
+        {
+            this.Configuration.AutoReconnect = true;
+            await this.InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+        }
 
         /// <summary>
         /// Disconnects from the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task DisconnectAsync()
+        public async Task DisconnectAsync(int code = 1000)
         {
             this.Configuration.AutoReconnect = false;
             if (this._webSocketClient != null)
-                await this._webSocketClient.DisconnectAsync().ConfigureAwait(false);
+                await this._webSocketClient.DisconnectAsync(code).ConfigureAwait(false);
         }
 
         #endregion
