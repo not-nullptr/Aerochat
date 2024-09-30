@@ -252,7 +252,7 @@ namespace DSharpPlus
                     break;
 
                 case GatewayOpCode.InvalidSession:
-                    await this.OnInvalidateSessionAsync((bool)payload.Data).ConfigureAwait(false);
+                    await this.OnInvalidateSessionAsync((payload.Data as JToken).ToObject<bool>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Hello:
