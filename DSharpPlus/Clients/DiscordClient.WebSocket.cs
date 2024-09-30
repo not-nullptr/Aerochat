@@ -321,7 +321,7 @@ namespace DSharpPlus
                 return;
             }
 
-            Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
+            Interlocked.Exchange(ref this._skippedHeartbeats, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 

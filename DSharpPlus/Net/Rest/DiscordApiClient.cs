@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
@@ -77,6 +78,8 @@ namespace DSharpPlus.Net
 
         private DiscordMessage PrepareMessage(JToken msg_raw)
         {
+            Debug.WriteLine(msg_raw);
+
             var author = msg_raw["author"].ToDiscordObject<TransportUser>();
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this._discord;
@@ -107,7 +110,7 @@ namespace DSharpPlus.Net
             if (ret.Channel != null)
                 return ret;
 
-            var channel = !ret._guildId.HasValue
+            var channel = !ret._guildId.HasValue 
                 ? new DiscordDmChannel
                 {
                     Id = ret.ChannelId,
