@@ -37,5 +37,12 @@ namespace Aerovoice.Timestamp
         {
             return clockFrequency;
         }
+
+        public static RTPTimestamp Decode(uint timestamp)
+        {
+            var rtpTimestamp = new RTPTimestamp(0);
+            rtpTimestamp.SetCurrentTimestamp(timestamp);
+            return rtpTimestamp;
+        }
     }
 }

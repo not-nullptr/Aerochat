@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aerovoice.Encoders
+namespace Aerobool.Interface
 {
-    public interface IEncoder : IDisposable
+    public interface IExpression
     {
-        public byte[] Encode(byte[] data);
+        public object Evaluate(object? context);
     }
 }

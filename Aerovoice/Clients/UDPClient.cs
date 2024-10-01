@@ -11,7 +11,6 @@ public class UDPClient : IDisposable
     private IPEndPoint _remoteEndPoint;
     private CancellationTokenSource _cancellationTokenSource;
 
-    // Event triggered when a message is received
     public event EventHandler<byte[]>? MessageReceived;
 
     public UDPClient(string ipAddress, int port)
@@ -21,17 +20,14 @@ public class UDPClient : IDisposable
         _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
 
         _cancellationTokenSource = new CancellationTokenSource();
-        // Start listening automatically in a background task
         StartListeningInBackground();
     }
 
-    // Send a message to the remote endpoint
     public void SendMessage(byte[] data)
     {
         _client.Send(data, data.Length);
     }
 
-    // Start listening for incoming messages in a background task
     private void StartListeningInBackground()
     {
         Task.Run(async () =>
@@ -55,13 +51,11 @@ public class UDPClient : IDisposable
         });
     }
 
-    // Method to trigger the MessageReceived event
     protected virtual void OnMessageReceived(byte[] message)
     {
         MessageReceived?.Invoke(this, message);
     }
 
-    // Stop the listener and close the UDP client
     public void Close()
     {
         _cancellationTokenSource.Cancel();

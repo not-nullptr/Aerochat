@@ -496,6 +496,7 @@ namespace Aerochat.Windows
 
                     channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
 
+                    if (channelsList.Count == 0) continue;
 
                     var guildItem = new HomeListItemViewModel
                     {

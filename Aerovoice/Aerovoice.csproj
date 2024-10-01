@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Concentus" Version="2.2.2" />
+    <PackageReference Include="Concentus.Oggfile" Version="1.0.6" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="OpusDotNet" Version="1.0.3" />
     <PackageReference Include="ppy.SDL2-CS" Version="1.0.82" />

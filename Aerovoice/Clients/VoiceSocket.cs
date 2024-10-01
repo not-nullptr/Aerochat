@@ -23,6 +23,7 @@ using Aerovoice.Logging;
 using Aerovoice.Recorders;
 using Aerovoice.Encoders;
 using Aerovoice.Timestamp;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Aerovoice.Clients
 {
@@ -149,6 +150,11 @@ namespace Aerovoice.Clients
             }
         }
 
+        private readonly SortedList<uint, byte[]> _packetBuffer = new();
+        private readonly object _bufferLock = new();
+        private uint _lastPlayedTimestamp = 0;
+        private const int BUFFER_THRESHOLD = 5;
+
         private async Task UdpClient_MessageReceived(object? sender, byte[] e)
         {
             byte packetType = e[1];
@@ -190,23 +196,57 @@ namespace Aerovoice.Clients
                     Recorder.Start();
                     break;
                 }
-                case 0x78: // voice data
+                case 0x78:
                 {
                     // TODO: thread manager where each user gets one thread
                     await Task.Run(() =>
                     {
                         if (cryptor is null || _secretKey is null) return;
-                        byte[] decryptedData = [];
-                        decryptedData = cryptor.Decrypt(e, _secretKey);
-                        if (decryptedData.Length == 0) return;
-                        // ssrc is at offset 4 and is a 4 byte (32 bit) unsigned big-endian integer
-                        var ssrc = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(8));
-                        var decoded = Decoder.Decode(decryptedData, decryptedData.Length, out int decodedLength, ssrc);
-                        Player.AddSamples(decoded, decodedLength, ssrc);
+
+                        var rtpTimestamp = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(4));
+                        lock (_bufferLock)
+                        {
+                            _packetBuffer[rtpTimestamp] = e;
+                        }
+
+                        TryProcessBufferedPackets();
                     });
                     break;
                 }
             }
+        }
+
+        private void TryProcessBufferedPackets()
+        {
+            lock (_bufferLock)
+            {
+                if (_packetBuffer.Count < BUFFER_THRESHOLD)
+                    return;
+
+                foreach (var key in _packetBuffer.Keys.ToList())
+                {
+                    if (key > _lastPlayedTimestamp)
+                    {
+                        byte[] packet = _packetBuffer[key];
+                        _packetBuffer.Remove(key);
+                        _lastPlayedTimestamp = key;
+
+                        ProcessPacket(packet);
+                    }
+                }
+            }
+        }
+
+        private void ProcessPacket(byte[] e)
+        {
+            var ssrc = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(8));
+
+            byte[] decryptedData = cryptor.Decrypt(e, _secretKey);
+            if (decryptedData.Length == 0) return;
+            // read ushort increment, 2 bytes in
+            ushort increment = BinaryPrimitives.ReadUInt16BigEndian(e.AsSpan(2));
+            var decoded = Decoder.Decode(decryptedData, decryptedData.Length, out int decodedLength, ssrc, increment);
+            Player.AddSamples(decoded, decodedLength, ssrc);
         }
 
         public BaseCrypt GetPreferredEncryption()
@@ -449,6 +489,7 @@ namespace Aerovoice.Clients
             UdpClient?.Dispose();
             Recorder?.Dispose();
             _timer.Dispose();
+            Encoder?.Dispose();
         }
     }
 }

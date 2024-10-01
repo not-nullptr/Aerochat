@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,11 +15,11 @@ namespace Aerovoice.Logging
             string fileName = Path.GetFileName(filePath);
             // on the same line, before the message, print [Aerovoice] in blue
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[Aerovoice] ");
+            Debug.Write("[Aerovoice] ");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write($"[{fileName}:{lineNumber}] ");
+            Debug.Write($"[{fileName}:{lineNumber}] ");
             Console.ResetColor();
-            Console.WriteLine($"{message}");
+            Debug.WriteLine($"{message}");
         }
     }
 }

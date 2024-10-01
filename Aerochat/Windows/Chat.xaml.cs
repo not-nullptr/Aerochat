@@ -261,12 +261,13 @@ namespace Aerochat.Windows
 
         public void UpdateChannelListerReadReciepts()
         {
+            var categories = ViewModel.Categories.ToList();
             Task.Run(() =>
             {
                 bool isDM = Channel is DiscordDmChannel;
                 if (isDM) return;
 
-                foreach (var category in ViewModel.Categories)
+                foreach (var category in categories)
                 {
                     foreach (var item in category.Items)
                     {
@@ -318,7 +319,6 @@ namespace Aerochat.Windows
                     }
                 }
 
-                // Use Dispatcher to modify the ViewModel on the UI thread
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var items = ViewModel.Categories.ToList();

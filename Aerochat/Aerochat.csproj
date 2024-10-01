@@ -28,6 +28,9 @@
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
 		<None Remove="Resources\bg-1.png" />
+		<None Remove="Resources\BoolEditor\Class.png" />
+		<None Remove="Resources\BoolEditor\Field.png" />
+		<None Remove="Resources\BoolEditor\Namespace.png" />
 		<None Remove="Resources\Button\Disabled.png" />
 		<None Remove="Resources\Button\Focused.png" />
 		<None Remove="Resources\Button\Hover.png" />
@@ -289,6 +292,9 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Resources\BoolEditor\Class.png" />
+		<Resource Include="Resources\BoolEditor\Field.png" />
+		<Resource Include="Resources\BoolEditor\Namespace.png" />
 		<Resource Include="Resources\Button\Disabled.png" />
 		<Resource Include="Resources\Button\Focused.png" />
 		<Resource Include="Resources\Button\Hover.png" />
@@ -560,6 +566,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\source\repos\Aerobool\Aerobool\Aerobool.csproj" />
 	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
 	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
 	</ItemGroup>

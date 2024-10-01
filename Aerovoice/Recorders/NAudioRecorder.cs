@@ -12,7 +12,6 @@ namespace Aerovoice.Recorders
         private WaveInEvent waveInEvent = new()
         {
             WaveFormat = new WaveFormat(48000, 2),
-            // 20ms frame size, discord's default
             BufferMilliseconds = 20,
         };
 
