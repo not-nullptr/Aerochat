@@ -238,23 +238,10 @@ namespace Aerochat.Controls
         // the hwnd of the last window that displayed a tooltip
         private static IntPtr lastwindow;
 
-        private static bool _tooltipVisible = false;
-
-        private DependencyObject? _lastPlacementTarget = null;
-
         public NativeToolTipControl() : base()
         {
-            //Debug.WriteLine("constructing NativeToolTipControl");
             Opened += NativeToolTipControl_Opened;
             Closed += NativeToolTipControl_Closed;
-
-            //if (PlacementTarget != null)
-            //{
-            //    ToolTipService.AddToolTipOpeningHandler(PlacementTarget, (object sender, ToolTipEventArgs e) =>
-            //    {
-            //        Debug.WriteLine("OPEN FROM SELF");
-            //    });
-            //}
 
             Visibility = Visibility.Collapsed;
         }
@@ -266,56 +253,10 @@ namespace Aerochat.Controls
 
             SendToolTipMessage(ToolTipMessages.TTM_POP, IntPtr.Zero, IntPtr.Zero);
             SendToolTipMessage(ToolTipMessages.TTM_ACTIVATE, IntPtr.Zero, IntPtr.Zero);
-
-            _tooltipVisible = false;
-
-            //if (_tooltipVisible)
-            //{
-            //    OnClosed(new RoutedEventArgs(ClosedEvent, this));
-            //    _tooltipVisible = false;
-            //}
-        }
-
-        public static void OpenFucker(NativeToolTipControl tooltip)
-        {
-            Debug.WriteLine(DateTime.Now + ": opened");
-            tooltip.ChangeToolTip();
-
-            string text = tooltip.Content as string;
-
-            if (text == null)
-            {
-                return;
-            }
-
-            if (tooltip.Placement == PlacementMode.Mouse)
-            {
-                if (_ti.lpszText != text)
-                {
-                    _ti.lpszText = text;
-
-                    Marshal.StructureToPtr(_ti, _pti, true);
-                    SendToolTipMessage(ToolTipMessages.TTM_UPDATETIPTEXTW, IntPtr.Zero, _pti);
-                }
-
-                SendToolTipMessage(ToolTipMessages.TTM_ACTIVATE, new IntPtr(1), IntPtr.Zero);
-                SendToolTipMessage(ToolTipMessages.TTM_POPUP, IntPtr.Zero, IntPtr.Zero);
-
-                //if (!_tooltipVisible)
-                //{
-                //    OnOpened(new RoutedEventArgs(OpenedEvent, this));
-                //    _tooltipVisible = true;
-                //}
-            }
-            else
-            {
-                throw new NotImplementedException("Placement mode must be 'Mouse'. Was: " + tooltip.Placement);
-            }
         }
 
         private void NativeToolTipControl_Opened(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine(DateTime.Now + ": opened");
             ChangeToolTip();
 
             string text = Content as string;
@@ -337,12 +278,6 @@ namespace Aerochat.Controls
 
                 SendToolTipMessage(ToolTipMessages.TTM_ACTIVATE, new IntPtr(1), IntPtr.Zero);
                 SendToolTipMessage(ToolTipMessages.TTM_POPUP, IntPtr.Zero, IntPtr.Zero);
-
-                //if (!_tooltipVisible)
-                //{
-                //    OnOpened(new RoutedEventArgs(OpenedEvent, this));
-                //    _tooltipVisible = true;
-                //}
             }
             else
             {
@@ -380,15 +315,7 @@ namespace Aerochat.Controls
         static NativeToolTipControl()
         {
             ToolTipProperty = DependencyProperty.RegisterAttached("ToolTip", typeof(string), typeof(NativeToolTipControl), new PropertyMetadata(null, ToolTipPropertyChangedCallback));
-            //IsOpenProperty.OverrideMetadata(typeof(NativeToolTipControl), new SingleFrameworkPropertyMetadata(OnIsOpenedChanged));
-            IsOpenProperty.OverrideMetadata(typeof(NativeToolTipControl), new FrameworkPropertyMetadata(OnIsOpenedChanged));
             ContentProperty.OverrideMetadata(typeof(NativeToolTipControl), new FrameworkPropertyMetadata(OnContentChanged));
-            PlacementTargetProperty.OverrideMetadata(
-                typeof(NativeToolTipControl),
-                new FrameworkPropertyMetadata(OnPlacementTargetChanged)
-            );
-
-            //VisibilityProperty.OverrideMetadata(typeof(NativeToolTipControl), new FrameworkPropertyMetadata(() => { }));
         }
 
         public static void Destroy()
@@ -484,37 +411,6 @@ namespace Aerochat.Controls
             SendMessage(_tooltipWindow, (uint)message, wParam, lParam);
         }
 
-        private static void OnPlacementTargetChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
-        {
-            NativeToolTipControl tooltip = dependencyObject as NativeToolTipControl;
-
-            if (tooltip == null) return;
-
-            Debug.WriteLine("Setting placement target");
-
-            if (args.OldValue == args.NewValue)
-            {
-                return;
-            }
-
-            if (args.OldValue != null)
-            {
-                Debug.WriteLine("Old value was set; removing old handler");
-                ToolTipService.RemoveToolTipOpeningHandler((DependencyObject)args.OldValue, OnToolTipOpening);
-            }
-
-            if (args.NewValue != null)
-            {
-                Debug.WriteLine("New value is not null; adding new handler");
-                ToolTipService.AddToolTipOpeningHandler((DependencyObject)args.NewValue, OnToolTipOpening);
-            }
-        }
-
-        private static void OnToolTipOpening(object sender, ToolTipEventArgs e)
-        {
-            Debug.WriteLine("OPEN FROM SELF");
-        }
-
         private static void OnContentChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
             NativeToolTipControl tooltip = dependencyObject as NativeToolTipControl;
@@ -530,93 +426,6 @@ namespace Aerochat.Controls
             Marshal.StructureToPtr(_ti, _pti, true);
             SendToolTipMessage(ToolTipMessages.TTM_UPDATETIPTEXTW, IntPtr.Zero, _pti);
         }
-
-        private static void OnIsOpenedChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
-        {
-            //NativeToolTipControl tooltip = dependencyObject as NativeToolTipControl;
-
-            //Debug.WriteLine(DateTime.Now + ": OnIsOpenedChange");
-            ////Debug.WriteLine(DateTime.Now + ": " + new System.Diagnostics.StackTrace().ToString());
-
-            //if (tooltip == null) return;
-
-            //string text = tooltip.Content as string;
-
-            //Debug.WriteLine(DateTime.Now + ": " + text);
-
-            //Window parentWindow = FindParent(tooltip.PlacementTarget, typeof(Window)) as Window;
-            //IntPtr handle = new WindowInteropHelper(parentWindow).Handle;
-
-            //if (!added)
-            //{
-            //    Add(handle);
-            //}
-            //else if (lastwindow != handle)
-            //{
-            //    Update(handle);
-            //}
-
-            //lastwindow = handle;
-
-            //Debug.WriteLine("Tooltip is " + (_tooltipVisible ? "visible" : "invisible"));
-
-            //if ((bool)e.NewValue && !string.IsNullOrWhiteSpace(text))
-            //{
-            //    if (tooltip.Placement == PlacementMode.Mouse)
-            //    {
-            //        if (_ti.lpszText != text)
-            //        {
-            //            _ti.lpszText = text;
-
-            //            Marshal.StructureToPtr(_ti, _pti, true);
-            //            SendToolTipMessage(ToolTipMessages.TTM_UPDATETIPTEXTW, IntPtr.Zero, _pti);
-            //        }
-
-            //        SendToolTipMessage(ToolTipMessages.TTM_ACTIVATE, new IntPtr(1), IntPtr.Zero);
-            //        SendToolTipMessage(ToolTipMessages.TTM_POPUP, IntPtr.Zero, IntPtr.Zero);
-
-            //        _tooltipVisible = true;
-            //    }
-            //    else
-            //    {
-            //        throw new NotImplementedException("Placement mode must be 'Mouse'. Was: " + tooltip.Placement);
-            //    }
-            //}
-            ////else if (_tooltipVisible)
-            ////{
-            ////    // TODO(VERY IMPORTANT): Tooltips freeze GUI when switching from one to the other because of closing.
-            ////    // To avoid this, detect this state(how ?)
-
-            ////    SendToolTipMessage(ToolTipMessages.TTM_POP, IntPtr.Zero, IntPtr.Zero);
-            ////    SendToolTipMessage(ToolTipMessages.TTM_ACTIVATE, IntPtr.Zero, IntPtr.Zero);
-
-            ////    _tooltipVisible = false;
-            ////}
-        }
-
-        ///// <summary>
-        ///// Gets the list of routed event handlers subscribed to the specified routed event.
-        ///// </summary>
-        ///// <param name="element">The UI element on which the event is defined.</param>
-        ///// <param name="routedEvent">The routed event for which to retrieve the event handlers.</param>
-        ///// <returns>The list of subscribed routed event handlers.</returns>
-        //public static RoutedEventHandlerInfo[] GetRoutedEventHandlers(UIElement element, RoutedEvent routedEvent)
-        //{
-        //    // Get the EventHandlersStore instance which holds event handlers for the specified element.
-        //    // The EventHandlersStore class is declared as internal.
-        //    var eventHandlersStoreProperty = typeof(UIElement).GetProperty(
-        //        "EventHandlersStore", BindingFlags.Instance | BindingFlags.NonPublic);
-        //    object eventHandlersStore = eventHandlersStoreProperty.GetValue(element, null);
-
-        //    // Invoke the GetRoutedEventHandlers method on the EventHandlersStore instance 
-        //    // for getting an array of the subscribed event handlers.
-        //    var getRoutedEventHandlers = eventHandlersStore.GetType().GetMethod(
-        //        "GetRoutedEventHandlers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        //    var routedEventHandlers = (RoutedEventHandlerInfo[])getRoutedEventHandlers.Invoke(
-        //        eventHandlersStore, new object[] { routedEvent });
-
-        //    return routedEventHandlers;
-        //}
 
         public static UIElement FindParent(UIElement uieSearchStart, Type t)
         {
@@ -654,27 +463,6 @@ namespace Aerochat.Controls
             if (parent != null) return (UIElement)parent;
             if (logicalparent != null) return (UIElement)logicalparent;
             return null;
-        }
-    }
-
-    public class SingleFrameworkPropertyMetadata : FrameworkPropertyMetadata
-    {
-        public SingleFrameworkPropertyMetadata(PropertyChangedCallback propertyChangedCallback)
-            : base(propertyChangedCallback)
-        {
-        }
-
-        protected override void Merge(PropertyMetadata baseMetadata, DependencyProperty dp)
-        {
-            base.Merge(baseMetadata, dp);
-
-            PropertyChangedCallback = GetLast(PropertyChangedCallback);
-        }
-
-        private static PropertyChangedCallback GetLast(PropertyChangedCallback callback)
-        {
-            Delegate[] delegates = callback.GetInvocationList();
-            return (PropertyChangedCallback)delegates[delegates.Length - 1];
         }
     }
 }
