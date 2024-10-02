@@ -27,6 +27,9 @@
 		<None Remove="Ads\Ads.xml" />
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
+		<None Remove="Resources\AttachmentsEditor\ItemBgHover.png" />
+		<None Remove="Resources\AttachmentsEditor\ItemBgKeyFocused.png" />
+		<None Remove="Resources\AttachmentsEditor\ItemBgSelected.png" />
 		<None Remove="Resources\bg-1.png" />
 		<None Remove="Resources\BoolEditor\Class.png" />
 		<None Remove="Resources\BoolEditor\Field.png" />
@@ -295,6 +298,9 @@
 		<Resource Include="Resources\BoolEditor\Class.png" />
 		<Resource Include="Resources\BoolEditor\Field.png" />
 		<Resource Include="Resources\BoolEditor\Namespace.png" />
+		<Resource Include="Resources\AttachmentsEditor\ItemBgHover.png" />
+		<Resource Include="Resources\AttachmentsEditor\ItemBgKeyFocused.png" />
+		<Resource Include="Resources\AttachmentsEditor\ItemBgSelected.png" />
 		<Resource Include="Resources\Button\Disabled.png" />
 		<Resource Include="Resources\Button\Focused.png" />
 		<Resource Include="Resources\Button\Hover.png" />
@@ -562,16 +568,38 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controls\NativeToolTipControlService.cs" />
+	  <Compile Remove="Controls\NativeTooltipOld.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\source\repos\Aerobool\Aerobool\Aerobool.csproj" />
+	  <ProjectReference Include="..\Aerobool\Aerobool\Aerobool.csproj" />
 	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
 	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Controls\NativeToolTipControlService.cs" />
+	  <None Include="Controls\NativeTooltipOld.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+		  <Generator>SettingsSingleFileGenerator</Generator>
+		  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
 		<None Update="Resources\Sounds\newalert.wav">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
