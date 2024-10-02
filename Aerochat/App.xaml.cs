@@ -106,6 +106,14 @@ namespace Aerochat
                 { UserStatus.Invisible,     new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Tray/Offline.ico")) },
                 { UserStatus.Offline,       new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Tray/Offline.ico")) },
             };
+
+            if (true) // debug
+            {
+                DebugWindow debugWindow = new DebugWindow();
+                debugWindow.ShowDialog();
+                return;
+            }
+
             var assembly = Assembly.GetExecutingAssembly();
             string resourceName = "Aerochat.Scenes.Scenes.xml";
             using Stream stream = assembly.GetManifestResourceStream(resourceName);

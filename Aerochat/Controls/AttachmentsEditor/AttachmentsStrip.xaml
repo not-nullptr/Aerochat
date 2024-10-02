@@ -1,0 +1,114 @@
+﻿<UserControl x:Class="Aerochat.Controls.AttachmentsEditor.AttachmentsStrip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Aerochat.Controls.AttachmentsEditor"
+             xmlns:converter="clr-namespace:Aerochat.Converter"
+             xmlns:controls="clr-namespace:Aerochat.Controls"
+             xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
+             xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             d:DataContext="{d:DesignInstance Type=viewmodels:AttachmentsEditorViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converter:OnlyIfKeyboardMostRecentInputDeviceConverter x:Key="OnlyIfKeyboardMostRecentInputDevice" />
+        
+        <Style x:Key="ButtonStyle" TargetType="controls:NineSlice">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsKeyboardFocused, Converter={StaticResource OnlyIfKeyboardMostRecentInputDevice}, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgKeyFocused.png" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgHover.png" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
+                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgSelected.png" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <local:StripItemTemplateSelector x:Key="StripItemTemplateSelector" />
+
+        <DataTemplate x:Key="ImageItemContent" DataType="{x:Type viewmodels:AttachmentsEditorItem}">
+            <Grid Width="48" Height="48">
+                <Image Source="{Binding BitmapSource}" Width="Auto" Height="Auto" SnapsToDevicePixels="True" Stretch="Uniform" StretchDirection="DownOnly" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- File items -->
+        <DataTemplate x:Key="FileItemContent" DataType="{x:Type viewmodels:AttachmentsEditorItem}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+
+                <Image Grid.Row="0" Source="{Binding BitmapSource}" Width="32" Height="32" SnapsToDevicePixels="True" Stretch="Uniform" StretchDirection="DownOnly" />
+                <TextBlock Grid.Row="1" Text="{Binding Path=FileName}" TextTrimming="WordEllipsis" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer x:Name="PART_ScrollbarViewer"
+                      HorizontalScrollBarVisibility="{Binding Path=HorizontalScrollbarVisibility}" 
+                      VerticalScrollBarVisibility="{Binding Path=VerticalScrollbarVisibility}"
+                      IsTabStop="False"
+                      local:ScrollViewerHelper.ScrollWheelScrollsHorizontally="{Binding Horizontal}">
+            <ItemsControl ItemsSource="{Binding Path=Attachments, Mode=OneWay}" IsTabStop="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel x:Name="PART_StackPanel" Orientation="{Binding Path=DataContext.ItemViewOrientation, RelativeSource={RelativeSource AncestorType=local:AttachmentsStrip}}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:AttachmentsEditorItem}">
+                        <Grid>
+                            <RadioButton Height="60" Width="60"
+                                         Name="ItemButton"
+                                         GroupName="Items"
+                                         VerticalContentAlignment="Center"
+                                         HorizontalContentAlignment="Center"
+                                         Padding="3"
+                                         Margin="0"
+                                         Style="{StaticResource {x:Type ToggleButton}}"
+                                         ToolTipService.InitialShowDelay="250"
+                                         IsChecked="{Binding Path=Selected}"
+                                         DataContext="{Binding}"
+                                         Click="RadioButton_Click">
+                                <RadioButton.ToolTip>
+                                    <controls:NativeToolTipControl Name="Tooltip" Content="{Binding Path=FileName}" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" />
+                                    <!--<ToolTip Content="{Binding FileName}" />-->
+                                </RadioButton.ToolTip>
+
+                                <RadioButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ButtonBase}">
+                                        <Grid SnapsToDevicePixels="True">
+                                            <controls:NineSlice Style="{StaticResource ButtonStyle}" IsTabStop="False" />
+                                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                RecognizesAccessKey="True"
+                                                SnapsToDevicePixels="True" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </RadioButton.Template>
+
+                                <ContentControl Content="{Binding}"
+                                                ContentTemplateSelector="{DynamicResource StripItemTemplateSelector}" />
+                            </RadioButton>
+                            <Popup Name="ItemMiniEditor" IsOpen="{Binding Selected}" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=ItemButton}" SnapsToDevicePixels="True">
+                                <local:AttachmentsTinyEditor DataContext="{Binding}" />
+                            </Popup>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

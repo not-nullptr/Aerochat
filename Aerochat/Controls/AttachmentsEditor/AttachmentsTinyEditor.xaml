@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="Aerochat.Controls.AttachmentsEditor.AttachmentsTinyEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Controls.AttachmentsEditor"
+        xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:AttachmentsEditorItem}"
+        mc:Ignorable="d"
+        Height="253" Width="483"
+        UseLayoutRounding="True"
+        BorderBrush="#DEDEDE"
+        BorderThickness="1px"
+        Background="White">
+    <StackPanel Panel.ZIndex="5">
+        <StackPanel Margin="6, 6, 6, 6" >
+            <StackPanel Orientation="Horizontal">
+                <Label Grid.Column="1" Content="{Binding FileName}" FontWeight="Bold" Padding="0" />
+                <Label Grid.Column="1" ContentStringFormat="({0})" Content="{Binding FileSize}" FontWeight="Normal" Foreground="#999" Padding="6px 0" />
+            </StackPanel>
+            <Border Width="Auto" BorderBrush="#DEDEDE" Margin="0 6px 0 0" BorderThickness="0 0 0 1px" />
+        </StackPanel>
+
+        <Grid Margin="6, 6, 6, 6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Width="48" Height="48">
+                <Image Source="{Binding BitmapSource}" Width="Auto" Height="Auto" SnapsToDevicePixels="True" Stretch="Uniform" StretchDirection="DownOnly" />
+            </Grid>
+        </Grid>
+    </StackPanel>
+</UserControl>
