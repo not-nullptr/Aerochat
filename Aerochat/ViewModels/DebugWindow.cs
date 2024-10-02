@@ -10,6 +10,11 @@ namespace Aerochat.ViewModels
 {
     public class DebugWindowViewModel : ViewModelBase
     {
-        public ObservableCollection<AeroboolTreeItemViewModel> AeroboolTreeItems { get; } = [];
+        private UserStatus _userStatus = UserStatus.Online;
+        public UserStatus UserStatus
+        {
+            get => _userStatus;
+            set => SetProperty(ref _userStatus, value);
+        }
     }
 }

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus", "DSP\DSharpPlu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aerovoice", "Aerovoice\Aerovoice.csproj", "{50C0B630-7CC9-4516-9C7C-2445EAB385F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aerobool", "..\source\repos\Aerobool\Aerobool\Aerobool.csproj", "{12AF7BB0-F546-45E5-9D1F-C69E76696774}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aerobool", "Aerobool\Aerobool\Aerobool.csproj", "{12AF7BB0-F546-45E5-9D1F-C69E76696774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
