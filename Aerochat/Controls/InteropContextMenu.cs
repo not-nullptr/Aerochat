@@ -29,7 +29,6 @@ namespace Aerochat.Controls
         public string Header { get; set; } = string.Empty;
         public ICommand? Command { get; set; }
         public List<InteropMenuItem> SubMenuItems { get; set; } = new List<InteropMenuItem>();
-
         public bool HasSubMenu => SubMenuItems.Count > 0;
     }
     public class InteropContextMenu : UserControl
