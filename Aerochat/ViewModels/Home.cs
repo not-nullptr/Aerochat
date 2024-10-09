@@ -1,4 +1,5 @@
 ﻿using Aerochat.Theme;
+using Aerochat.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -29,7 +30,7 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _currentUser, value);
         }
 
-        public ObservableCollection<HomeListViewCategory> Categories { get; } = new();
+        public ObservableCollection<ICategory> Categories { get; } = new();
 
         private AdViewModel _ad = new();
         public AdViewModel Ad

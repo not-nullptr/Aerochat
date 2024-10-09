@@ -51,7 +51,7 @@ namespace Aerochat.Controls
             DependencyProperty.Register(nameof(OpenOn), typeof(EOpenOn), typeof(InteropContextMenu), new PropertyMetadata(EOpenOn.RightClick));
 
         public static readonly DependencyProperty OpenToBottomProperty =
-            DependencyProperty.Register(nameof(OpenToBottom), typeof(bool), typeof(InteropContextMenu), new PropertyMetadata(true));
+            DependencyProperty.Register(nameof(OpenToBottom), typeof(bool), typeof(InteropContextMenu), new PropertyMetadata(false));
 
         public static readonly DependencyPropertyKey IsOpenPropertyKey =
             DependencyProperty.RegisterReadOnly(nameof(IsOpen), typeof(bool), typeof(InteropContextMenu), new PropertyMetadata(false));
@@ -97,6 +97,7 @@ namespace Aerochat.Controls
             PreviewMouseRightButtonUp += OnRightClick;
             PreviewMouseLeftButtonUp += OnLeftClick;
             Loaded += InteropContextMenu_Loaded;
+            ContextMenuItems = new();
         }
 
         private void OnLeftClick(object sender, MouseButtonEventArgs e)

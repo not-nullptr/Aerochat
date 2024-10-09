@@ -1,0 +1,66 @@
+﻿<Page x:Class="Aerochat.Pages.Wizard.WizardCategoryCreationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Aerochat.Pages.Wizard" xmlns:controls="clr-namespace:Aerochat.Controls" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=local:WizardCategoryCreationPage}"
+      mc:Ignorable="d" 
+      d:DesignHeight="376" d:DesignWidth="570"
+      Background="White"
+      UseLayoutRounding="True"
+      Title="Home">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Margin="38,20" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock TextWrapping="Wrap" Grid.Row="0" Foreground="#003399" FontSize="15.5" Text="Create a new category" />
+                <TextBlock x:Name="Description" Margin="0,0,0,16" TextWrapping="Wrap" Grid.Row="1" Text="Write a lambda which returns true if the item should be shown, and false if it shouldn't. The list on the right shows all filtered channels." />
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border BorderBrush="#828790" BorderThickness="1">
+                            <TextBox BorderThickness="0" Margin="0,0,16,0" TextChanged="CodeBox_TextChanged" x:Name="CodeBox" HorizontalScrollBarVisibility="Hidden" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="15" AcceptsReturn="True" AcceptsTab="True" />
+                        </Border>
+                        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Hidden" Margin="4,0,0,0" Grid.Column="1" x:Name="PreviewShownItems">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                    <TextBlock TextWrapping="Wrap" Grid.Row="1" x:Name="Feedback" Margin="0,12,0,0" />
+                </Grid>
+            </Grid>
+        </Grid>
+        <Border Grid.Row="2" Background="#f0f0f0" BorderThickness="0,1,0,0" BorderBrush="#dfdfdf">
+            <Grid Margin="12,0" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1" x:Name="Continue" Click="Continue_Click" Height="22" MinWidth="72" Content="Continue" />
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

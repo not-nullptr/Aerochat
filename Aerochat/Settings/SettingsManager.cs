@@ -1,12 +1,80 @@
-﻿using Aerochat.ViewModels;
+﻿using Aerochat.Pages.Wizard;
+using Aerochat.ViewModels;
+using DSharpPlus.Entities;
 using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 
 namespace Aerochat.Settings
 {
+    public enum CategoryLambdaType
+    {
+        DM,
+        Guild
+    }
+
+    public class CategoryLambda
+    {
+        private void Recompile()
+        {
+            if (_lambda == null) return;
+            var config = new ParsingConfig
+            {
+                CustomTypeProvider = new ProvideAllTypesProvider()
+            };
+            if (_type == CategoryLambdaType.DM)
+            {
+                ParameterExpression channelExpression = Expression.Parameter(typeof(DiscordChannel), "channel");
+                LambdaExpression lambda = DynamicExpressionParser.ParseLambda(config, [channelExpression], typeof(bool), Lambda);
+                var compiled = lambda.Compile();
+                _compiledLambda = compiled;
+            } else
+            {
+                ParameterExpression guildExpression = Expression.Parameter(typeof(DiscordGuild), "guild");
+                LambdaExpression lambda = DynamicExpressionParser.ParseLambda(config, [guildExpression], typeof(bool), Lambda);
+                var compiled = lambda.Compile();
+                _compiledLambda = compiled;
+            }
+        }
+
+        public Delegate? GetOrCompile()
+        {
+            if (_compiledLambda is null)
+            {
+                if (_lambda == null) return null;
+                Recompile();
+            }
+            return _compiledLambda;
+        }
+
+        private Delegate? _compiledLambda;
+        private CategoryLambdaType _type { get; set; }
+        public CategoryLambdaType Type
+        {
+            get => _type;
+            set
+            {
+                _type = value;
+                Recompile();
+            }
+        }
+        private string _lambda { get; set; }
+        public string Lambda
+        {
+            get => _lambda;
+            set
+            {
+                _lambda = value;
+                Recompile();
+            }
+        }
+        public string Name { get; set; }
+    }
+
     // decorator for settings with the category name and settings display name
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SettingsAttribute : Attribute
@@ -84,6 +152,15 @@ namespace Aerochat.Settings
         public bool WarningShown { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
         public List<ulong> ViewedNotices { get; set; } = [];
+        public List<CategoryLambda> CategoryLambdas { get; set; } = new()
+        {
+            new()
+            {
+                Name = "Conversations",
+                Type = CategoryLambdaType.DM,
+                Lambda = "true"
+            }
+        };
 
         #endregion
 

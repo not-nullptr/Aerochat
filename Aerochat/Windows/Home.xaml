@@ -32,7 +32,7 @@
             <Setter Property="Height" Value="16" />
             <Setter Property="Source" Value="/Resources/Dropdown/Dropdown.png" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsVisibleProperty}" Value="True">
+                <DataTrigger Binding="{Binding ViewModel.IsVisibleProperty}" Value="True">
                     <DataTrigger.EnterActions>
                         <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
                     </DataTrigger.EnterActions>
@@ -46,7 +46,7 @@
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}" Value="False" />
-                        <Condition Binding="{Binding Collapsed}" Value="False" />
+                        <Condition Binding="{Binding ViewModel.Collapsed}" Value="False" />
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
                         <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpanded.png" />
@@ -55,7 +55,7 @@
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsMouseOver}" Value="True" />
-                        <Condition Binding="{Binding Collapsed}" Value="False" />
+                        <Condition Binding="{Binding ViewModel.Collapsed}" Value="False" />
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
                         <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpandedHover.png" />
@@ -517,47 +517,49 @@
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
-                                            <Grid Grid.Row="0" Margin="0,0,0,2">
-                                                <controls:NineSlice Slice="4,4">
-                                                    <controls:NineSlice.Style>
-                                                        <Style TargetType="controls:NineSlice">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                    <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                    <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
-                                                                </DataTrigger>
-                                                                <MultiDataTrigger>
-                                                                    <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
-                                                                        <Condition Binding="{Binding IsSelected}" Value="True" />
-                                                                    </MultiDataTrigger.Conditions>
-                                                                    <MultiDataTrigger.Setters>
-                                                                        <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
-                                                                    </MultiDataTrigger.Setters>
-                                                                </MultiDataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </controls:NineSlice.Style>
-                                                </controls:NineSlice>
-                                                <Grid Height="24" PreviewMouseDown="ItemClick">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="12" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
-                                                    <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
-                                                        <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#355a88" />
+                                            <controls:InteropContextMenu Grid.Row="0" Margin="0,0,0,2" OpenOn="None" PreviewMouseRightButtonUp="InteropContextMenu_PreviewMouseRightButtonUp">
+                                                <Grid>
+                                                    <controls:NineSlice Slice="4,4">
+                                                        <controls:NineSlice.Style>
+                                                            <Style TargetType="controls:NineSlice">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
+                                                                        <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding ViewModel.IsSelected}" Value="True">
+                                                                        <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                    </DataTrigger>
+                                                                    <MultiDataTrigger>
+                                                                        <MultiDataTrigger.Conditions>
+                                                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
+                                                                            <Condition Binding="{Binding ViewModel.IsSelected}" Value="True" />
+                                                                        </MultiDataTrigger.Conditions>
+                                                                        <MultiDataTrigger.Setters>
+                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                        </MultiDataTrigger.Setters>
+                                                                    </MultiDataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </controls:NineSlice.Style>
+                                                    </controls:NineSlice>
+                                                    <Grid Height="24" PreviewMouseDown="ItemClick">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="12" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
+                                                        <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
+                                                            <TextBlock Text="{Binding ViewModel.Name}" FontSize="15" Foreground="#355a88" />
+                                                        </Grid>
                                                     </Grid>
                                                 </Grid>
-                                            </Grid>
+                                            </controls:InteropContextMenu>
                                             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="1">
                                                 <Grid.Style>
                                                     <Style TargetType="Grid">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Collapsed}" Value="False">
+                                                            <DataTrigger Binding="{Binding ViewModel.Collapsed}" Value="False">
                                                                 <Setter Property="Visibility" Value="Visible" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -568,7 +570,7 @@
                                                         <Style TargetType="Grid">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Items.Count}" Value="0">
+                                                                <DataTrigger Binding="{Binding ViewModel.Items.Count}" Value="0">
                                                                     <Setter Property="Visibility" Value="Visible" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
@@ -576,7 +578,7 @@
                                                     </Grid.Style>
                                                     <TextBlock Margin="20,0,0,2" Opacity="0.5" Text="There are no items in this category." />
                                                 </Grid>
-                                                <ItemsControl ItemsSource="{Binding Items}" Margin="0,-2,0,0">
+                                                <ItemsControl ItemsSource="{Binding ViewModel.Items}" Margin="0,-2,0,0">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">

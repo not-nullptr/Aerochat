@@ -14,6 +14,7 @@
 		<NuGetAudit>false</NuGetAudit>
 		<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,14 +29,13 @@
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
 		<None Remove="Resources\bg-1.png" />
-		<None Remove="Resources\BoolEditor\Class.png" />
-		<None Remove="Resources\BoolEditor\Field.png" />
-		<None Remove="Resources\BoolEditor\Namespace.png" />
 		<None Remove="Resources\Button\Disabled.png" />
 		<None Remove="Resources\Button\Focused.png" />
 		<None Remove="Resources\Button\Hover.png" />
 		<None Remove="Resources\Button\Normal.png" />
 		<None Remove="Resources\Button\Pressed.png" />
+		<None Remove="Resources\CategoryWizard\Back.png" />
+		<None Remove="Resources\CategoryWizard\Icon.png" />
 		<None Remove="Resources\ChangeScene\Active.png" />
 		<None Remove="Resources\ChangeScene\Background.png" />
 		<None Remove="Resources\ChangeScene\Bottom.png" />
@@ -292,14 +292,13 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
-		<Resource Include="Resources\BoolEditor\Class.png" />
-		<Resource Include="Resources\BoolEditor\Field.png" />
-		<Resource Include="Resources\BoolEditor\Namespace.png" />
 		<Resource Include="Resources\Button\Disabled.png" />
 		<Resource Include="Resources\Button\Focused.png" />
 		<Resource Include="Resources\Button\Hover.png" />
 		<Resource Include="Resources\Button\Normal.png" />
 		<Resource Include="Resources\Button\Pressed.png" />
+		<Resource Include="Resources\CategoryWizard\Back.png" />
+		<Resource Include="Resources\CategoryWizard\Icon.png" />
 		<Resource Include="Resources\Emoji\Angel.png" />
 		<Resource Include="Resources\Emoji\Anger.png" />
 		<Resource Include="Resources\Emoji\Bat.png" />
@@ -502,6 +501,7 @@
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.5" />
 		<PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.0.3" />
 		<PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.3" />
 		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.3" />
@@ -566,9 +566,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\source\repos\Aerobool\Aerobool\Aerobool.csproj" />
 	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
 	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\Wizard\WizardCategoryCreationPage.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="Pages\Wizard\WizardChooseNamePage.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="Pages\Wizard\WizardServerOrDMPage.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>

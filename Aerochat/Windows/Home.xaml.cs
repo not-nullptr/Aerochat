@@ -1,4 +1,6 @@
-﻿using Aerochat.Hoarder;
+﻿using Aerochat.Controls;
+using Aerochat.Hoarder;
+using Aerochat.Pages.Wizard;
 using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.ViewModels;
@@ -6,10 +8,13 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -22,14 +27,219 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using System.Xml.Linq;
+using Vanara.PInvoke;
 using static Aerochat.ViewModels.HomeListViewCategory;
+using static Vanara.PInvoke.Shell32;
 using static Vanara.PInvoke.User32;
+using Expression = System.Linq.Expressions.Expression;
 using Image = System.Windows.Controls.Image;
 using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
+
+    public interface ICategory
+    {
+        public HomeListViewCategory ViewModel { get; }
+        public void Hydrate();
+    }
+
+    public class DMCategory : ICategory
+    {
+        public HomeListViewCategory ViewModel { get; } = new();
+        public Delegate Lambda { get; set; }
+        public DMCategory(string name, Delegate lambda)
+        {
+            ViewModel.Name = name;
+            Lambda = lambda;
+            Hydrate();
+        }
+        // the hydrate method actually uses a super cool optimization, check it out!
+        public void Hydrate()
+        {
+            List<HomeListItemViewModel> scratch = new(); 
+            _ = Task.Run(async () =>
+            {
+                var dms = Discord.Client.PrivateChannels.Values.Where(x => (bool)(Lambda.DynamicInvoke(x) ?? false));
+                dms = dms.OrderByDescending(x => x.LastMessageId);
+
+                foreach (var dm in dms)
+                {
+                    var item = new HomeListItemViewModel
+                    {
+                        Name = dm.Name ?? dm.Recipients.Select(x => x.DisplayName).Aggregate((x, y) => $"{x}, {y}"),
+                        Id = dm.Id,
+                        LastMsgId = dm.LastMessageId ?? 0,
+                        IsGroupChat = dm.Type == ChannelType.Group,
+                        RecipientCount = dm.Recipients.Count(),
+                        Presence = PresenceViewModel.FromPresence(dm.Recipients[0].Presence)
+                    };
+
+                    scratch.Add(item);
+                }
+
+                if (scratch.Count != ViewModel.Items.Count)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var selected = ViewModel.Items.FirstOrDefault(x => x.IsSelected);
+                        ViewModel.Items.Clear();
+                        foreach (var item in scratch)
+                        {
+                            ViewModel.Items.Add(item);
+                            if (item.Id == selected?.Id)
+                            {
+                                item.IsSelected = true;
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    await Application.Current.Dispatcher.BeginInvoke(
+                        DispatcherPriority.Background,
+                        () =>
+                        {
+                            // for each item, replace it with this one
+                            for (int i = 0; i < ViewModel.Items.Count; i++)
+                            {
+                                bool isSelected = ViewModel.Items[i].IsSelected;
+                                ViewModel.Items[i] = scratch[i];
+                                ViewModel.Items[i].IsSelected = isSelected;
+                            }
+                            // call property changed
+                            ViewModel.InvokePropertyChanged(nameof(ViewModel.Items));
+                        });
+                }
+            });
+        }
+    }
+
+    public class GuildCategory : ICategory
+    {
+        public HomeListViewCategory ViewModel { get; } = new();
+        public Delegate? Lambda { get; set; }
+        private long? _folderId;
+        public GuildCategory(string name, Delegate? lambda = null, long? folderId = null)
+        {
+            ViewModel.Name = name;
+            Lambda = lambda;
+            _folderId = folderId;
+            Hydrate();
+        }
+
+        public void Hydrate()
+        {
+            List<HomeListItemViewModel> scratch = new();
+
+            void AddGuild(DiscordGuild guild)
+            {
+                var channels = guild.Channels.Values;
+                List<DiscordChannel> channelsList = new();
+                foreach (var c in channels)
+                {
+                    if ((c.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels && c.Type == ChannelType.Text)
+                    {
+                        channelsList.Add(c);
+                    }
+                }
+
+                channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
+
+                if (channelsList.Count == 0) return;
+                var guildItem = new HomeListItemViewModel
+                {
+                    Name = guild.Name,
+                    Image = "/Resources/Frames/XSFrameActiveM.png",
+                    Presence = new PresenceViewModel
+                    {
+                        Presence = "",
+                        Status = "",
+                        Type = "",
+                    },
+                    IsSelected = false,
+                    LastMsgId = 0,
+                    Id = channelsList[0].Id
+                };
+
+                scratch.Add(guildItem);
+            }
+
+            _ = Task.Run(async () =>
+            {
+                if (_folderId is not null)
+                {
+                    if (_folderId == 0)
+                    {
+                        // this is the uncategorized category. get all guilds that aren't in a folder
+                        var uncategorized = Discord.Client.UserSettings.GuildFolders.Where(x => x.Id == null).SelectMany(x => x.GuildIds).ToList();
+                        foreach (var guildId in uncategorized)
+                        {
+                            Discord.Client.TryGetCachedGuild(guildId, out var guild);
+                            if (guild == null) continue;
+                            AddGuild(guild);
+                        }
+                    } else
+                    {
+                        var folder = Discord.Client.UserSettings.GuildFolders.FirstOrDefault(x => x.Id == _folderId);
+                        if (folder is null) return;
+                        foreach (var guildId in folder.GuildIds)
+                        {
+                            Discord.Client.TryGetCachedGuild(guildId, out var guild);
+                            if (guild == null) continue;
+                            AddGuild(guild);
+                        }
+                    }
+                }
+                else
+                {
+                    var guilds = Discord.Client.Guilds.Values.Where(x => (bool)(Lambda.DynamicInvoke(x) ?? false));
+                    guilds = guilds.OrderBy(x => x.Name);
+                    foreach (var guild in guilds)
+                    {
+                        AddGuild(guild);
+                    }
+                }
+
+                if (scratch.Count != ViewModel.Items.Count)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var selected = ViewModel.Items.FirstOrDefault(x => x.IsSelected);
+                        ViewModel.Items.Clear();
+                        foreach (var item in scratch)
+                        {
+                            ViewModel.Items.Add(item);
+                            if (item.Id == selected?.Id)
+                            {
+                                item.IsSelected = true;
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    await Application.Current.Dispatcher.BeginInvoke(
+                        DispatcherPriority.Background,
+                        () =>
+                        {
+                            // for each item, replace it with this one
+                            for (int i = 0; i < ViewModel.Items.Count; i++)
+                            {
+                                bool isSelected = ViewModel.Items[i].IsSelected;
+                                ViewModel.Items[i] = scratch[i];
+                                ViewModel.Items[i].IsSelected = isSelected;
+                            }
+                            // call property changed
+                            ViewModel.InvokePropertyChanged(nameof(ViewModel.Items));
+                        });
+                }
+            });
+        }
+    }
+
     public partial class Home : Window
     {
         private Dictionary<ulong, Timer> _typingTimers = new();
@@ -45,6 +255,7 @@ namespace Aerochat.Windows
             InitializeComponent();
             Dispatcher.Invoke(() =>
             {
+                SettingsManager.Instance.PropertyChanged += Instance_PropertyChanged;
                 ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
@@ -53,44 +264,35 @@ namespace Aerochat.Windows
             });
         }
 
+        private void Instance_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "CategoryLambdas")
+            {
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100);
+                    Dispatcher.Invoke(() =>
+                    {
+                        PopulateList(SettingsManager.Instance.CategoryLambdas);
+                    });
+                });
+            }
+        }
+
+        public void HydrateListView()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                foreach (var category in ViewModel.Categories)
+                {
+                    category.Hydrate();
+                }
+            });
+        }
+
         public void UpdateUnreadMessages()
         {
-            foreach (var category in ViewModel.Categories)
-            {
-                foreach (var item in category.Items)
-                {
-                    Discord.Client.TryGetCachedChannel(item.Id, out var c);
-                    if (c is null || c is DiscordDmChannel) continue;
-                    Discord.Client.TryGetCachedGuild(c.GuildId ?? 0, out var guild);
-                    if (guild is null) return;
-                    foreach (var channelId in guild.Channels)
-                    {
-                        bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(channelId.Key, out var lastReadMessageId);
-                        DateTime lastReadMessageTime;
-                        if (found)
-                        {
-                            lastReadMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastReadMessageId >> 22) + 1420070400000)).DateTime;
-                        }
-                        else
-                        {
-                            lastReadMessageTime = SettingsManager.Instance.ReadRecieptReference;
-                        }
-                        var channel = guild.Channels[channelId.Key];
-                        var lastMessageId = channel.LastMessageId;
-                        if ((channel.Type != ChannelType.Text && channel.Type != ChannelType.Announcement) || lastMessageId == null) continue;
-                        var lastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastMessageId >> 22) + 1420070400000)).DateTime;
-                        if (lastMessageTime > lastReadMessageTime)
-                        {
-                            item.Image = "/Resources/Frames/XSFrameActiveM.png";
-                            break;
-                        }
-                        else
-                        {
-                            item.Image = "/Resources/Frames/XSFrameIdleM.png";
-                        }
-                    }
-                }
-            }
+            HydrateListView();
         }
 
         private Random _random = new();
@@ -112,6 +314,40 @@ namespace Aerochat.Windows
                 }
             }
             return 0;
+        }
+
+        public void PopulateList(List<CategoryLambda> lambas)
+        {
+            var oldCats = ViewModel.Categories.ToList();
+            ViewModel.Categories.Clear();
+            foreach (var lambda in lambas)
+            {
+                var compiled = lambda.GetOrCompile();
+                if (compiled is null) continue;
+                var old = oldCats.FirstOrDefault(x => x.ViewModel.Name == lambda.Name);
+                if (lambda.Type == CategoryLambdaType.DM)
+                {
+                    ViewModel.Categories.Add(new DMCategory(lambda.Name, compiled));
+                }
+                else
+                {
+                    ViewModel.Categories.Add(new GuildCategory(lambda.Name, compiled));
+                }
+
+                ViewModel.Categories[^1].ViewModel.Collapsed = old?.ViewModel.Collapsed ?? false;
+            }
+
+            // get all guilds where folder.Id is null
+
+            var serversCategory = new GuildCategory("Servers", null, 0);
+            ViewModel.Categories.Add(serversCategory);
+
+            foreach (var folder in Discord.Client.UserSettings.GuildFolders)
+            {
+                if (folder?.Id is null) continue;
+                var category = new GuildCategory(folder.Name, null, (long)folder.Id);
+                ViewModel.Categories.Add(category);
+            }
         }
 
 
@@ -171,23 +407,10 @@ namespace Aerochat.Windows
                 ViewModel.Ad = _ads[AdIndex];
                 adTimer.Start();
 
-                ViewModel.Categories.Add(new HomeListViewCategory
-                {
-                    Name = "Conversations",
-                });
-
-                ViewModel.Categories.Add(new HomeListViewCategory
-                {
-                    Name = "Servers",
-                });
-
                 Discord.Client.PresenceUpdated += InvokeUpdateStatuses;
                 Discord.Client.ChannelCreated += ChannelCreatedEvent;
                 Discord.Client.ChannelDeleted += ChannelDeletedEvent;
                 Discord.Client.VoiceStateUpdated += VoiceStateUpdatedEvent;
-
-                UpdateStatuses();
-                AddGuilds();
 
                 Discord.Client.MessageCreated += async (s, e) =>
                 {
@@ -212,6 +435,8 @@ namespace Aerochat.Windows
 
                 _hoverTimer.Elapsed += OnTimerEnd;
                 _hoverTimer.AutoReset = false;
+
+                PopulateList(SettingsManager.Instance.CategoryLambdas);
 
                 Show();
                 Focus();
@@ -415,38 +640,7 @@ namespace Aerochat.Windows
 
         private async Task OnTyping(DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)
         {
-            var guildId = args.Channel.GuildId;
-            if (guildId is null) return;
-            var guild = Discord.Client.TryGetCachedGuild(guildId.Value, out var g) ? g : await Discord.Client.GetGuildAsync(guildId.Value);
-            if (guild is null) return;
-            HomeListItemViewModel? item = null;
-            foreach (var category in ViewModel.Categories)
-            {
-                item = category.Items.FirstOrDefault(x => guild.Channels.ContainsKey(x.Id));
-                if (item != null) break;
-            }
-            if (item is null) return;
 
-            item.Image = "/Resources/Frames/XSFrameActiveM.png";
-
-            if (_typingTimers.ContainsKey(guildId.Value))
-            {
-                _typingTimers[guildId.Value].Stop();
-                _typingTimers[guildId.Value].Start();
-            }
-            else
-            {
-                _typingTimers[guildId.Value] = new(15000);
-                _typingTimers[guildId.Value].Elapsed += (s, e) =>
-                {
-                    _typingTimers[guildId.Value].Stop();
-                    Dispatcher.Invoke(() =>
-                    {
-                        item.Image = "/Resources/Frames/XSFrameIdleM.png";
-                    });
-                };
-                _typingTimers[guildId.Value].Start();
-            }
         }
 
         private async Task ChannelDeletedEvent(DiscordClient sender, DSharpPlus.EventArgs.ChannelDeleteEventArgs args)
@@ -464,200 +658,9 @@ namespace Aerochat.Windows
             await Dispatcher.InvokeAsync(() => UpdateStatuses());
         }
 
-        private void AddGuilds()
-        {
-            // get all guilds which aren't sorted (ie not in a folder)
-            List<ulong> processedGuilds = new();
-            foreach (var folder in Discord.Client.UserSettings.GuildFolders)
-            {
-                var index = 1;
-                if (!string.IsNullOrEmpty(folder.Name))
-                {
-                    var category = new HomeListViewCategory
-                    {
-                        Name = folder.Name,
-                    };
-                    ViewModel.Categories.Add(category);
-                    index = ViewModel.Categories.IndexOf(category);
-                }
-                foreach (var guildId in folder.GuildIds)
-                {
-                    Discord.Client.TryGetCachedGuild(guildId, out var guild);
-                    if (guild == null) continue;
-                    var channels = guild.Channels.Values;
-                    List<DiscordChannel> channelsList = new();
-                    foreach (var c in channels)
-                    {
-                        if ((c.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels && c.Type == ChannelType.Text)
-                        {
-                            channelsList.Add(c);
-                        }
-                    }
-
-                    channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
-
-                    if (channelsList.Count == 0) continue;
-
-                    var guildItem = new HomeListItemViewModel
-                    {
-                        Name = guild.Name,
-                        Image = "/Resources/Frames/XSFrameIdleM.png",
-                        Presence = new PresenceViewModel
-                        {
-                            Presence = "",
-                            Status = "",
-                            Type = "",
-                        },
-                        IsSelected = false,
-                        LastMsgId = 0,
-                        Id = channelsList[0].Id
-                    };
-
-                    ViewModel.Categories[index].Items.Add(guildItem);
-
-                    processedGuilds.Add(guildId);
-                }
-            }
-            // for each item in uncategorizedGuilds, add it to the Servers folder [1]
-            // sorted by join date
-            var uncategorizedGuilds = Discord.Client.Guilds
-                .Where(x => !processedGuilds.Contains(x.Key))
-                .OrderBy(x => x.Value.JoinedAt)
-                .Select(x => x.Value);
-            foreach (var guild in uncategorizedGuilds)
-            {
-                var channels = guild.Channels.Values;
-                List<DiscordChannel> channelsList = new();
-                foreach (var c in channels)
-                {
-                    if ((c.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels && c.Type == ChannelType.Text)
-                    {
-                        channelsList.Add(c);
-                    }
-                }
-
-                channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
-
-                var guildItem = new HomeListItemViewModel
-                {
-                    Name = guild.Name,
-                    Image = "/Resources/Frames/XSFrameIdleM.png",
-                    Presence = new PresenceViewModel
-                    {
-                        Presence = "",
-                        Status = "",
-                        Type = "",
-                    },
-                    IsSelected = false,
-                    LastMsgId = 0,
-                    Id = channelsList[0].Id
-                };
-
-                //ViewModel.Categories[1].Items.Add(guildItem);
-                // add to start:
-                ViewModel.Categories[1].Items.Insert(0, guildItem);
-            }
-            UpdateUnreadMessages();
-        }
-
         private async void UpdateStatuses()
         {
-            await Task.Run(() =>
-            {
-                var oldList = ViewModel.Categories[0].Items;
-                var newList = new List<HomeListItemViewModel>();
-
-                // Build the new list from the current private channels
-                foreach (var c in Discord.Client.PrivateChannels)
-                {
-                    var dm = c.Value;
-                    bool isGroupChat = dm?.Recipients?.Count > 1;
-                    var recipient = dm?.Recipients?.FirstOrDefault();
-                    if (recipient is null) continue;
-
-                    // Create new item or reuse existing item's selection state
-                    var existingItem = oldList.ToList().FirstOrDefault(v => v?.Id == dm?.Id);
-                    var newItem = new HomeListItemViewModel
-                    {
-                        Name = isGroupChat ? string.IsNullOrEmpty(dm.Name) ? String.Join(", ", dm.Recipients.Select(r => r.DisplayName)) : dm.Name : recipient.DisplayName,
-                        Presence = recipient.Presence == null ? new PresenceViewModel()
-                        {
-                            Presence = "",
-                            Status = recipient.Presence?.Status.ToString() ?? "Offline",
-                            Type = "",
-                        } : PresenceViewModel.FromPresence(recipient.Presence),
-                        LastMsgId = dm.LastMessageId ?? dm.Id,
-                        Id = dm.Id,
-                        IsSelected = existingItem?.IsSelected ?? false,
-                        IsGroupChat = isGroupChat,
-                        RecipientCount = dm.Recipients.Count + 1, // to account for ourselves, i think?
-                    };
-
-                    newList.Add(newItem);
-                }
-
-                // Sort the new list based on the last message time
-                newList.Sort((x, y) =>
-                {
-                    long prevTimestamp = ((long)(x.LastMsgId >> 22)) + 1420070400000;
-                    DateTime prevLastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(prevTimestamp).DateTime;
-
-                    long nextTimestamp = ((long)(y.LastMsgId >> 22)) + 1420070400000;
-                    DateTime nextLastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(nextTimestamp).DateTime;
-
-                    return nextLastMessageTime.CompareTo(prevLastMessageTime);
-                });
-
-                // Update the UI with the sorted list
-                Dispatcher.Invoke(() =>
-                {
-                    var itemsToRemove = oldList.Where(oldItem => !newList.Any(newItem => newItem.Id == oldItem.Id)).ToList();
-                    foreach (var itemToRemove in itemsToRemove)
-                    {
-                        oldList.Remove(itemToRemove); // Remove items that are no longer in the new list
-                    }
-
-                    // Update or add new items, maintaining the sorted order
-                    foreach (var newItem in newList)
-                    {
-                        var existingItem = oldList.FirstOrDefault(v => v.Id == newItem.Id);
-                        if (existingItem != null)
-                        {
-                            existingItem.Name = newItem.Name;
-                            existingItem.LastMsgId = newItem.LastMsgId;
-                            existingItem.IsSelected = newItem.IsSelected;
-                            existingItem.Presence = newItem.Presence;
-                        }
-                        else
-                        {
-                            // Add new item to the old list in the correct sorted order
-                            oldList.Add(newItem);
-                        }
-                    }
-
-                    // if the resulting lists r the same, return to prevent flickers
-
-                    bool isSame = false;
-                    if (oldList.Count == newList.Count)
-                    {
-                        isSame = true;
-                        for (int i = 0; i < oldList.Count; i++)
-                        {
-                            if (oldList[i].Id != newList[i].Id)
-                            {
-                                isSame = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (isSame) return;
-                    ViewModel.Categories[0].Items.Clear();
-                    foreach (var item in newList)
-                    {
-                        ViewModel.Categories[0].Items.Add(item);
-                    }
-                });
-            });
+            HydrateListView();
         }
 
         private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -679,12 +682,10 @@ namespace Aerochat.Windows
 
         public void SetVisibleProperty(bool prop)
         {
-            foreach (var item in ViewModel.Categories)
+            foreach (var category in ViewModel.Categories)
             {
-                item.IsVisibleProperty = prop;
+                category.ViewModel.IsVisibleProperty = prop;
             }
-
-            ViewModel.IsVisible = prop;
         }
 
         private void HomeListView_Loaded(object sender, RoutedEventArgs e)
@@ -707,8 +708,8 @@ namespace Aerochat.Windows
 
         private void ItemToggleCollapse(object sender, MouseButtonEventArgs e)
         {
-            var item = (HomeListViewCategory)((Image)sender).DataContext;
-            item.Collapsed = !item.Collapsed;
+            var item = (ICategory)((Image)sender).DataContext;
+            item.ViewModel.Collapsed = !item.ViewModel.Collapsed;
         }
 
         private void ItemClick(object sender, MouseButtonEventArgs e)
@@ -716,21 +717,21 @@ namespace Aerochat.Windows
             // set all items to not selected
             foreach (var i in ViewModel.Categories)
             {
-                i.IsSelected = false;
-                foreach (var x in i.Items)
+                i.ViewModel.IsSelected = false;
+                foreach (var x in i.ViewModel.Items)
                 {
                     x.IsSelected = false;
                 }
             }
             // get the data context of the clicked item
             var item = (dynamic)((Grid)sender).DataContext;
-            if (item is HomeListViewCategory)
+            if (item is ICategory c)
             {
-                item.IsSelected = true;
+                c.ViewModel.IsSelected = true;
             }
-            else if (item is HomeListItemViewModel)
+            else if (item is HomeListItemViewModel i)
             {
-                item.IsSelected = true;
+                i.IsSelected = true;
             }
         }
 
@@ -933,6 +934,66 @@ namespace Aerochat.Windows
             if (ViewModel.CurrentNews is null) return;
             var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
             SetNews(ViewModel.News[(index + 1) % ViewModel.News.Count]);
+        }
+
+        private void InteropContextMenu_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var ctxMenu = (InteropContextMenu)sender;
+            var category = (ICategory)ctxMenu.DataContext;
+            ctxMenu.ContextMenuItems.Clear();
+            var serversIndex = ViewModel.Categories.IndexOf(ViewModel.Categories.FirstOrDefault(x => x.ViewModel.Name == "Servers"));
+            var ourIndex = ViewModel.Categories.IndexOf(category);
+            if (ourIndex >= serversIndex) return;
+            ctxMenu.ContextMenuItems.Clear();
+            ICommand command = new RelayCommand(() =>
+            {
+                var lambda = SettingsManager.Instance.CategoryLambdas.FirstOrDefault(x => x.Name == category.ViewModel.Name);
+                SettingsManager.Instance.CategoryLambdas.Remove(lambda);
+                SettingsManager.Save();
+                PopulateList(SettingsManager.Instance.CategoryLambdas);
+            });
+            ctxMenu.ContextMenuItems.Add(new()
+            {
+                Header = $"Delete {category.ViewModel.Name}",
+                Command = command
+            });
+            ctxMenu.Open();
+        }
+    }
+
+    public class RelayCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+        private Action methodToExecute;
+        private Func<bool> canExecuteEvaluator;
+        public RelayCommand(Action methodToExecute, Func<bool> canExecuteEvaluator)
+        {
+            this.methodToExecute = methodToExecute;
+            this.canExecuteEvaluator = canExecuteEvaluator;
+        }
+        public RelayCommand(Action methodToExecute)
+            : this(methodToExecute, null)
+        {
+        }
+        public bool CanExecute(object parameter)
+        {
+            if (this.canExecuteEvaluator == null)
+            {
+                return true;
+            }
+            else
+            {
+                bool result = this.canExecuteEvaluator.Invoke();
+                return result;
+            }
+        }
+        public void Execute(object parameter)
+        {
+            this.methodToExecute.Invoke();
         }
     }
 }

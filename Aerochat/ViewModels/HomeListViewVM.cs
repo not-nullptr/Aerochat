@@ -40,74 +40,75 @@ namespace Aerochat.ViewModels
         }
 
         public ObservableCollection<HomeListItemViewModel> Items { get; } = new();
-
-        public class HomeListItemViewModel : ViewModelBase
-        {
-            private string _name;
-            private string _image;
-            private PresenceViewModel _presence;
-            private Action _doubleClick;
-            private bool _isSelected;
-            private ulong _lastMsgId;
-            private ulong _id;
-            private bool _isGroupChat;
-            private int _recipientCount;
-
-            public string Name
-            {
-                get => _name;
-                set => SetProperty(ref _name, value);
-            }
-
-            public string Image
-            {
-                get => _image;
-                set => SetProperty(ref _image, value);
-            }
-
-            public PresenceViewModel Presence
-            {
-                get => _presence;
-                set => SetProperty(ref _presence, value);
-            }
-
-            public Action DoubleClick
-            {
-                get => _doubleClick;
-                set => SetProperty(ref _doubleClick, value);
-            }
-
-            public bool IsSelected
-            {
-                get => _isSelected;
-                set => SetProperty(ref _isSelected, value);
-            }
-
-            public ulong LastMsgId
-            {
-                get => _lastMsgId;
-                set => SetProperty(ref _lastMsgId, value);
-            }
-
-            public ulong Id
-            {
-                get => _id;
-                set => SetProperty(ref _id, value);
-            }
-
-            public bool IsGroupChat
-            {
-                get => _isGroupChat;
-                set => SetProperty(ref _isGroupChat, value);
-            }
-
-            public int RecipientCount
-            {
-                get => _recipientCount;
-                set => SetProperty(ref _recipientCount, value);
-            }
-
-            public ObservableCollection<UserViewModel> ConnectedUsers { get; } = new();
-        }
     }
+
+    public class HomeListItemViewModel : ViewModelBase
+    {
+        private string _name;
+        private string _image;
+        private PresenceViewModel _presence;
+        private Action _doubleClick;
+        private bool _isSelected;
+        private ulong _lastMsgId;
+        private ulong _id;
+        private bool _isGroupChat;
+        private int _recipientCount;
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public string Image
+        {
+            get => _image;
+            set => SetProperty(ref _image, value);
+        }
+
+        public PresenceViewModel Presence
+        {
+            get => _presence;
+            set => SetProperty(ref _presence, value);
+        }
+
+        public Action DoubleClick
+        {
+            get => _doubleClick;
+            set => SetProperty(ref _doubleClick, value);
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
+        public ulong LastMsgId
+        {
+            get => _lastMsgId;
+            set => SetProperty(ref _lastMsgId, value);
+        }
+
+        public ulong Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public bool IsGroupChat
+        {
+            get => _isGroupChat;
+            set => SetProperty(ref _isGroupChat, value);
+        }
+
+        public int RecipientCount
+        {
+            get => _recipientCount;
+            set => SetProperty(ref _recipientCount, value);
+        }
+
+        public ObservableCollection<UserViewModel> ConnectedUsers { get; } = new();
+    }
+
 }
