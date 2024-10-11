@@ -80,8 +80,6 @@ namespace DSharpPlus.Net
 
         private DiscordMessage PrepareMessage(JToken msg_raw)
         {
-            Debug.WriteLine(msg_raw);
-
             var author = msg_raw["author"].ToDiscordObject<TransportUser>();
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this._discord;
