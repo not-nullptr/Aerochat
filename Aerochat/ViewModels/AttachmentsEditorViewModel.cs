@@ -103,7 +103,6 @@ namespace Aerochat.ViewModels
             {
                 LocalFileName = fileName,
                 FileName = baseName,
-                Selected = true,
             };
 
             try

@@ -68,10 +68,9 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:AttachmentsEditorItem}">
-                        <Grid>
-                            <RadioButton Height="60" Width="60"
+                        <Grid Name="ItemContainer">
+                            <ToggleButton Height="60" Width="60"
                                          Name="ItemButton"
-                                         GroupName="Items"
                                          VerticalContentAlignment="Center"
                                          HorizontalContentAlignment="Center"
                                          Padding="3"
@@ -81,12 +80,11 @@
                                          IsChecked="{Binding Path=Selected}"
                                          DataContext="{Binding}"
                                          Click="RadioButton_Click">
-                                <RadioButton.ToolTip>
-                                    <controls:NativeToolTipControl Name="Tooltip" Content="{Binding Path=FileName}" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" />
-                                    <!--<ToolTip Content="{Binding FileName}" />-->
-                                </RadioButton.ToolTip>
+                                <ToggleButton.ToolTip>
+                                    <controls:NativeToolTipControl x:Name="Tooltip" Content="{Binding Path=FileName}" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" />
+                                </ToggleButton.ToolTip>
 
-                                <RadioButton.Template>
+                                <ToggleButton.Template>
                                     <ControlTemplate TargetType="{x:Type ButtonBase}">
                                         <Grid SnapsToDevicePixels="True">
                                             <controls:NineSlice Style="{StaticResource ButtonStyle}" IsTabStop="False" />
@@ -97,12 +95,12 @@
                                                 SnapsToDevicePixels="True" />
                                         </Grid>
                                     </ControlTemplate>
-                                </RadioButton.Template>
+                                </ToggleButton.Template>
 
                                 <ContentControl Content="{Binding}"
                                                 ContentTemplateSelector="{DynamicResource StripItemTemplateSelector}" />
-                            </RadioButton>
-                            <Popup Name="ItemMiniEditor" IsOpen="{Binding Selected}" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=ItemButton}" SnapsToDevicePixels="True">
+                            </ToggleButton>
+                            <Popup Name="ItemMiniEditor" IsOpen="{Binding Selected}" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=ItemButton}" SnapsToDevicePixels="True" local:PopupBehavior.PopupContainer="{Binding ElementName=ItemButton}">
                                 <local:AttachmentsTinyEditor DataContext="{Binding}" />
                             </Popup>
                         </Grid>

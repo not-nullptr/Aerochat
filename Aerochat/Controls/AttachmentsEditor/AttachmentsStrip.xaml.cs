@@ -29,23 +29,37 @@ namespace Aerochat.Controls.AttachmentsEditor
         {
             InitializeComponent();
             DataContext = ViewModel;
-
-            //Window w = Window.GetWindow(myPopupPlacementTarget);
-            //if (null != w)
-            //{
-            //    w.LocationChanged += delegate (object sender, EventArgs args)
-            //    {
-            //        var offset = myPopup.HorizontalOffset;
-            //        myPopup.HorizontalOffset = offset + 1;
-            //        myPopup.HorizontalOffset = offset;
-            //    };
-            //}
         }
 
         private void RadioButton_Click(object sender, RoutedEventArgs e)
         {
-            AttachmentsTinyEditor editorWindow = new();
-            
+            AttachmentsEditorItem? currentItem = null;
+
+            if (sender is FrameworkElement element)
+            {
+                if (element.DataContext is AttachmentsEditorItem item)
+                {
+                    currentItem = item;
+                }
+            }
+
+            foreach (var attachment in ViewModel.Attachments)
+            {
+                if (attachment != currentItem)
+                {
+                    attachment.Selected = false;
+                }
+            }
+        }
+
+        private void ItemMiniEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Popup? element = sender as Popup;
+
+            if (element != null)
+            {
+                element.IsOpen = false;
+            }
         }
     }
 }
