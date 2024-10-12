@@ -36,6 +36,7 @@ using System.IO;
 using System.Windows.Ink;
 using Point = System.Windows.Point;
 using Timer = System.Timers.Timer;
+using DSharpPlus.Exceptions;
 
 namespace Aerochat.Windows
 {
@@ -365,30 +366,41 @@ namespace Aerochat.Windows
 
         public async Task BeginDiscordLoop()
         {
-            await OnChannelChange();
-            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
-            if (currentChannel is null)
+            try
             {
-                currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
-            }
-
-            bool isDM = currentChannel is DiscordDmChannel;
-            Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
-            if (guild is null && !isDM)
-            {
-                guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
-            }
-
-            Dispatcher.Invoke(() =>
-            {
-                if (!isDM)
+                await OnChannelChange();
+                Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
+                if (currentChannel is null)
                 {
-                    ViewModel.Guild = GuildViewModel.FromGuild(guild);
-                    RefreshChannelList();
+                    currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
                 }
-            });
-            Dispatcher.Invoke(Show);
-            if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+
+                bool isDM = currentChannel is DiscordDmChannel;
+                Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
+                if (guild is null && !isDM)
+                {
+                    guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
+                }
+
+                Dispatcher.Invoke(() =>
+                {
+                    if (!isDM)
+                    {
+                        ViewModel.Guild = GuildViewModel.FromGuild(guild);
+                        RefreshChannelList();
+                    }
+                });
+                Dispatcher.Invoke(Show);
+                if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+            }
+            catch (UnauthorizedException e)
+            {
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.Message));
+            }
+            catch (Exception e)
+            {
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.Message));
+            }
         }
 
         public void RefreshChannelList()
@@ -650,9 +662,19 @@ namespace Aerochat.Windows
 
         public void UnavailableDialog()
         {
+            ShowErrorDialog("This server is unavailable right now. Please try again later.", "Server unavailable");
+        }
+
+        public void ShowErrorDialog(string message, string title = "Error", Icon? icon = null)
+        {
+            if (icon == null)
+            {
+                icon = SystemIcons.Error;
+            }
+
             Show();
             Visibility = Visibility.Hidden;
-            var dialog = new Dialog("Server unavailable", "This server is unavailable right now. Please try again later", SystemIcons.Error);
+            var dialog = new Dialog(title, message, icon);
             dialog.Owner = this;
             dialog.ShowDialog();
             Close();
