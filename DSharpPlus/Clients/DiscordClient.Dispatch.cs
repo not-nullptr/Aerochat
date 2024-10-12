@@ -672,6 +672,7 @@ namespace DSharpPlus
                         xo._channel_id = xc.Id;
                     }
                 }
+
                 foreach (var (_, xt) in guild.Threads)
                 {
                     xt.GuildId = guild.Id;
@@ -939,7 +940,7 @@ namespace DSharpPlus
                 readStateDict.Add(state.Id, state);
             }
 
-            var ev = new ChannelUnreadUpdateEventArgs() { GuildId = guildId, ReadStates = readStateDict };
+            var ev = new ChannelUnreadUpdateEventArgs() { GuildId = guildId, ReadStates = readStateDict.ToFrozenDictionary() };
             await this._channelUnreadUpdate.InvokeAsync(this, ev);
         }
 
