@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Vanara.PInvoke;
 using static Vanara.PInvoke.User32;
 
 namespace Aerochat
@@ -17,6 +18,9 @@ namespace Aerochat
     {
         private static FontAppearanceManager _instance;
         private TextRenderingMode _textRenderingMode = TextRenderingMode.Auto;
+
+        private const int FE_FONTSMOOTHINGSTANDARD = 1;
+        private const int FE_FONTSMOOTHINGCLEARTYPE = 2;
 
         public static FontAppearanceManager Instance
         {
@@ -54,8 +58,7 @@ namespace Aerochat
         /// </remarks>
         public void Refresh()
         {
-            bool bFontSmoothingEnabled = false;
-            bool spiResult = SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, ref bFontSmoothingEnabled, false);
+            bool spiResult = SystemParametersInfo(SPI.SPI_GETFONTSMOOTHING, out bool bFontSmoothingEnabled);
 
             if (!spiResult)
             {
@@ -78,8 +81,8 @@ namespace Aerochat
 
             // Otherwise, check the user's font smoothing type:
 
-            int uiType = FE_FONTSMOOTHINGSTANDARD;
-            spiResult = SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, ref uiType, false);
+            uint uiType = FE_FONTSMOOTHINGSTANDARD;
+            spiResult = SystemParametersInfo(SPI.SPI_GETFONTSMOOTHINGTYPE, out uiType);
 
             if (!spiResult)
             {
@@ -111,18 +114,5 @@ namespace Aerochat
                 _textRenderingMode = TextRenderingMode.Auto;
             }
         }
-
-        private const int SPI_GETFONTSMOOTHING = 0x004A;
-        private const int SPI_GETFONTSMOOTHINGTYPE = 0x200A;
-        private const int FE_FONTSMOOTHINGSTANDARD = 1;
-        private const int FE_FONTSMOOTHINGCLEARTYPE = 2;
-
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SystemParametersInfo(int uiAction, uint uiParam, ref bool pvParam, bool fWinIni);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SystemParametersInfo(int uiAction, uint uiParam, ref int pvParam, bool fWinIni);
     }
 }
