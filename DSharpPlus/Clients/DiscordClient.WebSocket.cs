@@ -227,14 +227,14 @@ namespace DSharpPlus
         {
             using var streamReader = new StreamReader(data, Utilities.UTF8);
 #if DEBUG
-            //var strPayload = streamReader.ReadToEnd();
-            //data.Position = 0;
-
-            //this.Logger.LogTrace(LoggerEvents.GatewayWsRx, strPayload);
-#endif
+            var strPayload = streamReader.ReadToEnd();
+            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, strPayload);
+            var payload = JsonConvert.DeserializeObject<GatewayPayload>(strPayload);
+#else
             using var jsonReader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             var payload = serializer.Deserialize<GatewayPayload>(jsonReader);
+#endif
 
             this._lastSequence = payload.Sequence ?? this._lastSequence;
             switch (payload.OpCode)
