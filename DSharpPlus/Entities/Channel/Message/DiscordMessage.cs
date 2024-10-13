@@ -161,7 +161,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordRole> MentionedRoles
-            => this._mentionedRoles;
+            => this._mentionedRoles ?? (IReadOnlyList<DiscordRole>)Array.Empty<DiscordRole>();
 
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
@@ -220,12 +220,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? Nonce { get; internal set; }
         */
-
-        /// <summary>
-        /// Is this message a hit in search results?
-        /// </summary>
-        [JsonProperty("hit", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> Hit { get; internal set; }
 
         /// <summary>
         /// Gets whether the message is pinned.
