@@ -2283,6 +2283,9 @@ namespace DSharpPlus
             => this.ApiClient.GetTemplateAsync(code);
         #endregion
 
+        public Task<IReadOnlyList<DiscordMessage>> GetUserMentionsAsync(int limit, bool roles, bool everyone)
+            => this.ApiClient.GetMentionsAsync(limit, roles, everyone);
+
         private bool _disposed;
         /// <summary>
         /// Disposes of this DiscordRestClient

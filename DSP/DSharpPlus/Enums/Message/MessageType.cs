@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace DSharpPlus
 {
     /// <summary>
@@ -93,6 +95,9 @@ namespace DSharpPlus
         /// </summary>
         ChannelFollowAdd = 12,
 
+        [Obsolete]
+        GuildStream = 13,
+
         /// <summary>
         /// Message indicating a guild was removed from guild discovery.
         /// </summary>
@@ -114,6 +119,11 @@ namespace DSharpPlus
         GuildDiscoveryGracePeriodFinalWarning = 17,
 
         /// <summary>
+        /// Message sent when a thread is created	
+        /// </summary>
+        ThreadCreated = 18,
+
+        /// <summary>
         /// Message indicating a user replied to another user.
         /// </summary>
         Reply = 19,
@@ -122,6 +132,11 @@ namespace DSharpPlus
         /// Message indicating an application command was invoked.
         /// </summary>
         ApplicationCommand = 20,
+
+        /// <summary>
+        /// A message sent when a thread starter message is added to a thread	
+        /// </summary>
+        ThreadStarterMessage = 21,
 
         /// <summary>
         /// Message reminding you to invite people to help you build the server.
@@ -137,5 +152,129 @@ namespace DSharpPlus
         /// Message indicating an AutoMod alert.
         /// </summary>
         AutoModAlert = 24,
+
+        /// <summary>
+        /// A message sent when a user purchases or renews a role subscription.
+        /// </summary>
+        RoleSubscriptionPurchase = 25,
+
+        /// <summary>
+        /// A message sent when a user is upsold to a premium interaction.
+        /// </summary>
+        InteractionPremiumUpsell = 26,
+
+        /// <summary>
+        /// A message sent when a stage channel starts.
+        /// </summary>
+        StageStart = 27,
+
+        /// <summary>
+        /// A message sent when a stage channel ends.
+        /// </summary>
+        StageEnd = 28,
+
+        /// <summary>
+        /// A message sent when a user starts speaking in a stage channel.
+        /// </summary>
+        StageSpeaker = 29,
+
+        /// <summary>
+        /// A message sent when a user raises their hand in a stage channel.
+        /// </summary>
+        StageRaiseHand = 30,
+
+        /// <summary>
+        /// A message sent when a stage channel's topic is changed.
+        /// </summary>
+        StageTopic = 31,
+
+        /// <summary>
+        /// A message sent when a user purchases an application premium subscription.
+        /// </summary>
+        GuildApplicationPremiumSubscription = 32,
+
+        /// <summary>
+        /// A message sent when a user adds an application to group DM.
+        /// </summary>
+        [Obsolete]
+        PrivateChannelIntegrationAdded = 33,
+
+        /// <summary>
+        /// A message sent when a user removed an application from a group DM.
+        /// </summary>
+        [Obsolete]
+        PrivateChannelIntegrationRemoved = 34,
+
+        /// <summary>
+        /// A message sent when a user gifts a premium (Nitro) referral.
+        /// </summary>
+        PremiumReferral = 35,
+
+        /// <summary>
+        /// A message sent when a user enables lockdown for the guild.
+        /// </summary>
+        GuildIncidentAlertModeEnabled = 36,
+
+        /// <summary>
+        /// A message sent when a user disables lockdown for the guild.
+        /// </summary>
+        GuildIncidentAlertModeDisabled = 37,
+
+        /// <summary>
+        /// A message sent when a user reports a raid for the guild.
+        /// </summary>
+        GuildIncidentReportRaid = 38,
+
+        /// <summary>
+        /// A message sent when a user reports a false alarm for the guild.
+        /// </summary>
+        GuildIncidentReportFalseAlarm = 39,
+
+        /// <summary>
+        /// A message sent when no one sends a message in the current channel for 1 hour.
+        /// </summary>
+        GuildDeadChatRevivePrompt = 40, // ew
+
+        /// <summary>
+        /// A message sent when a user buys another user a gift.
+        /// </summary>
+        CustomGift = 41,
+
+        /// <summary>
+        /// ???
+        /// </summary>
+        GuildGamingStatsPrompt = 42,
+
+        /// <summary>
+        /// A message sent when a user posts a poll, except not anymore.
+        /// </summary>
+        [Obsolete]
+        Poll =43,
+
+        /// <summary>
+        /// A message sent when a user purchases a guild product.
+        /// </summary>
+        PurchaseNotification = 44,
+
+        /// <summary>
+        /// A message sent when a user invites another user to hangout in a voice channel.
+        /// </summary>
+        [Obsolete]
+        VoiceHangoutInvite = 45,
+
+        /// <summary>
+        /// A message sent when a poll is finalized.
+        /// </summary>
+        PollResult = 46,
+
+        /// <summary>
+        /// A message sent by the Discord Updates account when a new changelog is posted.
+        /// </summary>
+        ChangeLog = 47,
+
+        /// <summary>
+        /// A message sent when a Nitro promotion is triggered.
+        /// </summary>
+        NitroNotification = 48
     }
 }
