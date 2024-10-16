@@ -2221,6 +2221,25 @@ namespace DSharpPlus.Net
             return duser;
         }
 
+        // Aerochat-specific.
+        internal Task<DiscordProfile> GetUserProfileAsync(ulong user_id)
+            => this.GetUserProfileAsync(user_id.ToString(CultureInfo.InvariantCulture));
+
+        // Aerochat-specific implementation.
+        internal async Task<DiscordProfile> GetUserProfileAsync(string user_id)
+        {
+            var route = $"{Endpoints.USERS}/:user_id{Endpoints.PROFILE}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { user_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var user_raw = JsonConvert.DeserializeObject<TransportProfile>(res.Response);
+            var result = new DiscordProfile(user_raw) { Discord = this._discord };
+
+            return result;
+        }
+
         internal async Task<DiscordMember> GetGuildMemberAsync(ulong guild_id, ulong user_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id";
