@@ -166,7 +166,8 @@ namespace Aerochat.Windows
                 recipient = ((DiscordDmChannel)currentChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
                 if (!Discord.Client.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
-                    recipient = await Discord.Client.GetUserAsync(recipient.Id, true);
+                    DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
+                    recipient = userProfile.User;
                 }
             }
             else
@@ -395,7 +396,7 @@ namespace Aerochat.Windows
             }
             catch (UnauthorizedException e)
             {
-                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.Message));
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.WebResponse.Response));
             }
             catch (Exception e)
             {
