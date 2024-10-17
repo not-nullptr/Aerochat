@@ -566,7 +566,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\source\repos\Aerobool\Aerobool\Aerobool.csproj" />
+	  <ProjectReference Include="..\Aerobool\Aerobool\Aerobool.csproj" />
 	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
 	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
 	</ItemGroup>
