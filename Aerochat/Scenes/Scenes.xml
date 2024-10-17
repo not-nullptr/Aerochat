@@ -71,4 +71,12 @@
 	<item id="69" credit="ImSwordQueen" mimetype="image/png" contenttype="D" file="VirtualInsanity.png" displayname="Virtual Insanity" color="#97A8BC" default="false" />
 	<item id="70" credit="Evolta" mimetype="image/png" contenttype="D" file="MinecraftLCETU9.png" displayname="Minecraft LCE TU9" color="#3f6c2e" default="false" />
 	<item id="71" credit="レイーン" mimetype="image/png" contenttype="D" file="TomodachiCollection.png" displayname="Tomodachi Collection" color="#fd835e" default="false" />
+	<item id="72" credit="patricktbp" mimetype="image/png" contenttype="D" file="Windows7BetaLoginScreen.png" displayname="Windows 7 Beta (Login Screen)" color="#137DAB" default="false" />
+	<item id="73" credit="レイーン" mimetype="image/png" contenttype="D" file="Twitteroldheader.png" displayname="Twitter old header" color="#8ec2da" default="false" />
+	<item id="74" credit="valve" mimetype="image/jpeg" contenttype="D" file="Counter-Strike16.jpeg" displayname="Counter-Strike 1.6" color="#151b2b" default="false" />
+	<item id="75" credit="patricktbp" mimetype="image/png" contenttype="D" file="SunsetTrees.png" displayname="Sunset Trees" color="#EDAF66" default="false" />
+	<item id="76" credit="liam" mimetype="image/png" contenttype="D" file="Harvest.png" displayname="Harvest" color="#f18e2b" default="false" />
+	<item id="77" credit="Microsoft" mimetype="image/png" contenttype="D" file="WindowsVista-ServicePack2-NoGUIBoot.png" displayname="Windows Vista - Service Pack 2 - No GUI Boot" color="#17383d" default="false" />
+	<item id="78" credit="Tyler, the Creator / nullptr" mimetype="image/png" contenttype="D" file="FlowerBoy.png" displayname="Flower Boy" color="#cb3d2a" default="false" />
+	<item id="79" credit="StuxDek" mimetype="image/png" contenttype="D" file="Aerochat.png" displayname="Aerochat" color="#A2CEEF" default="false" />
 </package>
