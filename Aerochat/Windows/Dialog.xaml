@@ -9,6 +9,7 @@
         MinHeight="163" Width="538"
         SizeToContent="Height"
         ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
         Title="Windows Live Messenger"
         Style="{StaticResource Window}">
     <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
