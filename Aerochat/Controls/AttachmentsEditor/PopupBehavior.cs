@@ -1,5 +1,5 @@
 ﻿// Enable this define to visualise the movement optimisation. 
-//#define VISUALIZE_OPTIMIZATION
+//#define VISUALIZE_MOVEMENT_OPTIMIZATION
 
 using Microsoft.Web.WebView2.Core;
 using System;
@@ -571,7 +571,7 @@ namespace Aerochat.Controls.AttachmentsEditor
 
                 protected override void OnRender(DrawingContext drawingContext)
                 {
-#if VISUALIZE_OPTIMIZATION
+#if VISUALIZE_MOVEMENT_OPTIMIZATION
                     drawingContext.DrawRectangle(new SolidColorBrush(Colors.Green), null, _renderRect);
 #else
                     drawingContext.DrawImage(_bitmap, _renderRect);
