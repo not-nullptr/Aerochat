@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using Vanara.PInvoke;
 using static Vanara.PInvoke.User32.WindowMessage;
 using static Vanara.PInvoke.User32.SetWindowPosFlags;
+using System.Windows.Media.Animation;
 
 namespace Aerochat.Controls.AttachmentsEditor
 {
@@ -45,9 +46,9 @@ namespace Aerochat.Controls.AttachmentsEditor
                 new PropertyMetadata(OnPopupContainerChanged)
             );
 
-        private static Popup GetBehaviorInstance(DependencyObject obj)
+        private static PopupBehaviorInstance GetBehaviorInstance(DependencyObject obj)
         {
-            return (Popup)obj.GetValue(BehaviorInstanceProperty);
+            return (PopupBehaviorInstance)obj.GetValue(BehaviorInstanceProperty);
         }
 
         private static void SetBehaviorInstance(DependencyObject obj, PopupBehaviorInstance? value)
@@ -89,6 +90,174 @@ namespace Aerochat.Controls.AttachmentsEditor
         }
 
         /// <summary>
+        /// Manages associating window event managers with the actual windows.
+        /// </summary>
+        internal static class WindowEventAssociationManager
+        {
+            private static Dictionary<WeakReference<Window>, WindowEventManager> _windows = new();
+
+            public static WindowEventManager GetWindowManager(Window window)
+            {
+                foreach (KeyValuePair<WeakReference<Window>, WindowEventManager> kvp in _windows)
+                {
+                    if (kvp.Key.TryGetTarget(out Window targetWindow) && targetWindow == window)
+                    {
+                        return kvp.Value;
+                    }
+                    else
+                    {
+                        _windows.Remove(kvp.Key);
+                    }
+                }
+
+                // Otherwise, if a window manager doesn't exist, then try to make one.
+                WindowEventManager newWindowManager = new(window);
+
+                _windows.Add(new WeakReference<Window>(window), newWindowManager);
+
+                return newWindowManager;
+            }
+        }
+
+        /// <summary>
+        /// Manages events registered on a window that can contain popups.
+        /// </summary>
+        internal class WindowEventManager
+        {
+            private Window _window;
+
+            private bool _isInitialized = false;
+
+            private bool _isPreviewMouseUpSubscribed = false;
+
+            public PopupBehaviorInstance? CurrentPopup { get; set; } = null;
+
+            internal WindowEventManager(Window window)
+            {
+                _window = window;
+            }
+
+            public void EnsureInitialized()
+            {
+                if (!_isInitialized)
+                {
+                    Initialize();
+                }
+            }
+
+            public void Initialize()
+            {
+                RegisterHandlers();
+
+                _isInitialized = true;
+            }
+
+            public void RegisterHandlers()
+            {
+                _window.Activated += OnWindowActivated;
+                _window.Deactivated += OnWindowDeactivated;
+                _window.LocationChanged += OnWindowPositionChanged;
+            }
+
+            public void UnregisterHandlers()
+            {
+                _window.Activated -= OnWindowActivated;
+                _window.Deactivated -= OnWindowDeactivated;
+                _window.LocationChanged -= OnWindowPositionChanged;
+
+                UnsubscribePreviewMouseUp();
+            }
+
+            public void OnAnyPopupOpened(object? sender, EventArgs args)
+            {
+                SubscribePreviewMouseUp();
+            }
+
+            public void OnAnyPopupClosed(object? sender, EventArgs args)
+            {
+                UnsubscribePreviewMouseUp();
+            }
+
+            private void OnWindowPositionChanged(object? sender, EventArgs e)
+            {
+                if (CurrentPopup == null)
+                {
+                    Debug.WriteLine("PopupBehavior WindowManager OnWindowPositionChanged: CurrentPopup is null");
+                    return;
+                }
+
+                // Force WPF to refresh the position of the popup.
+                var offset = CurrentPopup.Popup.HorizontalOffset;
+                CurrentPopup.Popup.HorizontalOffset = offset + 1;
+                CurrentPopup.Popup.HorizontalOffset = offset;
+            }
+
+            public void OnWindowActivated(object? sender, EventArgs args)
+            {
+                if (CurrentPopup == null)
+                {
+                    Debug.WriteLine("PopupBehavior WindowManager OnWindowActivated: CurrentPopup is null");
+                    return;
+                }
+
+                CurrentPopup.SetPopupTopmost(true);
+
+                // We have to wait just a second before reregistering the event so that the click doesn't
+                // register anyway. It seems that the event is sent multiple times.
+                Task.Run(async () =>
+                {
+                    await Task.Delay(200);
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        if (!_isPreviewMouseUpSubscribed)
+                        {
+                            SubscribePreviewMouseUp();
+                        }
+                    });
+                });
+            }
+
+            public void OnWindowDeactivated(object? sender, EventArgs args)
+            {
+                if (CurrentPopup == null)
+                {
+                    Debug.WriteLine("PopupBehavior WindowManager OnWindowDeactivated: CurrentPopup is null");
+                    return;
+                }
+
+                CurrentPopup.SetPopupTopmost(false);
+                UnsubscribePreviewMouseUp();
+            }
+
+            public void SubscribePreviewMouseUp()
+            {
+                if (!_isPreviewMouseUpSubscribed)
+                {
+                    _window.PreviewMouseUp += OnWindowClicked;
+                    _isPreviewMouseUpSubscribed = true;
+                }
+            }
+
+            public void UnsubscribePreviewMouseUp()
+            {
+                _window.PreviewMouseUp -= OnWindowClicked;
+                _isPreviewMouseUpSubscribed = false;
+            }
+
+            public void OnWindowClicked(object? sender, MouseButtonEventArgs args)
+            {
+                if (CurrentPopup == null)
+                {
+                    Debug.WriteLine("PopupBehavior WindowManager OnWindowClicked: CurrentPopup is null");
+                    return;
+                }
+
+                CurrentPopup.OnWindowClicked(sender, args);
+            }
+        }
+
+        /// <summary>
         /// Manages popup per-instance behaviours.
         /// </summary>
         internal class PopupBehaviorInstance
@@ -96,10 +265,9 @@ namespace Aerochat.Controls.AttachmentsEditor
             private Popup _popup;
             private ContentControl _openingButton;
             private Window _window;
+            private WindowEventManager _windowEventManager;
 
             private HwndSource _hWndSource;
-
-            private bool _isPreviewMouseUpSubscribed = false;
 
             private bool _dragFullWindows = false;
             private bool _isOptimizingMovement = false;
@@ -109,34 +277,39 @@ namespace Aerochat.Controls.AttachmentsEditor
             private MoveImageAdorner? _moveImageAdorner = null;
             private RenderTargetBitmap? _moveBitmap = null;
 
+            public Popup Popup
+            {
+                get => _popup;
+                private set { }
+            }
+
             internal PopupBehaviorInstance(Popup popup, ContentControl openingButton, Window window)
             {
                 _popup = popup;
                 _openingButton = openingButton;
                 _window = window;
+
+                _windowEventManager = WindowEventAssociationManager.GetWindowManager(window);
             }
 
             ~PopupBehaviorInstance()
             {
                 UnregisterHandlers();
+
+                // idk if this is good practice in C# or not but I'll keep it here just in case...
+                //if (_windowManager.CurrentPopup == this)
+                //{
+                //    _windowManager.CurrentPopup = null;
+                //}
             }
 
             public void RegisterHandlers()
             {
-                // FIXME(izzy) 2024-10-11: MASSIVE BUG!!
-                //
-                // Currently, window events registered by the instance are repeated, obviously. There is one
-                // single window and we're registering new events on it every time. This is not desirable.
-                //
-                // Popup events are supposed to be registered on the instance per popup, but window events
-                // should be shared between all popup behaviours. Perhaps these should be moved to the static
-                // class above?
                 _popup.Opened += OnPopupOpened;
                 _popup.Closed += OnPopupClosed;
                 _popup.PreviewMouseUp += OnPopupClicked;
-                _window.Activated += OnWindowActivated;
-                _window.Deactivated += OnWindowDeactivated;
-                _window.LocationChanged += OnWindowPositionChanged;
+
+                _windowEventManager.EnsureInitialized();
 
                 _hWndSource = HwndSource.FromHwnd(new WindowInteropHelper(_window).Handle);
                 _hWndSource.AddHook(WndProc);
@@ -151,21 +324,22 @@ namespace Aerochat.Controls.AttachmentsEditor
                 _popup.Opened -= OnPopupOpened;
                 _popup.Closed -= OnPopupClosed;
                 _popup.PreviewMouseUp -= OnPopupClicked;
-                _window.Activated -= OnWindowActivated;
-                _window.Deactivated -= OnWindowDeactivated;
-                _window.LocationChanged -= OnWindowPositionChanged;
-
-                UnsubscribePreviewMouseUp();
             }
 
             public void OnPopupOpened(object? sender, EventArgs args)
             {
-                SubscribePreviewMouseUp();
+                _windowEventManager.CurrentPopup = this;
+                _windowEventManager.OnAnyPopupOpened(sender, args);
             }
 
             public void OnPopupClosed(object? sender, EventArgs args)
             {
-                UnsubscribePreviewMouseUp();
+                if (_windowEventManager.CurrentPopup == this)
+                {
+                    _windowEventManager.CurrentPopup = null;
+                }
+
+                _windowEventManager.OnAnyPopupClosed(sender, args);
             }
 
             private void OnPopupClicked(object sender, MouseButtonEventArgs e)
@@ -196,59 +370,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 }
 
                 _popup.IsOpen = false;
-            }
-
-            private void OnWindowPositionChanged(object? sender, EventArgs e)
-            {
-                // Force WPF to refresh the position of the popup.
-                var offset = _popup.HorizontalOffset;
-                _popup.HorizontalOffset = offset + 1;
-                _popup.HorizontalOffset = offset;
-            }
-
-            public void OnWindowActivated(object? sender, EventArgs args)
-            {
-                SetPopupTopmost(true);
-
-                // We have to wait just a second before reregistering the event so that the click doesn't
-                // register anyway. It seems that the event is sent multiple times.
-                Task.Run(async () =>
-                {
-                    await Task.Delay(200);
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        if (!_isPreviewMouseUpSubscribed)
-                        {
-                            SubscribePreviewMouseUp();
-                        }
-                    });
-                });
-            }
-
-            public void OnWindowDeactivated(object? sender, EventArgs args)
-            {
-                SetPopupTopmost(false);
-                UnsubscribePreviewMouseUp();
-            }
-
-            private void SubscribePreviewMouseUp()
-            {
-                if (!_isPreviewMouseUpSubscribed)
-                {
-                    _window.PreviewMouseUp += OnWindowClicked;
-                    _isPreviewMouseUpSubscribed = true;
-                }
-                else
-                {
-                    //Debug.Assert(false, "Mouse must not subscribe multiple times.");
-                }
-            }
-
-            private void UnsubscribePreviewMouseUp()
-            {
-                _window.PreviewMouseUp -= OnWindowClicked;
-                _isPreviewMouseUpSubscribed = false;
             }
 
             private IntPtr WndProc(nint hWnd, int uMsg, nint wParam, nint lParam, ref bool handled)
@@ -372,9 +493,9 @@ namespace Aerochat.Controls.AttachmentsEditor
 
                     if (hWndPopup == 0)
                     {
-                        // FIXME(izzy) 2024-10-11: We currently should not disable movement optimisation here
-                        // because this seems to common point of failure. This is seemingly related to the
-                        // other major bug.
+                        // If we failed to ensure the existence of the popup window, then we will simply
+                        // give up, since there's no way that we could run.
+                        _isOptimizingMovement = false;
                         return;
                     }
 
@@ -475,18 +596,16 @@ namespace Aerochat.Controls.AttachmentsEditor
                         }
                     }
 
-                    Debug.WriteLine("waiting for th efucking ");
+                    Debug.WriteLine("Waiting for the popup window to exist.");
                     iterations++;
                     await Task.Delay(1);
                 }
                 while (presentationSource == null && hWnd == 0 && iterations < 10);
 
                 return 0;
-
-                //throw new Exception("How did you even get here?");
             }
 
-            private void SetPopupTopmost(bool isTopmost)
+            internal void SetPopupTopmost(bool isTopmost)
             {
                 if (_popup.Child == null)
                 {
