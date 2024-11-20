@@ -277,6 +277,8 @@ namespace Aerochat.Controls.AttachmentsEditor
             private MoveImageAdorner? _moveImageAdorner = null;
             private RenderTargetBitmap? _moveBitmap = null;
 
+            private ScrollViewer? _scrollViewerContainer = null;
+
             public Popup Popup
             {
                 get => _popup;
@@ -295,12 +297,6 @@ namespace Aerochat.Controls.AttachmentsEditor
             ~PopupBehaviorInstance()
             {
                 UnregisterHandlers();
-
-                // idk if this is good practice in C# or not but I'll keep it here just in case...
-                //if (_windowManager.CurrentPopup == this)
-                //{
-                //    _windowManager.CurrentPopup = null;
-                //}
             }
 
             public void RegisterHandlers()
@@ -319,6 +315,10 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             public void UnregisterHandlers()
             {
+                // We'll also unregister opened-only event handlers because we're shutting down the
+                // whole thing.
+                UnregisterOpenedOnlyHandlers();
+
                 _hWndSource.RemoveHook(WndProc);
 
                 _popup.Opened -= OnPopupOpened;
@@ -326,9 +326,47 @@ namespace Aerochat.Controls.AttachmentsEditor
                 _popup.PreviewMouseUp -= OnPopupClicked;
             }
 
+            private void RegisterOpenedOnlyHandlers()
+            {
+                ScrollViewer? scrollViewer = FindScrollViewerParent(_openingButton);
+                if (scrollViewer != null)
+                {
+                    _scrollViewerContainer = scrollViewer;
+                    _scrollViewerContainer.ScrollChanged += OnContainerScrolled;
+                }
+            }
+
+            private void UnregisterOpenedOnlyHandlers()
+            {
+                if (_scrollViewerContainer != null)
+                {
+                    _scrollViewerContainer.ScrollChanged -= OnContainerScrolled;
+                    _scrollViewerContainer = null;
+                }
+            }
+
+            public ScrollViewer? FindScrollViewerParent(DependencyObject element)
+            {
+                for (DependencyObject cur = element; cur != null; cur = VisualTreeHelper.GetParent(cur))
+                {
+                    if (cur is ScrollViewer)
+                    {
+                        Debug.WriteLine("FOUND SCROLL VIEWER PARENT");
+                        Debug.WriteLine((string)cur.GetType().GetProperty("Name").GetValue(cur, null));
+                        return cur as ScrollViewer;
+                    }
+                }
+
+                Debug.WriteLine("FAILED TO FIND SCROLL VIEWER PARENT");
+                return null;
+            }
+
             public void OnPopupOpened(object? sender, EventArgs args)
             {
                 _windowEventManager.CurrentPopup = this;
+
+                RegisterOpenedOnlyHandlers();
+
                 _windowEventManager.OnAnyPopupOpened(sender, args);
             }
 
@@ -338,6 +376,8 @@ namespace Aerochat.Controls.AttachmentsEditor
                 {
                     _windowEventManager.CurrentPopup = null;
                 }
+
+                UnregisterOpenedOnlyHandlers();
 
                 _windowEventManager.OnAnyPopupClosed(sender, args);
             }
@@ -372,10 +412,41 @@ namespace Aerochat.Controls.AttachmentsEditor
                 _popup.IsOpen = false;
             }
 
+            // https://stackoverflow.com/a/1517794
+            private bool IsVisibleToUser(FrameworkElement element, FrameworkElement container)
+            {
+                if (!element.IsVisible)
+                {
+                    return false;
+                }
+
+                Rect bounds = element.TransformToAncestor(container).TransformBounds(new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+                Rect rect = new(0, 0, container.ActualWidth, container.ActualHeight);
+                return rect.Contains(bounds.TopLeft) || rect.Contains(bounds.BottomRight);
+            }
+
+            public void OnContainerScrolled(object sender, ScrollChangedEventArgs args)
+            {
+                Debug.WriteLine("OnContainerScrolled");
+
+                if (_scrollViewerContainer == null)
+                {
+                    return;
+                }
+
+                if (!IsVisibleToUser(_openingButton, _scrollViewerContainer))
+                {
+                    return;
+                }
+
+                // Force WPF to refresh the position of the popup.
+                var offset = Popup.HorizontalOffset;
+                Popup.HorizontalOffset = offset + 1;
+                Popup.HorizontalOffset = offset;
+            }
+
             private IntPtr WndProc(nint hWnd, int uMsg, nint wParam, nint lParam, ref bool handled)
             {
-                //Debug.WriteLine("Window procedure!!!");
-
                 switch ((User32.WindowMessage)uMsg)
                 {
                     case WM_ENTERSIZEMOVE:
@@ -387,9 +458,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                             _isWindowMoving = true;
 
                             TryEnableMovementOptimizations();
-                            //_isOptimizingMovement = true;
-
-                            //EnsureMoveImage(hWnd);
                         }
 
                         break;
@@ -422,7 +490,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                             // window alongside the owner. This will stutter more than optimised movement, but
                             // it will look better than keeping the popup window in place for the duration of
                             // window movement.
-                            //Debug.WriteLine("unoptimised!!!");
                             var offset = _popup.HorizontalOffset;
                             _popup.HorizontalOffset = offset + 1;
                             _popup.HorizontalOffset = offset;

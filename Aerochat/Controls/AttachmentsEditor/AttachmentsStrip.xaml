@@ -58,6 +58,7 @@
                       HorizontalScrollBarVisibility="{Binding Path=HorizontalScrollbarVisibility}" 
                       VerticalScrollBarVisibility="{Binding Path=VerticalScrollbarVisibility}"
                       IsTabStop="False"
+                      VirtualizingPanel.ScrollUnit="Pixel"
                       local:ScrollViewerHelper.ScrollWheelScrollsHorizontally="{Binding Horizontal}">
             <ItemsControl ItemsSource="{Binding Path=Attachments, Mode=OneWay}" IsTabStop="False">
                 <ItemsControl.ItemsPanel>
