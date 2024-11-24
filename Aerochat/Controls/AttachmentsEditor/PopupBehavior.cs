@@ -307,8 +307,6 @@ namespace Aerochat.Controls.AttachmentsEditor
 
                 _windowEventManager.EnsureInitialized();
 
-                _hWndSource = HwndSource.FromHwnd(new WindowInteropHelper(_window).Handle);
-                _hWndSource.AddHook(WndProc);
 
                 RefreshSystemParametersInfo();
             }
@@ -319,7 +317,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 // whole thing.
                 UnregisterOpenedOnlyHandlers();
 
-                _hWndSource.RemoveHook(WndProc);
 
                 _popup.Opened -= OnPopupOpened;
                 _popup.Closed -= OnPopupClosed;
@@ -328,6 +325,8 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             private void RegisterOpenedOnlyHandlers()
             {
+                _hWndSource = HwndSource.FromHwnd(new WindowInteropHelper(_window).Handle);
+                _hWndSource.AddHook(WndProc);
                 ScrollViewer? scrollViewer = FindScrollViewerParent(_openingButton);
                 if (scrollViewer != null)
                 {
@@ -338,6 +337,7 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             private void UnregisterOpenedOnlyHandlers()
             {
+                _hWndSource.RemoveHook(WndProc);
                 if (_scrollViewerContainer != null)
                 {
                     _scrollViewerContainer.ScrollChanged -= OnContainerScrolled;
