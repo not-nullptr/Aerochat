@@ -1,6 +1,11 @@
 ﻿// Enable this define to visualise the movement optimisation. 
 //#define VISUALIZE_MOVEMENT_OPTIMIZATION
 
+/*
+ * TODO(kawapure): There is currently an issue with the vertical position of the popup
+ * getting messed up after maximisation change. Needs to be looked into.
+ */
+
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
@@ -324,59 +329,7 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             public void UpdatePopupPosition()
             {
-                if (_scrollViewerContainer == null)
-                {
-                    Debug.WriteLine("UpdatePopupPosition(): _scrollViewerContainer is null");
-
-                    ForcePopupPositionRecalc();
-                    return;
-                }
-
-                if (IsVisibleToUser(_openingButton, _scrollViewerContainer))
-                {
-                    Debug.WriteLine("UpdatePopupPosition(): Popup button is visible to user.");
-
-                    if (Popup.PlacementTarget != _openingButton)
-                    {
-                        Debug.WriteLine("UpdatePopupPosition(): Changing placement target to _openingButton");
-                        Popup.PlacementTarget = _openingButton;
-
-                        // We also need to reset the offset:
-                        ResetPopupPosition();
-                    }
-
-                    ForcePopupPositionRecalc();
-                }
-                else
-                {
-                    Debug.WriteLine("UpdatePopupPosition(): Popup button is NOT visible to user.");
-
-                    if (Popup.PlacementTarget != _scrollViewerContainer)
-                    {
-                        Debug.WriteLine("UpdatePopupPosition(): Changing placement target to _scrollViewerContainer");
-                        Popup.PlacementTarget = _scrollViewerContainer;
-                    }
-
-                    Rect offsetToParent = GetOffsetToParent(_openingButton, _scrollViewerContainer);
-
-                    Debug.WriteLine("UpdatePopupPosition(): Left: " + offsetToParent.Left);
-                    Debug.WriteLine("UpdatePopupPosition(): Top: " + offsetToParent.Top);
-                    Debug.WriteLine("UpdatePopupPosition(): Right: " + offsetToParent.Right);
-                    Debug.WriteLine("UpdatePopupPosition(): Bottom: " + offsetToParent.Bottom);
-
-                    if (offsetToParent.Right > 0)
-                    {
-                        Debug.WriteLine("UpdatePopupPosition(): offsetToParent.Right > 0; positioning to left.");
-                        Popup.HorizontalOffset = 0;
-                        ForcePopupPositionRecalc();
-                    }
-                    else
-                    {
-                        Debug.WriteLine("UpdatePopupPosition(): offsetToParent.Right < 0; positioning to right.");
-                        Popup.HorizontalOffset = _scrollViewerContainer.ActualWidth - Popup.Child.RenderSize.Width;
-                        ForcePopupPositionRecalc();
-                    }
-                }
+                ForcePopupPositionRecalc();
             }
 
             private void ResetPopupPosition()
@@ -422,13 +375,10 @@ namespace Aerochat.Controls.AttachmentsEditor
                 {
                     if (cur is ScrollViewer)
                     {
-                        Debug.WriteLine("FOUND SCROLL VIEWER PARENT");
-                        Debug.WriteLine((string)cur.GetType().GetProperty("Name").GetValue(cur, null));
                         return cur as ScrollViewer;
                     }
                 }
 
-                Debug.WriteLine("FAILED TO FIND SCROLL VIEWER PARENT");
                 return null;
             }
 
@@ -486,33 +436,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 _popup.IsOpen = false;
             }
 
-            private Rect GetOffsetToParent(FrameworkElement element, FrameworkElement parent)
-            {
-                if (element == null || parent == null || !element.IsVisible)
-                {
-                    return new Rect(0, 0, 0, 0);
-                }
-
-                //try
-                //{
-                    Rect bounds = element.TransformToAncestor(parent).TransformBounds(
-                        new Rect(0, 0, element.ActualWidth, element.ActualHeight)    
-                    );
-                    Rect rect = new Rect(0, 0, parent.ActualWidth, parent.ActualHeight);
-
-                    return new Rect(
-                        rect.Left - bounds.Left,
-                        rect.Top - bounds.Top,
-                        (rect.Right - bounds.Right) - (rect.Left - bounds.Left),
-                        (rect.Bottom - bounds.Bottom) - (rect.Top - bounds.Top)
-                    );
-                //}
-                //catch (Exception ex)
-                //{
-                //    return new Rect(0, 0, 0, 0);
-                //}
-            }
-
             // https://stackoverflow.com/a/1517794
             private bool IsVisibleToUser(FrameworkElement element, FrameworkElement container)
             {
@@ -528,23 +451,6 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             public void OnContainerScrolled(object sender, ScrollChangedEventArgs args)
             {
-                Debug.WriteLine("OnContainerScrolled");
-
-                //if (_scrollViewerContainer == null)
-                //{
-                //    return;
-                //}
-
-                //if (!IsVisibleToUser(_openingButton, _scrollViewerContainer))
-                //{
-                //    return;
-                //}
-
-                UpdatePopupPosition();
-                //// Force WPF to refresh the position of the popup.
-                //var offset = Popup.HorizontalOffset;
-                //Popup.HorizontalOffset = offset + 1;
-                //Popup.HorizontalOffset = offset;
             }
 
             private IntPtr WndProc(nint hWnd, int uMsg, nint wParam, nint lParam, ref bool handled)
