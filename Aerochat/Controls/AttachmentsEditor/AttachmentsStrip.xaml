@@ -101,7 +101,7 @@
                                 <ContentControl Content="{Binding}"
                                                 ContentTemplateSelector="{DynamicResource StripItemTemplateSelector}" />
                             </ToggleButton>
-                            <Popup Name="ItemMiniEditor" IsOpen="{Binding Selected}" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=ItemButton}" SnapsToDevicePixels="True" local:PopupBehavior.PopupContainer="{Binding ElementName=ItemButton}">
+                            <Popup Name="ItemMiniEditor" IsOpen="{Binding Selected}" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=PART_ScrollbarViewer}" SnapsToDevicePixels="True" local:PopupBehavior.PopupContainer="{Binding ElementName=ItemButton}">
                                 <local:AttachmentsTinyEditor DataContext="{Binding}" />
                             </Popup>
                         </Grid>
