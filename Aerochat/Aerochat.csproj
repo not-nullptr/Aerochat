@@ -562,6 +562,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Remove="Scenes\Counter-Strike16.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Scenes\Counter-Strike16.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
 	</ItemGroup>
 
