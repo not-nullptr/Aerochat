@@ -73,7 +73,7 @@
 	<item id="71" credit="レイーン" mimetype="image/png" contenttype="D" file="TomodachiCollection.png" displayname="Tomodachi Collection" color="#fd835e" default="false" />
 	<item id="72" credit="patricktbp" mimetype="image/png" contenttype="D" file="Windows7BetaLoginScreen.png" displayname="Windows 7 Beta (Login Screen)" color="#137DAB" default="false" />
 	<item id="73" credit="レイーン" mimetype="image/png" contenttype="D" file="Twitteroldheader.png" displayname="Twitter old header" color="#8ec2da" default="false" />
-	<item id="74" credit="valve" mimetype="image/jpeg" contenttype="D" file="Counter-Strike16.jpeg" displayname="Counter-Strike 1.6" color="#151b2b" default="false" />
+	<item id="74" credit="valve" mimetype="image/png" contenttype="D" file="Counter-Strike16.png" displayname="Counter-Strike 1.6" color="#151b2b" default="false" />
 	<item id="75" credit="patricktbp" mimetype="image/png" contenttype="D" file="SunsetTrees.png" displayname="Sunset Trees" color="#EDAF66" default="false" />
 	<item id="76" credit="liam" mimetype="image/png" contenttype="D" file="Harvest.png" displayname="Harvest" color="#f18e2b" default="false" />
 	<item id="77" credit="Microsoft" mimetype="image/png" contenttype="D" file="WindowsVista-ServicePack2-NoGUIBoot.png" displayname="Windows Vista - Service Pack 2 - No GUI Boot" color="#17383d" default="false" />
