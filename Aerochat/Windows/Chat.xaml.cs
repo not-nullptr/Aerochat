@@ -999,6 +999,11 @@ namespace Aerochat.Windows
 
             if (attachment != null)
             {
+                // XXX kawapure: DISABLED TEMPORARILY FOR AEROCHAT USER DISCORD ACCOUNT SAFETY
+                // Re-enable in public builds only when confirmed to have no negative impact.
+                // Attachments currently cause account to be marked as spam.
+
+#if DEBUG // kawapure: See above comment.
                 ViewModel.Messages[^1].Attachments.Add(new()
                 {
                     Id = 0,
@@ -1009,6 +1014,7 @@ namespace Aerochat.Windows
                     Name = "attachment.png",
                     Size = "Uploading..."
                 });
+#endif
             }
             try
             {
@@ -1021,10 +1027,12 @@ namespace Aerochat.Windows
                 var builder = new DiscordMessageBuilder()
                     .WithContent(value);
 
+#if DEBUG // kawapure: See above comment.
                 if (attachment != null)
                 {
                     builder.AddFile("attachment.png", attachment);
                 }
+#endif
 
                 await builder.SendAsync(Channel);
             }
@@ -1309,6 +1317,15 @@ namespace Aerochat.Windows
 
         private async void CanvasButton_Click(object sender, RoutedEventArgs e)
         {
+            Dialog dialog = new(
+                "Error",
+                "Due to Discord flagging accounts using this feature as spammers, access to the " +
+                "drawing feature has been temporarily disabled.",
+                SystemIcons.Error
+            );
+            dialog.ShowDialog();
+            return;
+
             var canvas = DrawingCanvas;
             var width = (int)canvas.ActualWidth;
             var height = (int)canvas.ActualHeight;
@@ -1447,6 +1464,15 @@ namespace Aerochat.Windows
 
         private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            Dialog dialog = new(
+                "Error",
+                "Due to Discord flagging accounts using this feature as spammers, access to the " +
+                "drawing feature has been temporarily disabled.",
+                SystemIcons.Error
+            );
+            dialog.ShowDialog();
+            return;
+
             if (MessageTextBox.Visibility == Visibility.Collapsed) return;
             _writingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _drawingHeight;
