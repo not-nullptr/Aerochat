@@ -88,6 +88,9 @@ namespace Aerochat.Settings
         #endregion
 
         #region Public Settings
+        [Settings("Alerts", "Play notification sounds")]
+        public bool PlayNotificationSounds { get; set; } = true;
+
         [Settings("Alerts", "Nudge intensity")]
         public int NudgeIntensity { get; set; } = 10;
 
