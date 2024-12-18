@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Aerochat.ViewModels
 {
@@ -15,39 +17,62 @@ namespace Aerochat.ViewModels
     {
         public List<ToolbarItem> ToolbarItems { get; set; } = new()
         {
-            new("Photos", () =>
+            new("Photos", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Photos clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Files", () =>
+            new("Files", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Files clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Video", () =>
+            new("Video", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Video clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Call", () =>
+            new("Call", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Call clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Games", () =>
+            new("Games", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Games clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Activities", () =>
+            new("Activities", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Activities clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Invite", () =>
+            new("Invite", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Invite clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             }),
-            new("Block", () =>
+            new("Block", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Block clicked");
+                OnAnyToolbarButtonClicked(itemElement);
             })
         };
+
+        /// <summary>
+        /// Shows a dialog stating that the toolbar action is unimplemented.
+        /// </summary>
+        private static void OnAnyToolbarButtonClicked(FrameworkElement itemElement)
+        {
+            Dialog dialog = new(
+                "Error",
+                "This action is currently unimplemented.",
+                SystemIcons.Error
+            );
+            dialog.Owner = Window.GetWindow(itemElement);
+            dialog.ShowDialog();
+        }
+
         public ObservableCollection<MessageViewModel> Messages { get; set; } = new();
 
         private int _topHeight = 80;

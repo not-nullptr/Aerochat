@@ -37,13 +37,17 @@ using System.Windows.Ink;
 using Point = System.Windows.Point;
 using Timer = System.Timers.Timer;
 using DSharpPlus.Exceptions;
+using static Aerochat.Windows.ToolbarItem;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, Action action)
+    public class ToolbarItem(string text, ToolbarItemAction action)
     {
         public string Text { get; set; } = text;
-        public Action Action { get; set; } = action;
+
+        public delegate void ToolbarItemAction(FrameworkElement itemElement);
+
+        public ToolbarItemAction Action { get; set; } = action;
     }
 
     public partial class Chat : Window
@@ -1065,7 +1069,7 @@ namespace Aerochat.Windows
             Grid grid = (Grid)sender;
             if (grid.DataContext is ToolbarItem toolbarItem)
             {
-                toolbarItem.Action();
+                toolbarItem.Action((FrameworkElement)sender);
             }
         }
 
