@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Aerochat.ViewModels.HomeListViewCategory;
 
 namespace Aerochat.ViewModels
 {
@@ -13,6 +14,64 @@ namespace Aerochat.ViewModels
         public HomeWindowViewModel()
         {
             Notices.CollectionChanged += (_, _) => InvokePropertyChanged(nameof(CurrentNotice));
+            // Initialize filtered categories
+            FilteredCategories = new ObservableCollection<HomeListViewCategory>();
+            Categories.CollectionChanged += (s, e) => UpdateFilteredCategories();
+        }
+
+        private string _searchText = "";
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    UpdateFilteredCategories();
+                }
+            }
+        }
+
+        public ObservableCollection<HomeListViewCategory> FilteredCategories { get; }
+
+        private void UpdateFilteredCategories()
+        {
+            FilteredCategories.Clear();
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                foreach (var category in Categories)
+                {
+                    FilteredCategories.Add(category);
+                }
+                return;
+            }
+
+            var searchTerms = SearchText.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var category in Categories)
+            {
+                var filteredItems = category.Items.Where(item =>
+                    searchTerms.All(term =>
+                        item.Name.ToLower().Contains(term) ||
+                        (item.Presence?.Status?.ToLower().Contains(term) ?? false) ||
+                        (item.Presence?.Presence?.ToLower().Contains(term) ?? false)
+                    )).ToList();
+
+                if (filteredItems.Any())
+                {
+                    var filteredCategory = new HomeListViewCategory
+                    {
+                        Name = category.Name,
+                        IsVisibleProperty = category.IsVisibleProperty,
+                        Collapsed = category.Collapsed,
+                        IsSelected = category.IsSelected
+                    };
+                    foreach (var item in filteredItems)
+                    {
+                        filteredCategory.Items.Add(item);
+                    }
+                    FilteredCategories.Add(filteredCategory);
+                }
+            }
         }
 
         private UserViewModel _currentUser = new()
