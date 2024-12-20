@@ -5,18 +5,33 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using static Aerochat.ViewModels.HomeListViewCategory;
 
 namespace Aerochat.ViewModels
 {
     public class HomeWindowViewModel : ViewModelBase
     {
+        private readonly DispatcherTimer _searchDebounceTimer;
+        private const int DEBOUNCE_INTERVAL_MS = 150;
+
         public HomeWindowViewModel()
         {
             Notices.CollectionChanged += (_, _) => InvokePropertyChanged(nameof(CurrentNotice));
             // Initialize filtered categories
             FilteredCategories = new ObservableCollection<HomeListViewCategory>();
             Categories.CollectionChanged += (s, e) => UpdateFilteredCategories();
+
+            // Initialize debounce timer
+            _searchDebounceTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(DEBOUNCE_INTERVAL_MS)
+            };
+            _searchDebounceTimer.Tick += (s, e) =>
+            {
+                _searchDebounceTimer.Stop();
+                UpdateFilteredCategories();
+            };
         }
 
         private string _searchText = "";
@@ -27,7 +42,9 @@ namespace Aerochat.ViewModels
             {
                 if (SetProperty(ref _searchText, value))
                 {
-                    UpdateFilteredCategories();
+                    // Reset and restart the debounce timer
+                    _searchDebounceTimer.Stop();
+                    _searchDebounceTimer.Start();
                 }
             }
         }
@@ -36,9 +53,10 @@ namespace Aerochat.ViewModels
 
         private void UpdateFilteredCategories()
         {
-            FilteredCategories.Clear();
             if (string.IsNullOrWhiteSpace(SearchText))
             {
+                // Fast path for empty search - just reference existing categories
+                FilteredCategories.Clear();
                 foreach (var category in Categories)
                 {
                     FilteredCategories.Add(category);
@@ -47,31 +65,62 @@ namespace Aerochat.ViewModels
             }
 
             var searchTerms = SearchText.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (searchTerms.Length == 0)
+            {
+                return;
+            }
+
+            FilteredCategories.Clear();
+            var reusableCategory = new HomeListViewCategory();
+
             foreach (var category in Categories)
             {
-                var filteredItems = category.Items.Where(item =>
-                    searchTerms.All(term =>
-                        item.Name.ToLower().Contains(term) ||
-                        (item.Presence?.Status?.ToLower().Contains(term) ?? false) ||
-                        (item.Presence?.Presence?.ToLower().Contains(term) ?? false)
-                    )).ToList();
+                // Reuse the same category object and just update its properties
+                reusableCategory.Name = category.Name;
+                reusableCategory.IsVisibleProperty = category.IsVisibleProperty;
+                reusableCategory.Collapsed = category.Collapsed;
+                reusableCategory.IsSelected = category.IsSelected;
+                reusableCategory.Items.Clear();
 
-                if (filteredItems.Any())
+                bool hasMatchingItems = false;
+                foreach (var item in category.Items)
                 {
-                    var filteredCategory = new HomeListViewCategory
+                    if (MatchesSearchTerms(item, searchTerms))
                     {
-                        Name = category.Name,
-                        IsVisibleProperty = category.IsVisibleProperty,
-                        Collapsed = category.Collapsed,
-                        IsSelected = category.IsSelected
-                    };
-                    foreach (var item in filteredItems)
-                    {
-                        filteredCategory.Items.Add(item);
+                        reusableCategory.Items.Add(item);
+                        hasMatchingItems = true;
                     }
-                    FilteredCategories.Add(filteredCategory);
+                }
+
+                if (hasMatchingItems)
+                {
+                    // Only create a new category if matches are found
+                    var newCategory = new HomeListViewCategory
+                    {
+                        Name = reusableCategory.Name,
+                        IsVisibleProperty = reusableCategory.IsVisibleProperty,
+                        Collapsed = reusableCategory.Collapsed,
+                        IsSelected = reusableCategory.IsSelected
+                    };
+                    foreach (var item in reusableCategory.Items)
+                    {
+                        newCategory.Items.Add(item);
+                    }
+                    FilteredCategories.Add(newCategory);
                 }
             }
+        }
+
+        private static bool MatchesSearchTerms(HomeListItemViewModel item, string[] searchTerms)
+        {
+            var name = item.Name?.ToLower() ?? "";
+            var status = item.Presence?.Status?.ToLower() ?? "";
+            var presence = item.Presence?.Presence?.ToLower() ?? "";
+
+            return searchTerms.All(term =>
+                name.Contains(term) ||
+                status.Contains(term) ||
+                presence.Contains(term));
         }
 
         private UserViewModel _currentUser = new()
