@@ -12,7 +12,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using Vanara.PInvoke;
 using static Vanara.PInvoke.User32;
+using static Vanara.PInvoke.User32.WindowMessage;
 using Color = System.Windows.Media.Color;
 
 namespace Aerochat.Controls
@@ -26,7 +28,7 @@ namespace Aerochat.Controls
         Border SecondBorder;
         Grid Container;
         public bool IsDwmEnabled { get; private set; }
-        public BaseTitlebar() 
+        public BaseTitlebar()
         {
             DwmIsCompositionEnabled(out bool isEnabled);
             IsDwmEnabled = isEnabled;
@@ -104,7 +106,7 @@ namespace Aerochat.Controls
                 ContentTemplateSelector = ContentTemplateSelector,
                 ContentStringFormat = ContentStringFormat
             };
-            
+
             var titlebar = new NoDwmTitlebar();
             titlebar.ViewModel.TextColor = new SolidColorBrush(BlackText);
             titlebar.ViewModel.Color = new SolidColorBrush(Color);
@@ -124,7 +126,7 @@ namespace Aerochat.Controls
 
             Border whiteBorder = new();
             // set to white, opacity 32, thickness 1
-            whiteBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(127, 255,255,255));
+            whiteBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(127, 255, 255, 255));
             whiteBorder.BorderThickness = new Thickness(1);
             // set it so its 1px offset in all directions (top left bottom right)
             whiteBorder.Margin = new Thickness(1);
@@ -274,9 +276,9 @@ namespace Aerochat.Controls
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            switch (msg)
+            switch ((WindowMessage)msg)
             {
-                case 0x84: // WM_NCHITTEST
+                case WM_NCHITTEST:
                 {
                     System.Windows.Point point = PointFromNcHit(lParam);
 
@@ -299,17 +301,17 @@ namespace Aerochat.Controls
                                 // should always work and yet somehow it doesn't. This hack is
                                 // a workaround so the icon behaves like native windows do.
 
-                                return 2; // HTCAPTION
+                                return (nint)HitTestValues.HTCAPTION;
                             }
 
-                            return 3; // HTSYSMENU
+                            return (nint)HitTestValues.HTSYSMENU;
                         }
                     }
 
                     break;
                 }
 
-                case 0xA4: // WM_NCRBUTTONDOWN
+                case WM_NCRBUTTONDOWN:
                 {
                     System.Windows.Point point = PointFromNcHit(lParam);
 
@@ -333,7 +335,7 @@ namespace Aerochat.Controls
                     break;
                 }
 
-                case 0xA5: // WM_NCRBUTTONUP
+                case WM_NCRBUTTONUP:
                 {
                     System.Windows.Point point = PointFromNcHit(lParam);
 
@@ -367,7 +369,7 @@ namespace Aerochat.Controls
                     break;
                 }
 
-                case 0x31E: // WM_DWMCOMPOSITIONCHANGED
+                case WM_DWMCOMPOSITIONCHANGED:
                 {
                     DwmIsCompositionEnabled(out bool enabled);
                     if (enabled != IsDwmEnabled)
@@ -378,7 +380,7 @@ namespace Aerochat.Controls
                     OnDwmChanged();
                     break;
                 }
-                case 0x000C: // WM_SETTEXT
+                case WM_SETTEXT:
                 {
                     string? newText = Marshal.PtrToStringAuto(wParam);
                     if (newText != null)

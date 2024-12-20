@@ -33,15 +33,18 @@ namespace Aerochat.Windows
 
         private void Dialog_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Owner == null)
-                throw new InvalidOperationException("Dialog must have an owner window.");
-            double dialogWidth = ActualWidth;
-            double dialogHeight = ActualHeight;
-            double ownerWidth = Owner.ActualWidth;
-            double ownerHeight = Owner.ActualHeight;
+            bool hasOwner = Owner != null;
 
-            Left = Owner.Left + (ownerWidth - dialogWidth) / 2;
-            Top = Owner.Top + (ownerHeight - dialogHeight) / 2;
+            if (hasOwner)
+            {
+                double dialogWidth = ActualWidth;
+                double dialogHeight = ActualHeight;
+                double ownerWidth = Owner.ActualWidth;
+                double ownerHeight = Owner.ActualHeight;
+
+                Left = Owner.Left + (ownerWidth - dialogWidth) / 2;
+                Top = Owner.Top + (ownerHeight - dialogHeight) / 2;
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

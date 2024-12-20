@@ -76,6 +76,11 @@ namespace DSharpPlus
         protected internal ConcurrentDictionary<ulong, DiscordUser> UserCache { get; }
 
         /// <summary>
+        /// Gets the cached user profiles for this client.
+        /// </summary>
+        protected internal ConcurrentDictionary<ulong, DiscordProfile> UserProfileCache { get; }
+
+        /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
         public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions
@@ -104,6 +109,7 @@ namespace DSharpPlus
 
             this.ApiClient = new DiscordApiClient(this, restClient);
             this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
+            this.UserProfileCache = new ConcurrentDictionary<ulong, DiscordProfile>();
             this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
             this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
 
@@ -254,6 +260,21 @@ namespace DSharpPlus
             if (user.Discord == null)
                 user.Discord = this; // for safety
             return true;
+        }
+
+        internal bool TryGetCachedUserProfileInternal(ulong user_id, out DiscordProfile user)
+        {
+            if (this.UserProfileCache.TryGetValue(user_id, out user))
+            {
+                if (user.Discord == null)
+                {
+                    user.Discord = this; // for safety;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         // This previously set properties on the old user and re-injected into the cache.

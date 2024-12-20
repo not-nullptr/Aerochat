@@ -568,8 +568,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Controls\NativeToolTipControlService.cs" />
-	  <Compile Remove="Controls\NativeTooltipOld.cs" />
+	  <Resource Remove="Scenes\Counter-Strike16.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Scenes\Counter-Strike16.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>

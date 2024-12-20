@@ -409,18 +409,21 @@ namespace DSharpPlus
                 cl?.Set();
         }
 
-        public Task ReconnectAsync(bool startNewSession = false)
-            => this.InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+        public async Task ReconnectAsync(bool startNewSession = false)
+        {
+            this.Configuration.AutoReconnect = true;
+            await this.InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+        }
 
         /// <summary>
         /// Disconnects from the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task DisconnectAsync()
+        public async Task DisconnectAsync(int code = 1000)
         {
             this.Configuration.AutoReconnect = false;
             if (this._webSocketClient != null)
-                await this._webSocketClient.DisconnectAsync().ConfigureAwait(false);
+                await this._webSocketClient.DisconnectAsync(code).ConfigureAwait(false);
         }
 
         #endregion
@@ -452,6 +455,7 @@ namespace DSharpPlus
         /// <returns></returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        [Obsolete("You probably shouldn't call this in Aerochat, as it's an unsupported API for user accounts. Use GetUserProfileAsync and access the .User property of the result instead.")]
         public async Task<DiscordUser> GetUserAsync(ulong userId, bool updateCache = false)
         {
             if (!updateCache && this.TryGetCachedUserInternal(userId, out var usr))
@@ -461,6 +465,27 @@ namespace DSharpPlus
 
             // See BaseDiscordClient.UpdateUser for why this is done like this.
             this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
+
+            return usr;
+        }
+
+        /// <summary>
+        /// Gets a user profile
+        /// </summary>
+        /// <param name="userId">ID of the user</param>
+        /// <param name="updateCache">Whether to always make a REST request and update cache. Passing true will update the user profile, updating stale properties such as <see cref="DiscordUser.BannerHash"/>.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordProfile> GetUserProfileAsync(ulong userId, bool updateCache = false)
+        {
+            if (!updateCache && this.TryGetCachedUserProfileInternal(userId, out var usr))
+                return usr;
+
+            usr = await this.ApiClient.GetUserProfileAsync(userId).ConfigureAwait(false);
+
+            // See BaseDiscordClient.UpdateUser for why this is done like this.
+            this.UserProfileCache.AddOrUpdate(userId, usr, (_, _) => usr);
 
             return usr;
         }

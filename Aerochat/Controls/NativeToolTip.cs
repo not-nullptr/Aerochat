@@ -19,6 +19,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows;
 using System.Diagnostics;
+using Vanara.PInvoke;
+using static Vanara.PInvoke.User32;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Aerochat.Controls
@@ -29,17 +31,6 @@ namespace Aerochat.Controls
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr CreateWindowEx(WindowStylesEx dwExStyle, string lpClassName, string lpWindowName, uint dwStyle, int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DestroyWindow(IntPtr hwnd);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, SetWindowPosFlags uFlags);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
         private const int CW_USEDEFAULT = unchecked((int)0x80000000);
 
@@ -58,64 +49,6 @@ namespace Aerochat.Controls
             [MarshalAs(UnmanagedType.LPTStr)]
             public string lpszText;
             public IntPtr lParam;
-        }
-
-        [Flags]
-        private enum WindowStylesEx : uint
-        {
-            WS_EX_ACCEPTFILES = 0x00000010,
-            WS_EX_APPWINDOW = 0x00040000,
-            WS_EX_CLIENTEDGE = 0x00000200,
-            WS_EX_COMPOSITED = 0x02000000,
-            WS_EX_CONTEXTHELP = 0x00000400,
-            WS_EX_CONTROLPARENT = 0x00010000,
-            WS_EX_DLGMODALFRAME = 0x00000001,
-            WS_EX_LAYERED = 0x00080000,
-            WS_EX_LAYOUTRTL = 0x00400000,
-            WS_EX_LEFT = 0x00000000,
-            WS_EX_LEFTSCROLLBAR = 0x00004000,
-            WS_EX_LTRREADING = 0x00000000,
-            WS_EX_MDICHILD = 0x00000040,
-            WS_EX_NOACTIVATE = 0x08000000,
-            WS_EX_NOINHERITLAYOUT = 0x00100000,
-            WS_EX_NOPARENTNOTIFY = 0x00000004,
-            WS_EX_OVERLAPPEDWINDOW = WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE,
-            WS_EX_PALETTEWINDOW = WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST,
-            WS_EX_RIGHT = 0x00001000,
-            WS_EX_RIGHTSCROLLBAR = 0x00000000,
-            WS_EX_RTLREADING = 0x00002000,
-            WS_EX_STATICEDGE = 0x00020000,
-            WS_EX_TOOLWINDOW = 0x00000080,
-            WS_EX_TOPMOST = 0x00000008,
-            WS_EX_TRANSPARENT = 0x00000020,
-            WS_EX_WINDOWEDGE = 0x00000100
-        }
-
-        [Flags]
-        private enum WindowStyles : uint
-        {
-            WS_BORDER = 0x800000,
-            WS_CAPTION = 0xc00000,
-            WS_CHILD = 0x40000000,
-            WS_CLIPCHILDREN = 0x2000000,
-            WS_CLIPSIBLINGS = 0x4000000,
-            WS_DISABLED = 0x8000000,
-            WS_DLGFRAME = 0x400000,
-            WS_GROUP = 0x20000,
-            WS_HSCROLL = 0x100000,
-            WS_MAXIMIZE = 0x1000000,
-            WS_MAXIMIZEBOX = 0x10000,
-            WS_MINIMIZE = 0x20000000,
-            WS_MINIMIZEBOX = 0x20000,
-            WS_OVERLAPPED = 0x0,
-            WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-            WS_POPUP = 0x80000000u,
-            WS_POPUPWINDOW = WS_POPUP | WS_BORDER | WS_SYSMENU,
-            WS_SIZEFRAME = 0x40000,
-            WS_SYSMENU = 0x80000,
-            WS_TABSTOP = 0x10000,
-            WS_VISIBLE = 0x10000000,
-            WS_VSCROLL = 0x200000
         }
 
         [Flags]
@@ -190,35 +123,6 @@ namespace Aerochat.Controls
             TTM_SETTITLEW = WM_USER + 33,  // wParam = TTI_*, lParam = wchar* szTitle
             TTM_POPUP = WM_USER + 34,
             TTM_GETTITLE = WM_USER + 35 // wParam = 0, lParam = TTGETTITLE*
-        }
-
-        [Flags]
-        private enum SetWindowPosFlags : uint
-        {
-            SWP_NOSIZE = 0x0001,
-            SWP_NOMOVE = 0x0002,
-            SWP_NOZORDER = 0x0004,
-            SWP_NOREDRAW = 0x0008,
-            SWP_NOACTIVATE = 0x0010,
-            SWP_DRAWFRAME = 0x0020,
-            SWP_FRAMECHANGED = 0x0020,
-            SWP_SHOWWINDOW = 0x0040,
-            SWP_HIDEWINDOW = 0x0080,
-            SWP_NOCOPYBITS = 0x0100,
-            SWP_NOOWNERZORDER = 0x0200,
-            SWP_NOREPOSITION = 0x0200,
-            SWP_NOSENDCHANGING = 0x0400,
-            SWP_DEFERERASE = 0x2000,
-            SWP_ASYNCWINDOWPOS = 0x4000
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int left;
-            public int top;
-            public int right;
-            public int bottom;
         }
 
         #endregion
@@ -353,11 +257,6 @@ namespace Aerochat.Controls
 
         public const int GCL_STYLE = -26;
         public const int CS_DROPSHADOW = 0x20000;
-
-        [DllImport("user32.dll", EntryPoint = "GetClassLong")]
-        public static extern int GetClassLong(IntPtr hWnd, int nIndex);
-        [DllImport("user32.dll", EntryPoint = "SetClassLong")]
-        public static extern int SetClassLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
         private static void Add(IntPtr handle)
         {

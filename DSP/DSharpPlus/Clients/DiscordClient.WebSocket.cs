@@ -227,14 +227,14 @@ namespace DSharpPlus
         {
             using var streamReader = new StreamReader(data, Utilities.UTF8);
 #if DEBUG
-            //var strPayload = streamReader.ReadToEnd();
-            //data.Position = 0;
-
-            //this.Logger.LogTrace(LoggerEvents.GatewayWsRx, strPayload);
-#endif
+            var strPayload = streamReader.ReadToEnd();
+            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, strPayload);
+            var payload = JsonConvert.DeserializeObject<GatewayPayload>(strPayload);
+#else
             using var jsonReader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             var payload = serializer.Deserialize<GatewayPayload>(jsonReader);
+#endif
 
             this._lastSequence = payload.Sequence ?? this._lastSequence;
             switch (payload.OpCode)
@@ -252,7 +252,7 @@ namespace DSharpPlus
                     break;
 
                 case GatewayOpCode.InvalidSession:
-                    await this.OnInvalidateSessionAsync((bool)payload.Data).ConfigureAwait(false);
+                    await this.OnInvalidateSessionAsync((payload.Data as JToken).ToObject<bool>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Hello:
@@ -321,7 +321,7 @@ namespace DSharpPlus
                 return;
             }
 
-            Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
+            Interlocked.Exchange(ref this._skippedHeartbeats, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 

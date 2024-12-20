@@ -36,13 +36,18 @@ using System.IO;
 using System.Windows.Ink;
 using Point = System.Windows.Point;
 using Timer = System.Timers.Timer;
+using DSharpPlus.Exceptions;
+using static Aerochat.Windows.ToolbarItem;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, Action action)
+    public class ToolbarItem(string text, ToolbarItemAction action)
     {
         public string Text { get; set; } = text;
-        public Action Action { get; set; } = action;
+
+        public delegate void ToolbarItemAction(FrameworkElement itemElement);
+
+        public ToolbarItemAction Action { get; set; } = action;
     }
 
     public partial class Chat : Window
@@ -165,7 +170,8 @@ namespace Aerochat.Windows
                 recipient = ((DiscordDmChannel)currentChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
                 if (!Discord.Client.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
-                    recipient = await Discord.Client.GetUserAsync(recipient.Id, true);
+                    DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
+                    recipient = userProfile.User;
                 }
             }
             else
@@ -365,30 +371,41 @@ namespace Aerochat.Windows
 
         public async Task BeginDiscordLoop()
         {
-            await OnChannelChange();
-            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
-            if (currentChannel is null)
+            try
             {
-                currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
-            }
-
-            bool isDM = currentChannel is DiscordDmChannel;
-            Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
-            if (guild is null && !isDM)
-            {
-                guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
-            }
-
-            Dispatcher.Invoke(() =>
-            {
-                if (!isDM)
+                await OnChannelChange();
+                Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
+                if (currentChannel is null)
                 {
-                    ViewModel.Guild = GuildViewModel.FromGuild(guild);
-                    RefreshChannelList();
+                    currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
                 }
-            });
-            Dispatcher.Invoke(Show);
-            if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+
+                bool isDM = currentChannel is DiscordDmChannel;
+                Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
+                if (guild is null && !isDM)
+                {
+                    guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
+                }
+
+                Dispatcher.Invoke(() =>
+                {
+                    if (!isDM)
+                    {
+                        ViewModel.Guild = GuildViewModel.FromGuild(guild);
+                        RefreshChannelList();
+                    }
+                });
+                Dispatcher.Invoke(Show);
+                if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+            }
+            catch (UnauthorizedException e)
+            {
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.WebResponse.Response));
+            }
+            catch (Exception e)
+            {
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.Message));
+            }
         }
 
         public void RefreshChannelList()
@@ -650,9 +667,19 @@ namespace Aerochat.Windows
 
         public void UnavailableDialog()
         {
+            ShowErrorDialog("This server is unavailable right now. Please try again later.", "Server unavailable");
+        }
+
+        public void ShowErrorDialog(string message, string title = "Error", Icon? icon = null)
+        {
+            if (icon == null)
+            {
+                icon = SystemIcons.Error;
+            }
+
             Show();
             Visibility = Visibility.Hidden;
-            var dialog = new Dialog("Server unavailable", "This server is unavailable right now. Please try again later", SystemIcons.Error);
+            var dialog = new Dialog(title, message, icon);
             dialog.Owner = this;
             dialog.ShowDialog();
             Close();
@@ -976,6 +1003,11 @@ namespace Aerochat.Windows
 
             if (attachment != null)
             {
+                // XXX kawapure: DISABLED TEMPORARILY FOR AEROCHAT USER DISCORD ACCOUNT SAFETY
+                // Re-enable in public builds only when confirmed to have no negative impact.
+                // Attachments currently cause account to be marked as spam.
+
+#if DEBUG // kawapure: See above comment.
                 ViewModel.Messages[^1].Attachments.Add(new()
                 {
                     Id = 0,
@@ -986,6 +1018,7 @@ namespace Aerochat.Windows
                     Name = "attachment.png",
                     Size = "Uploading..."
                 });
+#endif
             }
             try
             {
@@ -998,10 +1031,12 @@ namespace Aerochat.Windows
                 var builder = new DiscordMessageBuilder()
                     .WithContent(value);
 
+#if DEBUG // kawapure: See above comment.
                 if (attachment != null)
                 {
                     builder.AddFile("attachment.png", attachment);
                 }
+#endif
 
                 await builder.SendAsync(Channel);
             }
@@ -1034,7 +1069,7 @@ namespace Aerochat.Windows
             Grid grid = (Grid)sender;
             if (grid.DataContext is ToolbarItem toolbarItem)
             {
-                toolbarItem.Action();
+                toolbarItem.Action((FrameworkElement)sender);
             }
         }
 
@@ -1286,6 +1321,15 @@ namespace Aerochat.Windows
 
         private async void CanvasButton_Click(object sender, RoutedEventArgs e)
         {
+            Dialog dialog = new(
+                "Error",
+                "Due to Discord flagging accounts using this feature as spammers, access to the " +
+                "drawing feature has been temporarily disabled.",
+                SystemIcons.Error
+            );
+            dialog.ShowDialog();
+            return;
+
             var canvas = DrawingCanvas;
             var width = (int)canvas.ActualWidth;
             var height = (int)canvas.ActualHeight;
@@ -1424,6 +1468,15 @@ namespace Aerochat.Windows
 
         private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            Dialog dialog = new(
+                "Error",
+                "Due to Discord flagging accounts using this feature as spammers, access to the " +
+                "drawing feature has been temporarily disabled.",
+                SystemIcons.Error
+            );
+            dialog.ShowDialog();
+            return;
+
             if (MessageTextBox.Visibility == Visibility.Collapsed) return;
             _writingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _drawingHeight;

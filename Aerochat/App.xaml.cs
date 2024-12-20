@@ -1,6 +1,7 @@
 ﻿using Aerochat.Hoarder;
 using Aerochat.ViewModels;
 using Aerochat.Windows;
+using Aerochat.Settings;
 using DSharpPlus.Entities;
 using System.Diagnostics;
 using System.Windows;
@@ -124,8 +125,54 @@ namespace Aerochat
             string token = "";
             if (tokenFound)
             {
-                token = Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser));
+                try
+                {
+                    token = Encoding.UTF8.GetString(ProtectedData.Unprotect(encryptedToken, null, DataProtectionScope.CurrentUser));
+                }
+                catch (CryptographicException)
+                {
+                    // This is a natural error state that can occur due to invalid user configuration.
+                    // If it occurs, we'll just bring the user through to the login screen where they
+                    // can reauthenticate and regenerate the encrypted token (this time, hopefully
+                    // in a way that can be decrypted by the current user).
+
+                    token = "";
+                    tokenFound = false;
+
+                    ShutdownMode origShutdownMode = this.ShutdownMode;
+                    this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+                    Dialog dialog = new(
+                        "Warning",
+                        "Your session token could not be decrypted. This may occur due to your configuration being " +
+                        "transferred from another user. You will be logged out.",
+                        SystemIcons.Warning
+                    );
+                    dialog.ShowDialog();
+
+                    this.ShutdownMode = origShutdownMode;
+
+                    // [fallthrough]
+                }
+                catch (NotSupportedException)
+                {
+                    // This is not a natural position to end up in, but it's a nice warning to leave
+                    // for anyone who wants to try and get Aerochat running on non-Windows operating
+                    // systems. It might also show up on ancient versions of Windows that are modified
+                    // enough to run Aerochat but not enough to support the data encryption API.
+
+                    Dialog dialog = new(
+                        "Error",
+                        "Your operating system does not support the encryption API we use for token encryption. " +
+                        "For the safety of your Discord account, you may not continue.",
+                        SystemIcons.Error
+                    );
+                    dialog.ShowDialog();
+
+                    Application.Current.Shutdown();
+                }
             }
+
             try
             {
                 Discord.Client = new(new()
@@ -133,7 +180,8 @@ namespace Aerochat
                     TokenType = TokenType.User,
                     Token = tokenFound ? token : "",
                 });
-            } catch (CryptographicException)
+            }
+            catch (CryptographicException)
             {
                 Discord.Client = new(new()
                 {
@@ -141,6 +189,7 @@ namespace Aerochat
                 });
                 tokenFound = false;
             }
+
             mediaPlayer.MediaOpened += (sender, args) =>
             {
                 mediaPlayer.Play();
@@ -160,7 +209,8 @@ namespace Aerochat
                         });
                     }
                 });
-            } else
+            }
+            else
             {
                 // token doesn't exist - user hasn't saved it. show the login window
                 LoginWindow = new();
@@ -352,11 +402,13 @@ namespace Aerochat
 
                         if (isNudge)
                         {
-                            mediaPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
+                            if (SettingsManager.Instance.PlayNotificationSounds) //toggle sound
+                                mediaPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
                         }
                         else
                         {
-                            mediaPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                            if (SettingsManager.Instance.PlayNotificationSounds) 
+                                mediaPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                         }
                     });
                 };
