@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -53,12 +54,23 @@ namespace Aerochat.Windows
 
                 // Set visibility of the ad based on settings
                 UpdateAdVisibility();
+
+                // Subscribe to changes in the DisplayAds property
+                SettingsManager.Instance.PropertyChanged += OnSettingsChange;
             });
         }
 
         private void UpdateAdVisibility()
         {
             AdImage.Visibility = SettingsManager.Instance.DisplayAds ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void OnSettingsChange(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SettingsManager.Instance.DisplayAds))
+            {
+                Dispatcher.Invoke(UpdateAdVisibility);
+            }
         }
 
         public void UpdateUnreadMessages()
