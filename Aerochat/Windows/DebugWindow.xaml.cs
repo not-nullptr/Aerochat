@@ -30,146 +30,62 @@ namespace Aerochat.Windows
         public DebugWindow()
         {
             InitializeComponent();
-            SourceTreeView.MouseMove += SourceTreeView_MouseMove;
-            TargetTreeView.Drop += TargetTreeView_Drop;
             DataContext = ViewModel;
-            var classes = typeof(DiscordChannel).Assembly.GetTypes().Where(x => x.Namespace == "DSharpPlus.Entities" && x.IsSubclassOf(typeof(SnowflakeObject))).ToList();
-            ViewModel.AeroboolTreeItems.Add(new()
-            {
-                Name = "Discord Types",
-                Type = "/Resources/BoolEditor/Namespace.png"
-            });
-            foreach (var @class in classes)
-            {
-                ViewModel.AeroboolTreeItems[0].Children.Add(new()
-                {
-                    Name = @class.Name,
-                    Type = "/Resources/BoolEditor/Class.png",
-                    Value = @class
-                });
-            }
-            ViewModel.AeroboolTreeItems.Add(new()
-            {
-                Name = "Primitive Types",
-                Type = "/Resources/BoolEditor/Namespace.png"
-            });
-            List<Type> primitives = new()
-            {
-                typeof(string),
-                typeof(bool),
-                typeof(int),
-                typeof(char),
-                typeof(long),
-                typeof(float),
-                typeof(double),
-                typeof(decimal),
-                typeof(byte),
-                typeof(sbyte),
-                typeof(short),
-                typeof(ushort),
-                typeof(uint),
-                typeof(ulong)
-            };
 
-            foreach (var primitive in primitives)
-            {
-                ViewModel.AeroboolTreeItems[1].Children.Add(new()
-                {
-                    Name = primitive.Name,
-                    Type = "/Resources/BoolEditor/Class.png",
-                    Value = primitive
-                });
-            }
+            StatusesComboBox.SelectionChanged += StatusesComboBox_SelectionChanged;
+            // default to Online
+            StatusesComboBox.SelectedItem = UserStatus.Online;
+
+            var attachmentsEditor = PART_AttachmentsEditor.ViewModel;
+
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello2"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello3"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello4"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello5"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello6"
+            //});
+            //attachmentsEditor.Attachments.Add(new(attachmentsEditor)
+            //{
+            //    FileName = "hello7"
+            //});
         }
 
-        private void TargetTreeView_Drop(object sender, DragEventArgs e)
+        private void StatusesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Check if the data being dragged is of the expected type
-            if (e.Data.GetDataPresent("Object"))
-            {
-                // Retrieve the dragged item
-                var droppedItem = e.Data.GetData("Object") as AeroboolTreeItemViewModel;
-
-                if (droppedItem != null)
-                {
-                    AeroboolTreeItemViewModel? FindParent(AeroboolTreeItemViewModel item)
-                    {
-                        AeroboolTreeItemViewModel? FindParentInternal(AeroboolTreeItemViewModel parent)
-                        {
-                            if (parent.Children.Contains(item))
-                                return parent;
-                            foreach (var child in parent.Children)
-                            {
-                                var result = FindParentInternal(child);
-                                if (result != null)
-                                    return result;
-                            }
-                            return null;
-                        }
-
-                        foreach (var child in ViewModel.AeroboolTreeItems)
-                        {
-                            var result = FindParentInternal(child);
-                            if (result != null)
-                                return result;
-                        }
-                        return null;
-                    }
-                    var parent = FindParent(droppedItem);
-                    if (parent != null)
-                        parent.Children.Remove(droppedItem);
-                    else if (ViewModel.AeroboolTreeItems.Contains(droppedItem))
-                        ViewModel.AeroboolTreeItems.Remove(droppedItem);
-                }
-            }
-
-            CurrentlyDraggingItem = null;
+            ViewModel.UserStatus = (UserStatus)StatusesComboBox.SelectedItem;
         }
 
-
-        private void SourceTreeView_MouseMove(object sender, MouseEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (e.LeftButton != MouseButtonState.Pressed)
-            {
-                CurrentlyDraggingItem = null;
-            }
-            if (e.LeftButton != MouseButtonState.Pressed || CurrentlyDraggingItem != null || SourceTreeView.SelectedItem is null)
-                return;
+            Debug.WriteLine("hi");
 
-            // get the currently selected item
-            var selected = (AeroboolTreeItemViewModel)SourceTreeView.SelectedItem;
-            // get the treeviewitem recursively
-            if (selected != null) {
-                var treeViewItem = SourceTreeView.ItemContainerGenerator.ContainerFromItem(selected) as TreeViewItem;
-                if (treeViewItem == null)
-                {
-                    treeViewItem = SourceTreeView.ItemContainerGenerator.ContainerFromItem(selected) as TreeViewItem;
-                }
-                if (treeViewItem == null)
-                    return;
-            }
+            PART_AttachmentsEditor.ViewModel.Horizontal =
+                !PART_AttachmentsEditor.ViewModel.Horizontal;
 
-            CurrentlyDraggingItem = selected;
-
-            // initialize the drag & drop operation
-            DataObject dragData = new();
-            dragData.SetData("Object", CurrentlyDraggingItem);
-            DragDrop.DoDragDrop(SourceTreeView, dragData, DragDropEffects.Move);
-        }
-    }
-
-    public class TreeViewLineConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            TreeViewItem item = (TreeViewItem)value;
-            ItemsControl ic = ItemsControl.ItemsControlFromItemContainer(item);
-            return ic.ItemContainerGenerator.IndexFromContainer(item) == ic.Items.Count - 1;
+            Debug.WriteLine("orientation is now: " + (PART_AttachmentsEditor.ViewModel.Horizontal ? "horizontal" : "vertical"));
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            return false;
+            PART_AttachmentsEditor.ViewModel.AddItemsFromFilePicker();
         }
     }
 }
