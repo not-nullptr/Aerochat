@@ -15,6 +15,7 @@
         <TaskbarItemInfo x:Name="TaskbarInfo" />
     </Window.TaskbarItemInfo>
     <Window.Resources>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <Storyboard x:Key="FadeOutStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              To="0"
@@ -854,7 +855,7 @@
                                 </Grid>
                                 <Grid Grid.Row="1" UseLayoutRounding="True">
                                     <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
-                                        <Image Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
+                                        <Image x:Name="AdImage" Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Cursor" Value="Hand" />

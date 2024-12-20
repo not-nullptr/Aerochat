@@ -99,6 +99,10 @@ namespace Aerochat.Settings
 
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
+
+        [Settings("Appearance", "Show community images in the Main View (requires restart)")]
+
+        public bool DisplayAds { get; set; } = true;
         #endregion
     }
 }

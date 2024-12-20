@@ -50,7 +50,15 @@ namespace Aerochat.Windows
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
                 Client_Ready(Discord.Client, null);
+
+                // Set visibility of the ad based on settings
+                UpdateAdVisibility();
             });
+        }
+
+        private void UpdateAdVisibility()
+        {
+            AdImage.Visibility = SettingsManager.Instance.DisplayAds ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public void UpdateUnreadMessages()
