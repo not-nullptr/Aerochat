@@ -38,6 +38,7 @@ using Point = System.Windows.Point;
 using Timer = System.Timers.Timer;
 using DSharpPlus.Exceptions;
 using static Aerochat.Windows.ToolbarItem;
+using Aerochat.Enums;
 
 namespace Aerochat.Windows
 {
@@ -731,6 +732,10 @@ namespace Aerochat.Windows
             };
             ViewModel.Messages.CollectionChanged += UpdateHiddenInfo;
             TypingUsers.CollectionChanged += TypingUsers_CollectionChanged;
+
+            // (iL - 20.12.2024) Subscribe to settings changes for live update
+            SettingsManager.Instance.PropertyChanged += OnSettingsChanged;
+
             Closing += Chat_Closing;
             Loaded += Chat_Loaded;
             Discord.Client.TypingStarted += OnType;
@@ -743,6 +748,33 @@ namespace Aerochat.Windows
             Discord.Client.PresenceUpdated += OnPresenceUpdated;
             Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+        }
+
+        private void OnSettingsChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SettingsManager.Instance.SelectedTimeFormat))
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    foreach (var message in ViewModel.Messages)
+                    {
+                        // Update each message
+                        message.RaisePropertyChanged(nameof(MessageViewModel.TimestampString));
+                    }
+
+                    // Force the collection to refresh
+                    // (iL - 21.12.2024) I know that this is a really shitty way to force the UI to update,
+                    // but I wasn't able to implement the live updating any other way after 
+                    // fooling around with it for an hour.
+                    // Maybe you have a better idea? :-)
+                    var tempMessages = ViewModel.Messages.ToList();
+                    ViewModel.Messages.Clear();
+                    foreach (var msg in tempMessages)
+                    {
+                        ViewModel.Messages.Add(msg);
+                    }
+                });
+            }
         }
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
