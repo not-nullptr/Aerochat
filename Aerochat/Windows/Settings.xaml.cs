@@ -69,16 +69,19 @@ namespace Aerochat.Windows
             {
                 if (prop.PropertyType.IsEnum)
                 {
-                    // Get the enum values as strings
-                    var enumValues = Enum.GetNames(prop.PropertyType).ToList();
+                    // Get the enum values with their display names
+                    var enumValues = Enum.GetValues(prop.PropertyType)
+                        .Cast<Enum>()
+                        .Select(e => new KeyValuePair<string, string>(e.ToString(), GetEnumDisplayName(e)))
+                        .ToList();
 
                     settings.Add(new SettingViewModel
                     {
                         Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
                         Type = "Enum",
                         DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString(),
-                        EnumValues = new ObservableCollection<string>(enumValues),
-                        SelectedEnumValue = prop.GetValue(SettingsManager.Instance)?.ToString()
+                        EnumValues = new ObservableCollection<string>(enumValues.Select(ev => ev.Value)),
+                        SelectedEnumValue = GetEnumDisplayName((Enum)prop.GetValue(SettingsManager.Instance))
                     });
                 }
                 else
@@ -159,11 +162,17 @@ namespace Aerochat.Windows
                 .GetProperties()
                 .FirstOrDefault(prop => prop.GetCustomAttribute<SettingsAttribute>()?.DisplayName == name);
 
-            // If it's an Enum, set the value
+            // If it's an Enum, map display name to enum value
             if (property!.PropertyType.IsEnum)
             {
-                var enumValue = Enum.Parse(property.PropertyType, selectedValue!);
-                property.SetValue(SettingsManager.Instance, enumValue);
+                var enumValue = Enum.GetValues(property.PropertyType)
+                    .Cast<Enum>()
+                    .FirstOrDefault(e => GetEnumDisplayName(e) == selectedValue);
+
+                if (enumValue != null)
+                {
+                    property.SetValue(SettingsManager.Instance, enumValue);
+                }
             }
 
             // Save the settings
