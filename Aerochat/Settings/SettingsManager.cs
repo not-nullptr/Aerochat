@@ -1,4 +1,5 @@
-﻿using Aerochat.ViewModels;
+﻿using Aerochat.Enums;
+using Aerochat.ViewModels;
 using System;
 using System.IO;
 using System.Linq;
@@ -103,6 +104,9 @@ namespace Aerochat.Settings
         [Settings("Appearance", "Show community-submitted ads on the home page")]
 
         public bool DisplayAds { get; set; } = true;
+
+        [Settings("Appearance", "Time format")]
+        public TimeFormat SelectedTimeFormat { get; set; } = TimeFormat.TwentyFourHour;
         #endregion
     }
 }

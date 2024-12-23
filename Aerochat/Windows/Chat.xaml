@@ -50,7 +50,9 @@
         </Style>
     </Window.Style>
     <Window.Resources>
-        <Storyboard x:Key="FadeOutStoryboard">
+        <local:TimeFormatConverter x:Key="TimeFormatConverter"/>
+
+            <Storyboard x:Key="FadeOutStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              To="0"
                              Duration="0:0:0.3"
@@ -909,7 +911,10 @@
                                                         </Image.Style>
                                                     </Image>
                                                     <TextBlock FontSize="13" Grid.Row="0" Text=" said (" Foreground="#525252" />
-                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Timestamp, StringFormat=HH:mm}" Foreground="#525252" />
+                                                    <!--<TextBlock FontSize="13" Grid.Row="0" Text="{Binding Timestamp, StringFormat=HH:mm:ss}" Foreground="#525252" />-->
+                                                    <TextBlock FontSize="13" Foreground="#525252">
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{Binding TimestampString}" Foreground="#525252" />
+                                                    </TextBlock>
                                                     <TextBlock FontSize="13" Grid.Row="0" Text="):" Foreground="#525252" />
                                                 </StackPanel>
                                             </StackPanel>

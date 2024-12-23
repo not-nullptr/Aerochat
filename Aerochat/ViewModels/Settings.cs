@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Aerochat.Enums;
+using Aerochat.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Vanara.PInvoke.ShlwApi;
 
 namespace Aerochat.ViewModels
 {
@@ -12,6 +15,10 @@ namespace Aerochat.ViewModels
         private string _type;
         private string _name;
         private string _defaultValue;
+
+        public ObservableCollection<string> EnumValues { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> TimeFormatOptions { get; set; }
+        public TimeFormat SelectedTimeFormat { get; set; }
 
         public string Type
         {
@@ -27,6 +34,17 @@ namespace Aerochat.ViewModels
         {
             get => _defaultValue;
             set => SetProperty(ref _defaultValue, value);
+        }
+
+        private string _selectedEnumValue;
+        public string SelectedEnumValue
+        {
+            get => _selectedEnumValue;
+            set
+            {
+                _selectedEnumValue = value;
+                OnPropertyChanged();
+            }
         }
     }
 
