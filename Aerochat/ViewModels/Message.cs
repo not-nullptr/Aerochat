@@ -1,10 +1,14 @@
-﻿using Aerochat.Hoarder;
+﻿using Aerochat.Enums;
+using Aerochat.Hoarder;
+using Aerochat.Settings;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +20,6 @@ namespace Aerochat.ViewModels
         private UserViewModel? _author;
         private string _message;
         private string _rawMessage;
-        private DateTime _timestamp;
         private ulong? _id;
         private bool _ephemeral = false;
         private bool _special = false;
@@ -42,11 +45,6 @@ namespace Aerochat.ViewModels
         {
             get => _rawMessage;
             set => SetProperty(ref _rawMessage, value);
-        }
-        public DateTime Timestamp
-        {
-            get => _timestamp;
-            set => SetProperty(ref _timestamp, value);
         }
         public ulong? Id
         {
@@ -92,6 +90,42 @@ namespace Aerochat.ViewModels
         {
             get => _messageEntity;
             set => SetProperty(ref _messageEntity, value);
+        }
+
+        public string TimestampString
+        {
+            get
+            {
+                var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
+                return Timestamp.ToString(format, CultureInfo.InvariantCulture);  // Ensure InvariantCulture to control formatting: Otherwise we will lose the AM/PM at the end!
+            }
+        }
+
+        private DateTime _timestamp;
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
+            set
+            {
+                if (_timestamp != value)
+                {
+                    _timestamp = value;
+                    RaisePropertyChanged(nameof(Timestamp));
+                    RaisePropertyChanged(nameof(TimestampString));
+                }
+            }
+        }
+
+        public virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public ObservableCollection<AttachmentViewModel> Attachments { get; } = new();

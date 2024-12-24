@@ -16,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Vanara.PInvoke;
+using Aerochat.Attributes;
+using System.Collections.ObjectModel;
 
 namespace Aerochat.Windows
 {
@@ -45,21 +47,54 @@ namespace Aerochat.Windows
             }
         }
 
+        private string GetEnumDisplayName(Enum enumValue)
+        {
+            // Get the field corresponding to the enum value
+            var field = enumValue.GetType().GetField(enumValue.ToString());
+            // Get the DisplayAttribute from the field
+            var attribute = (DisplayAttribute)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
+
+            return attribute?.Name ?? enumValue.ToString(); // Return the display name or the enum value if no display name is found
+        }
+
         public List<SettingViewModel> GetSettingsFromCategory(string category)
         {
             var properties = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .Where(prop => prop.GetCustomAttribute<SettingsAttribute>()?.Category == category);
+
             var settings = new List<SettingViewModel>();
+
             foreach (var prop in properties)
             {
-                settings.Add(new SettingViewModel
+                if (prop.PropertyType.IsEnum)
                 {
-                    Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
-                    Type = prop.PropertyType.Name,
-                    DefaultValue = prop.GetValue(SettingsManager.Instance).ToString()
-                });
+                    // Get the enum values with their display names
+                    var enumValues = Enum.GetValues(prop.PropertyType)
+                        .Cast<Enum>()
+                        .Select(e => new KeyValuePair<string, string>(e.ToString(), GetEnumDisplayName(e)))
+                        .ToList();
+
+                    settings.Add(new SettingViewModel
+                    {
+                        Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                        Type = "Enum",
+                        DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString(),
+                        EnumValues = new ObservableCollection<string>(enumValues.Select(ev => ev.Value)),
+                        SelectedEnumValue = GetEnumDisplayName((Enum)prop.GetValue(SettingsManager.Instance))
+                    });
+                }
+                else
+                {
+                    settings.Add(new SettingViewModel
+                    {
+                        Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                        Type = prop.PropertyType.Name,
+                        DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString()
+                    });
+                }
             }
+
             return settings;
         }
 
@@ -113,6 +148,34 @@ namespace Aerochat.Windows
             if (property!.PropertyType != typeof(bool)) return;
             property!.SetValue(SettingsManager.Instance, checkBox.IsChecked);
             // save the settings
+            SettingsManager.Save();
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = (ComboBox)sender;
+            var name = comboBox.Tag.ToString();
+            var selectedValue = comboBox.SelectedItem.ToString();
+
+            // Find the corresponding property in SettingsManager
+            var property = SettingsManager.Instance.GetType()
+                .GetProperties()
+                .FirstOrDefault(prop => prop.GetCustomAttribute<SettingsAttribute>()?.DisplayName == name);
+
+            // If it's an Enum, map display name to enum value
+            if (property!.PropertyType.IsEnum)
+            {
+                var enumValue = Enum.GetValues(property.PropertyType)
+                    .Cast<Enum>()
+                    .FirstOrDefault(e => GetEnumDisplayName(e) == selectedValue);
+
+                if (enumValue != null)
+                {
+                    property.SetValue(SettingsManager.Instance, enumValue);
+                }
+            }
+
+            // Save the settings
             SettingsManager.Save();
         }
     }

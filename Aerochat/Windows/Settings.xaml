@@ -113,6 +113,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="0,4,0,0">
+                            <!-- For Boolean Settings -->
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
@@ -128,6 +129,8 @@
                                     <TextBlock Text="{Binding Name}" />
                                 </CheckBox>
                             </StackPanel>
+
+                            <!-- For Integer Settings -->
                             <StackPanel>
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
@@ -142,8 +145,32 @@
                                 <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
                                 <TextBox TextChanged="TextBox_TextChanged" Tag="{Binding Name}" Text="{Binding DefaultValue}" PreviewTextInput="TextBox_PreviewTextInput" VerticalContentAlignment="Center" Width="150" Height="22" HorizontalAlignment="Left" />
                             </StackPanel>
+
+                            <!-- For Enum Settings -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Enum">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
+                                <ComboBox 
+       SelectionChanged="ComboBox_SelectionChanged" 
+       SelectedItem="{Binding SelectedEnumValue, Mode=TwoWay}" 
+                                    Tag="{Binding Name}"
+       ItemsSource="{Binding EnumValues}" 
+       Width="150" 
+       Height="22" 
+       HorizontalAlignment="Left" />
+                            </StackPanel>
                         </Grid>
                     </DataTemplate>
+
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Grid>
