@@ -378,7 +378,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0">
-                                <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput">
+                                <TextBox Background="Transparent" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center" Padding="12,0" Panel.ZIndex="5" Margin="7,0,23,0" BorderThickness="0" x:Name="SearchInput" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
                                     <TextBox.Style>
                                         <Style TargetType="{x:Type TextBox}">
                                             <Setter Property="Cursor" Value="Arrow" />
@@ -510,7 +510,7 @@
                     </Grid>
                     <ScrollViewer Style="{DynamicResource HomePageScrollViewer}" VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True">
                         <Grid>
-                            <ItemsControl ItemsSource="{Binding Categories}">
+                            <ItemsControl ItemsSource="{Binding FilteredCategories}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>

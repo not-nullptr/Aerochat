@@ -684,6 +684,12 @@ namespace Aerochat.Windows
         {
             if (e.Key == System.Windows.Input.Key.Tab)
                 e.Handled = true;
+            else if (e.Key == System.Windows.Input.Key.Escape && SearchInput.IsFocused)
+            {
+                SearchInput.Text = "";
+                SearchInput.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                e.Handled = true;
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
