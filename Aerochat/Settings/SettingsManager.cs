@@ -89,6 +89,10 @@ namespace Aerochat.Settings
         #endregion
 
         #region Public Settings
+        // Volatile setting, will be removed when the beta warning is removed.
+        [Settings("Alerts", "Show beta warning on startup")]
+        public bool ShowBetaWarning { get; set; } = true;
+
         [Settings("Alerts", "Play notification sounds")]
         public bool PlayNotificationSounds { get; set; } = true;
 

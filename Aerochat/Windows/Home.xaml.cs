@@ -236,6 +236,21 @@ namespace Aerochat.Windows
                 Show();
                 Focus();
 
+#if RELEASE
+                if (SettingsManager.Instance.ShowBetaWarning)
+                {
+                    Dialog betaNoticeDlg = new(
+                        "Notice",
+                        "Aerochat is currently early in development. Many features are currently unimplemented. " +
+                        "You will probably not be able to daily drive it. \n\n" +
+                        "Please keep this in mind when reporting bugs.",
+                        SystemIcons.Information
+                    );
+                    betaNoticeDlg.Owner = this;
+                    betaNoticeDlg.ShowDialog();
+                }
+#endif
+
                 Task.Run(async () =>
                 {
                     while (true)
