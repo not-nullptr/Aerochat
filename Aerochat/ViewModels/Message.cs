@@ -26,6 +26,7 @@ namespace Aerochat.ViewModels
         private bool _hiddenInfo = false;
         private string _type;
         private bool _isReply = false;
+        private bool _isSelectedForUiAction = false;
         private MessageViewModel? _replyMessage;
         private DiscordMessage _messageEntity;
 
@@ -78,6 +79,12 @@ namespace Aerochat.ViewModels
         {
             get => _isReply;
             set => SetProperty(ref _isReply, value);
+        }
+
+        public bool IsSelectedForUiAction
+        {
+            get => _isSelectedForUiAction;
+            set => SetProperty(ref _isSelectedForUiAction, value);
         }
 
         public MessageViewModel? ReplyMessage
@@ -143,7 +150,7 @@ namespace Aerochat.ViewModels
                 RawMessage = message.Content,
                 Type = message.MessageType?.ToString() ?? "Unknown",
                 IsReply = message.MessageType == MessageType.Reply && !isReply,
-                MessageEntity = message
+                MessageEntity = message,
             };
             foreach (var embed in message.Embeds)
             {

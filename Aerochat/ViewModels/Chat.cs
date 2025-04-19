@@ -1,4 +1,5 @@
-﻿using Aerochat.Theme;
+﻿using Aerochat.Controls;
+using Aerochat.Theme;
 using Aerochat.Voice;
 using Aerochat.Windows;
 using System;
@@ -10,9 +11,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace Aerochat.ViewModels
 {
+    public enum TargetMessageMode
+    {
+        None,
+        Edit,
+        Reply,
+    }
+
     public class ChatWindowViewModel : ViewModelBase
     {
         public List<ToolbarItem> ToolbarItems { get; set; } = new()
@@ -186,5 +195,21 @@ namespace Aerochat.ViewModels
         }
 
         public VoiceManager VoiceManager { get; } = VoiceManager.Instance;
+
+        private MessageViewModel? _editingMessage;
+
+        public MessageViewModel? TargetMessage
+        {
+            get => _editingMessage;
+            set => SetProperty(ref _editingMessage, value);
+        }
+
+        private TargetMessageMode _messageTargetMode;
+
+        public TargetMessageMode MessageTargetMode
+        {
+            get => _messageTargetMode;
+            set => SetProperty(ref _messageTargetMode, value);
+        }
     }
 }

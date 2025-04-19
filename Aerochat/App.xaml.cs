@@ -25,6 +25,9 @@ using System.Windows.Shell;
 using System.Windows.Media.Imaging;
 using DSharpPlus.Enums;
 using Aerovoice.Clients;
+using DiscordProtos.DiscordUsers.V1;
+using System.Buffers.Text;
+using Google.Protobuf;
 
 namespace Aerochat
 {
@@ -32,15 +35,33 @@ namespace Aerochat
     {
         private Timer fullscreenInterval = new(500);
         private MediaPlayer mediaPlayer = new();
+        private PreloadedUserSettings? _userSettingsProto = null;
+
+        public PreloadedUserSettings? UserSettingsProto
+        {
+            get => _userSettingsProto;
+            private set => _userSettingsProto = value;
+        }
 
         public Login? LoginWindow;
 
         public bool LoggingOut = false;
         private Dictionary<UserStatus, ImageSource> _taskbarPresences = new();
         private VoiceSocket voiceSocket;
-        public static async Task SetStatus(UserStatus status)
+        public static async Task SetStatus(UserStatus status, bool updateUserSettingsProto = true)
         {
-            await Discord.Client.UpdateStatusAsync(userStatus:status);
+            App instance = (App)Application.Current;
+
+            await Discord.Client.UpdateStatusAsync(userStatus: status);
+
+            if (updateUserSettingsProto && instance._userSettingsProto != null)
+            {
+                instance._userSettingsProto.Status.Status = status.ToDiscordString();
+                byte[] protoBytes = instance._userSettingsProto.ToByteArray();
+                string base64Proto = Convert.ToBase64String(protoBytes);
+                await Discord.Client.UpdateUserSettingsProto(base64Proto);
+            }
+            
             foreach (Window wnd in Current.Windows)
             {
                 if (wnd is Chat chat)
@@ -209,7 +230,7 @@ namespace Aerochat
                 LoginWindow.Show();
             }
         }
-        public async Task<bool> BeginLogin(string givenToken, bool save = false, UserStatus status = UserStatus.Online)
+        public async Task<bool> BeginLogin(string givenToken, bool save = false, UserStatus? status = null)
         {
             Discord.Client = new(new()
             {
@@ -219,16 +240,31 @@ namespace Aerochat
             Discord.Client.Ready += async (_, __) =>
             {
                 Discord.Ready = true;
+
+                if (Discord.Client.UserSettingsProto.Length > 0)
+                {
+                    byte[] protoBytes = Convert.FromBase64String(Discord.Client.UserSettingsProto);
+
+                    if (protoBytes.Length > 0)
+                    {
+                        _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
+
+                        // Set the status from the protobuf settings.
+                        status = _userSettingsProto.Status.Status.ToUserStatus();
+                    }
+                }
+
+                await Dispatcher.Invoke(() => SetStatus(status ?? UserStatus.Online));
+
                 Dispatcher.Invoke(() => {
                     new Home().Show();
                     Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
                     loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
                 });
-                await Dispatcher.Invoke(() => SetStatus(status));
             };
             try
             {
-                await Discord.Client.ConnectAsync(status: status);
+                await Discord.Client.ConnectAsync(status: status ?? UserStatus.Online);
             } catch (Exception)
             {
                 return false;
@@ -344,7 +380,11 @@ namespace Aerochat
 
                     await Current.Dispatcher.InvokeAsync(() =>
                     {
-                        if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb) return;
+                        if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb)
+                            return;
+                        if (!SettingsManager.Instance.NotifyFriendOnline)
+                            return;
+
                         // if the user isn't on our friends list return
                         var relationship = Discord.Client.Relationships.Values.FirstOrDefault(x => x.UserId == e.User.Id);
                         if (relationship == null || relationship.RelationshipType != DiscordRelationshipType.Friend) return;
@@ -358,6 +398,21 @@ namespace Aerochat
                         mediaPlayer.Open(new Uri("Resources/Sounds/online.wav", UriKind.Relative));
                     });
 
+                };
+
+                Discord.Client.UserSettingsProtoUpdated += async (s, e) =>
+                {
+                    byte[] protoBytes = Convert.FromBase64String(e.Base64EncodedProto);
+
+                    if (protoBytes.Length > 0)
+                    {
+                        _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
+
+                        // Set the status from the protobuf settings.
+                        UserStatus status = _userSettingsProto.Status.Status.ToUserStatus();
+
+                        await Dispatcher.Invoke(() => SetStatus(status, false));
+                    }
                 };
 
                 Discord.Client.CaptchaRequested += Client_CaptchaRequested;
@@ -374,7 +429,14 @@ namespace Aerochat
 
                     Current.Dispatcher.Invoke(() =>
                     {
-                        if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb) return;
+                        if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb)
+                            return;
+
+                        if (isDM && !SettingsManager.Instance.NotifyDm)
+                            return;
+
+                        if (isMention && !SettingsManager.Instance.NotifyMention)
+                            return;
 
                         foreach (Window wnd in Current.Windows)
                         {
@@ -382,9 +444,43 @@ namespace Aerochat
                             {
                                 if (e.Channel?.Id == chat.Channel?.Id)
                                 {
-                                    if (chat.IsActive) return;
+                                    if (SettingsManager.Instance.AutomaticallyOpenNotification)
+                                        return;
+
+                                    if (chat.IsActive)
+                                        return;
+
                                     break;
                                 }
+                            }
+                        }
+
+                        if (SettingsManager.Instance.AutomaticallyOpenNotification)
+                        {
+                            Home? home = null;
+
+                            // Find the home window to request user status information from it:
+                            foreach (Window wnd in Current.Windows)
+                            {
+                                if (wnd is Home homeWnd)
+                                {
+                                    home = homeWnd;
+                                    break;
+                                }
+                            }
+
+                            PresenceViewModel? presenceVm = null;
+
+                            if (e.Channel?.Id != null)
+                            {
+                                if (home != null)
+                                {
+                                    // Try to get the presence so we can display the correct status when the window
+                                    // opens.
+                                    presenceVm = home.FindPresenceForUserId(e.Channel.Id);
+                                }
+
+                                new Chat(e.Channel.Id, false, presenceVm);
                             }
                         }
 

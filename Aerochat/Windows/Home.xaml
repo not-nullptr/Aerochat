@@ -187,7 +187,7 @@
                     </controls:ColorizedNineSlice>
                 </Grid>
                 <Grid Grid.Row="0" UseLayoutRounding="True" Panel.ZIndex="4">
-                    <controls:ProfilePictureFrame FrameSize="Large" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
+                    <controls:ProfilePictureFrame x:Name="UserStatusProfilePictureFrame" FrameSize="Large" UserStatus="{Binding CurrentUser.Presence.Status}" ProfilePicture="{Binding CurrentUser.Avatar}" />
                     <Grid Background="Transparent" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
                         <Grid.Resources>
                             <DropShadowEffect x:Key="StockDropShadow" ShadowDepth="0" RenderingBias="Performance" Color="{Binding Theme.Scene.ShadowColor}" BlurRadius="4" />
@@ -753,121 +753,125 @@
 
                         </controls:ColorizedNineSlice>
                         <StackPanel Margin="16,0" VerticalAlignment="Bottom">
-                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
-                            <Grid Height="90">
-                                <StackPanel Margin="16,8,16,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="What's new" Foreground="#355a88" FontSize="15" Margin="0,0,16,0" />
+                            <Grid x:Name="NewsContainer" Visibility="Visible">
+                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
+                                <Grid Height="90">
+                                    <StackPanel Margin="16,8,16,0">
                                         <StackPanel Orientation="Horizontal">
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
-                                                    <Setter Property="Opacity" Value="1" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsVisible}" Value="True">
-                                                            <DataTrigger.EnterActions>
-                                                                <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
-                                                            </DataTrigger.EnterActions>
-                                                            <DataTrigger.ExitActions>
-                                                                <BeginStoryboard Storyboard="{StaticResource FadeOutStoryboard}"/>
-                                                            </DataTrigger.ExitActions>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </StackPanel.Style>
-                                            <Button Click="PreviousNewsItem_Click" x:Name="PreviousNewsItem" Style="{StaticResource TransparentStyle}">
-                                                <Image Width="17" Height="17" Cursor="Hand">
-                                                    <Image.Style>
-                                                        <Style TargetType="Image">
-                                                            <Setter Property="Source" Value="/Resources/Home/Left.png" />
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                                    <Setter Property="Source" Value="/Resources/Home/LeftHover.png" />
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                                    <Setter Property="Source" Value="/Resources/Home/LeftActive.png" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Image.Style>
-                                                </Image>
-                                            </Button>
-                                            <Button Click="NextNewsItem_Click" x:Name="NextNewsItem" Style="{StaticResource TransparentStyle}" Margin="4,0,0,0">
-                                                <Image Width="17" Height="17" Cursor="Hand">
-                                                    <Image.Style>
-                                                        <Style TargetType="Image">
-                                                            <Setter Property="Source" Value="/Resources/Home/Right.png" />
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                                    <Setter Property="Source" Value="/Resources/Home/RightHover.png" />
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                                    <Setter Property="Source" Value="/Resources/Home/RightActive.png" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Image.Style>
-                                                </Image>
-                                            </Button>
-                                        </StackPanel>
-                                        <!--<Image Margin="4,0,0,0" Width="17" Height="17" Source="/Resources/Home/Right.png"  />-->
-                                    </StackPanel>
-                                    <!--<TextBlock x:Name="NewsText" Margin="0,4,0,0" MaxHeight="48" TextWrapping="Wrap" TextTrimming="WordEllipsis" Foreground="#333" />-->
-                                    <controls:BBCode Text="{Binding CurrentNews.Body}" x:Name="NewsText" Margin="0,4,0,0" MaxHeight="48" TextWrapping="Wrap" TextTrimming="WordEllipsis" Foreground="#333" />
-                                </StackPanel>
-                            </Grid>
-                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
-                            <Grid Margin="16,4,16,16">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="64" />
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <ItemsControl ItemsSource="{Binding Buttons}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Height="44" Style="{StaticResource TransparentStyle}" Width="Auto" Click="Button_Click">
-                                                    <Grid Width="Auto">
-                                                        <controls:NineSlice Slice="4,4">
-                                                            <controls:NineSlice.Style>
-                                                                <Style TargetType="controls:NineSlice">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
-                                                                            <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemHover.png" />
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
-                                                                            <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemActive.png" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </controls:NineSlice.Style>
-                                                        </controls:NineSlice>
-                                                        <Image Margin="8" Source="/Resources/Icons/DiscordIcon.png" />
-                                                    </Grid>
+                                            <TextBlock Text="What's new" Foreground="#355a88" FontSize="15" Margin="0,0,16,0" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel.Style>
+                                                    <Style TargetType="StackPanel">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                                                                <DataTrigger.EnterActions>
+                                                                    <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
+                                                                </DataTrigger.EnterActions>
+                                                                <DataTrigger.ExitActions>
+                                                                    <BeginStoryboard Storyboard="{StaticResource FadeOutStoryboard}"/>
+                                                                </DataTrigger.ExitActions>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </StackPanel.Style>
+                                                <Button Click="PreviousNewsItem_Click" x:Name="PreviousNewsItem" Style="{StaticResource TransparentStyle}">
+                                                    <Image Width="17" Height="17" Cursor="Hand">
+                                                        <Image.Style>
+                                                            <Style TargetType="Image">
+                                                                <Setter Property="Source" Value="/Resources/Home/Left.png" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                        <Setter Property="Source" Value="/Resources/Home/LeftHover.png" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                        <Setter Property="Source" Value="/Resources/Home/LeftActive.png" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Image.Style>
+                                                    </Image>
                                                 </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                                <Button Click="NextNewsItem_Click" x:Name="NextNewsItem" Style="{StaticResource TransparentStyle}" Margin="4,0,0,0">
+                                                    <Image Width="17" Height="17" Cursor="Hand">
+                                                        <Image.Style>
+                                                            <Style TargetType="Image">
+                                                                <Setter Property="Source" Value="/Resources/Home/Right.png" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                        <Setter Property="Source" Value="/Resources/Home/RightHover.png" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                        <Setter Property="Source" Value="/Resources/Home/RightActive.png" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Image.Style>
+                                                    </Image>
+                                                </Button>
+                                            </StackPanel>
+                                            <!--<Image Margin="4,0,0,0" Width="17" Height="17" Source="/Resources/Home/Right.png"  />-->
+                                        </StackPanel>
+                                        <!--<TextBlock x:Name="NewsText" Margin="0,4,0,0" MaxHeight="48" TextWrapping="Wrap" TextTrimming="WordEllipsis" Foreground="#333" />-->
+                                        <controls:BBCode Text="{Binding CurrentNews.Body}" x:Name="NewsText" Margin="0,4,0,0" MaxHeight="48" TextWrapping="Wrap" TextTrimming="WordEllipsis" Foreground="#333" />
+                                    </StackPanel>
                                 </Grid>
-                                <Grid Grid.Row="1" UseLayoutRounding="True">
-                                    <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
-                                        <Image x:Name="AdImage" Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
-                                            <Image.Style>
-                                                <Style TargetType="Image">
-                                                    <Setter Property="Cursor" Value="Hand" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Ad.Url}" Value="">
-                                                            <Setter Property="Cursor" Value="Arrow" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Image.Style>
-                                        </Image>
-                                    </Border>
+                            </Grid>
+                            <Grid x:Name="AdContainer" Visibility="Visible">
+                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
+                                <Grid Margin="16,4,16,16">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="64" />
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" x:Name="DiscordServerLinkContainer">
+                                        <ItemsControl ItemsSource="{Binding Buttons}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Height="44" Style="{StaticResource TransparentStyle}" Width="Auto" Click="Button_Click">
+                                                        <Grid Width="Auto">
+                                                            <controls:NineSlice Slice="4,4">
+                                                                <controls:NineSlice.Style>
+                                                                    <Style TargetType="controls:NineSlice">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
+                                                                                <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemHover.png" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
+                                                                                <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemActive.png" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </controls:NineSlice.Style>
+                                                            </controls:NineSlice>
+                                                            <Image Margin="8" Source="/Resources/Icons/DiscordIcon.png" />
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                    <Grid Grid.Row="1" UseLayoutRounding="True">
+                                        <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
+                                            <Image x:Name="AdImage" Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
+                                                <Image.Style>
+                                                    <Style TargetType="Image">
+                                                        <Setter Property="Cursor" Value="Hand" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Ad.Url}" Value="">
+                                                                <Setter Property="Cursor" Value="Arrow" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                        </Border>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </StackPanel>

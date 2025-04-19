@@ -49,7 +49,7 @@ namespace Aerochat.Windows
 
         private void ShowErrorDialog()
         {
-            var dialog = new Dialog("We can't sign you in to Windows Live Messenger", "The Windows Live Messenger token you entered is incorrect.", SystemIcons.Information);
+            var dialog = new Dialog("We can't sign you in to Windows Live Messenger", "The Discord token you entered is incorrect.", SystemIcons.Information);
             dialog.Owner = this;
             dialog.ShowDialog();
         }

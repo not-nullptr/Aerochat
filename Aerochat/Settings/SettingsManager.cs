@@ -93,6 +93,19 @@ namespace Aerochat.Settings
         [Settings("Alerts", "Show beta warning on startup")]
         public bool ShowBetaWarning { get; set; } = true;
 
+        [Settings("Alerts", "Notify me when my friends come online")]
+        public bool NotifyFriendOnline { get; set; } = true;
+
+        [Settings("Alerts", "Notify me when I receive a direct message")]
+        public bool NotifyDm { get; set; } = true;
+
+        [Settings("Alerts", "Notify me when I am mentioned in a group chat or server")]
+        public bool NotifyMention { get; set; } = true;
+
+        [Settings("Alerts", "Open a new chat window whenever I get a DM")]
+        public bool AutomaticallyOpenNotification { get; set; } = false;
+
+
         [Settings("Alerts", "Play notification sounds")]
         public bool PlayNotificationSounds { get; set; } = true;
 
@@ -105,12 +118,30 @@ namespace Aerochat.Settings
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
 
+        [Settings("Appearance", "Show the Aerochat Discord server link button on the home page")]
+
+        public bool DisplayDiscordServerLink { get; set; } = true;
+
+
+        [Settings("Appearance", "Show news on the home page")]
+
+        public bool DisplayHomeNews { get; set; } = true;
+
+
         [Settings("Appearance", "Show community-submitted ads on the home page")]
 
         public bool DisplayAds { get; set; } = true;
 
+        [Settings("Appearance", "Show the Aerochat link on the chat window")]
+
+        public bool DisplayAerochatAttribution { get; set; } = true;
+
         [Settings("Appearance", "Time format")]
         public TimeFormat SelectedTimeFormat { get; set; } = TimeFormat.TwentyFourHour;
+
+        [Settings("Appearance", "Enable developer commands in context menus")]
+
+        public bool DiscordDeveloperMode { get; set; } = false;
         #endregion
     }
 }

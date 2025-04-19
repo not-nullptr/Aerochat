@@ -39,6 +39,7 @@ using Timer = System.Timers.Timer;
 using DSharpPlus.Exceptions;
 using static Aerochat.Windows.ToolbarItem;
 using Aerochat.Enums;
+using Vanara.Collections;
 
 namespace Aerochat.Windows
 {
@@ -62,6 +63,7 @@ namespace Aerochat.Windows
         private Dictionary<ulong, Timer> timers = new();
         private VoiceSocket voiceSocket;
         private bool sizeTainted = false;
+        private PresenceViewModel? _initialPresence = null;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
@@ -193,6 +195,14 @@ namespace Aerochat.Windows
             }
 
             if (recipient is not null) ViewModel.Recipient = UserViewModel.FromUser(recipient);
+
+            if (isDM && !isGroupChat)
+            {
+                // If we're a one-on-one DM, then we must display the initial presence (as provided from whoever
+                // opened this chat window). The Discord API does not report this information to us, so this hack
+                // is necessary:
+                ViewModel.Recipient.Presence = _initialPresence;
+            }
 
             var messages = await currentChannel.GetMessagesAsync(50);
             List<MessageViewModel> messageViewModels = new();
@@ -405,7 +415,7 @@ namespace Aerochat.Windows
             }
             catch (Exception e)
             {
-                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.Message));
+                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.ToString()));
             }
         }
 
@@ -568,6 +578,11 @@ namespace Aerochat.Windows
 
             Dispatcher.Invoke(() =>
             {
+                if (Discord.Client.CurrentUser.Presence.Status == UserStatus.DoNotDisturb)
+                {
+                    return;
+                }
+
                 if (isNudge)
                 {
                     chatSoundPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
@@ -686,11 +701,13 @@ namespace Aerochat.Windows
             Close();
         }
 
-        public Chat(ulong id, bool allowDefault = false)
+        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null)
         {
             typingTimer.Elapsed += TypingTimer_Elapsed;
             typingTimer.AutoReset = false;
             Hide();
+
+            _initialPresence = initialPresence;
 
             if (allowDefault)
             {
@@ -724,6 +741,7 @@ namespace Aerochat.Windows
                 ChannelId = id;
             }
             InitializeComponent();
+            HideReplyView();
             Task.Run(BeginDiscordLoop);
             DataContext = ViewModel;
             chatSoundPlayer.MediaOpened += (sender, args) =>
@@ -748,6 +766,27 @@ namespace Aerochat.Windows
             Discord.Client.PresenceUpdated += OnPresenceUpdated;
             Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+
+            PreviewKeyDown += Chat_PreviewKeyDown;
+
+            RefreshAerochatVersionLinkVisibility();
+        }
+
+        private void Chat_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
+                {
+                    // Leave without submission:
+                    LeaveEditingMessage();
+                }
+                else if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+                {
+                    // Unselect the current message:
+                    ClearMessageSelection();
+                }
+            }
         }
 
         private void OnSettingsChanged(object sender, PropertyChangedEventArgs e)
@@ -773,8 +812,17 @@ namespace Aerochat.Windows
                     {
                         ViewModel.Messages.Add(msg);
                     }
+
+                    RefreshAerochatVersionLinkVisibility();
                 });
             }
+        }
+
+        private void RefreshAerochatVersionLinkVisibility()
+        {
+            AerochatVersionLink.Visibility = SettingsManager.Instance.DisplayAerochatAttribution
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
@@ -930,7 +978,7 @@ namespace Aerochat.Windows
             foreach (var user in TypingUsers.ToList()) {
                 if (!Discord.Client.TryGetCachedUser(user.Id, out DiscordUser discordUser))
                 {
-                    discordUser = await Discord.Client.GetUserAsync(user.Id, true);
+                    discordUser = (await Discord.Client.GetUserProfileAsync(user.Id, true)).User;
                 }
                 tempUsers.Add(discordUser);
             }
@@ -1035,11 +1083,6 @@ namespace Aerochat.Windows
 
             if (attachment != null)
             {
-                // XXX kawapure: DISABLED TEMPORARILY FOR AEROCHAT USER DISCORD ACCOUNT SAFETY
-                // Re-enable in public builds only when confirmed to have no negative impact.
-                // Attachments currently cause account to be marked as spam.
-
-#if DEBUG // kawapure: See above comment.
                 ViewModel.Messages[^1].Attachments.Add(new()
                 {
                     Id = 0,
@@ -1050,27 +1093,32 @@ namespace Aerochat.Windows
                     Name = "attachment.png",
                     Size = "Uploading..."
                 });
-#endif
             }
             try
             {
-
-                //await new DiscordMessageBuilder()
-                //    .WithContent(value)
-                //    .AddFile("attachment.png", attachment!)
-                //    .SendAsync(Channel);
-
                 var builder = new DiscordMessageBuilder()
                     .WithContent(value);
 
-#if DEBUG // kawapure: See above comment.
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Reply && ViewModel.TargetMessage != null)
+                {
+                    builder.WithReply(
+                        ViewModel.TargetMessage.Id,
+                        PART_ReplyContainerMention.IsChecked ?? false
+                    );
+                }
+
                 if (attachment != null)
                 {
                     builder.AddFile("attachment.png", attachment);
                 }
-#endif
+
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+                {
+                    ClearReplyTarget();
+                }
 
                 await builder.SendAsync(Channel);
+
             }
             catch (Exception)
             {
@@ -1091,8 +1139,26 @@ namespace Aerochat.Windows
                 if (value.Trim() == string.Empty) return;
                 text.Text = "";
                 ViewModel.BottomHeight = 64;
+
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+                {
+                    // Since the editor UI is still open when we send the message,
+                    // we need to account for its added height, or we subtract the
+                    // wrong value when closing the UI.
+                    ViewModel.BottomHeight += 25;
+                }
+
                 sizeTainted = false;
-                await SendMessage(value);
+
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
+                {
+                    await ViewModel.TargetMessage.MessageEntity.ModifyAsync(value);
+                    LeaveEditingMessage();
+                }
+                else
+                {
+                    await SendMessage(value);
+                }
             }
         }
 
@@ -1161,6 +1227,12 @@ namespace Aerochat.Windows
             {
                 ViewModel.BottomHeight -= pos - initialPos;
                 int min = 64;
+
+                if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+                {
+                    min += 25;
+                }
+
                 int max = 200;
                 ViewModel.BottomHeight = Math.Clamp(ViewModel.BottomHeight, min, max);
                 if (ViewModel.BottomHeight != min && ViewModel.BottomHeight != max) initialPos = pos;
@@ -1348,20 +1420,19 @@ namespace Aerochat.Windows
             var textBox = (TextBox)sender;
             var newHeight = (int)textBox.ExtentHeight + 40;
             if ((ViewModel.BottomHeight > newHeight && sizeTainted) || newHeight > 200) return;
-            ViewModel.BottomHeight = Math.Max(newHeight, 64);
+
+            int min = 64;
+
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+            {
+                min += 25;
+            }
+
+            ViewModel.BottomHeight = Math.Max(newHeight, min);
         }
 
         private async void CanvasButton_Click(object sender, RoutedEventArgs e)
         {
-            Dialog dialog = new(
-                "Error",
-                "Due to Discord flagging accounts using this feature as spammers, access to the " +
-                "drawing feature has been temporarily disabled.",
-                SystemIcons.Error
-            );
-            dialog.ShowDialog();
-            return;
-
             var canvas = DrawingCanvas;
             var width = (int)canvas.ActualWidth;
             var height = (int)canvas.ActualHeight;
@@ -1491,6 +1562,16 @@ namespace Aerochat.Windows
 
         private void SwitchToText_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            ShowEditorTextTab();
+        }
+
+        private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ShowEditorDrawTab();
+        }
+
+        private void ShowEditorTextTab()
+        {
             if (MessageTextBox.Visibility == Visibility.Visible) return;
             _drawingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _writingHeight;
@@ -1498,17 +1579,8 @@ namespace Aerochat.Windows
             DrawingContainer.Visibility = Visibility.Collapsed;
         }
 
-        private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
+        private void ShowEditorDrawTab()
         {
-            Dialog dialog = new(
-                "Error",
-                "Due to Discord flagging accounts using this feature as spammers, access to the " +
-                "drawing feature has been temporarily disabled.",
-                SystemIcons.Error
-            );
-            dialog.ShowDialog();
-            return;
-
             if (MessageTextBox.Visibility == Visibility.Collapsed) return;
             _writingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _drawingHeight;
@@ -1568,6 +1640,348 @@ namespace Aerochat.Windows
                 TypingTimer_Elapsed(null, null!);
                 typingTimer.Start();
             };
+        }
+
+        private void OnMessageContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            Grid? grid = sender as Grid;
+            MessageViewModel? vm = grid.DataContext as MessageViewModel;
+
+            if (grid == null)
+                return;
+
+            ContextMenu contextMenu = grid.ContextMenu;
+            contextMenu.DataContext = vm;
+
+            // TODO(isabella): Implement reactions.
+            bool isReactionAllowed = false && ViewModel.Channel.CanAddReactions && !vm.Ephemeral;
+
+            MenuItem addReactionsButton = (MenuItem)FindContextMenuItemName(contextMenu, "AddReactionButton");
+            addReactionsButton.Visibility = isReactionAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            Separator addReactionsSeparator = (Separator)FindContextMenuItemName(contextMenu, "ReactionsSeparator");
+            addReactionsSeparator.Visibility = isReactionAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            if (isReactionAllowed)
+            {
+                // Build reactions context menu:
+            }
+
+            bool isOwnMessage = vm.Author.Id == Discord.Client.CurrentUser.Id;
+
+            MenuItem editButton = (MenuItem)FindContextMenuItemName(contextMenu, "EditButton");
+            editButton.Visibility = isOwnMessage
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            bool isChattingAllowed = ViewModel.Channel.CanTalk && !vm.Ephemeral;
+
+            MenuItem replyButton = (MenuItem)FindContextMenuItemName(contextMenu, "ReplyButton");
+            replyButton.Visibility = isChattingAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem forwardButton = (MenuItem)FindContextMenuItemName(contextMenu, "ForwardButton");
+            forwardButton.Visibility = isChattingAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem copyMessageLinkButton = (MenuItem)FindContextMenuItemName(contextMenu, "CopyMessageLinkButton");
+            copyMessageLinkButton.Visibility = !vm.Ephemeral
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem markUnreadButton = (MenuItem)FindContextMenuItemName(contextMenu, "MarkUnreadButton");
+            markUnreadButton.Visibility = !vm.Ephemeral
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            bool isDeveloperModeEnabled = SettingsManager.Instance.DiscordDeveloperMode && !vm.Ephemeral;
+
+            Separator developerActionsSeparator = (Separator)FindContextMenuItemName(contextMenu, "DeveloperActionsSeparator");
+            developerActionsSeparator.Visibility = isDeveloperModeEnabled
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem copyAuthorIdButton = (MenuItem)FindContextMenuItemName(contextMenu, "CopyAuthorIdButton");
+            copyAuthorIdButton.Visibility = isDeveloperModeEnabled
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem copyMessageIdButton = (MenuItem)FindContextMenuItemName(contextMenu, "CopyMessageIdButton");
+            copyMessageIdButton.Visibility = isDeveloperModeEnabled
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            bool isDeleteAllowed = isOwnMessage || ViewModel.Channel.CanManageMessages;
+
+            Separator deleteSeparator = (Separator)FindContextMenuItemName(contextMenu, "DeleteButtonSeparator");
+            deleteSeparator.Visibility = isDeleteAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            MenuItem deleteButton = (MenuItem)FindContextMenuItemName(contextMenu, "DeleteButton");
+            deleteButton.Visibility = isDeleteAllowed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private FrameworkElement? FindContextMenuItemName(ContextMenu contextMenu, string itemName)
+        {
+            foreach (FrameworkElement itemIt in contextMenu.Items)
+            {
+                if (itemIt.Name == itemName)
+                {
+                    return itemIt;
+                }
+            }
+
+            return null;
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            Channel.DeleteMessageAsync(messageVm.MessageEntity);
+        }
+
+        private void CopyMessageIdButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            Clipboard.SetText(messageVm.Id.ToString());
+        }
+
+        private void CopyAuthorIdButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            Clipboard.SetText(messageVm.Author?.Id.ToString() ?? "0");
+        }
+
+        private void CopyMessageLinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            Clipboard.SetText(messageVm.MessageEntity.JumpLink.ToString());
+        }
+
+        private void CopyMessageButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            Clipboard.SetText(messageVm.Message.ToString());
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            StartEditingMessage(messageVm);
+        }
+
+        private void ReplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+
+            if (messageVm == null)
+                return;
+
+            SetReplyTargetAndEnterReplyMode(messageVm);
+        }
+
+        private void ClearMessageSelection()
+        {
+            // If we came in from a reply, then hide the reply container:
+            // Anti-MVVM workaround:
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+            {
+                HideReplyView();
+            }
+
+            if (ViewModel.TargetMessage != null)
+            {
+                ViewModel.TargetMessage.IsSelectedForUiAction = false;
+                ViewModel.TargetMessage = null;
+                ViewModel.MessageTargetMode = TargetMessageMode.None;
+            }
+
+            RevalidatePushToDrawVisibility();
+        }
+
+        private void StartEditingMessage(MessageViewModel message)
+        {
+            // Leave other selection modes so no conflicts occur:
+            ClearMessageSelection();
+
+            message.IsSelectedForUiAction = true;
+            ViewModel.TargetMessage = message;
+            ViewModel.MessageTargetMode = TargetMessageMode.Edit;
+
+            MessageTextBox.Text = message.Message;
+
+            RevalidatePushToDrawVisibility();
+
+            // We can't use the push to draw feature when editing a message, so we
+            // set the tab now:
+            ShowEditorTextTab();
+
+            MessageTextBox.Focus();
+        }
+
+        private void LeaveEditingMessage()
+        {
+            if (ViewModel.TargetMessage != null)
+            {
+                // Only if we're clearing the message being edited should we
+                // wipe the contents of the input box.
+                MessageTextBox.Text = "";
+            }
+
+            ClearMessageSelection();
+
+            RevalidatePushToDrawVisibility();
+        }
+
+        private void SetReplyTargetAndEnterReplyMode(MessageViewModel message)
+        {
+            // Leave other selection modes so no conflicts occur:
+            ClearMessageSelection();
+
+            message.IsSelectedForUiAction = true;
+            ViewModel.TargetMessage = message;
+            ViewModel.MessageTargetMode = TargetMessageMode.Reply;
+
+            ShowReplyView();
+        }
+
+        private void ClearReplyTarget()
+        {
+            ClearMessageSelection();
+        }
+
+        private void ShowReplyView()
+        {
+            PART_ReplyTargetRowDefinition.Height = new GridLength(25);
+            PART_ReplyTargetContainer.Visibility = Visibility.Visible;
+            ViewModel.BottomHeight += 25;
+        }
+
+        private void HideReplyView()
+        {
+            PART_ReplyTargetRowDefinition.Height = new GridLength(0);
+            PART_ReplyTargetContainer.Visibility = Visibility.Collapsed;
+
+            ViewModel.BottomHeight -= 25;
+            if (MessageTextBox.Height > 25)
+            {
+                ViewModel.BottomHeight = 25;
+            }
+        }
+
+        private void RevalidatePushToDrawVisibility()
+        {
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
+            {
+                SwitchToDraw.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SwitchToDraw.Visibility = Visibility.Visible;
+            }
         }
     }
 

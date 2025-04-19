@@ -52,7 +52,7 @@
     <Window.Resources>
         <local:TimeFormatConverter x:Key="TimeFormatConverter"/>
 
-            <Storyboard x:Key="FadeOutStoryboard">
+        <Storyboard x:Key="FadeOutStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              To="0"
                              Duration="0:0:0.3"
@@ -802,13 +802,53 @@
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Margin="0,4,0,0">
+                                        <Grid Margin="0,4,0,0" Tag="{Binding DataContext,RelativeSource={RelativeSource Mode=Self}}" ContextMenuOpening="OnMessageContextMenuOpening">
+                                            <Grid.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem x:Name="AddReactionButton" Header="Add Reaction"></MenuItem>
+                                                    <Separator x:Name="ReactionsSeparator" />
+                                                    <MenuItem x:Name="EditButton" Header="Edit" Click="EditButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="ReplyButton" Header="Reply" Click="ReplyButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="ForwardButton" Header="Forward"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageButton" Header="Copy Message" Click="CopyMessageButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageLinkButton" Header="Copy Message Link" Click="CopyMessageLinkButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="MarkUnreadButton" Header="Mark as Unread"></MenuItem>
+                                                    <Separator x:Name="LinkActionsSeparator" />
+                                                    <MenuItem x:Name="CopyLinkButton" Header="Copy Link"></MenuItem>
+                                                    <MenuItem x:Name="CopyImageButton" Header="Copy Image"></MenuItem>
+                                                    <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser"></MenuItem>
+                                                    <MenuItem x:Name="SaveImageButton" Header="Save Image"></MenuItem>
+                                                    <Separator x:Name="DeveloperActionsSeparator" />
+                                                    <MenuItem x:Name="CopyAuthorIdButton" Header="Copy Author ID" Click="CopyAuthorIdButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageIdButton" Header="Copy Message ID" Click="CopyMessageIdButton_Click"></MenuItem>
+                                                    <Separator x:Name="DeleteButtonSeparator" />
+                                                    <MenuItem x:Name="DeleteButton" Header="Delete Message" Click="DeleteButton_Click"></MenuItem>
+                                                </ContextMenu>
+                                            </Grid.ContextMenu>
                                             <Grid.Style>
                                                 <Style TargetType="Grid">
                                                     <Setter Property="Opacity" Value="1" />
+                                                    <Setter Property="Background" Value="Transparent" />
+
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Path=Ephemeral}" Value="True">
                                                             <Setter Property="Opacity" Value="0.5" />
+                                                        </DataTrigger>
+
+                                                        <DataTrigger Binding="{Binding ContextMenu.IsOpen, RelativeSource={RelativeSource Self}}" Value="True">
+                                                            <Setter Property="Background">
+                                                                <Setter.Value>
+                                                                    <SolidColorBrush Color="AliceBlue" Opacity="1" />
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+
+                                                        <DataTrigger Binding="{Binding Path=IsSelectedForUiAction}" Value="True">
+                                                            <Setter Property="Background">
+                                                                <Setter.Value>
+                                                                    <SolidColorBrush Color="AliceBlue" Opacity="1" />
+                                                                </Setter.Value>
+                                                            </Setter>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -1161,7 +1201,7 @@
                                                         <DataTrigger Binding="{Binding DataContext.TypingString, ElementName=Window}" Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
-          
+
                                                     </Style.Triggers>
                                                 </Style>
                                             </controls:AnimatedTileImage.Style>
@@ -1200,12 +1240,57 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
+                                <!-- I fucking hate XAML and I don't have the energy to do MVVM here.
+                                     Row height changes for the reply target container visibility change are
+                                     managed in the codebehind, as god intended. -->
                                 <Grid.RowDefinitions>
+                                    <RowDefinition x:Name="PART_ReplyTargetRowDefinition" Height="25" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="30" />
                                 </Grid.RowDefinitions>
-                                <Grid VerticalAlignment="Stretch" Panel.ZIndex="5" Margin="-1,0,0,0">
-                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="10" x:Name="MessageTextBox">
+                                <!-- Super huge height to hack around the reused background being cut off: -->
+                                <Grid x:Name="PART_ReplyTargetContainer" Grid.Row="0" Height="100">
+                                    <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
+                                        <controls:ColorizedNineSlice.Style>
+                                            <Style TargetType="controls:ColorizedNineSlice">
+                                                <Setter Property="Darken" Value="0.25" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Channel.CanTalk}" Value="False">
+                                                        <Setter Property="Darken" Value="1" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsDM}" Value="true">
+                                                        <Setter Property="Darken" Value="0.25" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </controls:ColorizedNineSlice.Style>
+                                    </controls:ColorizedNineSlice>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="2">
+                                            <Label>
+                                                <Label.Content>
+                                                    <TextBlock>
+                                                        <Run>Replying to </Run>
+                                                        <Run Text="{Binding TargetMessage.Author.Name}" Foreground="{Binding TargetMessage.Author.Color}" />
+                                                    </TextBlock>
+                                                </Label.Content>
+                                            </Label>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="7">
+                                            <CheckBox IsChecked="True" x:Name="PART_ReplyContainerMention">Mention</CheckBox>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                <Grid VerticalAlignment="Stretch" Panel.ZIndex="5" Margin="-1,0,0,0" Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="16*"/>
+                                        <ColumnDefinition Width="65*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" Panel.ZIndex="10" x:Name="MessageTextBox" Grid.ColumnSpan="2">
                                         <TextBox.Style>
                                             <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
                                                 <Setter Property="BorderThickness" Value="0"/>
@@ -1222,7 +1307,7 @@
                                             </Style>
                                         </TextBox.Style>
                                     </TextBox>
-                                    <Grid Margin="2,2,2,0" Panel.ZIndex="10" x:Name="DrawingContainer" Visibility="Collapsed">
+                                    <Grid Margin="2,2,2,0" Panel.ZIndex="10" x:Name="DrawingContainer" Visibility="Collapsed" Grid.ColumnSpan="2">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -1232,7 +1317,7 @@
                                             <Button x:Name="CanvasButton" Click="CanvasButton_Click" IsDefault="True" Width="72" Content="Send" />
                                         </Grid>
                                     </Grid>
-                                    <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
+                                    <controls:ColorizedNineSlice Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}" Grid.ColumnSpan="2">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Darken" Value="0.25" />
@@ -1247,7 +1332,7 @@
                                             </Style>
                                         </controls:ColorizedNineSlice.Style>
                                     </controls:ColorizedNineSlice>
-                                    <TextBlock Opacity="0.7" Text="You do not have permission to talk in this chat." FontStyle="Italic" Margin="6,4" TextTrimming="CharacterEllipsis">
+                                    <TextBlock Opacity="0.7" Text="You do not have permission to talk in this chat." FontStyle="Italic" Margin="6,4,6,4" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -1263,7 +1348,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Grid>
-                                <controls:ColorizedNineSlice Image="/Resources/Message/SpeechBubbleArrow.png" Slice="4,4" Panel.ZIndex="12" UseLayoutRounding="False" Width="12" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,0" TintColor="{Binding Recipient.Scene.Color}">
+                                <controls:ColorizedNineSlice Image="/Resources/Message/SpeechBubbleArrow.png" Slice="4,4" Panel.ZIndex="12" Grid.Row="1"  UseLayoutRounding="False" Width="12" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,0" TintColor="{Binding Recipient.Scene.Color}">
                                     <controls:ColorizedNineSlice.Style>
                                         <Style TargetType="controls:ColorizedNineSlice">
                                             <Setter Property="Darken" Value="0.25" />
@@ -1278,8 +1363,12 @@
                                         </Style>
                                     </controls:ColorizedNineSlice.Style>
                                 </controls:ColorizedNineSlice>
-                                <Grid Grid.Row="1" Panel.ZIndex="11">
-                                    <controls:ColorizedNineSlice Image="/Resources/Message/BottomToolbar.png" TintColor="{Binding Recipient.Scene.Color}" Margin="-1,-1,0,-1">
+                                <Grid Grid.Row="2" Panel.ZIndex="11">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="12*"/>
+                                        <ColumnDefinition Width="89*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:ColorizedNineSlice Image="/Resources/Message/BottomToolbar.png" TintColor="{Binding Recipient.Scene.Color}" Margin="-1,-1,0,-1" Grid.ColumnSpan="2">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Darken" Value="0.25" />
@@ -1294,7 +1383,7 @@
                                             </Style>
                                         </controls:ColorizedNineSlice.Style>
                                     </controls:ColorizedNineSlice>
-                                    <Grid>
+                                    <Grid Grid.ColumnSpan="2">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -1325,6 +1414,7 @@
                                             </Grid>
                                         </StackPanel>
                                         <StackPanel Margin="0,0,4,0" Grid.Column="1" Orientation="Horizontal">
+                                            <!-- Button visibility is controlled from codebehind. -->
                                             <Grid Width="24" Height="30" x:Name="SwitchToDraw" MouseUp="SwitchToDraw_MouseUp">
                                                 <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
@@ -1345,7 +1435,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="14,8">
+                    <TextBlock x:Name="AerochatVersionLink" Visibility="Visible" Grid.Column="0" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="14,8">
                         <Hyperlink>
                             <Hyperlink.Style>
                                 <Style TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">

@@ -1,7 +1,10 @@
-﻿using Aerochat.Hoarder;
+﻿#define WIP
+#define ISABELLA
+using Aerochat.Hoarder;
 using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.ViewModels;
+using DiscordProtos.DiscordUsers.V1;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
@@ -25,6 +28,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using static Aerochat.ViewModels.HomeListViewCategory;
+using static Vanara.PInvoke.AdvApi32;
 using static Vanara.PInvoke.User32;
 using Image = System.Windows.Controls.Image;
 using Timer = System.Timers.Timer;
@@ -41,6 +45,22 @@ namespace Aerochat.Windows
 
         public int AdIndex { get; set; } = 0;
 
+        public PresenceViewModel? FindPresenceForUserId(ulong userId)
+        {
+            foreach (var category in ViewModel.Categories)
+            {
+                foreach (var item in category.Items)
+                {
+                    if (item.Id == userId)
+                    {
+                        return item.Presence;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public Home()
         {
             InitializeComponent();
@@ -52,8 +72,10 @@ namespace Aerochat.Windows
                 Loaded += HomeListView_Loaded;
                 Client_Ready(Discord.Client, null);
 
-                // Set visibility of the ad based on settings
+                // Set default visibilities of optional homepage elements:
                 UpdateAdVisibility();
+                UpdateNewsVisibility();
+                UpdateDiscordServerLinkVisibility();
 
                 // Subscribe to changes in the DisplayAds property
                 SettingsManager.Instance.PropertyChanged += OnSettingsChange;
@@ -62,14 +84,28 @@ namespace Aerochat.Windows
 
         private void UpdateAdVisibility()
         {
-            AdImage.Visibility = SettingsManager.Instance.DisplayAds ? Visibility.Visible : Visibility.Collapsed;
+            AdContainer.Visibility = SettingsManager.Instance.DisplayAds ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private void UpdateNewsVisibility() =>
+            NewsContainer.Visibility = SettingsManager.Instance.DisplayHomeNews ? Visibility.Visible : Visibility.Collapsed;
+
+        private void UpdateDiscordServerLinkVisibility() =>
+            DiscordServerLinkContainer.Visibility = SettingsManager.Instance.DisplayDiscordServerLink ? Visibility.Visible : Visibility.Collapsed;
 
         private void OnSettingsChange(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SettingsManager.Instance.DisplayAds))
             {
                 Dispatcher.Invoke(UpdateAdVisibility);
+            }
+            else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayHomeNews))
+            {
+                Dispatcher.Invoke(UpdateNewsVisibility);
+            }
+            else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayDiscordServerLink))
+            {
+                Dispatcher.Invoke(UpdateDiscordServerLinkVisibility);
             }
         }
 
@@ -236,7 +272,18 @@ namespace Aerochat.Windows
                 Show();
                 Focus();
 
-#if RELEASE
+#if WIP && !ISABELLA
+                Dialog betaNoticeDlg = new(
+                    "Notice",
+                    "This is a work-in-progress beta copy of Aerochat. Please stay updated with the GitHub " +
+                    "page for official releases.",
+                    SystemIcons.Information
+                );
+                betaNoticeDlg.Owner = null;
+                betaNoticeDlg.ShowDialog();
+#endif
+
+#if RELEASE && !WIP
                 if (SettingsManager.Instance.ShowBetaWarning)
                 {
                     Dialog betaNoticeDlg = new(
@@ -260,6 +307,11 @@ namespace Aerochat.Windows
                         _ = GetNewNotices();
                         await Task.Delay(60 * 5 * 1000);
                     }
+                });
+
+                Task.Run(async () =>
+                {
+                    await Task.Delay(1500);
                 });
             });
         }
@@ -289,14 +341,22 @@ namespace Aerochat.Windows
             // go to the next news item
             Dispatcher.Invoke(() =>
             {
-                var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
-                if (index == ViewModel.News.Count - 1)
+                try
                 {
-                    ViewModel.CurrentNews = ViewModel.News[0];
+                    var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
+                    if (index == ViewModel.News.Count - 1)
+                    {
+                        ViewModel.CurrentNews = ViewModel.News[0];
+                    }
+                    else
+                    {
+                        ViewModel.CurrentNews = ViewModel.News[index + 1];
+                    }
                 }
-                else
+                catch
                 {
-                    ViewModel.CurrentNews = ViewModel.News[index + 1];
+                    ViewModel.CurrentNews ??= new NewsViewModel();
+                    ViewModel.CurrentNews.Body = "Failed to fetch news.";
                 }
             });
         }
@@ -383,6 +443,9 @@ namespace Aerochat.Windows
 
         public async Task CheckForUpdates()
         {
+#if DEBUG || WIP
+            return;
+#endif
             if (showingUpdate) return;
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
@@ -426,7 +489,8 @@ namespace Aerochat.Windows
                         Dispatcher.Invoke(Close);
                     });
                 });
-            } else
+            }
+            else
             {
                 httpClient.Dispose();
                 tags.Dispose();
@@ -503,54 +567,42 @@ namespace Aerochat.Windows
         {
             // get all guilds which aren't sorted (ie not in a folder)
             List<ulong> processedGuilds = new();
-            foreach (var folder in Discord.Client.UserSettings.GuildFolders)
+
+            if (((App)Application.Current)?.UserSettingsProto?.GuildFolders.Folders is not null)
             {
-                var index = 1;
-                if (!string.IsNullOrEmpty(folder.Name))
+                foreach (PreloadedUserSettings.Types.GuildFolder folder in ((App)Application.Current).UserSettingsProto.GuildFolders.Folders)
                 {
-                    var category = new HomeListViewCategory
+                    var index = 1;
+                    if (!string.IsNullOrEmpty(folder.Name))
                     {
-                        Name = folder.Name,
-                    };
-                    ViewModel.Categories.Add(category);
-                    index = ViewModel.Categories.IndexOf(category);
-                }
-                foreach (var guildId in folder.GuildIds)
-                {
-                    Discord.Client.TryGetCachedGuild(guildId, out var guild);
-                    if (guild == null) continue;
-                    var channels = guild.Channels.Values;
-                    List<DiscordChannel> channelsList = new();
-                    foreach (var c in channels)
-                    {
-                        if ((c.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels && c.Type == ChannelType.Text)
+                        var category = new HomeListViewCategory
                         {
-                            channelsList.Add(c);
-                        }
+                            Name = folder.Name,
+                        };
+                        ViewModel.Categories.Add(category);
+                        index = ViewModel.Categories.IndexOf(category);
                     }
-
-                    channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
-
-                    if (channelsList.Count == 0) continue;
-
-                    var guildItem = new HomeListItemViewModel
+                    foreach (var guildId in folder.GuildIds)
                     {
-                        Name = guild.Name,
-                        Image = "/Resources/Frames/XSFrameIdleM.png",
-                        Presence = new PresenceViewModel
+                        Discord.Client.TryGetCachedGuild(guildId, out var guild);
+                        if (guild == null) continue;
+                        var channels = guild.Channels.Values;
+                        List<DiscordChannel> channelsList = new();
+                        foreach (var c in channels)
                         {
-                            Presence = "",
-                            Status = "",
-                            Type = "",
-                        },
-                        IsSelected = false,
-                        LastMsgId = 0,
-                        Id = channelsList[0].Id
-                    };
+                            if ((c.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels && c.Type == ChannelType.Text)
+                            {
+                                channelsList.Add(c);
+                            }
+                        }
 
-                    ViewModel.Categories[index].Items.Add(guildItem);
+                        channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
 
-                    processedGuilds.Add(guildId);
+                        if (channelsList.Count == 0) continue;
+
+                        CreateAndInsertGuild(guild.Name, channelsList[0].Id, index);
+                        processedGuilds.Add(guildId);
+                    }
                 }
             }
             // for each item in uncategorizedGuilds, add it to the Servers folder [1]
@@ -573,26 +625,29 @@ namespace Aerochat.Windows
 
                 channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
 
-                var guildItem = new HomeListItemViewModel
-                {
-                    Name = guild.Name,
-                    Image = "/Resources/Frames/XSFrameIdleM.png",
-                    Presence = new PresenceViewModel
-                    {
-                        Presence = "",
-                        Status = "",
-                        Type = "",
-                    },
-                    IsSelected = false,
-                    LastMsgId = 0,
-                    Id = channelsList[0].Id
-                };
-
-                //ViewModel.Categories[1].Items.Add(guildItem);
-                // add to start:
-                ViewModel.Categories[1].Items.Insert(0, guildItem);
+                CreateAndInsertGuild(guild.Name, channelsList[0].Id, 1);
             }
             UpdateUnreadMessages();
+        }
+
+        private void CreateAndInsertGuild(string name, ulong guildId, int categoryIndex)
+        {
+            var guildItem = new HomeListItemViewModel
+            {
+                Name = name,
+                Image = "/Resources/Frames/XSFrameIdleM.png",
+                Presence = new PresenceViewModel
+                {
+                    Presence = "",
+                    Status = "",
+                    Type = "",
+                },
+                IsSelected = false,
+                LastMsgId = 0,
+                Id = guildId
+            };
+
+            ViewModel.Categories[categoryIndex].Items.Add(guildItem);
         }
 
         private async void UpdateStatuses()
@@ -782,7 +837,9 @@ namespace Aerochat.Windows
             var chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => x.ViewModel.Recipient?.Id == item.Id || x.Channel.Id == item.Id || (x.Channel.Guild?.Channels.Values.Select(x => x.Id).Contains(item.Id) ?? false));
             if (chat is null)
             {
-                new Chat(item.Id, true);
+                // We send over the presence of the item in case this is a one-on-one DM, where the Discord
+                // API doesn't initially report this state.
+                new Chat(item.Id, true, item.Presence);
             }
             else
             {

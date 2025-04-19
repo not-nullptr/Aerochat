@@ -34,6 +34,7 @@ namespace Aerochat.Controls
         public static readonly DependencyProperty FrameSizeProperty = DependencyProperty.Register("FrameSize", typeof(ProfileFrameSize), typeof(ProfilePictureFrame), new PropertyMetadata(ProfileFrameSize.Unknown, OnFrameSizeChange));
         public static readonly DependencyProperty UserStatusProperty = DependencyProperty.Register("UserStatus", typeof(UserStatus), typeof(ProfilePictureFrame), new PropertyMetadata(UserStatus.Offline, OnStatusChange));
         public static readonly DependencyProperty ProfilePictureProperty = DependencyProperty.Register("ProfilePicture", typeof(BitmapSource), typeof(ProfilePictureFrame), new PropertyMetadata(null, OnProfilePictureChange));
+        public static readonly DependencyProperty EnableAnimationProperty = DependencyProperty.Register("EnableAnimation", typeof(bool), typeof(ProfilePictureFrame), new PropertyMetadata(true));
 
         public ProfileFrameSize FrameSize
         {
@@ -51,6 +52,12 @@ namespace Aerochat.Controls
         {
             get => (BitmapSource)GetValue(ProfilePictureProperty);
             set => SetValue(ProfilePictureProperty, value);
+        }
+
+        public bool EnableAnimation
+        {
+            get => (bool)GetValue(EnableAnimationProperty);
+            set => SetValue(EnableAnimationProperty, value);
         }
 
         private bool _initial = true;
@@ -76,7 +83,7 @@ namespace Aerochat.Controls
 
         private void UpdateStatus(DependencyPropertyChangedEventArgs e)
         {
-            if (_initial)
+            if (_initial || !EnableAnimation)
             {
                 var status = (UserStatus)e.NewValue;
                 var source = FrameToSource(status, FrameSize);
