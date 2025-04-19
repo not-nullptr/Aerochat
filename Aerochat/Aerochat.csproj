@@ -17,9 +17,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="Protobuf\src\**" />
 		<Compile Remove="Resources\Message\NewFolder\**" />
+		<EmbeddedResource Remove="Protobuf\src\**" />
 		<EmbeddedResource Remove="Resources\Message\NewFolder\**" />
+		<None Remove="Protobuf\src\**" />
 		<None Remove="Resources\Message\NewFolder\**" />
+		<Page Remove="Protobuf\src\**" />
 		<Page Remove="Resources\Message\NewFolder\**" />
 	</ItemGroup>
 
@@ -497,6 +501,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.30.2" />
 		<PackageReference Include="Markdig" Version="0.37.0" />
 		<PackageReference Include="MdXaml" Version="1.27.0" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
@@ -605,6 +610,10 @@
 			<Generator>MSBuild:Compile</Generator>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Protobuf\" />
 	</ItemGroup>
 
 </Project>
