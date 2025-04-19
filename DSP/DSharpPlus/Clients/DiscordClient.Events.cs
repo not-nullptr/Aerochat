@@ -26,6 +26,7 @@ using System.IO;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
@@ -599,6 +600,17 @@ namespace DSharpPlus
             remove => this._userSettingsUpdated.Unregister(value);
         }
         private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> _userSettingsUpdated;
+
+        /// <summary>
+        /// Fired when the current user updates their settings when the protobuf settings capability is enabled.
+        /// For this Event you need the <see cref="Enums.ClientCapability.UserSettingsProto"/> capability specified in <seealso cref="GatewayIdentify.Capabilities"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, UserSettingsProtoUpdateEventArgs> UserSettingsProtoUpdated
+        {
+            add => this._userSettingsProtoUpdated.Register(value);
+            remove => this._userSettingsProtoUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, UserSettingsProtoUpdateEventArgs> _userSettingsProtoUpdated;
 
         /// <summary>
         /// Fired when properties about the current user change.

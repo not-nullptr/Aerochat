@@ -129,6 +129,8 @@ namespace DSharpPlus
 
         public DiscordUserSettings UserSettings { get; private set; } = new();
 
+        public string UserSettingsProto { get; private set; } = string.Empty;
+
         /// <summary>
         /// Gets the collection of presences held by this client.
         /// </summary>
@@ -250,6 +252,7 @@ namespace DSharpPlus
             this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", this.EventErrorHandler);
+            this._userSettingsProtoUpdated = new AsyncEvent<DiscordClient, UserSettingsProtoUpdateEventArgs>("USER_SETTINGS_PROTO_UPDATED", this.EventErrorHandler);
             this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", this.EventErrorHandler);
             this._voiceStateUpdated = new AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs>("VOICE_STATE_UPDATED", this.EventErrorHandler);
             this._voiceServerUpdated = new AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs>("VOICE_SERVER_UPDATED", this.EventErrorHandler);
@@ -446,6 +449,13 @@ namespace DSharpPlus
             => this.ApiClient.GetStickerPacksAsync();
 
         public async Task UpdateBannerColorAsync(int color) => await this.ApiClient.ModifyBannerColorAsync(color).ConfigureAwait(false);
+
+        /// <summary>
+        /// Updates the protobuf user settings.
+        /// </summary>
+        /// <param name="base64Proto">Base-64-encoded user settings protobuf.</param>
+        /// <returns></returns>
+        public async Task UpdateUserSettingsProto(string base64Proto) => await ApiClient.SendSettingsProto(base64Proto).ConfigureAwait(false);
 
         /// <summary>
         /// Gets a user

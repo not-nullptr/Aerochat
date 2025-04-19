@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
@@ -4116,6 +4117,20 @@ namespace DSharpPlus.Net
             }
 
             return ret;
+        }
+
+        public async Task SendSettingsProto(string base64Proto)
+        {
+            var pld = new RestUserSettingsProtoUpdatePayload
+            {
+                Settings = base64Proto
+            };
+
+            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.SETTINGS_PROTO}/1";
+            var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
         }
 
         internal void UpdateConfiguration(DiscordConfiguration configuration)

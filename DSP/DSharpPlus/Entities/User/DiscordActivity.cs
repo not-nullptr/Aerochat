@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net.NetworkInformation;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
@@ -61,43 +62,23 @@ namespace DSharpPlus.Entities
         Invisible = 5
     }
 
-    internal sealed class UserStatusConverter : JsonConverter
+    public static class UserStatusExtensions
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public static string ToDiscordString(this UserStatus userStatus)
         {
-            if (value is UserStatus status)
+            return userStatus switch
             {
-                switch (status) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
-                {
-                    case UserStatus.Online:
-                        writer.WriteValue("online");
-                        return;
-
-                    case UserStatus.Idle:
-                        writer.WriteValue("idle");
-                        return;
-
-                    case UserStatus.DoNotDisturb:
-                        writer.WriteValue("dnd");
-                        return;
-
-                    case UserStatus.Invisible:
-                        writer.WriteValue("invisible");
-                        return;
-
-                    case UserStatus.Offline:
-                    default:
-                        writer.WriteValue("offline");
-                        return;
-                }
-            }
+                UserStatus.Online => "online",
+                UserStatus.Idle => "idle",
+                UserStatus.DoNotDisturb => "dnd",
+                UserStatus.Invisible => "invisible",
+                _ => "offline",
+            };
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public static UserStatus ToUserStatus(this string str)
         {
-            // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
-            // offline or invisible, the corresponding field is not present.
-            return (reader.Value?.ToString().ToLowerInvariant()) switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+            return str switch
             {
                 "online" => UserStatus.Online,
                 "idle" => UserStatus.Idle,
@@ -105,6 +86,26 @@ namespace DSharpPlus.Entities
                 "invisible" => UserStatus.Invisible,
                 _ => UserStatus.Offline,
             };
+        }
+    }
+
+    internal sealed class UserStatusConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value is UserStatus status)
+            {
+                writer.WriteValue(status.ToDiscordString());
+            }
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
+            // offline or invisible, the corresponding field is not present.
+
+            // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+            return reader.Value?.ToString().ToLowerInvariant().ToUserStatus();
         }
 
         public override bool CanConvert(Type objectType) => objectType == typeof(UserStatus);

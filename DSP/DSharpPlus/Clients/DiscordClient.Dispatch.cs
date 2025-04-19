@@ -402,6 +402,10 @@ namespace DSharpPlus
                         await this.OnUserSettingsUpdateEventAsync(dat).ConfigureAwait(false);
                         break;
 
+                    case "user_settings_proto_update":
+                        await this.OnUserSettingsProtoUpdateEventAsync(dat).ConfigureAwait(false);
+                        break;
+
                     case "user_guild_settings_update":
                         await this.OnUserGuildSettingsUpdated(dat).ConfigureAwait(false);
                         break;
@@ -611,6 +615,7 @@ namespace DSharpPlus
             this.GatewayVersion = ready.GatewayVersion;
 
             this.UserSettings = ready.UserSettings;
+            this.UserSettingsProto = ready.UserSettingsProto;
 
             if (!string.IsNullOrEmpty(ready.AuthToken))
             {
@@ -2247,6 +2252,21 @@ namespace DSharpPlus
                 User = usr
             };
             await this._userSettingsUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnUserSettingsProtoUpdateEventAsync(JObject json)
+        {
+            if (json.TryGetValue("settings", out var userSettingsToken))
+            {
+                DiscordUserSettings userSettings = userSettingsToken.ToObject<DiscordUserSettings>();
+                this.UserSettingsProto = userSettings.Proto;
+            }
+
+            var ea = new UserSettingsProtoUpdateEventArgs()
+            {
+                Base64EncodedProto = this.UserSettingsProto
+            };
+            await this._userSettingsProtoUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         internal async Task OnUserUpdateEventAsync(TransportUser user)

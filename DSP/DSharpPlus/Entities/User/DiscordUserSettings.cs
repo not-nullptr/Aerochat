@@ -99,5 +99,8 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("afk_timeout")]
         public int AfkTimeout { get; internal set; }
+
+        [JsonProperty("proto", NullValueHandling = NullValueHandling.Ignore)]
+        public string Proto { get; internal set; } = string.Empty;
     }
 }

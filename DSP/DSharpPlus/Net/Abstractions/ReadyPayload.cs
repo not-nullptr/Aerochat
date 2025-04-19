@@ -85,6 +85,12 @@ namespace DSharpPlus.Net.Abstractions
         public DiscordUserSettings UserSettings { get; set; }
 
         /// <summary>
+        /// Protobuf user settings encoded in base64.
+        /// </summary>
+        [JsonProperty("user_settings_proto", NullValueHandling = NullValueHandling.Ignore)]
+        public string UserSettingsProto { get; set; }
+
+        /// <summary>
         /// List of settings for guilds, includes data like muted channels 
         /// </summary>
         [JsonProperty("user_guild_settings", NullValueHandling = NullValueHandling.Ignore)]

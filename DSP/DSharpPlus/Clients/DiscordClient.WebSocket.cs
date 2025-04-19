@@ -471,7 +471,8 @@ namespace DSharpPlus
                 Token = Utilities.GetFormattedToken(this),
                 Compress = false,
                 Presence = status,
-                Capabilities = ClientCapability.LazyUserNotes | ClientCapability.AuthTokenRefresh | ClientCapability.DedupeUserObjects /* | ClientCapability.DebounceMessageReactions*/,
+                Capabilities = ClientCapability.LazyUserNotes | ClientCapability.AuthTokenRefresh | ClientCapability.DedupeUserObjects /* | ClientCapability.DebounceMessageReactions*/
+                    | ClientCapability.UserSettingsProto,
             };
             var payload = new GatewayPayload
             {

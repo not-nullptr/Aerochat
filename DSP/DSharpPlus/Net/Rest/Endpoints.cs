@@ -95,5 +95,6 @@ namespace DSharpPlus.Net
         public const string POST_DATA = "/post-data";
         public const string PROFILE = "/profile";
         public const string ATTACHMENTS = "/attachments";
+        public const string SETTINGS_PROTO = "/settings-proto";
     }
 }
