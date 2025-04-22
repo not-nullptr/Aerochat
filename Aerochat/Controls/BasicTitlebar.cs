@@ -351,7 +351,6 @@ namespace Aerochat.Controls
                             // On right click, we need to also open the system menu.
                             // WPF does not handle this correctly, but oddly enough
                             // we need to.
-                            //s_sysMenuRightClickHack = false;
                             DefWindowProc(hwnd, msg, wParam, lParam);
 
                             // Now that we've handled the case, we want to disable the
@@ -380,12 +379,20 @@ namespace Aerochat.Controls
                     OnDwmChanged();
                     break;
                 }
+
                 case WM_SETTEXT:
                 {
-                    string? newText = Marshal.PtrToStringAuto(wParam);
+                    string? newText = Marshal.PtrToStringAuto(lParam);
                     if (newText != null)
                     {
                         Titlebar.ViewModel.Title = newText;
+                    }
+                    else
+                    {
+                        // Even if we failed to get the text for some reason, we want
+                        // to update the titlebar. In this case, we'll just copy it
+                        // back from the window:
+                        Titlebar.ViewModel.Title = Window.Title;
                     }
                     break;
                 }
