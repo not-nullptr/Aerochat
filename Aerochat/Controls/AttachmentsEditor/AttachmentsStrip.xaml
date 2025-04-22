@@ -82,8 +82,14 @@
                                          DataContext="{Binding}"
                                          Click="RadioButton_Click">
                                 <ToggleButton.ToolTip>
-                                    <controls:NativeToolTipControl x:Name="Tooltip" Content="{Binding Path=FileName}" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" />
+                                    <ToolTip x:Name="Tooltip" Content="{Binding Path=FileName}" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" />
                                 </ToggleButton.ToolTip>
+
+								<ToggleButton.ContextMenu>
+									<ContextMenu>
+										<MenuItem x:Name="RemoveAttachment" Header="Remove" Click="RemoveAttachment_Click" />
+									</ContextMenu>
+								</ToggleButton.ContextMenu>
 
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="{x:Type ButtonBase}">

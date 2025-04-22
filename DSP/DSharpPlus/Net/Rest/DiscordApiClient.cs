@@ -1449,6 +1449,12 @@ namespace DSharpPlus.Net
             return ret;
         }
 
+        struct UploadAttachmentInfo
+        {
+            public JObject obj;
+            public string fileName;
+        }
+
         internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
             builder.Validate();
@@ -1479,7 +1485,9 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
 
-            List<JObject> attachments = new();
+            
+
+            List<UploadAttachmentInfo> attachments = new();
             foreach (var f in builder.Files)
             {
                 var resp = await UploadAttachment(f.FileName, f.Stream, channel_id);
@@ -1496,9 +1504,12 @@ namespace DSharpPlus.Net
                         var response = await client.PutAsync(uploadUrl, content);
                         response.EnsureSuccessStatusCode();
                     }
-                    attachments.Add((JObject)obj);
+                    attachments.Add(new()
+                    {
+                        obj = (JObject)obj,
+                        fileName = f.FileName,
+                    });
                 }
-
             }
 
             // this is the worst hack ever
@@ -1509,9 +1520,9 @@ namespace DSharpPlus.Net
             foreach (var attachment in attachments)
             {
                 var obj = new JObject();
-                obj["filename"] = "attachment.png";
-                obj["uploaded_filename"] = attachment["upload_filename"];
-                obj["id"] = attachment["id"];
+                obj["filename"] = attachment.fileName;
+                obj["uploaded_filename"] = attachment.obj["upload_filename"];
+                obj["id"] = attachment.obj["id"];
                 attachmentsArray.Add(obj);
             }
             parsed["attachments"] = attachmentsArray;

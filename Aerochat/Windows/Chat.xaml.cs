@@ -40,6 +40,7 @@ using DSharpPlus.Exceptions;
 using static Aerochat.Windows.ToolbarItem;
 using Aerochat.Enums;
 using Vanara.Collections;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Aerochat.Windows
 {
@@ -141,21 +142,21 @@ namespace Aerochat.Windows
             if (ViewModel is null || ViewModel?.Messages is null) return;
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
-            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
-            if (currentChannel is null)
+            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel newChannel);
+            if (newChannel is null)
             {
-                currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
+                newChannel = await Discord.Client.GetChannelAsync(ChannelId);
             }
 
             Application.Current.Dispatcher.Invoke(delegate
             {
                 if (ViewModel is null || ViewModel?.Messages is null) return;
-                Channel = currentChannel;
-                ViewModel.Channel = ChannelViewModel.FromChannel(currentChannel);
+                Channel = newChannel;
+                ViewModel.Channel = ChannelViewModel.FromChannel(newChannel);
             });
 
-            bool isDM = currentChannel is DiscordDmChannel;
-            bool isGroupChat = isDM && ((DiscordDmChannel)currentChannel).Type == ChannelType.Group;
+            bool isDM = newChannel is DiscordDmChannel;
+            bool isGroupChat = isDM && ((DiscordDmChannel)newChannel).Type == ChannelType.Group;
 
             // if typing users is not empty clear it
             if (TypingUsers.Count > 0)
@@ -170,7 +171,7 @@ namespace Aerochat.Windows
             DiscordUser? recipient = null;
             if (isDM && !isGroupChat)
             {
-                recipient = ((DiscordDmChannel)currentChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
+                recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
                 if (!Discord.Client.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
                     DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
@@ -204,12 +205,12 @@ namespace Aerochat.Windows
                 ViewModel.Recipient.Presence = _initialPresence;
             }
 
-            var messages = await currentChannel.GetMessagesAsync(50);
+            var messages = await newChannel.GetMessagesAsync(50);
             List<MessageViewModel> messageViewModels = new();
 
-            if (!Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild) && !isDM)
+            if (!Discord.Client.TryGetCachedGuild(newChannel.GuildId ?? 0, out DiscordGuild guild) && !isDM)
             {
-                guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
+                guild = await Discord.Client.GetGuildAsync(newChannel.GuildId ?? 0);
             }
 
             foreach (var msg in messages)
@@ -740,10 +741,17 @@ namespace Aerochat.Windows
             {
                 ChannelId = id;
             }
+
+
             InitializeComponent();
-            HideReplyView();
-            Task.Run(BeginDiscordLoop);
             DataContext = ViewModel;
+
+            // Ensure that visual elements that aren't supposed to be initially
+            // displayed are not initially displayed:
+            HideReplyView();
+            HideAttachmentsEditor(true);
+
+            Task.Run(BeginDiscordLoop);
             chatSoundPlayer.MediaOpened += (sender, args) =>
             {
                 chatSoundPlayer.Play();
@@ -769,6 +777,9 @@ namespace Aerochat.Windows
 
             PreviewKeyDown += Chat_PreviewKeyDown;
 
+            PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged 
+                += OnAttachmentsEditorAttachmentsUpdated;
+
             RefreshAerochatVersionLinkVisibility();
         }
 
@@ -785,6 +796,12 @@ namespace Aerochat.Windows
                 {
                     // Unselect the current message:
                     ClearMessageSelection();
+                }
+                else if (ViewModel.IsShowingAttachmentEditor)
+                {
+                    // Only close the attachments editor if edit or reply have
+                    // already been left.
+                    CloseAttachmentsEditor();
                 }
             }
         }
@@ -1038,7 +1055,7 @@ namespace Aerochat.Windows
 
         }
 
-        private async Task SendMessage(string value, Stream? attachment = null, int attachmentWidth = 0, int attachmentHeight = 0)
+        private async Task SendMessage(string value, Stream? drawingAttachment = null, int attachmentWidth = 0, int attachmentHeight = 0)
         {
             bool IsDM = Channel is DiscordDmChannel;
             if (!Discord.Client.TryGetCachedGuild(Channel.GuildId ?? 0, out DiscordGuild guild) && !IsDM)
@@ -1081,7 +1098,7 @@ namespace Aerochat.Windows
                 MessageEntity = fakeMsg,
             });
 
-            if (attachment != null)
+            if (drawingAttachment != null)
             {
                 ViewModel.Messages[^1].Attachments.Add(new()
                 {
@@ -1094,6 +1111,25 @@ namespace Aerochat.Windows
                     Size = "Uploading..."
                 });
             }
+            else if (ViewModel.IsShowingAttachmentEditor)
+            {
+                for (int i = 0; i < Math.Min(10, PART_AttachmentsEditor.ViewModel.Attachments.Count); i++)
+                {
+                    var attachment = PART_AttachmentsEditor.ViewModel.Attachments[i];
+
+                    ViewModel.Messages[^1].Attachments.Add(new()
+                    {
+                        Id = 0,
+                        Width = 0,
+                        Height = 0,
+                        MediaType = Enums.MediaType.Unknown,
+                        Url = "",
+                        Name = attachment.FileName,
+                        Size = "Uploading..."
+                    });
+                }
+            }
+
             try
             {
                 var builder = new DiscordMessageBuilder()
@@ -1107,9 +1143,21 @@ namespace Aerochat.Windows
                     );
                 }
 
-                if (attachment != null)
+                if (drawingAttachment != null)
                 {
-                    builder.AddFile("attachment.png", attachment);
+                    builder.AddFile("attachment.png", drawingAttachment);
+                }
+                else if (ViewModel.IsShowingAttachmentEditor)
+                {
+                    for (int i = 0; i < Math.Min(10, PART_AttachmentsEditor.ViewModel.Attachments.Count); i++)
+                    {
+                        var attachment = PART_AttachmentsEditor.ViewModel.Attachments[i];
+
+                        builder.AddFile(
+                            (attachment.MarkAsSpoiler ? "SPOILER_" : "") + attachment.FileName,
+                            File.OpenRead(attachment.LocalFileName)
+                        );
+                    }
                 }
 
                 if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
@@ -1117,8 +1165,9 @@ namespace Aerochat.Windows
                     ClearReplyTarget();
                 }
 
-                await builder.SendAsync(Channel);
+                CloseAttachmentsEditor();
 
+                await builder.SendAsync(Channel);
             }
             catch (Exception)
             {
@@ -1132,11 +1181,19 @@ namespace Aerochat.Windows
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
             {
-                if (Channel is null) return;
+                if (Channel is null) 
+                    return;
+
                 e.Handled = true;
                 TextBox text = (TextBox)sender;
                 string value = new(text.Text);
-                if (value.Trim() == string.Empty) return;
+
+                if (value.Trim() == string.Empty && (!ViewModel.IsShowingAttachmentEditor
+                    || PART_AttachmentsEditor.ViewModel.Attachments.Count == 0))
+                {
+                    return;
+                }
+
                 text.Text = "";
                 ViewModel.BottomHeight = 64;
 
@@ -1743,142 +1800,66 @@ namespace Aerochat.Windows
             return null;
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private MessageViewModel? GetMessageViewModelForContextMenu(object sender)
         {
             MenuItem? menuItem = sender as MenuItem;
 
             if (menuItem == null)
-                return;
+                return null;
 
             ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
 
             if (contextMenu == null)
-                return;
+                return null;
 
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
+            return contextMenu.DataContext as MessageViewModel;
+        }
 
-            if (messageVm == null)
-                return;
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Channel.DeleteMessageAsync(messageVm.MessageEntity);
         }
 
         private void CopyMessageIdButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.Id.ToString());
         }
 
         private void CopyAuthorIdButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.Author?.Id.ToString() ?? "0");
         }
 
         private void CopyMessageLinkButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.MessageEntity.JumpLink.ToString());
         }
 
         private void CopyMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.Message.ToString());
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             StartEditingMessage(messageVm);
         }
 
         private void ReplyButton_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem? menuItem = sender as MenuItem;
-
-            if (menuItem == null)
-                return;
-
-            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
-
-            if (contextMenu == null)
-                return;
-
-            MessageViewModel? messageVm = contextMenu.DataContext as MessageViewModel;
-
-            if (messageVm == null)
-                return;
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             SetReplyTargetAndEnterReplyMode(messageVm);
         }
@@ -1981,6 +1962,161 @@ namespace Aerochat.Windows
             else
             {
                 SwitchToDraw.Visibility = Visibility.Visible;
+            }
+        }
+
+        private bool VerifyAttachmentPermissions()
+        {
+            if (!ViewModel.Channel.CanAttachFiles)
+            {
+                Dialog errorDialog = new("Error",
+                    "You do not have permission to perform this action.",
+                    SystemIcons.Error);
+                errorDialog.Owner = this;
+                errorDialog.ShowDialog();
+
+                return false;
+            }
+
+            return true;
+        }
+
+        internal void OpenAttachmentsFilePicker()
+        {
+            OpenFileDialog dialog = new();
+            dialog.Multiselect = true;
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                if (dialog.FileNames.Length > 10)
+                {
+                    Dialog errorDialog = new("Error",
+                        "You may only attach at most 10 files in the same message. " +
+                        "The selection will be clipped to first 10 items.",
+                        SystemIcons.Error);
+                    errorDialog.Owner = this;
+                    errorDialog.ShowDialog();
+                }
+
+                InsertAttachmentsFromAnyThreadFromStringArray(dialog.FileNames);
+            }
+        }
+
+        private void InsertAttachmentsFromAnyThreadFromStringArray(string[] fileNames)
+        {
+            for (int i = 0; i < fileNames.Length; i++)
+            {
+                bool succeeded = false;
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    succeeded = InsertAttachment(fileNames[i]);
+                });
+
+                if (!succeeded)
+                {
+                    break;
+                }
+            }
+        }
+
+        internal bool InsertAttachment(string fileName)
+        {
+            if (!VerifyAttachmentPermissions())
+            {
+                return false;
+            }
+
+            if (PART_AttachmentsEditor.ViewModel.Attachments.Count >= 10)
+            {
+                Dialog errorDialog = new("Error",
+                    "You may only attach at most 10 files in the same message.",
+                    SystemIcons.Error);
+                errorDialog.Owner = this;
+                errorDialog.ShowDialog();
+
+                return false;
+            }
+
+            PART_AttachmentsEditor.ViewModel.AddItem(fileName);
+            ShowAttachmentsEditor();
+
+            return true;
+        }
+
+        private void OnAttachmentsEditorAttachmentsUpdated(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var collection = sender as ObservableCollection<AttachmentsEditorItem>;
+
+            if (collection == null)
+            {
+                return;
+            }
+
+            if (collection.Count == 0)
+            {
+                CloseAttachmentsEditor(true);
+            }
+        }
+
+        internal void CloseAttachmentsEditor(bool noClear = false)
+        {
+            // This condition will avoid firing the InvalidOperationException in the first
+            // place in well-formed code. If you forget to pass the argument, oh well, no
+            // big deal.
+            if (!noClear)
+            {
+                try
+                {
+                    PART_AttachmentsEditor.ViewModel.Attachments.Clear();
+                }
+                catch (InvalidOperationException)
+                {
+                    // Ignore. This is usually because of a rather bogus error
+                    // "Cannot change ObservableCollection during a CollectionChanged event."
+                    // which only occurs if we're being sent from the count update code in
+                    // OnAttachmentsEditorAttachmentsUpdated.
+                    Debug.Assert(PART_AttachmentsEditor.ViewModel.Attachments.Count == 0);
+                }
+            }
+
+            HideAttachmentsEditor();
+        }
+
+        private void ShowAttachmentsEditor()
+        {
+            if (ViewModel.IsShowingAttachmentEditor)
+            {
+                return;
+            }
+
+            PART_AttachmentEditorRowDefinition.Height = new GridLength(64);
+            PART_AttachmentEditorGrid.Visibility = Visibility.Visible;
+
+            ViewModel.IsShowingAttachmentEditor = true;
+        }
+
+        private void HideAttachmentsEditor(bool noShowCheck = false)
+        {
+            if (!noShowCheck && !ViewModel.IsShowingAttachmentEditor)
+            {
+                return;
+            }
+
+            PART_AttachmentEditorRowDefinition.Height = new GridLength(0);
+            PART_AttachmentEditorGrid.Visibility = Visibility.Collapsed;
+
+            ViewModel.IsShowingAttachmentEditor = false;
+        }
+
+        private void OnDropFileIntoChatWindow(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                InsertAttachmentsFromAnyThreadFromStringArray(files);
             }
         }
     }

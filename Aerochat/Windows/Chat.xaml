@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Aerochat.Windows" 
         xmlns:controls="clr-namespace:Aerochat.Controls"
         xmlns:scrollbar="clr-namespace:Aerochat.Controls.ScrollBar"
+        xmlns:attachmentseditor="clr-namespace:Aerochat.Controls.AttachmentsEditor"
         xmlns:enums="clr-namespace:Aerochat.Enums"
         xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
         xmlns:helpers="clr-namespace:Aerochat.Helpers"
@@ -121,7 +122,7 @@
         <helpers:ImageConverter x:Key="imageConverter"/>
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
-        <Grid>
+        <Grid AllowDrop="{Binding Channel.CanAttachFiles}" Drop="OnDropFileIntoChatWindow">
             <Grid>
                 <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Image="/Resources/Message/Background.png" />
                 <Grid.RowDefinitions>
@@ -131,6 +132,9 @@
             <Grid Grid.Row="2" UseLayoutRounding="True" KeyboardNavigation.TabNavigation="None">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
+                    <!-- This height is also done in the codebehind, so the 100 here is really just a
+                         placeholder value. -->
+                    <RowDefinition Height="64" x:Name="PART_AttachmentEditorRowDefinition" />
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="32" />
                 </Grid.RowDefinitions>
@@ -171,7 +175,10 @@
                         </Grid>
                     </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1">
+                <Grid x:Name="PART_AttachmentEditorGrid" Grid.Row="1" Panel.ZIndex="7">
+                    <attachmentseditor:AttachmentsStrip x:Name="PART_AttachmentsEditor" />
+                </Grid>
+                <Grid Grid.Row="2">
                     <Rectangle Height="{Binding TopHeight}" VerticalAlignment="Top" Panel.ZIndex="7">
                         <Rectangle.Fill>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1430,7 +1437,7 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="2" UseLayoutRounding="True">
+                <Grid Grid.Row="3" UseLayoutRounding="True">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />

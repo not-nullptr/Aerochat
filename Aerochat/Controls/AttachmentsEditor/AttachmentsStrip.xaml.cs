@@ -52,6 +52,26 @@ namespace Aerochat.Controls.AttachmentsEditor
             }
         }
 
+        private void RemoveAttachment_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItem = sender as MenuItem;
+
+            if (menuItem == null)
+                return;
+
+            ContextMenu? contextMenu = menuItem.Parent as ContextMenu;
+
+            if (contextMenu == null)
+                return;
+
+            AttachmentsEditorItem? itemVm = contextMenu.DataContext as AttachmentsEditorItem;
+
+            if (itemVm == null)
+                return;
+
+            itemVm.Remove();
+        }
+
         private void ItemMiniEditor_LostFocus(object sender, RoutedEventArgs e)
         {
             Popup? element = sender as Popup;

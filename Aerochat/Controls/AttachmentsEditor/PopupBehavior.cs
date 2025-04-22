@@ -360,12 +360,21 @@ namespace Aerochat.Controls.AttachmentsEditor
 
             private void UnregisterOpenedOnlyHandlers()
             {
-                _hWndSource.RemoveHook(WndProc);
-
-                if (_scrollViewerContainer != null)
+                try
                 {
-                    _scrollViewerContainer.ScrollChanged -= OnContainerScrolled;
-                    _scrollViewerContainer = null;
+                    _hWndSource.RemoveHook(WndProc);
+                }
+                catch
+                {
+                    // Do nothing.
+                }
+                finally
+                {
+                    if (_scrollViewerContainer != null)
+                    {
+                        _scrollViewerContainer.ScrollChanged -= OnContainerScrolled;
+                        _scrollViewerContainer = null;
+                    }
                 }
             }
 

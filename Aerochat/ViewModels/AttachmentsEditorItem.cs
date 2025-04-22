@@ -33,6 +33,22 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _fileName, value);
         }
 
+        private string _accessibilityText = "";
+
+        public string AccessibilityText
+        {
+            get => _accessibilityText;
+            set => SetProperty(ref _accessibilityText, value);
+        }
+
+        private bool _markAsSpoiler = false;
+
+        public bool MarkAsSpoiler
+        {
+            get => _markAsSpoiler;
+            set => SetProperty(ref _markAsSpoiler, value);
+        }
+
         private string? _fileSize = null;
 
         public string? FileSize
@@ -64,6 +80,11 @@ namespace Aerochat.ViewModels
         {
             get => _bitmapSource;
             set => SetProperty(ref _bitmapSource, value);
+        }
+
+        public void Remove()
+        {
+            _parent.Attachments.Remove(this);
         }
     }
 }

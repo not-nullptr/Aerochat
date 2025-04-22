@@ -8,28 +8,66 @@
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:AttachmentsEditorItem}"
         mc:Ignorable="d"
-        Height="253" Width="483"
+        Height="203" Width="483"
         UseLayoutRounding="True"
         BorderBrush="#DEDEDE"
         BorderThickness="1px"
         Background="White">
     <StackPanel Panel.ZIndex="5">
         <StackPanel Margin="6, 6, 6, 6" >
-            <StackPanel Orientation="Horizontal">
-                <Label Grid.Column="1" Content="{Binding FileName}" FontWeight="Bold" Padding="0" />
-                <Label Grid.Column="1" ContentStringFormat="({0})" Content="{Binding FileSize}" FontWeight="Normal" Foreground="#999" Padding="6px 0" />
-            </StackPanel>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Label Content="{Binding FileName}" FontWeight="Bold" Padding="0" />
+                    <Label ContentStringFormat="({0})" Content="{Binding FileSize}" FontWeight="Normal" Foreground="#999" Padding="6px 0" />
+                </StackPanel>
+				<Button Grid.Column="1" Height="16" Content="Remove" Padding="5, 0" Click="RemoveButton_Click"></Button>
+			</Grid>
             <Border Width="Auto" BorderBrush="#DEDEDE" Margin="0 6px 0 0" BorderThickness="0 0 0 1px" />
         </StackPanel>
 
         <Grid Margin="6, 6, 6, 6">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" Width="48" Height="48">
+            <Grid Grid.Column="0" Width="48" Height="48" VerticalAlignment="Top">
                 <Image Source="{Binding BitmapSource}" Width="Auto" Height="Auto" SnapsToDevicePixels="True" Stretch="Uniform" StretchDirection="DownOnly" />
             </Grid>
+			<Grid Grid.Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="*" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<Grid Grid.Row="0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+
+					<Label Grid.Row="0" Padding="4">File name:</Label>
+				    <TextBox Text="{Binding FileName}" Grid.Row="1" Margin="4 2" />
+				</Grid>
+
+				<Grid Grid.Row="1" Margin="0 12 0 0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+
+					<Label Grid.Row="0" Padding="4">Accessibility text:</Label>
+					<!--<TextBox Text="{Binding AccessibilityText}" Grid.Row="1" Margin="4 2" Height="46" />-->
+					<TextBox Text="Currently unimplemented." IsEnabled="False" Grid.Row="1" Margin="4 2" Height="46" />
+				</Grid>
+
+				<CheckBox Grid.Row="2" Margin="4 12 4 0" Content="Mark as Spoiler" IsChecked="{Binding MarkAsSpoiler}"></CheckBox>
+			</Grid>
         </Grid>
     </StackPanel>
 </UserControl>

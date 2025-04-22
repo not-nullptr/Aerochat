@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aerochat.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,12 @@ namespace Aerochat.Controls.AttachmentsEditor
         public AttachmentsTinyEditor()
         {
             InitializeComponent();
+        }
+
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var item = DataContext as ViewModels.AttachmentsEditorItem;
+            item?.Remove();
         }
     }
 }

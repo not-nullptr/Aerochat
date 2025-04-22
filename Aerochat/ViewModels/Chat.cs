@@ -29,12 +29,22 @@ namespace Aerochat.ViewModels
             new("Photos", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Photos clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+
+                Chat? chat = Window.GetWindow(itemElement) as Chat;
+                if (chat != null)
+                {
+                    chat.OpenAttachmentsFilePicker();
+                }
             }),
             new("Files", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Files clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+
+                Chat? chat = Window.GetWindow(itemElement) as Chat;
+                if (chat != null)
+                {
+                    chat.OpenAttachmentsFilePicker();
+                }
             }),
             new("Video", (FrameworkElement itemElement) =>
             {
@@ -210,6 +220,13 @@ namespace Aerochat.ViewModels
         {
             get => _messageTargetMode;
             set => SetProperty(ref _messageTargetMode, value);
+        }
+
+        private bool _isShowingAttachmentEditor = false;
+        public bool IsShowingAttachmentEditor
+        {
+            get => _isShowingAttachmentEditor;
+            set => SetProperty(ref _isShowingAttachmentEditor, value);
         }
     }
 }

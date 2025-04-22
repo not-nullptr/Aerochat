@@ -18,6 +18,7 @@ namespace Aerochat.ViewModels
         private bool _canTalk;
         private bool _canManageMessages;
         private bool _canAddReactions;
+        private bool _canAttachFiles;
         private GuildViewModel? _guild;
 
         public required string Name
@@ -56,6 +57,12 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _canAddReactions, value);
         }
 
+        public bool CanAttachFiles
+        {
+            get => _canAttachFiles;
+            set => SetProperty(ref _canAttachFiles, value);
+        }
+
         public GuildViewModel? Guild
         {
             get => _guild;
@@ -73,6 +80,7 @@ namespace Aerochat.ViewModels
                 CanTalk = channel is not DiscordDmChannel dmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages) : !dmChannel.Recipients.Select(x => x.Id).ToList().Contains(643945264868098049),
                 CanManageMessages = channel is not DiscordDmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.ManageMessages) == Permissions.ManageMessages) : false,
                 CanAddReactions = channel is not DiscordDmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.AddReactions) == Permissions.AddReactions) : true,
+                CanAttachFiles = channel is not DiscordDmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.AttachFiles) == Permissions.AttachFiles) : true,
                 Guild = channel.Guild != null ? GuildViewModel.FromGuild(channel.Guild) : null
             };
         }
