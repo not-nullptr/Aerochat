@@ -28,6 +28,7 @@ using Aerovoice.Clients;
 using DiscordProtos.DiscordUsers.V1;
 using System.Buffers.Text;
 using Google.Protobuf;
+using DSharpPlus.EventArgs;
 
 namespace Aerochat
 {
@@ -48,6 +49,9 @@ namespace Aerochat
         public bool LoggingOut = false;
         private Dictionary<UserStatus, ImageSource> _taskbarPresences = new();
         private VoiceSocket voiceSocket;
+
+        private UserStatus? _initialUserStatus = null;
+
         public static async Task SetStatus(UserStatus status, bool updateUserSettingsProto = true)
         {
             App instance = (App)Application.Current;
@@ -231,6 +235,39 @@ namespace Aerochat
                 LoginWindow.Show();
             }
         }
+
+        private async Task OnInitialClientReady(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
+        {
+            Discord.Ready = true;
+
+            UserStatus? status = _initialUserStatus;
+
+            if (Discord.Client.UserSettingsProto.Length > 0)
+            {
+                byte[] protoBytes = Convert.FromBase64String(Discord.Client.UserSettingsProto);
+
+                if (protoBytes.Length > 0)
+                {
+                    _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
+
+                    // Set the status from the protobuf settings.
+                    status = _userSettingsProto.Status.Status.ToUserStatus();
+                }
+            }
+
+            await Dispatcher.Invoke(() => SetStatus(status ?? UserStatus.Online));
+
+            // Prevent the client from initialised multiple times (i.e. in case of connection
+            // loss):
+            Discord.Client.Ready -= OnInitialClientReady;
+
+            Dispatcher.Invoke(() => {
+                new Home().Show();
+                Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
+                loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
+            });
+        }
+
         public async Task<bool> BeginLogin(string givenToken, bool save = false, UserStatus? status = null)
         {
             Discord.Client = new(new()
@@ -238,31 +275,11 @@ namespace Aerochat
                 Token = givenToken,
                 TokenType = TokenType.User,
             });
-            Discord.Client.Ready += async (_, __) =>
-            {
-                Discord.Ready = true;
 
-                if (Discord.Client.UserSettingsProto.Length > 0)
-                {
-                    byte[] protoBytes = Convert.FromBase64String(Discord.Client.UserSettingsProto);
+            _initialUserStatus = status;
 
-                    if (protoBytes.Length > 0)
-                    {
-                        _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
+            Discord.Client.Ready += OnInitialClientReady;
 
-                        // Set the status from the protobuf settings.
-                        status = _userSettingsProto.Status.Status.ToUserStatus();
-                    }
-                }
-
-                await Dispatcher.Invoke(() => SetStatus(status ?? UserStatus.Online));
-
-                Dispatcher.Invoke(() => {
-                    new Home().Show();
-                    Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
-                    loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
-                });
-            };
             try
             {
                 await Discord.Client.ConnectAsync(status: status ?? UserStatus.Online);
