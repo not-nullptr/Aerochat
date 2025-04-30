@@ -99,13 +99,24 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _messageEntity, value);
         }
 
+        private string? _timestampString = null;
+
         public string TimestampString
         {
             get
             {
-                var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
-                return Timestamp.ToString(format, CultureInfo.InvariantCulture);  // Ensure InvariantCulture to control formatting: Otherwise we will lose the AM/PM at the end!
+                if (_timestampString == null)
+                    _timestampString = GetTimestampString();
+                return _timestampString;
             }
+
+            set => SetProperty(ref _timestampString, GetTimestampString());
+        }
+
+        private string GetTimestampString()
+        {
+            var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
+            return Timestamp.ToString(format, CultureInfo.InvariantCulture);  // Ensure InvariantCulture to control formatting: Otherwise we will lose the AM/PM at the end!
         }
 
         private DateTime _timestamp;

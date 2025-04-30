@@ -907,19 +907,10 @@ namespace Aerochat.Windows
                     foreach (var message in ViewModel.Messages)
                     {
                         // Update each message
-                        message.RaisePropertyChanged(nameof(MessageViewModel.TimestampString));
-                    }
-
-                    // Force the collection to refresh
-                    // (iL - 21.12.2024) I know that this is a really shitty way to force the UI to update,
-                    // but I wasn't able to implement the live updating any other way after 
-                    // fooling around with it for an hour.
-                    // Maybe you have a better idea? :-)
-                    var tempMessages = ViewModel.Messages.ToList();
-                    ViewModel.Messages.Clear();
-                    foreach (var msg in tempMessages)
-                    {
-                        ViewModel.Messages.Add(msg);
+                        var temp = message.TimestampString;
+                        message.TimestampString = null;
+                        message.TimestampString = temp;
+                        message.RaisePropertyChanged(nameof(message.TimestampString));
                     }
 
                     RefreshAerochatVersionLinkVisibility();
