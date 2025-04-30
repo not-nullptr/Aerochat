@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Vanara.Extensions.Reflection;
 
 namespace Aerochat.Controls
 {
@@ -119,6 +120,24 @@ namespace Aerochat.Controls
                         continue;
                     }
                 }
+                else if (part.StartsWith("http://") || part.StartsWith("https://"))
+                {
+                    // This is a link. Links cannot contain spaces, so we can easily just consider the
+                    // whole part a link (in the case of standard links). Of course, we try to parse an
+                    // actual URI here, and if we cannot deduce one, then we disregard the part.
+                    if (Uri.IsWellFormedUriString(part, UriKind.Absolute))
+                    {
+                        Hyperlink link = new();
+                        Uri uriSanitised = new(part);
+
+                        link.Click += (s, e) => OnHyperlinkClicked(HyperlinkType.WebLink, uriSanitised.ToString());
+                        link.Inlines.Add(uriSanitised.ToString());
+                        textBlock.Inlines.Add(link);
+                        textBlock.Inlines.Add(" ");
+                        continue;
+                    }
+                }
+
                 List<Inline> inlines = new();
 
                 Run currentRun = new Run();
@@ -229,7 +248,8 @@ namespace Aerochat.Controls
     {
         Channel,
         Role,
-        User
+        User,
+        WebLink,
     }
 
     public class HyperlinkClickedEventArgs : EventArgs

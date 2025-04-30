@@ -41,6 +41,7 @@ using static Aerochat.Windows.ToolbarItem;
 using Aerochat.Enums;
 using Vanara.Collections;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using Vanara.PInvoke;
 
 namespace Aerochat.Windows
 {
@@ -1570,28 +1571,43 @@ namespace Aerochat.Windows
         {
             switch (e.Type)
             {
+                case Controls.HyperlinkType.WebLink:
+                {
+                    string? uri = (string)e.AssociatedObject;
+
+                    if (uri is null)
+                        return;
+
+                    if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+                        return;
+
+                    Shell32.ShellExecute(HWND.NULL, "open", uri, null, null, ShowWindowCommand.SW_SHOWNORMAL);
+
+                    break;
+                }
+
                 case Controls.HyperlinkType.Channel:
+                {
+                    var channel = (DiscordChannel)e.AssociatedObject;
+                    ChannelId = channel.Id;
+                    foreach (var category in ViewModel.Categories)
                     {
-                        var channel = (DiscordChannel)e.AssociatedObject;
-                        ChannelId = channel.Id;
-                        foreach (var category in ViewModel.Categories)
+                        foreach (var item in category.Items)
                         {
-                            foreach (var item in category.Items)
+                            if (item.Id == channel.Id)
                             {
-                                if (item.Id == channel.Id)
-                                {
-                                    item.IsSelected = true;
-                                }
-                                else
-                                {
-                                    item.IsSelected = false;
-                                }
+                                item.IsSelected = true;
+                            }
+                            else
+                            {
+                                item.IsSelected = false;
                             }
                         }
-                        await OnChannelChange().ConfigureAwait(false);
-                        // find the item in the list
-                        break;
                     }
+                    await OnChannelChange().ConfigureAwait(false);
+                    // find the item in the list
+                    break;
+                }
             }
         }
 
