@@ -64,12 +64,21 @@ namespace Aerochat
 
             await Discord.Client.UpdateStatusAsync(userStatus: status);
 
-            if (updateUserSettingsProto && instance?._userSettingsProto != null)
+            try
             {
-                instance._userSettingsProto.Status.Status = status.ToDiscordString();
-                byte[] protoBytes = instance._userSettingsProto.ToByteArray();
-                string base64Proto = Convert.ToBase64String(protoBytes);
-                await Discord.Client.UpdateUserSettingsProto(base64Proto);
+                if (updateUserSettingsProto && instance?._userSettingsProto != null)
+                {
+                    instance._userSettingsProto.Status.Status = status.ToDiscordString();
+                    byte[] protoBytes = instance._userSettingsProto.ToByteArray();
+                    string base64Proto = Convert.ToBase64String(protoBytes);
+                    await Discord.Client.UpdateUserSettingsProto(base64Proto);
+                }
+            }
+            catch (NullReferenceException)
+            {
+                // I have no reason why this happens despite my null checking, but I cannot
+                // replicate the circumstances to trigger a crash here no matter what I've
+                // tried. Just ignore the error and hope for the best.
             }
             
             foreach (Window wnd in Current.Windows)
