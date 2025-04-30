@@ -65,6 +65,7 @@ namespace Aerochat.Windows
         private VoiceSocket voiceSocket;
         private bool sizeTainted = false;
         private PresenceViewModel? _initialPresence = null;
+        private HomeListItemViewModel? _openingItem = null;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
@@ -174,8 +175,17 @@ namespace Aerochat.Windows
                 recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
                 if (!Discord.Client.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
-                    DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
-                    recipient = userProfile.User;
+                    // GetUserProfileAsync can fail if the recipient is not friends with you and shares no
+                    // mutual servers. We need to fail gracefully in this case.
+                    try
+                    {
+                        DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
+                        recipient = userProfile.User;
+                    }
+                    catch (NotFoundException)
+                    {
+                        // Ignore.
+                    }
                 }
             }
             else
@@ -702,13 +712,14 @@ namespace Aerochat.Windows
             Close();
         }
 
-        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null)
+        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null, HomeListItemViewModel openingItem = null)
         {
             typingTimer.Elapsed += TypingTimer_Elapsed;
             typingTimer.AutoReset = false;
             Hide();
 
             _initialPresence = initialPresence;
+            _openingItem = openingItem;
 
             if (allowDefault)
             {
@@ -1002,6 +1013,8 @@ namespace Aerochat.Windows
             foreach (var user in TypingUsers.ToList()) {
                 if (!Discord.Client.TryGetCachedUser(user.Id, out DiscordUser discordUser))
                 {
+                    // I believe this is fully safe since it'll only occur in a server context,
+                    // where all typing users' profiles should be fully accessible.
                     discordUser = (await Discord.Client.GetUserProfileAsync(user.Id, true)).User;
                 }
                 tempUsers.Add(discordUser);

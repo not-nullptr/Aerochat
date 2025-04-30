@@ -690,6 +690,9 @@ namespace Aerochat.Windows
                         RecipientCount = dm.Recipients.Count + 1, // to account for ourselves, i think?
                     };
 
+                    if (dm?.Recipients is not null) foreach (DiscordUser user in dm.Recipients)
+                        newItem.Recipients.Add(user);
+
                     newList.Add(newItem);
                 }
 
@@ -849,7 +852,7 @@ namespace Aerochat.Windows
             {
                 // We send over the presence of the item in case this is a one-on-one DM, where the Discord
                 // API doesn't initially report this state.
-                new Chat(item.Id, true, item.Presence);
+                new Chat(item.Id, true, item.Presence, item);
             }
             else
             {

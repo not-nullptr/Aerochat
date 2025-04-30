@@ -1,4 +1,5 @@
 ﻿using Aerochat.Windows;
+using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -106,6 +107,8 @@ namespace Aerochat.ViewModels
                 get => _recipientCount;
                 set => SetProperty(ref _recipientCount, value);
             }
+
+            public ObservableCollection<DiscordUser> Recipients { get; } = new();
 
             public ObservableCollection<UserViewModel> ConnectedUsers { get; } = new();
         }
