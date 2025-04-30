@@ -1297,9 +1297,13 @@
                                         <ColumnDefinition Width="16*"/>
                                         <ColumnDefinition Width="65*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="Message_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" Panel.ZIndex="10" x:Name="MessageTextBox" Grid.ColumnSpan="2">
+                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" LostFocus="MessageTextBox_LostFocus" IsInactiveSelectionHighlightEnabled="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="MessageTextBox_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" Panel.ZIndex="10" x:Name="MessageTextBox" Grid.ColumnSpan="2">
                                         <TextBox.Style>
                                             <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+                                                <Style.Resources>
+                                                    <!-- Make inactive selection have the same colour as the active one. -->
+                                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+                                                </Style.Resources>
                                                 <Setter Property="BorderThickness" Value="0"/>
                                                 <Setter Property="AllowDrop" Value="true"/>
                                                 <Setter Property="Template">

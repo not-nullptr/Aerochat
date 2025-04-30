@@ -796,6 +796,9 @@ namespace Aerochat.Windows
             Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
 
+            CommandManager.AddPreviewCanExecuteHandler(MessageTextBox, MessageTextBox_OnPreviewCanExecute);
+            CommandManager.AddPreviewExecutedHandler(MessageTextBox, MessageTextBox_OnPreviewExecuted);
+
             PreviewKeyDown += Chat_PreviewKeyDown;
             KeyDown += Chat_KeyDown;
 
@@ -809,14 +812,41 @@ namespace Aerochat.Windows
         {
             if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
             {
-                if (e.Key == Key.V)
+                if (e.Key == Key.V) // Ctrl+V
                 {
                     if (Clipboard.ContainsImage())
                     {
-                        BitmapSource image = Clipboard.GetImage();
-                        InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                        e.Handled = true;
+                        AddImageAttachmentFromClipboard();
+                    }
+                    else
+                    {
+                        // Forward the input into the chat box:
+                        e.Handled = true;
+                        MessageTextBox.RaiseEvent(new KeyEventArgs(
+                            e.KeyboardDevice,
+                            PresentationSource.FromVisual(MessageTextBox),
+                            0,
+                            e.Key
+                        ) { RoutedEvent = Keyboard.KeyDownEvent });
+                        MessageTextBox.Focus();
                     }
                 }
+                else if (e.Key == Key.A) // Ctrl+A
+                {
+                    e.Handled = true;
+                    MessageTextBox.Focus();
+                    MessageTextBox.SelectAll();
+                }
+            }
+        }
+
+        private void AddImageAttachmentFromClipboard()
+        {
+            if (Clipboard.ContainsImage())
+            {
+                BitmapSource image = Clipboard.GetImage();
+                InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
             }
         }
 
@@ -847,6 +877,23 @@ namespace Aerochat.Windows
                     if (!isAnyPopupVisible)
                         CloseAttachmentsEditor();
                 }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                // Send the current message from the chatbox:
+                SendMessageFromChatBox();
+            }
+            else if (
+                MessageTextBox.IsEnabled &&
+                !MessageTextBox.IsKeyboardFocused &&
+                FocusManager.GetFocusedElement(this) is not TextBox &&
+                (e.KeyboardDevice.Modifiers == ModifierKeys.Shift ||
+                e.KeyboardDevice.Modifiers == ModifierKeys.None)
+            )
+            {
+                // If we're some generally typable character, then focus the chat box
+                // and let the key event bubble to the text box:
+                MessageTextBox.Focus();
             }
         }
 
@@ -1244,46 +1291,83 @@ namespace Aerochat.Windows
             }
         }
 
-        private async void Message_PreviewKeyDown(object sender, KeyEventArgs e)
+        private async void SendMessageFromChatBox()
+        {
+            if (Channel is null)
+                return;
+
+            TextBox text = MessageTextBox;
+            string value = new(text.Text);
+
+            if (value.Trim() == string.Empty && (!ViewModel.IsShowingAttachmentEditor
+                || PART_AttachmentsEditor.ViewModel.Attachments.Count == 0))
+            {
+                return;
+            }
+
+            text.Text = "";
+            ViewModel.BottomHeight = 64;
+
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
+            {
+                // Since the editor UI is still open when we send the message,
+                // we need to account for its added height, or we subtract the
+                // wrong value when closing the UI.
+                ViewModel.BottomHeight += 25;
+            }
+
+            sizeTainted = false;
+
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
+            {
+                await ViewModel.TargetMessage.MessageEntity.ModifyAsync(value);
+                LeaveEditingMessage();
+            }
+            else
+            {
+                await SendMessage(value);
+            }
+        }
+
+        private void MessageTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
             {
-                if (Channel is null) 
-                    return;
-
                 e.Handled = true;
-                TextBox text = (TextBox)sender;
-                string value = new(text.Text);
+                SendMessageFromChatBox();
+            }
+        }
 
-                if (value.Trim() == string.Empty && (!ViewModel.IsShowingAttachmentEditor
-                    || PART_AttachmentsEditor.ViewModel.Attachments.Count == 0))
+        private void MessageTextBox_OnPreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                if (Clipboard.ContainsImage())
                 {
-                    return;
-                }
-
-                text.Text = "";
-                ViewModel.BottomHeight = 64;
-
-                if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
-                {
-                    // Since the editor UI is still open when we send the message,
-                    // we need to account for its added height, or we subtract the
-                    // wrong value when closing the UI.
-                    ViewModel.BottomHeight += 25;
-                }
-
-                sizeTainted = false;
-
-                if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
-                {
-                    await ViewModel.TargetMessage.MessageEntity.ModifyAsync(value);
-                    LeaveEditingMessage();
-                }
-                else
-                {
-                    await SendMessage(value);
+                    AddImageAttachmentFromClipboard();
+                    e.Handled = true;
                 }
             }
+        }
+
+        private void MessageTextBox_OnPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                if (Clipboard.ContainsImage())
+                {
+                    e.CanExecute = true;
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void MessageTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Unselect all the text in the message box. This ensures that the caret ends up
+            // at the end of the previous selection rather than the beginning, which is the
+            // more expected behaviour of a chatbox.
+            MessageTextBox.Select(MessageTextBox.SelectionStart + MessageTextBox.SelectionLength, 0);
         }
 
         private void ToolbarClick(object sender, MouseButtonEventArgs e)
