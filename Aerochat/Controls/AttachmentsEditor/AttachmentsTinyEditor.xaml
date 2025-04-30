@@ -8,12 +8,12 @@
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:AttachmentsEditorItem}"
         mc:Ignorable="d"
-        Height="203" Width="483"
+        Height="Auto" Width="483"
         UseLayoutRounding="True"
         BorderBrush="#DEDEDE"
         BorderThickness="1px"
         Background="White">
-    <StackPanel Panel.ZIndex="5">
+    <StackPanel Panel.ZIndex="5" Margin="0, 0, 0, 6">
         <StackPanel Margin="6, 6, 6, 6" >
 			<Grid>
 				<Grid.ColumnDefinitions>
