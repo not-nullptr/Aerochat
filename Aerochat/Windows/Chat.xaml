@@ -1120,7 +1120,7 @@
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
                                                                         <!-- Embed image -->
-                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Image.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Image}">
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Image.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Image}">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1133,7 +1133,7 @@
                                                                             </Image.Style>
                                                                         </Image>
                                                                         <!-- Embed thumbnail -->
-                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Thumbnail.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Thumbnail}">
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Thumbnail.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Thumbnail}">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
