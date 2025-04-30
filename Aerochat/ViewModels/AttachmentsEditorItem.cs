@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
@@ -17,12 +18,28 @@ namespace Aerochat.ViewModels
             _parent = parent;
         }
 
-        private string _localFileName = "";
+        private string? _localFileName = null;
 
-        public string LocalFileName
+        public string? LocalFileName
         {
             get => _localFileName;
             set => SetProperty(ref _localFileName, value);
+        }
+
+        private bool _isVirtual = false;
+
+        public bool IsVirtual
+        {
+            get => _isVirtual;
+            set => SetProperty(ref _isVirtual, value);
+        }
+
+        private Stream? _virtualStream = null;
+
+        public Stream? VirtualStream
+        {
+            get => _virtualStream;
+            set => SetProperty(ref _virtualStream, value);
         }
 
         private string _fileName = "";
@@ -80,6 +97,28 @@ namespace Aerochat.ViewModels
         {
             get => _bitmapSource;
             set => SetProperty(ref _bitmapSource, value);
+        }
+
+        public Stream GetStream()
+        {
+            if (_isVirtual)
+            {
+                if (_virtualStream == null)
+                {
+                    throw new Exception("Stream should not be null.");
+                }
+
+                return _virtualStream;
+            }
+            else
+            {
+                if (LocalFileName == null)
+                {
+                    throw new Exception("Local file name should not be null.");
+                }
+
+                return File.OpenRead(LocalFileName);
+            }
         }
 
         public void Remove()

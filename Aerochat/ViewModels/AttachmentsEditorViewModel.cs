@@ -143,6 +143,56 @@ namespace Aerochat.ViewModels
             Attachments.Add(item);
         }
 
+        public void AddVirtualItem(Stream stream, string extension)
+        {
+            AttachmentsEditorItem item = new(this)
+            {
+                LocalFileName = null,
+                IsVirtual = true,
+                VirtualStream = stream,
+                FileName = "unknown." + extension,
+            };
+
+            try
+            {
+                long fileSize = stream.Length;
+                string formattedFileSize = FormatSize(fileSize);
+
+                item.FileSize = formattedFileSize;
+            }
+            catch { /* ignore */ }
+
+            if (!IsOfImageFileType("unknown." + extension))
+            {
+                ProgramIconManager iconManager = new();
+                BitmapSource aaa = iconManager.LoadIcon("unknown." + extension);
+
+                if (aaa == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Loaded null icon for virtual file of extension " + extension);
+                }
+
+                item.BitmapSource = aaa;
+                item.IsImage = false;
+            }
+            else
+            {
+                item.IsImage = true;
+
+                BitmapImage image = new();
+                image.BeginInit();
+                image.DecodePixelHeight = 48;
+                image.StreamSource = stream;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+                image.Freeze();
+
+                item.BitmapSource = image;
+            }
+
+            Attachments.Add(item);
+        }
+
         internal bool IsOfImageFileType(string fileName)
         {
             string extension = Path.GetExtension(fileName).ToLower();

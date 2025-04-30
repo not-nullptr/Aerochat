@@ -787,11 +787,27 @@ namespace Aerochat.Windows
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
 
             PreviewKeyDown += Chat_PreviewKeyDown;
+            KeyDown += Chat_KeyDown;
 
             PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged
                 += OnAttachmentsEditorAttachmentsUpdated;
 
             RefreshAerochatVersionLinkVisibility();
+        }
+
+        private void Chat_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Key == Key.V)
+                {
+                    if (Clipboard.ContainsImage())
+                    {
+                        BitmapSource image = Clipboard.GetImage();
+                        InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                    }
+                }
+            }
         }
 
         private void Chat_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -1182,10 +1198,22 @@ namespace Aerochat.Windows
                     {
                         var attachment = PART_AttachmentsEditor.ViewModel.Attachments[i];
 
-                        builder.AddFile(
-                            (attachment.MarkAsSpoiler ? "SPOILER_" : "") + attachment.FileName,
-                            File.OpenRead(attachment.LocalFileName)
-                        );
+                        try
+                        {
+                            builder.AddFile(
+                                (attachment.MarkAsSpoiler ? "SPOILER_" : "") + attachment.FileName,
+                                attachment.GetStream()
+                            );
+                        }
+                        catch (Exception)
+                        {
+                            Dialog errorDialog = new("Error",
+                                $"Failed to upload attachment #${i} \"${attachment.FileName}\".",
+                                SystemIcons.Warning);
+                            errorDialog.Owner = this;
+                            errorDialog.ShowDialog();
+                            return;
+                        }
                     }
                 }
 
@@ -2051,7 +2079,25 @@ namespace Aerochat.Windows
             }
         }
 
-        internal bool InsertAttachment(string fileName)
+        private void InsertAttachmentsFromAnyThreadFromBitmapSourceArray(BitmapSource[] bitmapSources)
+        {
+            for (int i = 0; i < bitmapSources.Length; i++)
+            {
+                bool succeeded = false;
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    succeeded = InsertAttachment(bitmapSources[i]);
+                });
+
+                if (!succeeded)
+                {
+                    break;
+                }
+            }
+        }
+
+        private bool ValidateInsertAttachmentConditions()
         {
             if (!VerifyAttachmentPermissions())
             {
@@ -2069,10 +2115,40 @@ namespace Aerochat.Windows
                 return false;
             }
 
+            return true;
+        }
+
+        internal bool InsertAttachment(string fileName)
+        {
+            if (!ValidateInsertAttachmentConditions())
+                return false;
+
             PART_AttachmentsEditor.ViewModel.AddItem(fileName);
             ShowAttachmentsEditor();
 
             return true;
+        }
+
+        internal bool InsertAttachment(Stream dataStream, string extension)
+        {
+            if (!ValidateInsertAttachmentConditions())
+                return false;
+
+            PART_AttachmentsEditor.ViewModel.AddVirtualItem(dataStream, extension);
+            ShowAttachmentsEditor();
+
+            return true;
+        }
+
+        internal bool InsertAttachment(BitmapSource bitmapSource)
+        {
+            Stream stream = new MemoryStream();
+
+            PngBitmapEncoder pngEncoder = new();
+            pngEncoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+            pngEncoder.Save(stream);
+
+            return InsertAttachment(stream, "png");
         }
 
         private void OnAttachmentsEditorAttachmentsUpdated(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
