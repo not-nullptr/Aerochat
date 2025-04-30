@@ -273,7 +273,7 @@ namespace Aerochat.Controls.AttachmentsEditor
             private Window _window;
             private WindowEventManager _windowEventManager;
 
-            private HwndSource _hWndSource;
+            private HwndSource? _hWndSource = null;
 
             private bool _dragFullWindows = false;
             private bool _isOptimizingMovement = false;
@@ -362,7 +362,10 @@ namespace Aerochat.Controls.AttachmentsEditor
             {
                 try
                 {
-                    _hWndSource.RemoveHook(WndProc);
+                    if (_hWndSource != null)
+                    {
+                        _hWndSource.RemoveHook(WndProc);
+                    }
                 }
                 catch
                 {
