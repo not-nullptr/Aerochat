@@ -56,7 +56,11 @@ namespace Aerochat.Helpers
                 __args[2] = createOptions;
 
                 _isRunningBypass = true;
-                object result = __originalMethod.Invoke(null, __args); // Original method is the same method.
+                // "Original method" is actually a misnomer. It refers to the current method, with all the
+                // applied hooks. That's not a problem for us because we're augmenting the functionality
+                // of the original function rather than overriding it, but it does mean that we need to be
+                // careful to place a guard to prevent infinite recursion.
+                object result = __originalMethod.Invoke(null, __args);
                 _isRunningBypass = false;
                 __result = result;
 
