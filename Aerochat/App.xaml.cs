@@ -346,6 +346,11 @@ namespace Aerochat
 
                 fullscreenInterval.Elapsed += async (sender, args) =>
                 {
+                    if (!SettingsManager.Instance.GoIdleWithFullscreenProgram)
+                    {
+                        return;
+                    }
+
                     bool fullscreen = false;
                     RECT appBounds;
                     RECT screenBounds;

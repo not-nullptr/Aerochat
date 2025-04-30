@@ -115,6 +115,9 @@ namespace Aerochat.Settings
         [Settings("Alerts", "Nudge length")]
         public int NudgeLength { get; set; } = 2;
 
+        [Settings("Activity", "Make my status go \"away\" when I open a fullscreen application")]
+        public bool GoIdleWithFullscreenProgram  { get; set; } = true;
+
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
 
