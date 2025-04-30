@@ -41,19 +41,19 @@ namespace Aerochat.ViewModels
     }
     public class EmbedViewModel : ViewModelBase
     {
-        private EmbedAuthorViewModel _author;
+        private EmbedAuthorViewModel? _author;
         private string _color;
         private string _description;
-        private List<FieldViewModel> _fields;
+        private List<FieldViewModel> _fields = new();
         private string _footer;
-        private EmbedImageViewModel _image;
-        private EmbedProviderViewModel _provider;
-        private EmbedImageViewModel _thumbnail;
+        private EmbedImageViewModel? _image;
+        private EmbedProviderViewModel? _provider;
+        private EmbedImageViewModel? _thumbnail;
         private DateTime? _timestamp;
-        private string _title;
-        private string _type;
-        private string _url;
-        private string _video;
+        private string? _title;
+        private string? _type;
+        private string? _url;
+        private string? _video;
 
         public EmbedAuthorViewModel Author
         {
@@ -80,17 +80,17 @@ namespace Aerochat.ViewModels
             get => _footer;
             set => SetProperty(ref _footer, value);
         }
-        public EmbedImageViewModel Image
+        public EmbedImageViewModel? Image
         {
             get => _image;
             set => SetProperty(ref _image, value);
         }
-        public EmbedProviderViewModel Provider
+        public EmbedProviderViewModel? Provider
         {
             get => _provider;
             set => SetProperty(ref _provider, value);
         }
-        public EmbedImageViewModel Thumbnail
+        public EmbedImageViewModel? Thumbnail
         {
             get => _thumbnail;
             set => SetProperty(ref _thumbnail, value);

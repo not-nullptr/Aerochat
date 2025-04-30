@@ -42,6 +42,9 @@ using Aerochat.Enums;
 using Vanara.Collections;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using Vanara.PInvoke;
+using System;
+using System.Windows.Forms.Design;
+using System.Windows.Documents;
 
 namespace Aerochat.Windows
 {
@@ -1558,6 +1561,21 @@ namespace Aerochat.Windows
             }
         }
 
+        /// <summary>
+        /// Opens an external URL with the default protocol handler on the user's operating system.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns>True if succeeded, false if failed.</returns>
+        private bool OpenExternalUrl(string uri)
+        {
+            // Make sure we're trying to open an actual URL and not any arbitrary program.
+            if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+                return false;
+
+            Shell32.ShellExecute(HWND.NULL, "open", uri, null, null, ShowWindowCommand.SW_SHOWNORMAL);
+            return true;
+        }
+
         private async void MessageParser_HyperlinkClicked(object sender, Controls.HyperlinkClickedEventArgs e)
         {
             switch (e.Type)
@@ -1569,11 +1587,7 @@ namespace Aerochat.Windows
                     if (uri is null)
                         return;
 
-                    if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
-                        return;
-
-                    Shell32.ShellExecute(HWND.NULL, "open", uri, null, null, ShowWindowCommand.SW_SHOWNORMAL);
-
+                    OpenExternalUrl(uri);
                     break;
                 }
 
@@ -1607,17 +1621,30 @@ namespace Aerochat.Windows
             var media = sender as FrameworkElement;
             if (media is null) return;
 
-            // get the rect of the image
-            var imgRect = media.TransformToAncestor(this).TransformBounds(new Rect(0, 0, media.ActualWidth, media.ActualHeight));
-            var wndRect = new Rect(Left, Top, Width, Height);
+            var imageProviderVm = media.DataContext as AttachmentViewModel;
+            if (imageProviderVm is null) return;
 
-            // add wndRect to imgRect so its offset properly
-            imgRect.Offset(wndRect.Left, wndRect.Top);
+            var imagePreviewer = new ImagePreviewer(imageProviderVm);
+            OnImagePreviewerOpened(imagePreviewer);
+        }
 
-            var attachmentVm = media.DataContext as AttachmentViewModel;
-            if (attachmentVm is null) return;
+        private void OpenMediaEmbed(object sender, MouseButtonEventArgs e)
+        {
+            var media = sender as FrameworkElement;
+            if (media is null) return;
 
-            var imagePreviewer = new ImagePreviewer(attachmentVm, imgRect, wndRect);
+            //EmbedViewModel? embedVm = media.DataContext as EmbedViewModel;
+            //if (embedVm is null) return;
+            //var imageProviderVm = embedVm.Thumbnail;
+            var imageProviderVm = media.Tag as EmbedImageViewModel;
+            if (imageProviderVm is null) return;
+
+            var imagePreviewer = new ImagePreviewer(imageProviderVm);
+            OnImagePreviewerOpened(imagePreviewer);
+        }
+
+        private void OnImagePreviewerOpened(ImagePreviewer imagePreviewer)
+        {
             // set its position to the center of this window
             imagePreviewer.Left = Left + (Width - imagePreviewer.Width) / 2;
             imagePreviewer.Top = Top + (Height - imagePreviewer.Height) / 2;
@@ -2113,7 +2140,8 @@ namespace Aerochat.Windows
 
         private void RevalidatePushToDrawVisibility()
         {
-            if (ViewModel.MessageTargetMode == TargetMessageMode.Edit)
+            if (ViewModel.MessageTargetMode == TargetMessageMode.Edit ||
+                ViewModel.IsShowingAttachmentEditor)
             {
                 SwitchToDraw.Visibility = Visibility.Collapsed;
             }
@@ -2302,6 +2330,7 @@ namespace Aerochat.Windows
             PART_AttachmentEditorGrid.Visibility = Visibility.Visible;
 
             ViewModel.IsShowingAttachmentEditor = true;
+            RevalidatePushToDrawVisibility();
         }
 
         private void HideAttachmentsEditor(bool noShowCheck = false)
@@ -2315,6 +2344,7 @@ namespace Aerochat.Windows
             PART_AttachmentEditorGrid.Visibility = Visibility.Collapsed;
 
             ViewModel.IsShowingAttachmentEditor = false;
+            RevalidatePushToDrawVisibility();
         }
 
         private void OnDropFileIntoChatWindow(object sender, DragEventArgs e)
@@ -2324,6 +2354,51 @@ namespace Aerochat.Windows
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 InsertAttachmentsFromAnyThreadFromStringArray(files);
             }
+        }
+
+        private void OnEmbedTitleHyperlinkClicked(object sender, RoutedEventArgs e)
+        {
+            EmbedViewModel? embed = (sender as Hyperlink)?.DataContext as EmbedViewModel;
+
+            if (embed == null)
+                return;
+
+            string? uri = embed?.Url;
+
+            if (uri is null)
+                return;
+
+            OpenExternalUrl(uri);
+        }
+
+        private void OnEmbedProviderHyperlinkClicked(object sender, RoutedEventArgs e)
+        {
+            EmbedViewModel? embed = (sender as Hyperlink)?.DataContext as EmbedViewModel;
+
+            if (embed == null)
+                return;
+
+            string? uri = embed?.Provider?.Url;
+
+            if (uri is null)
+                return;
+
+            OpenExternalUrl(uri);
+        }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            EmbedViewModel? embed = (sender as Hyperlink)?.DataContext as EmbedViewModel;
+
+            if (embed == null)
+                return;
+
+            string? uri = embed?.Author?.Url;
+
+            if (uri is null)
+                return;
+
+            OpenExternalUrl(uri);
         }
     }
 

@@ -1049,7 +1049,46 @@
                                                                         <RowDefinition MaxHeight="150" Height="Auto" />
                                                                     </Grid.RowDefinitions>
                                                                     <StackPanel>
-                                                                        <TextBlock TextWrapping="Wrap" Text="{Binding Title}" FontSize="15" Foreground="#355a88">
+                                                                        <!-- Embed provider -->
+                                                                        <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" FontSize="11">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Provider}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                        <DataTrigger Binding="{Binding Provider}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                            <Hyperlink Click="OnEmbedProviderHyperlinkClicked" Foreground="{x:Static SystemColors.ControlTextBrush}">
+                                                                                <TextBlock Text="{Binding Provider.Name}" />
+                                                                            </Hyperlink>
+                                                                        </TextBlock>
+                                                                        <!-- Embed author -->
+                                                                        <TextBlock TextWrapping="Wrap" Margin="0,4,0,0">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Author}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                        <DataTrigger Binding="{Binding Author}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                            <Hyperlink Click="Hyperlink_Click" Foreground="{x:Static SystemColors.ControlTextBrush}">
+                                                                                <TextBlock Text="{Binding Author.Name}" />
+                                                                            </Hyperlink>
+                                                                        </TextBlock>
+                                                                        <!-- Embed main link -->
+                                                                        <TextBlock TextWrapping="Wrap" FontSize="15">
                                                                             <TextBlock.Style>
                                                                                 <Style TargetType="TextBlock">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1063,7 +1102,11 @@
                                                                                     </Style.Triggers>
                                                                                 </Style>
                                                                             </TextBlock.Style>
+                                                                            <Hyperlink Click="OnEmbedTitleHyperlinkClicked" Foreground="#355a88">
+                                                                                <TextBlock Text="{Binding Title}" />
+                                                                            </Hyperlink>
                                                                         </TextBlock>
+                                                                        <!-- Embed description -->
                                                                         <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="{Binding Description}">
                                                                             <TextBlock.Style>
                                                                                 <Style TargetType="TextBlock">
@@ -1076,12 +1119,26 @@
                                                                                 </Style>
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
-                                                                        <Image Margin="0,24,0,0" Source="{Binding Image.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left">
+                                                                        <!-- Embed image -->
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Image.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Image}">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
                                                                                     <Style.Triggers>
                                                                                         <DataTrigger Binding="{Binding Image.Url}" Value="{x:Null}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </Image.Style>
+                                                                        </Image>
+                                                                        <!-- Embed thumbnail -->
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Thumbnail.Url, Converter={StaticResource imageConverter}}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Thumbnail}">
+                                                                            <Image.Style>
+                                                                                <Style TargetType="Image">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Thumbnail.Url}" Value="{x:Null}">
                                                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                                                         </DataTrigger>
                                                                                     </Style.Triggers>
@@ -1098,7 +1155,7 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel>
-                                                                <Image Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Cursor="Hand" MouseLeftButtonDown="OpenMedia">
+                                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,16,0,6" HorizontalAlignment="Left" MaxWidth="250" MaxHeight="{Binding Height}" Cursor="Hand" MouseLeftButtonDown="OpenMedia">
                                                                     <Image.Style>
                                                                         <Style TargetType="Image">
                                                                             <Setter Property="Visibility" Value="Collapsed" />

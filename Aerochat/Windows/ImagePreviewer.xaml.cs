@@ -17,13 +17,11 @@ namespace Aerochat.Windows
     /// </summary>
     public partial class ImagePreviewer : Window
     {
-        private Rect _srcRect;
-        private Rect _dstRect;
         private bool _finished = false;
         private bool _closing = false;
         public ImagePreviewerViewModel ViewModel { get; private set; }
 
-        public ImagePreviewer(AttachmentViewModel attachmentVm, Rect srcRect, Rect dstRect)
+        public ImagePreviewer(AttachmentViewModel attachmentVm)
         {
             ViewModel = new ImagePreviewerViewModel
             {
@@ -35,8 +33,20 @@ namespace Aerochat.Windows
 
             DataContext = ViewModel;
             InitializeComponent();
-            //_srcRect = srcRect;
-            //_dstRect = dstRect;
+        }
+
+        public ImagePreviewer(EmbedImageViewModel embedImageVm)
+        {
+            ViewModel = new ImagePreviewerViewModel
+            {
+                FileName = embedImageVm.Url,
+                SourceUri = embedImageVm.Url,
+                BottomHeight = 40,
+                MediaType = MediaType.Image
+            };
+
+            DataContext = ViewModel;
+            InitializeComponent();
         }
 
         private void OnImagePreviewSizeChanged(object sender, SizeChangedEventArgs e)
