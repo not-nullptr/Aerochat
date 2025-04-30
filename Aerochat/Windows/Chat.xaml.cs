@@ -920,6 +920,15 @@ namespace Aerochat.Windows
                 if (message is not null)
                 {
                     message.Message = args.Message.Content;
+
+                    // The body of the message entity changes, but this is ordinarily invisible to
+                    // WPF. RaisePropertyChanged is useless, so I just opted for swapping the value
+                    // and relying on the assignment operator overload or whatever.
+                    var temp = message.MessageEntity;
+                    message.MessageEntity = null; // ignore warning
+                    message.MessageEntity = temp;
+
+                    message.RaisePropertyChanged(nameof(message.MessageEntity));
                     message.Embeds.Clear();
                     foreach (var embed in args.Message.Embeds)
                     {
