@@ -55,11 +55,16 @@ namespace Aerochat
 
         public static async Task SetStatus(UserStatus status, bool updateUserSettingsProto = true)
         {
-            App instance = (App)Application.Current;
+            App? instance = (App)Application.Current;
+
+            if (instance == null)
+            {
+                return;
+            }
 
             await Discord.Client.UpdateStatusAsync(userStatus: status);
 
-            if (updateUserSettingsProto && instance._userSettingsProto != null)
+            if (updateUserSettingsProto && instance?._userSettingsProto != null)
             {
                 instance._userSettingsProto.Status.Status = status.ToDiscordString();
                 byte[] protoBytes = instance._userSettingsProto.ToByteArray();
