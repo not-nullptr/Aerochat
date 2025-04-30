@@ -11,6 +11,22 @@ using NAudio.MediaFoundation;
 
 namespace Aerochat.Helpers
 {
+    /// <summary>
+    /// Monkey patches WPF to prevent unhandled OverflowException objects from crashing the program when
+    /// the user's display colour profile does not match whatever bitmap image is being attempted to be
+    /// displayed.
+    /// </summary>
+    /// <remarks>
+    /// As I understand it, this is a WPF bug. Since it can literally occur from the bitmap image converter
+    /// in XAML, it can be completely opaque and impossible to catch from within C# code without creating
+    /// a huge mess. This has been reported to the WPF maintainers before <see href="https://github.com/dotnet/wpf/issues/3884"/>
+    /// but has not been truly fixed as I can tell.
+    /// </remarks>
+    /// <remarks>
+    /// Because we never want the program to crash under such silly circumstances, because we are writing
+    /// a chatting client where the majority of images that we display are arbitrary, this monkey patch
+    /// works better than any "proper" or "safe" way to catch these exceptions in .NET.
+    /// </remarks>
     public class FixMicrosoftBadCodeMakingBitmapsCrash
     {
         public static void InstallHooks()
@@ -25,6 +41,7 @@ namespace Aerochat.Helpers
     class BitmapSource_FinalizeCreation_HookClass
     {
         // Protection to ensure we don't run the hook multiple times between instances.
+        // This prevents us from ever causing infinite recursion.
         static bool _isRunningBypass = false;
 
         [HarmonyFinalizer]
