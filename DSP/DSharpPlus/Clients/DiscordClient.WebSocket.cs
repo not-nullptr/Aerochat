@@ -244,7 +244,8 @@ namespace DSharpPlus
                     break;
 
                 case GatewayOpCode.Heartbeat:
-                    await this.OnHeartbeatAsync((long)payload.Data).ConfigureAwait(false);
+                    if (payload.Data != null)
+                        await this.OnHeartbeatAsync((long)payload.Data).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Reconnect:
@@ -252,11 +253,13 @@ namespace DSharpPlus
                     break;
 
                 case GatewayOpCode.InvalidSession:
-                    await this.OnInvalidateSessionAsync((payload.Data as JToken).ToObject<bool>()).ConfigureAwait(false);
+                    if (payload.Data != null)
+                        await this.OnInvalidateSessionAsync((payload.Data as JToken).ToObject<bool>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Hello:
-                    await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>()).ConfigureAwait(false);
+                    if (payload.Data != null)
+                        await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.HeartbeatAck:

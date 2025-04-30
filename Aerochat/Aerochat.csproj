@@ -508,6 +508,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Google.Protobuf" Version="3.30.2" />
+		<PackageReference Include="Lib.Harmony" Version="2.3.6" />
 		<PackageReference Include="Markdig" Version="0.37.0" />
 		<PackageReference Include="MdXaml" Version="1.27.0" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />

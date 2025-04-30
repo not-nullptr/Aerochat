@@ -511,7 +511,7 @@ namespace Aerochat.Windows
         {
             try
             {
-                if (Channel.Guild?.Channels?.Select(x => x.Key).ToList().Contains(VoiceManager.Instance.Channel?.Id ?? 0) ?? false)
+                if (Channel?.Guild?.Channels?.Select(x => x.Key).ToList().Contains(VoiceManager.Instance.Channel?.Id ?? 0) ?? false)
                 {
                     Task.Run(VoiceManager.Instance.LeaveVoiceChannel);
                 }
@@ -777,7 +777,7 @@ namespace Aerochat.Windows
 
             PreviewKeyDown += Chat_PreviewKeyDown;
 
-            PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged 
+            PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged
                 += OnAttachmentsEditorAttachmentsUpdated;
 
             RefreshAerochatVersionLinkVisibility();
@@ -799,9 +799,16 @@ namespace Aerochat.Windows
                 }
                 else if (ViewModel.IsShowingAttachmentEditor)
                 {
+                    bool isAnyPopupVisible = false;
+                    foreach (var attachment in PART_AttachmentsEditor.ViewModel.Attachments)
+                    {
+                        isAnyPopupVisible |= attachment.Selected;
+                    }
+
                     // Only close the attachments editor if edit or reply have
                     // already been left.
-                    CloseAttachmentsEditor();
+                    if (!isAnyPopupVisible)
+                        CloseAttachmentsEditor();
                 }
             }
         }

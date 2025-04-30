@@ -29,6 +29,7 @@ using DiscordProtos.DiscordUsers.V1;
 using System.Buffers.Text;
 using Google.Protobuf;
 using DSharpPlus.EventArgs;
+using Aerochat.Helpers;
 
 namespace Aerochat
 {
@@ -95,6 +96,7 @@ namespace Aerochat
 
         public App()
         {
+            FixMicrosoftBadCodeMakingBitmapsCrash.InstallHooks();
             SettingsManager.Load();
             if (SettingsManager.Instance.ReadRecieptReference == DateTime.MinValue)
             {

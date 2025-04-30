@@ -189,7 +189,10 @@ namespace DSharpPlus.Net.WebSocket
                     var segStart = OutgoingChunkSize * i;
                     var segLen = Math.Min(OutgoingChunkSize, len - segStart);
 
-                    await this._ws.SendAsync(new ArraySegment<byte>(bytes, segStart, segLen), WebSocketMessageType.Text, i == segCount - 1, CancellationToken.None).ConfigureAwait(false);
+                    // XXX(isabella): It's good to avoid the exceptions being fired if the 
+                    // socket is not open. The behaviour here needs to be verified, though.
+                    if (this._ws.State == WebSocketState.Open)
+                        this._ws.SendAsync(new ArraySegment<byte>(bytes, segStart, segLen), WebSocketMessageType.Text, i == segCount - 1, CancellationToken.None).ConfigureAwait(false);
                 }
             }
             finally

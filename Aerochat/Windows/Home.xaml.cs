@@ -560,7 +560,14 @@ namespace Aerochat.Windows
 
         private async Task InvokeUpdateStatuses(DiscordClient sender, DSharpPlus.EventArgs.PresenceUpdateEventArgs args)
         {
-            await Dispatcher.InvokeAsync(() => UpdateStatuses());
+            try
+            {
+                await Dispatcher.InvokeAsync(() => UpdateStatuses());
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore.
+            }
         }
 
         private void AddGuilds()
@@ -834,7 +841,10 @@ namespace Aerochat.Windows
         {
             var item = (HomeListItemViewModel)((Button)sender).DataContext;
             // is a window already open for this item?
-            var chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => x.ViewModel.Recipient?.Id == item.Id || x.Channel.Id == item.Id || (x.Channel.Guild?.Channels.Values.Select(x => x.Id).Contains(item.Id) ?? false));
+            Chat? chat = Application.Current.Windows.OfType<Chat>().FirstOrDefault(x => 
+                x?.ViewModel?.Recipient?.Id == item.Id || 
+                x?.Channel?.Id == item.Id || 
+                (x?.Channel?.Guild?.Channels.Values?.Select(x => x.Id)?.Contains(item.Id) ?? false));
             if (chat is null)
             {
                 // We send over the presence of the item in case this is a one-on-one DM, where the Discord
@@ -845,6 +855,20 @@ namespace Aerochat.Windows
             {
                 // move the chat to the center of this window
                 var rect = chat.RestoreBounds;
+
+                // Avoid infinity values to avoid an ArgumentException.
+                if (rect.Width == double.NegativeInfinity ||
+                    rect.Width == double.PositiveInfinity)
+                {
+                    rect.Width = 0;
+                }
+
+                if (rect.Height == double.NegativeInfinity ||
+                    rect.Height == double.PositiveInfinity)
+                {
+                    rect.Height = 0;
+                }
+
                 chat.Left = Left + (Width - rect.Width) / 2;
                 chat.Top = Top + (Height - rect.Height) / 2;
                 await chat.ExecuteNudgePrettyPlease(chat.Left, chat.Top, 0.5, 15);
