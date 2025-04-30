@@ -141,6 +141,16 @@ namespace Aerochat.Windows
         public async Task OnChannelChange(bool initial = false)
         {
             if (ViewModel is null || ViewModel?.Messages is null) return;
+
+            // We cannot edit messages or upload images across channels, so close the respective UIs.
+            // In the future, this design should possibly be reconsidered: the official Discord client
+            // persists such state between channels, and it only applies to the currently-active channel.
+            Dispatcher.Invoke(() => {
+                ClearReplyTarget();
+                LeaveEditingMessage();
+                CloseAttachmentsEditor();
+            });
+
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
             Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel newChannel);
