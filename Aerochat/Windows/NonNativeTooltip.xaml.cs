@@ -108,7 +108,7 @@ namespace Aerochat.Windows
             MouseEnter += (s, e) => StopKillTimer();
             MouseLeave += (s, e) => StartKillTimer();
 
-            _timer.Elapsed += (s, e) => Dispatcher.Invoke(() => RunCloseAnimation());
+            _timer.Elapsed += (s, e) => Dispatcher.BeginInvoke(() => RunCloseAnimation());
 
             RunOpenAnimation();
         }

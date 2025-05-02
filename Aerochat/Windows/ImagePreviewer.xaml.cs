@@ -78,7 +78,7 @@ namespace Aerochat.Windows
             Task.Run(async () =>
             {
                 await Task.Delay(10);
-                Dispatcher.Invoke(Focus);
+                Dispatcher.BeginInvoke(Focus);
                 _finished = true;
             });
         }

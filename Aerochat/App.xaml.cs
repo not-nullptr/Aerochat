@@ -271,16 +271,16 @@ namespace Aerochat
                 }
             }
 
-            await Dispatcher.Invoke(() => SetStatus(status ?? UserStatus.Online));
+            await Dispatcher.InvokeAsync(() => SetStatus(status ?? UserStatus.Online));
 
             // Prevent the client from initialised multiple times (i.e. in case of connection
             // loss):
             Discord.Client.Ready -= OnInitialClientReady;
 
             Dispatcher.Invoke(() => {
-                new Home().Show();
                 Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
-                loginWindow?.Dispatcher.Invoke(() => loginWindow.Close());
+                loginWindow?.Dispatcher.BeginInvoke(() => loginWindow.Close());
+                new Home().Show();
             });
         }
 
@@ -450,7 +450,7 @@ namespace Aerochat
                         // Set the status from the protobuf settings.
                         UserStatus status = _userSettingsProto.Status.Status.ToUserStatus();
 
-                        await Dispatcher.Invoke(() => SetStatus(status, false));
+                        await Dispatcher.BeginInvoke(() => SetStatus(status, false));
                     }
                 };
 
@@ -466,57 +466,51 @@ namespace Aerochat
                     if (!isDM && !isMention)
                         return;
 
-                    Current.Dispatcher.Invoke(() =>
+                    if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb)
+                        return;
+
+                    if (isDM && !SettingsManager.Instance.NotifyDm)
+                        return;
+
+                    if (isMention && !SettingsManager.Instance.NotifyMention)
+                        return;
+
+                    Home? homeWindow = null;
+
+                    foreach (Window wnd in Current.Windows)
                     {
-                        if (Discord.Client.CurrentUser.Presence?.Status == UserStatus.DoNotDisturb)
-                            return;
-
-                        if (isDM && !SettingsManager.Instance.NotifyDm)
-                            return;
-
-                        if (isMention && !SettingsManager.Instance.NotifyMention)
-                            return;
-
-                        foreach (Window wnd in Current.Windows)
+                        if (wnd is Chat chat)
                         {
-                            if (wnd is Chat chat)
+                            if (e.Channel?.Id == chat.Channel?.Id)
                             {
-                                if (e.Channel?.Id == chat.Channel?.Id)
-                                {
-                                    if (SettingsManager.Instance.AutomaticallyOpenNotification)
-                                        return;
+                                if (SettingsManager.Instance.AutomaticallyOpenNotification)
+                                    return;
 
-                                    if (chat.IsActive)
-                                        return;
+                                if (chat.IsActive)
+                                    return;
 
-                                    break;
-                                }
+                                break;
                             }
                         }
+                        else if (wnd is Home foundHomeWindow)
+                        {
+                            homeWindow = foundHomeWindow;
+                        }
+                    }
 
+                    _ = Current.Dispatcher.BeginInvoke(() =>
+                    {
                         if (SettingsManager.Instance.AutomaticallyOpenNotification)
                         {
-                            Home? home = null;
-
-                            // Find the home window to request user status information from it:
-                            foreach (Window wnd in Current.Windows)
-                            {
-                                if (wnd is Home homeWnd)
-                                {
-                                    home = homeWnd;
-                                    break;
-                                }
-                            }
-
                             PresenceViewModel? presenceVm = null;
 
                             if (e.Channel?.Id != null)
                             {
-                                if (home != null)
+                                if (homeWindow != null)
                                 {
                                     // Try to get the presence so we can display the correct status when the window
                                     // opens.
-                                    presenceVm = home.FindPresenceForUserId(e.Channel.Id);
+                                    presenceVm = homeWindow.FindPresenceForUserId(e.Channel.Id);
                                 }
 
                                 new Chat(e.Channel.Id, false, presenceVm);
@@ -534,7 +528,7 @@ namespace Aerochat
                         }
                         else
                         {
-                            if (SettingsManager.Instance.PlayNotificationSounds) 
+                            if (SettingsManager.Instance.PlayNotificationSounds)
                                 mediaPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                         }
                     });

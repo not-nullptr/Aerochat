@@ -149,7 +149,7 @@ namespace Aerochat.Windows
             // We cannot edit messages or upload images across channels, so close the respective UIs.
             // In the future, this design should possibly be reconsidered: the official Discord client
             // persists such state between channels, and it only applies to the currently-active channel.
-            Dispatcher.Invoke(() => {
+            await Dispatcher.BeginInvoke(() => {
                 ClearReplyTarget();
                 LeaveEditingMessage();
                 CloseAttachmentsEditor();
@@ -163,7 +163,7 @@ namespace Aerochat.Windows
                 newChannel = await Discord.Client.GetChannelAsync(ChannelId);
             }
 
-            Application.Current.Dispatcher.Invoke(delegate
+            await Dispatcher.BeginInvoke(delegate
             {
                 if (ViewModel is null || ViewModel?.Messages is null) return;
                 Channel = newChannel;
@@ -216,7 +216,7 @@ namespace Aerochat.Windows
 
             if (isGroupChat)
             {
-                Dispatcher.Invoke(RefreshGroupChat);
+                await Dispatcher.BeginInvoke(RefreshGroupChat);
             }
 
             if (recipient is not null) ViewModel.Recipient = UserViewModel.FromUser(recipient);
@@ -246,7 +246,7 @@ namespace Aerochat.Windows
 
             messageViewModels.Reverse();
 
-            Application.Current.Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 foreach (var msg in messageViewModels)
                 {
@@ -256,7 +256,7 @@ namespace Aerochat.Windows
             });
 
 
-            Application.Current.Dispatcher.Invoke(delegate
+            await Dispatcher.BeginInvoke(delegate
             {
                 if (ViewModel is null || ViewModel?.Messages is null) return;
                 if (initial)
@@ -280,7 +280,7 @@ namespace Aerochat.Windows
                 SettingsManager.Save();
             }
 
-            Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 foreach (var window in Application.Current.Windows)
                 {
@@ -292,13 +292,7 @@ namespace Aerochat.Windows
                 }
             });
 
-            if (!isDM)
-            {
-                SettingsManager.Instance.SelectedChannels[guild.Id] = ChannelId;
-                SettingsManager.Save();
-            }
-
-            Dispatcher.Invoke(UpdateChannelListerReadReciepts);
+            await Dispatcher.BeginInvoke(UpdateChannelListerReadReciepts);
         }
 
         public void UpdateChannelListerReadReciepts()
@@ -361,7 +355,7 @@ namespace Aerochat.Windows
                     }
                 }
 
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     var items = ViewModel.Categories.ToList();
                     ViewModel.Categories.Clear();
@@ -423,7 +417,7 @@ namespace Aerochat.Windows
                     guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
                 }
 
-                Dispatcher.Invoke(() =>
+                await Dispatcher.BeginInvoke(() =>
                 {
                     if (!isDM)
                     {
@@ -431,16 +425,16 @@ namespace Aerochat.Windows
                         RefreshChannelList();
                     }
                 });
-                Dispatcher.Invoke(Show);
+                await Dispatcher.BeginInvoke(Show);
                 if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
             }
             catch (UnauthorizedException e)
             {
-                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.WebResponse.Response));
+                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.WebResponse.Response));
             }
             catch (Exception e)
             {
-                Application.Current.Dispatcher.Invoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.ToString()));
+                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.ToString()));
             }
         }
 
@@ -528,7 +522,7 @@ namespace Aerochat.Windows
                 }
             }
 
-            Dispatcher.Invoke(UpdateChannelListerReadReciepts);
+            Dispatcher.BeginInvoke(UpdateChannelListerReadReciepts);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -564,7 +558,7 @@ namespace Aerochat.Windows
         {
             if (args.Channel.Id != ChannelId) return;
             args.Channel.GetType().GetProperty("LastMessageId")?.SetValue(args.Channel, args.Message.Id);
-            //Dispatcher.Invoke(UpdateChannelListerReadReciepts);
+            //Dispatcher.BeginInvoke(UpdateChannelListerReadReciepts);
             bool isNudge = args.Message.Content == "[nudge]";
             DiscordUser user = args.Author;
             if (user is null) return;
@@ -582,7 +576,7 @@ namespace Aerochat.Windows
                 messageIndex = ViewModel.Messages.IndexOf(eph);
             }
 
-            Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 if (messageIndex != -1) ViewModel.Messages.RemoveAt(messageIndex);
 
@@ -601,7 +595,7 @@ namespace Aerochat.Windows
                 TypingUsers.Remove(args.Author);
             }
 
-            Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 if (Discord.Client.CurrentUser.Presence.Status == UserStatus.DoNotDisturb)
                 {
@@ -617,18 +611,11 @@ namespace Aerochat.Windows
                     if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id) chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                 }
             });
-
-            //Dispatcher.Invoke(ProcessLastRead);
-
-            //if (isNudge)
-            //{
-            //    Application.Current.Dispatcher.Invoke(() => ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity));
-            //}
         }
 
         private void ProcessLastRead()
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 var message = ViewModel.Messages.LastOrDefault();
                 // if its ephemeral return
@@ -668,14 +655,14 @@ namespace Aerochat.Windows
 
                 }
             });
-            Dispatcher.Invoke(UpdateChannelListerReadReciepts);
+            Dispatcher.BeginInvoke(UpdateChannelListerReadReciepts);
         }
 
         private async Task OnType(DSharpPlus.DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)
         {
             if (args.Channel.Id != ChannelId) return;
             if (args.User.Id == Discord.Client.CurrentUser.Id) return;
-            Application.Current.Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 if (timers.TryGetValue(args.User.Id, out System.Timers.Timer? timer))
                 {
@@ -687,7 +674,7 @@ namespace Aerochat.Windows
                     System.Timers.Timer newTimer = new(10000);
                     newTimer.Elapsed += (s, e) =>
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
+                        Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             TypingUsers.Remove(args.User);
                             newTimer.Stop();
@@ -726,7 +713,7 @@ namespace Aerochat.Windows
             Close();
         }
 
-        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null, HomeListItemViewModel openingItem = null)
+        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null, HomeListItemViewModel? openingItem = null)
         {
             typingTimer.Elapsed += TypingTimer_Elapsed;
             typingTimer.AutoReset = false;
@@ -905,7 +892,7 @@ namespace Aerochat.Windows
         {
             if (e.PropertyName == nameof(SettingsManager.Instance.SelectedTimeFormat))
             {
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke(() =>
                 {
                     foreach (var message in ViewModel.Messages)
                     {
@@ -931,7 +918,7 @@ namespace Aerochat.Windows
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
         {
             if (args.Guild.Id != Channel.Guild?.Id) return;
-            Dispatcher.Invoke(RefreshChannelList);
+            Dispatcher.BeginInvoke(RefreshChannelList);
         }
 
         private async Task OnPresenceUpdated(DiscordClient sender, DSharpPlus.EventArgs.PresenceUpdateEventArgs args)
@@ -956,32 +943,32 @@ namespace Aerochat.Windows
         private async Task OnChannelUpdated(DiscordClient sender, DSharpPlus.EventArgs.ChannelUpdateEventArgs args)
         {
             if (args.ChannelAfter.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
-            Dispatcher.Invoke(RefreshChannelList);
+            Dispatcher.BeginInvoke(RefreshChannelList);
         }
 
         private async Task OnChannelDeleted(DiscordClient sender, DSharpPlus.EventArgs.ChannelDeleteEventArgs args)
         {
             if (args.Channel.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
-            Dispatcher.Invoke(RefreshChannelList);
+            Dispatcher.BeginInvoke(RefreshChannelList);
             if (args.Channel.Id == Channel.Id)
             {
                 var newChannel = ViewModel.Categories.ElementAt(0).Items.ElementAt(0);
                 ChannelId = newChannel.Id;
                 newChannel.IsSelected = true;
-                Dispatcher.Invoke(() => OnChannelChange());
+                Dispatcher.BeginInvoke(() => OnChannelChange());
             }
         }
 
         private async Task OnChannelCreated(DiscordClient sender, DSharpPlus.EventArgs.ChannelCreateEventArgs args)
         {
             if (args.Channel.Guild?.Id != Channel.Guild?.Id || Channel.Guild == null) return;
-            Dispatcher.Invoke(RefreshChannelList);
+            Dispatcher.BeginInvoke(RefreshChannelList);
         }
 
         private async Task OnMessageUpdated(DiscordClient sender, DSharpPlus.EventArgs.MessageUpdateEventArgs args)
         {
             // get the message from the collection
-            Dispatcher.Invoke(() =>
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 if (ViewModel is null) return;
                 var message = ViewModel.Messages.FirstOrDefault(x => x.Id == args.Message.Id);
@@ -1008,7 +995,7 @@ namespace Aerochat.Windows
 
         private async Task OnMessageDeleted(DiscordClient sender, DSharpPlus.EventArgs.MessageDeleteEventArgs args)
         {
-            Dispatcher.Invoke(() =>
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 if (ViewModel is null) return;
                 var message = ViewModel.Messages.FirstOrDefault(x => x.Id == args.Message.Id);
@@ -1260,7 +1247,7 @@ namespace Aerochat.Windows
                         catch (Exception)
                         {
                             Dialog errorDialog = new("Error",
-                                $"Failed to upload attachment #${i} \"${attachment.FileName}\".",
+                                $"Failed to upload attachment #{i} \"{attachment.FileName}\".",
                                 SystemIcons.Warning);
                             errorDialog.Owner = this;
                             errorDialog.ShowDialog();
@@ -1857,7 +1844,7 @@ namespace Aerochat.Windows
 
         private void TypingTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 if (!_isTyping) return;
                 if (MessageTextBox.Text == _lastValue || MessageTextBox.Text == string.Empty)
@@ -2196,7 +2183,7 @@ namespace Aerochat.Windows
             {
                 bool succeeded = false;
 
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     succeeded = InsertAttachment(fileNames[i]);
                 });
@@ -2214,7 +2201,7 @@ namespace Aerochat.Windows
             {
                 bool succeeded = false;
 
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     succeeded = InsertAttachment(bitmapSources[i]);
                 });

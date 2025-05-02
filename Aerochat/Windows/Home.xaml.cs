@@ -1,5 +1,6 @@
 ﻿#define WIP
 #define ISABELLA
+using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Settings;
 using Aerochat.Theme;
@@ -64,18 +65,21 @@ namespace Aerochat.Windows
         public Home()
         {
             InitializeComponent();
-            Dispatcher.Invoke(() =>
+
+            // Invoke used to prevent the constructor from returning before our work is done.
+            Dispatcher.Invoke(async () =>
             {
                 ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
-                Client_Ready(Discord.Client, null);
 
                 // Set default visibilities of optional homepage elements:
                 UpdateAdVisibility();
                 UpdateNewsVisibility();
                 UpdateDiscordServerLinkVisibility();
+
+                await Client_Ready(Discord.Client, null);
 
                 // Subscribe to changes in the DisplayAds property
                 SettingsManager.Instance.PropertyChanged += OnSettingsChange;
@@ -97,15 +101,15 @@ namespace Aerochat.Windows
         {
             if (e.PropertyName == nameof(SettingsManager.Instance.DisplayAds))
             {
-                Dispatcher.Invoke(UpdateAdVisibility);
+                Dispatcher.BeginInvoke(UpdateAdVisibility);
             }
             else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayHomeNews))
             {
-                Dispatcher.Invoke(UpdateNewsVisibility);
+                Dispatcher.BeginInvoke(UpdateNewsVisibility);
             }
             else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayDiscordServerLink))
             {
-                Dispatcher.Invoke(UpdateDiscordServerLinkVisibility);
+                Dispatcher.BeginInvoke(UpdateDiscordServerLinkVisibility);
             }
         }
 
@@ -173,7 +177,7 @@ namespace Aerochat.Windows
 
         private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
         {
-            Dispatcher.Invoke(() =>
+            await Dispatcher.BeginInvoke(() =>
             {
                 newsTimer.Elapsed += NewsTimer_Elapsed;
                 newsTimer.Start();
@@ -298,6 +302,9 @@ namespace Aerochat.Windows
                 }
 #endif
 
+                OpenChatQueue.Instance.ExecuteQueue();
+                OpenChatQueue.Instance.ExecuteOnAdd = true;
+
                 Task.Run(async () =>
                 {
                     while (true)
@@ -309,10 +316,10 @@ namespace Aerochat.Windows
                     }
                 });
 
-                Task.Run(async () =>
-                {
-                    await Task.Delay(1500);
-                });
+                //Task.Run(async () =>
+                //{
+                //    await Task.Delay(1500);
+                //});
             });
         }
 
@@ -339,7 +346,7 @@ namespace Aerochat.Windows
         private void NewsTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             // go to the next news item
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 try
                 {
@@ -390,7 +397,7 @@ namespace Aerochat.Windows
                 newsList.Add(NewsViewModel.FromNews(n));
             }
 
-            Dispatcher.Invoke(() =>
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 ViewModel.News.Clear();
                 foreach (var n in newsList)
@@ -422,7 +429,7 @@ namespace Aerochat.Windows
                 noticesList.Add(noticeViewModel);
             }
 
-            Dispatcher.Invoke(() =>
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 ViewModel.Notices.Clear();
                 foreach (var n in noticesList)
@@ -458,7 +465,7 @@ namespace Aerochat.Windows
             var remoteVersion = new Version(latestTag);
             if (localVersion.CompareTo(remoteVersion) < 0)
             {
-                _ = Dispatcher.Invoke(async () =>
+                _ = Dispatcher.BeginInvoke(async () =>
                 {
                     showingUpdate = true;
                     var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
@@ -486,7 +493,7 @@ namespace Aerochat.Windows
                         var assetBytes = await asset.Content.ReadAsByteArrayAsync();
                         File.WriteAllBytes(tempFile, assetBytes);
                         Process.Start(tempFile);
-                        Dispatcher.Invoke(Close);
+                        Dispatcher.BeginInvoke(Close);
                     });
                 });
             }
@@ -539,7 +546,7 @@ namespace Aerochat.Windows
                 _typingTimers[guildId.Value].Elapsed += (s, e) =>
                 {
                     _typingTimers[guildId.Value].Stop();
-                    Dispatcher.Invoke(() =>
+                    Dispatcher.BeginInvoke(() =>
                     {
                         item.Image = "/Resources/Frames/XSFrameIdleM.png";
                     });
@@ -708,48 +715,49 @@ namespace Aerochat.Windows
                     return nextLastMessageTime.CompareTo(prevLastMessageTime);
                 });
 
-                // Update the UI with the sorted list
-                Dispatcher.Invoke(() =>
+                var itemsToRemove = oldList.Where(oldItem => !newList.Any(newItem => newItem.Id == oldItem.Id)).ToList();
+                foreach (var itemToRemove in itemsToRemove)
                 {
-                    var itemsToRemove = oldList.Where(oldItem => !newList.Any(newItem => newItem.Id == oldItem.Id)).ToList();
-                    foreach (var itemToRemove in itemsToRemove)
+                    oldList.Remove(itemToRemove); // Remove items that are no longer in the new list
+                }
+
+                // Update or add new items, maintaining the sorted order
+                foreach (var newItem in newList)
+                {
+                    var existingItem = oldList.FirstOrDefault(v => v.Id == newItem.Id);
+                    if (existingItem != null)
                     {
-                        oldList.Remove(itemToRemove); // Remove items that are no longer in the new list
+                        existingItem.Name = newItem.Name;
+                        existingItem.LastMsgId = newItem.LastMsgId;
+                        existingItem.IsSelected = newItem.IsSelected;
+                        existingItem.Presence = newItem.Presence;
                     }
-
-                    // Update or add new items, maintaining the sorted order
-                    foreach (var newItem in newList)
+                    else
                     {
-                        var existingItem = oldList.FirstOrDefault(v => v.Id == newItem.Id);
-                        if (existingItem != null)
-                        {
-                            existingItem.Name = newItem.Name;
-                            existingItem.LastMsgId = newItem.LastMsgId;
-                            existingItem.IsSelected = newItem.IsSelected;
-                            existingItem.Presence = newItem.Presence;
-                        }
-                        else
-                        {
-                            // Add new item to the old list in the correct sorted order
-                            oldList.Add(newItem);
-                        }
+                        // Add new item to the old list in the correct sorted order
+                        oldList.Add(newItem);
                     }
+                }
 
-                    // if the resulting lists r the same, return to prevent flickers
+                // if the resulting lists r the same, return to prevent flickers
 
-                    bool isSame = false;
-                    if (oldList.Count == newList.Count)
+                bool isSame = false;
+                if (oldList.Count == newList.Count)
+                {
+                    isSame = true;
+                    for (int i = 0; i < oldList.Count; i++)
                     {
-                        isSame = true;
-                        for (int i = 0; i < oldList.Count; i++)
+                        if (oldList[i].Id != newList[i].Id)
                         {
-                            if (oldList[i].Id != newList[i].Id)
-                            {
-                                isSame = false;
-                                break;
-                            }
+                            isSame = false;
+                            break;
                         }
                     }
+                }
+
+                // Update the UI with the sorted list
+                Dispatcher.BeginInvoke(() =>
+                {
                     if (isSame) return;
                     ViewModel.Categories[0].Items.Clear();
                     foreach (var item in newList)
@@ -911,7 +919,7 @@ namespace Aerochat.Windows
 
         private void OnTimerEnd(object? sender, System.Timers.ElapsedEventArgs e)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 // if there's a tooltip already open, close it
                 tooltip?.Close();

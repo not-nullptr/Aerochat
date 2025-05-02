@@ -90,7 +90,7 @@ namespace Aerochat.ViewModels
             {
                 foreach (string fileName in dialog.FileNames)
                 {
-                    Application.Current.Dispatcher.Invoke(() => AddItem(fileName));
+                    Application.Current.Dispatcher.BeginInvoke(() => AddItem(fileName));
                 }
             }
         }

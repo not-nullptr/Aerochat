@@ -35,7 +35,7 @@ namespace Aerochat.Controls
             {
                 // This needs to run on the UI thread or it will throw an exception
                 // and silently break the program otherwise.
-                Application.Current.Dispatcher.Invoke(ReloadTheme);
+                Application.Current.Dispatcher.BeginInvoke(ReloadTheme);
             }
         }
 

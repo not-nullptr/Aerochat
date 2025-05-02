@@ -154,7 +154,7 @@ namespace Aerochat.Controls
             if (Application.Current == null || _paused) return;
             if (_frameCount > 0)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     if (Loop)
                     {

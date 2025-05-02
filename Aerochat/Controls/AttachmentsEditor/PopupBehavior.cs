@@ -214,7 +214,7 @@ namespace Aerochat.Controls.AttachmentsEditor
                 {
                     await Task.Delay(200);
 
-                    Application.Current.Dispatcher.Invoke(() =>
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         if (!_isPreviewMouseUpSubscribed)
                         {

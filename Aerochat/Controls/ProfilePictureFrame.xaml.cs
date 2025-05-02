@@ -128,7 +128,7 @@ namespace Aerochat.Controls
             timer.Elapsed += (s, e) =>
             {
                 // fade out the old frame using wpf's animation system
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke(() =>
                 {
                     var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(halfTime / 2));
                     ForegroundTileImage.BeginAnimation(UIElement.OpacityProperty, fadeOut);
