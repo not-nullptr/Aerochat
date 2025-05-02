@@ -809,7 +809,7 @@
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Margin="0,4,0,0" Tag="{Binding DataContext,RelativeSource={RelativeSource Mode=Self}}" ContextMenuOpening="OnMessageContextMenuOpening">
+                                        <Grid Margin="0,4,0,0" Tag="{Binding DataContext,RelativeSource={RelativeSource Mode=Self}}" Name="PART_MessageGrid" ContextMenuOpening="OnMessageContextMenuOpening">
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem x:Name="AddReactionButton" Header="Add Reaction"></MenuItem>

@@ -45,6 +45,7 @@ using Vanara.PInvoke;
 using System;
 using System.Windows.Forms.Design;
 using System.Windows.Documents;
+using Aerochat.Helpers;
 
 namespace Aerochat.Windows
 {
@@ -1892,13 +1893,19 @@ namespace Aerochat.Windows
             };
         }
 
-        private void OnMessageContextMenuOpening(object sender, ContextMenuEventArgs e)
+        private void OnMessageContextMenuOpening(object senderRaw, ContextMenuEventArgs e)
         {
-            Grid? grid = sender as Grid;
-            MessageViewModel? vm = grid.DataContext as MessageViewModel;
+            FrameworkElement? sender = senderRaw as FrameworkElement;
+
+            if (sender == null)
+                return;
+
+            Grid? grid = FindParent.Execute<Grid>(sender, "PART_MessageGrid");
 
             if (grid == null)
                 return;
+
+            MessageViewModel? vm = grid.DataContext as MessageViewModel;
 
             ContextMenu contextMenu = grid.ContextMenu;
             contextMenu.DataContext = vm;

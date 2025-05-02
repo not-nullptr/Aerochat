@@ -1,6 +1,8 @@
 ﻿using DSharpPlus.Entities;
+using Google.Protobuf.Reflection;
 using System;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -24,6 +26,7 @@ namespace Aerochat.Controls
         }
 
         public event EventHandler<HyperlinkClickedEventArgs> HyperlinkClicked;
+        public event EventHandler<ContextMenuEventArgs> TextBlockContextMenuOpening;
 
         private static void OnMessageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -44,7 +47,11 @@ namespace Aerochat.Controls
             {
                 return;
             }
-            var textBlock = new TextBlock();
+            var textBlock = new SelectableTextBlock();
+
+            //// Prevent the usual context menu from showing up:
+            //textBlock.ContextMenu = null;
+
             var parts = Message.Content.Split(' ');
             foreach (var part in parts)
             {
@@ -194,7 +201,8 @@ namespace Aerochat.Controls
                     if (emojiName is null)
                     {
                         inlines.Add(new Run(emoji.Name));
-                    } else
+                    }
+                    else
                     {
                         InlineUIContainer inline = new();
                         Image image = new();
@@ -224,6 +232,11 @@ namespace Aerochat.Controls
                 textBlock.TextWrapping = TextWrapping.Wrap;
             }
             MainPanel.Children.Add(textBlock);
+        }
+
+        private void TextBlock_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            TextBlockContextMenuOpening?.Invoke(this, e);
         }
 
         private void OnHyperlinkClicked(HyperlinkType type, object associatedObject)
