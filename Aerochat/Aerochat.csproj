@@ -16,6 +16,22 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <PreferNativeArm64>True</PreferNativeArm64>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <PreferNativeArm64>True</PreferNativeArm64>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <PreferNativeArm64>True</PreferNativeArm64>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <PreferNativeArm64>True</PreferNativeArm64>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Remove="Protobuf\src\**" />
 		<Compile Remove="Resources\Message\NewFolder\**" />
