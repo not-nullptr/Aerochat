@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 
 [assembly: ThemeInfo(
@@ -15,6 +16,7 @@ using System.Windows;
 [assembly: AssemblyVersion(AssemblyInfo.Version)]
 [assembly: AssemblyTitle("Aerochat")]
 [assembly: AssemblyDescription("Shows whether your friends are online and lets you have online conversations.")]
+[assembly: Guid("8231C4FA-AD94-487A-BDBF-A936306AE009")]
 
 static class AssemblyInfo
 {

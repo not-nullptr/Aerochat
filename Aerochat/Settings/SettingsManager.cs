@@ -81,6 +81,8 @@ namespace Aerochat.Settings
         public string Token { get; set; } = "";
         public Dictionary<ulong, ulong> LastReadMessages { get; set; } = new();
         public Dictionary<ulong, ulong> SelectedChannels { get; set; } = new();
+        public List<ulong> RecentDMChats { get ; set; } = new();
+        public List<ulong> RecentServerChats { get; set; } = new();
         public DateTime ReadRecieptReference { get; set; } = DateTime.MinValue;
         public bool WarningShown { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;

@@ -427,6 +427,27 @@ namespace Aerochat.Windows
                 });
                 await Dispatcher.BeginInvoke(Show);
                 if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+
+                if (isDM)
+                {
+                    SettingsManager.Instance.RecentDMChats.Remove(ChannelId);
+                    SettingsManager.Instance.RecentDMChats.Add(ChannelId);
+                }
+                else if (ViewModel.Guild is not null)
+                {
+                    SettingsManager.Instance.RecentServerChats.Remove(ViewModel.Guild.Id);
+                    SettingsManager.Instance.RecentServerChats.Add(ViewModel.Guild.Id);
+                }
+
+                if (!isDM)
+                {
+                    SettingsManager.Instance.SelectedChannels[guild.Id] = ChannelId;
+                }
+
+                SettingsManager.Save();
+
+                App app = (App)Application.Current;
+                app.RebuildJumpLists();
             }
             catch (UnauthorizedException e)
             {

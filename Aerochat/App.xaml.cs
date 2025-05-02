@@ -30,11 +30,19 @@ using System.Buffers.Text;
 using Google.Protobuf;
 using DSharpPlus.EventArgs;
 using Aerochat.Helpers;
+using System.Threading.Channels;
+using static ICSharpCode.AvalonEdit.Document.TextDocumentWeakEventManager;
+using Markdig.Extensions.Footnotes;
+using System.IO.Pipes;
+using System.Windows.Media.Animation;
 
 namespace Aerochat
 {
     public partial class App : Application
     {
+        public static Guid _appGuid;
+        private static Mutex? _appInstanceMutex = null;
+
         private Timer fullscreenInterval = new(500);
         private MediaPlayer mediaPlayer = new();
         private PreloadedUserSettings? _userSettingsProto = null;
@@ -108,6 +116,85 @@ namespace Aerochat
             }
         }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            _appGuid = Guid.Parse(((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value);
+
+            _appInstanceMutex = new Mutex(true, _appGuid.ToString(), out bool isFirstAppInstance);
+
+            if (!isFirstAppInstance)
+            {
+                // We're already running, so send our arguments to the current instance and prevent
+                // further startup:
+                try
+                {
+                    using (NamedPipeClientStream client = new(_appGuid.ToString()))
+                    using (StreamWriter writer = new(client))
+                    {
+                        client.Connect(200);
+                        foreach (string arg in e.Args)
+                            writer.WriteLine(arg);
+                    }
+                }
+                catch (TimeoutException)
+                {}
+                catch (IOException)
+                {}
+
+                Application.Current.Shutdown();
+                return;
+            }
+            else
+            {
+                HandleArguments(e.Args, true);
+                ThreadPool.QueueUserWorkItem(new WaitCallback(ListenForArgumentsMessage));
+            }
+
+            base.OnStartup(e);
+        }
+
+        private void OnReceiveArgumentsMessage(object? sender, ArgumentsMessageReceivedEventArgs e)
+        {
+            HandleArguments(e.Arguments, false);
+        }
+
+        private void HandleArguments(string[] args, bool firstTime = false)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "/opendm")
+                {
+                    // Shift the pointer to the server name
+                    i++;
+
+                    if (ulong.TryParse(args[i], out ulong channelId))
+                    {
+                        OpenChatQueue.Instance.AddEntry(OpenChatQueue.EntryType.Dm, channelId);
+                    }
+                    else
+                    {
+                        // Invalidly-formed arguments.
+                        break;
+                    }
+                }
+                else if (args[i] == "/openguild")
+                {
+                    // Shift the pointer to the server name
+                    i++;
+
+                    if (ulong.TryParse(args[i], out ulong guildId))
+                    {
+                        OpenChatQueue.Instance.AddEntry(OpenChatQueue.EntryType.Guild, guildId);
+                    }
+                    else
+                    {
+                        // Invalidly-formed arguments.
+                        break;
+                    }
+                }
+            }
+        }
+
         public App()
         {
             FixMicrosoftBadCodeMakingBitmapsCrash.InstallHooks();
@@ -118,6 +205,9 @@ namespace Aerochat
                 SettingsManager.Save();
             }
             InitializeComponent();
+
+            ArgumentsMessageReceived += OnReceiveArgumentsMessage;
+
             _taskbarPresences = new()
                 {
                 { UserStatus.Online,        new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Tray/Active.ico")) },
@@ -567,7 +657,107 @@ namespace Aerochat
             });
             GC.Collect(2, GCCollectionMode.Forced, true, true);
 
+            JumpList.SetJumpList(this, null);
+
             LoggingOut = false;
+        }
+
+        public async void RebuildJumpLists()
+        {
+            JumpList jumpList = new();
+
+            jumpList.JumpItemsRemovedByUser += (s, e) =>
+            {
+                foreach (JumpItem item in e.RemovedItems)
+                {
+                    if (item is JumpTask task)
+                    {
+                        string[] tokens = task.Arguments.Split(" ");
+
+                        if (tokens.Length < 2)
+                            continue;
+
+                        if (ulong.TryParse(tokens[1], out ulong uid))
+                        {
+                            if (tokens[0] == "/opendm")
+                            {
+                                SettingsManager.Instance.RecentDMChats.Remove(uid);
+                            }
+                            else if (tokens[0] == "/openguild")
+                            {
+                                SettingsManager.Instance.RecentServerChats.Remove(uid);
+                            }
+                        }
+                    }
+                }
+
+                SettingsManager.Save();
+            };
+
+            List<ulong> recentChats = SettingsManager.Instance.RecentDMChats.TakeLast(5).Reverse().ToList();
+
+            foreach (ulong channelId in recentChats)
+            {
+                Discord.Client.TryGetCachedChannel(channelId, out DiscordChannel newChannel);
+                if (newChannel is null)
+                {
+                    try
+                    {
+                        newChannel = await Discord.Client.GetChannelAsync(channelId);
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore any network exception; it simply does not matter.
+                        return;
+                    }
+                }
+                if (newChannel == null) continue;
+
+                string? recipientName = null;
+                if (newChannel is DiscordDmChannel)
+                {
+                    recipientName = newChannel.Name ?? string.Join(", ", ((DiscordDmChannel)newChannel).Recipients.Select(x => x.DisplayName));
+                }
+
+                JumpTask item = new()
+                {
+                    ApplicationPath = System.Environment.ProcessPath,
+                    Arguments = $"/opendm {channelId}",
+                    Title = recipientName,
+                    Description = $"Open your chat with {recipientName}",
+                    IconResourcePath = System.Environment.ProcessPath,
+                    IconResourceIndex = 0,
+                    CustomCategory = "Recent Chats",
+                };
+
+                jumpList.JumpItems.Add(item);
+            }
+
+            List<ulong> recentServers = SettingsManager.Instance.RecentServerChats.TakeLast(5).Reverse().ToList();
+
+            foreach (ulong guildId in recentServers)
+            {
+                Discord.Client.TryGetCachedGuild(guildId, out var guild);
+                if (guild == null) continue;
+
+                JumpTask item = new()
+                {
+                    ApplicationPath = System.Environment.ProcessPath,
+                    Arguments = $"/openguild {guildId}",
+                    Title = guild.Name,
+                    Description = $"Open your chat in {guild.Name}",
+                    IconResourcePath = System.Environment.ProcessPath,
+                    IconResourceIndex = 0,
+                    CustomCategory = "Recent Servers",
+                };
+
+                jumpList.JumpItems.Add(item);
+            }
+
+            _ = Dispatcher.BeginInvoke(() => {
+                jumpList.Apply();
+                JumpList.SetJumpList(Application.Current, jumpList);
+            });
         }
 
         private async Task Client_CaptchaRequested(BaseDiscordClient sender, DSharpPlus.EventArgs.CaptchaRequestEventArgs args)
@@ -588,6 +778,56 @@ namespace Aerochat
         {
             ((System.Timers.Timer?)(sender))?.Stop();
             GC.Collect(2, GCCollectionMode.Forced, true, true);
+        }
+
+        private void ListenForArgumentsMessage(object? state)
+        {
+            try
+            {
+                using (NamedPipeServerStream server = new(_appGuid.ToString()))
+                using (StreamReader reader = new(server))
+                {
+                    server.WaitForConnection();
+
+                    List<string> arguments = new();
+                    while (server.IsConnected)
+                    {
+                        arguments.Add(reader.ReadLine() ?? "");
+                    }
+
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(OnArgumentsMessageReceived), arguments.ToArray());
+                }
+            }
+            catch (IOException)
+            {
+                // Ignore.
+            }
+            finally
+            {
+                ListenForArgumentsMessage(null);
+            }
+        }
+
+        public class ArgumentsMessageReceivedEventArgs : EventArgs
+        {
+            public string[] Arguments
+            {
+                get;
+                private set;
+            }
+
+            public ArgumentsMessageReceivedEventArgs(string[] arguments)
+            {
+                Arguments = arguments;
+            }
+        }
+
+        public event EventHandler<ArgumentsMessageReceivedEventArgs> ArgumentsMessageReceived;
+
+        private void OnArgumentsMessageReceived(object? state)
+        {
+            string[] arguments = (string[])state;
+            ArgumentsMessageReceived?.Invoke(this, new(arguments));
         }
     }
 }
