@@ -565,31 +565,31 @@ namespace Aerochat
                     if (isMention && !SettingsManager.Instance.NotifyMention)
                         return;
 
-                    Home? homeWindow = null;
-
-                    foreach (Window wnd in Current.Windows)
+                    await Current.Dispatcher.InvokeAsync(() =>
                     {
-                        if (wnd is Chat chat)
+                        Home? homeWindow = null;
+
+                        foreach (Window wnd in Current.Windows)
                         {
-                            if (e.Channel?.Id == chat.Channel?.Id)
+                            if (wnd is Chat chat)
                             {
-                                if (SettingsManager.Instance.AutomaticallyOpenNotification)
-                                    return;
+                                if (e.Channel?.Id == chat.Channel?.Id)
+                                {
+                                    if (SettingsManager.Instance.AutomaticallyOpenNotification)
+                                        return;
 
-                                if (chat.IsActive)
-                                    return;
+                                    if (chat.IsActive)
+                                        return;
 
-                                break;
+                                    break;
+                                }
+                            }
+                            else if (wnd is Home foundHomeWindow)
+                            {
+                                homeWindow = foundHomeWindow;
                             }
                         }
-                        else if (wnd is Home foundHomeWindow)
-                        {
-                            homeWindow = foundHomeWindow;
-                        }
-                    }
 
-                    _ = Current.Dispatcher.BeginInvoke(() =>
-                    {
                         if (SettingsManager.Instance.AutomaticallyOpenNotification)
                         {
                             PresenceViewModel? presenceVm = null;
