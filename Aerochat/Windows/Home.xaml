@@ -858,9 +858,9 @@
                                     </Grid>
                                     <Grid Grid.Row="1" UseLayoutRounding="True">
                                         <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
-                                            <Image x:Name="AdImage" Stretch="Fill" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" RenderOptions.BitmapScalingMode="HighQuality" MaxWidth="234" Height="60" Grid.Column="1" Source="{Binding Ad.Image, Mode=OneWay}">
-                                                <Image.Style>
-                                                    <Style TargetType="Image">
+                                            <controls:AdImage x:Name="AdImage" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" MaxWidth="234" Height="60" Grid.Column="1" DataContext="{Binding Ad}">
+                                                <controls:AdImage.Style>
+                                                    <Style TargetType="controls:AdImage">
                                                         <Setter Property="Cursor" Value="Hand" />
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Ad.Url}" Value="">
@@ -868,8 +868,8 @@
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
-                                                </Image.Style>
-                                            </Image>
+                                                </controls:AdImage.Style>
+                                            </controls:AdImage>
                                         </Border>
                                     </Grid>
                                 </Grid>

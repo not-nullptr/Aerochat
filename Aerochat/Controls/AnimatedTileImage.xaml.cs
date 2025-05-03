@@ -7,6 +7,12 @@ using Timer = System.Timers.Timer;
 
 namespace Aerochat.Controls
 {
+    public enum AnimatedTileImageFrameDirection
+    {
+        Horizontal,
+        Vertical,
+    }
+
     /// <summary>
     /// Play an image from an animated sprite sheet.
     /// </summary>
@@ -30,8 +36,10 @@ namespace Aerochat.Controls
         public static readonly DependencyProperty FrameWidthProperty = DependencyProperty.Register("FrameWidth", typeof(int), typeof(AnimatedTileImage), new PropertyMetadata(0, OnChange));
         public static readonly DependencyProperty FrameHeightProperty = DependencyProperty.Register("FrameHeight", typeof(int), typeof(AnimatedTileImage), new PropertyMetadata(0, OnChange));
         public static readonly DependencyProperty FrameDurationProperty = DependencyProperty.Register("FrameDuration", typeof(int), typeof(AnimatedTileImage), new PropertyMetadata(0, OnChange));
+        public static readonly DependencyProperty FrameDirectionProperty = DependencyProperty.Register("FrameDirection", typeof(AnimatedTileImageFrameDirection), typeof(AnimatedTileImage), new PropertyMetadata(AnimatedTileImageFrameDirection.Horizontal, OnChange));
         public static readonly DependencyProperty ImageProperty = DependencyProperty.Register("Image", typeof(ImageSource), typeof(AnimatedTileImage), new PropertyMetadata(default(ImageSource), OnChange));
         public static readonly DependencyProperty LoopProperty = DependencyProperty.Register("Loop", typeof(bool), typeof(AnimatedTileImage), new PropertyMetadata(true, OnChange));
+        public static readonly DependencyProperty NumberOfFramesProperty = DependencyProperty.Register("NumberOfFrames", typeof(int?), typeof(AnimatedTileImage), new PropertyMetadata(null, OnChange));
 
         private static void OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -42,6 +50,7 @@ namespace Aerochat.Controls
                 {
                     control.FrameDuration = 50;
                 }
+
                 if (e.Property == ImageProperty)
                 {
                     control.Reset();
@@ -71,10 +80,25 @@ namespace Aerochat.Controls
             set => SetValue(FrameDurationProperty, value);
         }
 
+        public AnimatedTileImageFrameDirection FrameDirection
+        {
+            get => (AnimatedTileImageFrameDirection)GetValue(FrameDirectionProperty);
+            set => SetValue(FrameDirectionProperty, value);
+        }
+
         public ImageSource? Image
         {
             get { return (ImageSource)GetValue(ImageProperty); }
             set { SetValue(ImageProperty, value); InvalidateVisual(); }
+        }
+
+        public int? NumberOfFrames
+        {
+            get => (int?)GetValue(NumberOfFramesProperty);
+            set
+            {
+                SetValue(NumberOfFramesProperty, value);
+            }
         }
 
         public bool Loop
@@ -104,11 +128,35 @@ namespace Aerochat.Controls
                 Image is BitmapSource bitmapSource &&
                 bitmapSource.PixelWidth != 0 &&
                 bitmapSource.PixelHeight != 0 &&
-                FrameWidth != 0 &&
-                FrameHeight != 0
+                (FrameWidth != 0 &&
+                FrameHeight != 0 || NumberOfFrames != null)
             )
             {
-                _frameCount = (int)(bitmapSource.PixelWidth / FrameWidth);
+                if (NumberOfFrames != null)
+                {
+                    if (FrameDirection == AnimatedTileImageFrameDirection.Horizontal)
+                    {
+                        FrameWidth = bitmapSource.PixelWidth / Math.Max(NumberOfFrames ?? 1, 1);
+                        if (FrameHeight == 0)
+                            FrameHeight = bitmapSource.PixelHeight;
+                    }
+                    else // Vertical
+                    {
+                        FrameHeight = bitmapSource.PixelHeight / Math.Max(NumberOfFrames ?? 1, 1);
+                        if (FrameWidth == 0)
+                            FrameWidth = bitmapSource.PixelWidth;
+                    }
+                }
+
+                if (FrameDirection == AnimatedTileImageFrameDirection.Horizontal)
+                {
+                    _frameCount = (int)(bitmapSource.PixelWidth / FrameWidth);
+                }
+                else // Vertical
+                {
+                    _frameCount = (int)(bitmapSource.PixelHeight / FrameHeight);
+                }
+
                 if (_frameCount == 0)
                 {
                     return false;
@@ -143,10 +191,20 @@ namespace Aerochat.Controls
 
         private void UpdateFrameRenderProperties()
         {
-            _imageElement.RenderTransform = new TranslateTransform(
-                -1 * FrameWidth * CurrentFrame,
-                0
-            );
+            if (FrameDirection == AnimatedTileImageFrameDirection.Horizontal)
+            {
+                _imageElement.RenderTransform = new TranslateTransform(
+                    -1 * FrameWidth * CurrentFrame,
+                    0
+                );
+            }
+            else // Vertical
+            {
+                _imageElement.RenderTransform = new TranslateTransform(
+                    0,
+                    -1 * FrameHeight * CurrentFrame
+                );
+            }
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)

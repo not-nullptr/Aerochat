@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="Aerochat.Controls.AdImage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:helpers="clr-namespace:Aerochat.Helpers"
+             xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
+             xmlns:local="clr-namespace:Aerochat.Controls"
+             xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:AdViewModel}"
+             Width="Auto"
+             MinWidth="60"
+             Height="60"
+             d:DesignHeight="60" d:DesignWidth="234">
+    <UserControl.Resources>
+        <helpers:LocalImageConverter x:Key="imageConverter"/>
+
+        <DataTemplate x:Key="StandardImageTemplate">
+            <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Fill" Source="{Binding Image, Mode=OneWay}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="GifImageTemplate">
+            <Image Stretch="Fill" gif:AnimationBehavior.SourceUri="{Binding Image, Mode=OneWay}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="SpritesheetAnimatedImageTemplate">
+            <!-- Currently does not support scaling. -->
+            <local:AnimatedTileImage RenderOptions.BitmapScalingMode="HighQuality" Image="{Binding DataContext.Image, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource imageConverter}}" 
+                                FrameDirection="Vertical" FrameDuration="{Binding DataContext.AnimationFramerate, RelativeSource={RelativeSource TemplatedParent}}"
+                                Width="234" Height="60" NumberOfFrames="{Binding DataContext.AnimationFrames, RelativeSource={RelativeSource TemplatedParent}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+    <ContentControl Content="{Binding}">
+        <ContentControl.Style>
+            <Style TargetType="{x:Type ContentControl}">
+                <Setter Property="ContentTemplate" Value="{StaticResource StandardImageTemplate}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ImageType}" Value="Gif">
+                        <Setter Property="ContentTemplate" Value="{StaticResource GifImageTemplate}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding ImageType}" Value="SpritesheetAnimation">
+                        <Setter Property="ContentTemplate" Value="{StaticResource SpritesheetAnimatedImageTemplate}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </ContentControl.Style>
+    </ContentControl>
+</UserControl>

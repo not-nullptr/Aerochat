@@ -41,6 +41,7 @@ namespace Aerochat.Windows
         private Dictionary<ulong, Timer> _typingTimers = new();
         public HomeWindowViewModel ViewModel { get; } = new HomeWindowViewModel();
         private Timer _hoverTimer = new(50);
+        private Timer _adTimer = new(20000);
 
         private static List<AdViewModel> _ads = new();
 
@@ -208,8 +209,7 @@ namespace Aerochat.Windows
                     adWeights[i] = 1;
                 }
 
-                Timer adTimer = new(20000);
-                adTimer.Elapsed += (s, e) =>
+                _adTimer.Elapsed += (s, e) =>
                 {
                     AdIndex = GetNextAdIndex();
 
@@ -225,11 +225,12 @@ namespace Aerochat.Windows
                         }
                     }
 
-                    ViewModel.Ad = _ads[AdIndex];
+                    AdViewModel adVm = _ads[AdIndex];
+                    ViewModel.Ad = adVm;
                 };
 
                 ViewModel.Ad = _ads[AdIndex];
-                adTimer.Start();
+                _adTimer.Start();
 
                 ViewModel.Categories.Add(new HomeListViewCategory
                 {
@@ -339,6 +340,13 @@ namespace Aerochat.Windows
                     adWeights[i]++;
                 }
             }
+
+            // Reset the ad switch timer so it isn't desynchronised by this forceful
+            // change. This is particularly important for some animated ads, which
+            // may not get to play their full contents if the timer length is severely
+            // desynchronised from continous skipping.
+            _adTimer.Stop();
+            _adTimer.Start();
 
             ViewModel.Ad = _ads[AdIndex];
         }
