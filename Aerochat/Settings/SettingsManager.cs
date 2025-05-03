@@ -26,9 +26,56 @@ namespace Aerochat.Settings
         #region Boilerplate
         public static SettingsManager Instance = new();
 
-        private static readonly string _settingsFilePath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!,
-            $"{Assembly.GetEntryAssembly()!.GetName().Name}.json");
+        private static string? _settingsFilePath = null;
+
+        private static string SettingsFilePath
+        {
+            get
+            {
+                if (_settingsFilePath != null)
+                {
+                    return _settingsFilePath;
+                }
+
+                // Application-local configuration; stored per application instance.
+                // Useful for development purposes only. For general users, we prefer
+                // loading the configuration from the Application Data folder.
+                string applicationLocalPath = Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!, // <installation dir>
+                    $"{Assembly.GetEntryAssembly()!.GetName().Name}.json");        // \Aerochat.json
+
+                // User-local configuration. Since Aerochat since version 0.2 can be
+                // installed for all users (i.e. in Program Files), we want to use the
+                // user-specific Application Data folder to store configuration.
+                string userPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), // %AppData%
+                    Assembly.GetEntryAssembly()!.GetName().Name,                          // \Aerochat
+                    "config.json");                                                       // \config.json
+
+#if DEBUG
+                // For debug builds, we always want to supply an application-specific
+                // path for developer convenience. It's not a problem since these builds
+                // should stay local to the developer's system.
+                if (true)
+#else
+                // Otherwise, we only set the active path to the application-local path
+                // if the file already exists. This will not affect migration as the
+                // Aerochat 0.2 installer manages migration of 0.1-era configuration.
+                if (Path.Exists(applicationLocalPath))
+#endif
+                {
+                    _settingsFilePath = applicationLocalPath;
+                }
+                else
+                {
+                    _settingsFilePath = userPath;
+                }
+
+                return _settingsFilePath;
+            }
+
+            set {}
+        }
 
         public static void Save()
         {
@@ -39,7 +86,7 @@ namespace Aerochat.Settings
                 .ToDictionary(prop => prop.Name, prop => prop.GetValue(Instance));
 
             var json = JsonSerializer.Serialize(properties, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_settingsFilePath, json);
+            File.WriteAllText(SettingsFilePath, json);
 
             // Call OnPropertyChanged for all properties
             foreach (var property in properties.Keys)
@@ -50,9 +97,9 @@ namespace Aerochat.Settings
 
         public static void Load()
         {
-            if (!File.Exists(_settingsFilePath)) return;
+            if (!File.Exists(SettingsFilePath)) return;
 
-            var json = File.ReadAllText(_settingsFilePath);
+            var json = File.ReadAllText(SettingsFilePath);
             var settings = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
 
             var properties = Instance.GetType()
@@ -75,7 +122,7 @@ namespace Aerochat.Settings
                 }
             }
         }
-        #endregion
+#endregion
 
         #region Private Settings
         public string Token { get; set; } = "";
