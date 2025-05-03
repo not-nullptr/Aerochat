@@ -1942,20 +1942,20 @@ namespace Aerochat.Windows
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
-            MenuItem forwardButton = (MenuItem)FindContextMenuItemName(contextMenu, "ForwardButton");
-            forwardButton.Visibility = isChattingAllowed
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            //MenuItem forwardButton = (MenuItem)FindContextMenuItemName(contextMenu, "ForwardButton");
+            //forwardButton.Visibility = isChattingAllowed
+            //    ? Visibility.Visible
+            //    : Visibility.Collapsed;
 
-            MenuItem copyMessageLinkButton = (MenuItem)FindContextMenuItemName(contextMenu, "CopyMessageLinkButton");
-            copyMessageLinkButton.Visibility = !vm.Ephemeral
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            //MenuItem copyMessageLinkButton = (MenuItem)FindContextMenuItemName(contextMenu, "CopyMessageLinkButton");
+            //copyMessageLinkButton.Visibility = !vm.Ephemeral
+            //    ? Visibility.Visible
+            //    : Visibility.Collapsed;
 
-            MenuItem markUnreadButton = (MenuItem)FindContextMenuItemName(contextMenu, "MarkUnreadButton");
-            markUnreadButton.Visibility = !vm.Ephemeral
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            //MenuItem markUnreadButton = (MenuItem)FindContextMenuItemName(contextMenu, "MarkUnreadButton");
+            //markUnreadButton.Visibility = !vm.Ephemeral
+            //    ? Visibility.Visible
+            //    : Visibility.Collapsed;
 
             bool isDeveloperModeEnabled = SettingsManager.Instance.DiscordDeveloperMode && !vm.Ephemeral;
 

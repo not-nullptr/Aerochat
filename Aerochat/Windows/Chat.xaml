@@ -816,15 +816,15 @@
                                                     <Separator x:Name="ReactionsSeparator" />
                                                     <MenuItem x:Name="EditButton" Header="Edit" Click="EditButton_Click"></MenuItem>
                                                     <MenuItem x:Name="ReplyButton" Header="Reply" Click="ReplyButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="ForwardButton" Header="Forward"></MenuItem>
+                                                    <MenuItem x:Name="ForwardButton" Header="Forward" Visibility="Collapsed"></MenuItem>
                                                     <MenuItem x:Name="CopyMessageButton" Header="Copy Message" Click="CopyMessageButton_Click"></MenuItem>
                                                     <MenuItem x:Name="CopyMessageLinkButton" Header="Copy Message Link" Click="CopyMessageLinkButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="MarkUnreadButton" Header="Mark as Unread"></MenuItem>
-                                                    <Separator x:Name="LinkActionsSeparator" />
-                                                    <MenuItem x:Name="CopyLinkButton" Header="Copy Link"></MenuItem>
-                                                    <MenuItem x:Name="CopyImageButton" Header="Copy Image"></MenuItem>
-                                                    <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser"></MenuItem>
-                                                    <MenuItem x:Name="SaveImageButton" Header="Save Image"></MenuItem>
+                                                    <MenuItem x:Name="MarkUnreadButton" Header="Mark as Unread" Visibility="Collapsed"></MenuItem>
+                                                    <Separator x:Name="LinkActionsSeparator" Visibility="Collapsed" />
+                                                    <MenuItem x:Name="CopyLinkButton" Header="Copy Link" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="CopyImageButton" Header="Copy Image" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="SaveImageButton" Header="Save Image" Visibility="Collapsed"></MenuItem>
                                                     <Separator x:Name="DeveloperActionsSeparator" />
                                                     <MenuItem x:Name="CopyAuthorIdButton" Header="Copy Author ID" Click="CopyAuthorIdButton_Click"></MenuItem>
                                                     <MenuItem x:Name="CopyMessageIdButton" Header="Copy Message ID" Click="CopyMessageIdButton_Click"></MenuItem>
