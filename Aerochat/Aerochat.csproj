@@ -44,9 +44,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Remove="Ads\Ads.xml" />
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
+		<None Remove="Ads\Bytemind.gif" />
+		<None Remove="Ads\furplesawesomead.gif" />
+		<None Remove="Ads\Homestuck.gif" />
+		<None Remove="Ads\janevortex.gif" />
+		<None Remove="Ads\KWSXRADIO.gif" />
+		<None Remove="Ads\Lycos.jpeg" />
+		<None Remove="Ads\MLG2460spersonalsite.gif" />
+		<None Remove="Ads\name.gif" />
+		<None Remove="Ads\roblox.jpeg" />
+		<None Remove="Ads\WWTHD.gif" />
+		<None Remove="Ads\youtube.jpeg" />
 		<None Remove="Resources\AttachmentsEditor\Delete.png" />
 		<None Remove="Resources\AttachmentsEditor\DeleteHover.png" />
 		<None Remove="Resources\AttachmentsEditor\DeletePressed.png" />
@@ -318,6 +328,17 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Ads\Bytemind.gif" />
+		<Resource Include="Ads\furplesawesomead.gif" />
+		<Resource Include="Ads\Homestuck.gif" />
+		<Resource Include="Ads\janevortex.gif" />
+		<Resource Include="Ads\KWSXRADIO.gif" />
+		<Resource Include="Ads\Lycos.jpeg" />
+		<Resource Include="Ads\MLG2460spersonalsite.gif" />
+		<Resource Include="Ads\name.gif" />
+		<Resource Include="Ads\roblox.jpeg" />
+		<Resource Include="Ads\WWTHD.gif" />
+		<Resource Include="Ads\youtube.jpeg" />
 		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeleteHover.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeletePressed.png" />

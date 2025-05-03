@@ -79,4 +79,12 @@
 	<item id="77" credit="Microsoft" mimetype="image/png" contenttype="D" file="WindowsVista-ServicePack2-NoGUIBoot.png" displayname="Windows Vista - Service Pack 2 - No GUI Boot" color="#17383d" default="false" />
 	<item id="78" credit="Tyler, the Creator / nullptr" mimetype="image/png" contenttype="D" file="FlowerBoy.png" displayname="Flower Boy" color="#cb3d2a" default="false" />
 	<item id="79" credit="StuxDek" mimetype="image/png" contenttype="D" file="Aerochat.png" displayname="Aerochat" color="#A2CEEF" default="false" />
+	<item id="80" credit="レイーン" mimetype="image/png" contenttype="D" file="chiikawa.png" displayname="chiikawa" color="#D2EABC" default="false" />
+	<item id="81" credit="artemis ˚₊🩸" mimetype="image/png" contenttype="D" file="Revenge.png" displayname="Revenge" color="#020b14" default="false" />
+	<item id="82" credit="asparagus" mimetype="image/jpeg" contenttype="D" file="Slipknot.jpeg" displayname="Slipknot" color="#E34234" default="false" />
+	<item id="83" credit="asparagus" mimetype="image/jpeg" contenttype="D" file="Meteora.jpeg" displayname="Meteora" color="#A1916F" default="false" />
+	<item id="84" credit="Anime69" mimetype="image/png" contenttype="D" file="KonataIzumi.png" displayname="Konata Izumi" color="#96a9eb" default="false" />
+	<item id="85" credit="Japanese cover for cave story 3D (Shinonoko)" mimetype="image/png" contenttype="D" file="DoukutsuMonogatariCaveStory.png" displayname="Doukutsu Monogatari(Cave Story)" color="#b9dfda" default="false" />
+	<item id="86" credit="JJTNT123 || CEO OF FUNK" mimetype="image/jpeg" contenttype="D" file="Theslime.jpeg" displayname="The slime" color="#467804" default="false" />
+	<item id="87" credit="JJTNT123" mimetype="image/jpeg" contenttype="D" file="WhiteMountains.jpeg" displayname="White Mountains" color="#8896a4" default="false" />
 </package>
