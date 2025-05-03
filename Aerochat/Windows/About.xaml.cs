@@ -27,6 +27,11 @@ namespace Aerochat.Windows
 
             string credits = "Aerochat is a project by nullptr. Most assets belong to Microsoft, please don't sue!\n\n";
 
+            // Miscellaneous resource credits:
+            credits += "==== Credits for resources used in Aerochat ==== \n\n";
+            credits += "The delete icon in the file attachments editor was made by Laserman.\n";
+            credits += "\n\n";
+
             // Get all scenes:
             credits += "==== Credits for scenes ==== \n\n";
             var scenes = ThemeService.Instance.Scenes;
