@@ -47,6 +47,9 @@
 		<None Remove="Ads\Ads.xml" />
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
+		<None Remove="Resources\AttachmentsEditor\Delete.png" />
+		<None Remove="Resources\AttachmentsEditor\DeleteHover.png" />
+		<None Remove="Resources\AttachmentsEditor\DeletePressed.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgHover.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgKeyFocused.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgSelected.png" />
@@ -315,6 +318,9 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
+		<Resource Include="Resources\AttachmentsEditor\DeleteHover.png" />
+		<Resource Include="Resources\AttachmentsEditor\DeletePressed.png" />
 		<Resource Include="Resources\BoolEditor\Class.png" />
 		<Resource Include="Resources\BoolEditor\Field.png" />
 		<Resource Include="Resources\BoolEditor\Namespace.png" />
