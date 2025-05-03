@@ -24,7 +24,7 @@
             <RowDefinition Height="{Binding BottomHeight}" />
         </Grid.RowDefinitions>
 
-        <Image x:Name="ImageElement" Grid.Row="0" Stretch="Uniform">
+        <Image RenderOptions.BitmapScalingMode="HighQuality" x:Name="ImageElement" Grid.Row="0" Stretch="Uniform">
             <Image.Style>
                 <Style TargetType="Image">
                     <Setter Property="Source" Value="{x:Null}" />
