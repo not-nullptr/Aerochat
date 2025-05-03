@@ -1,8 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using Google.Protobuf.Reflection;
-using System;
 using System.Globalization;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -118,12 +115,58 @@ namespace Aerochat.Controls
                                 associatedObject = channel;
                                 break;
                             }
+                        case ':':
+                        {
+                            string[] emojiParts = id.Split(":");
+
+                            if (emojiParts.Length != 3)
+                            {
+                                break;
+                            }
+
+                            string emojiName = emojiParts[1];
+                            string emojiIdStr = emojiParts[2];
+
+                            if (!ulong.TryParse(emojiIdStr, out ulong emojiId))
+                            {
+                                break;
+                            }
+
+                            var emojiDefinition = Message?.Channel?.Guild?.Emojis?.FirstOrDefault(x => x.Key == emojiId);
+
+                            if (emojiDefinition?.Value?.Url == null)
+                            {
+                                break;
+                            }
+
+                            InlineUIContainer inlineContainer = new();
+                            Image emojiImage = new();
+                            emojiImage.Source = new BitmapImage(new Uri(emojiDefinition.Value.Value.Url));
+                            emojiImage.Width = 19;
+                            emojiImage.Height = 19;
+                            emojiImage.VerticalAlignment = VerticalAlignment.Center;
+                            emojiImage.ToolTip = $":{emojiName}:";
+                            inlineContainer.Child = emojiImage;
+
+                            textBlock.Inlines.Add(inlineContainer);
+                            textBlock.Inlines.Add(new Run(" "));
+                            textBlock.TextWrapping = TextWrapping.Wrap;
+
+                            // Make the below loop continue:
+                            type = HyperlinkType.ServerEmoji;
+
+                            break;   
+                        }
                     }
 
                     if (link.Inlines.Count > 0 && type != null)
                     {
                         link.Click += (s, e) => OnHyperlinkClicked(type.Value, associatedObject);
                         textBlock.Inlines.Add(link);
+                        continue;
+                    }
+                    else if (type == HyperlinkType.ServerEmoji)
+                    {
                         continue;
                     }
                 }
@@ -263,6 +306,7 @@ namespace Aerochat.Controls
         Role,
         User,
         WebLink,
+        ServerEmoji, // Internal parsing purposes only.
     }
 
     public class HyperlinkClickedEventArgs : EventArgs
