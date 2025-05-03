@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Ads>
 	<Ad Image="Aerochat.png" Url="https://aerochat.live" />
+	<!-- Removed: Defunct project; link is now invalid..
 	<Ad Image="N09.png" Url="https://discord.gg/pU4get53Zp" />
+	-->
 	<Ad Image="Liam.png" Url="https://x.com/z2rmc" />
 	<Ad Image="Slobbery.png" Url="https://slobbery.wang" />
 	<Ad Image="CursorInvisible.png" Url="https://dagobah.net/flash/Cursor_Invisible.swf" />
@@ -18,7 +20,7 @@
 	<Ad Image="Aerocat.png" Url="https://www.youtube.com/results?search_query=Cats" />
 	<Ad Image="TheMostAmazingSite.png" Url="http://www.themostamazingwebsiteontheinternet.com/" />
 	<Ad Image="MirandaNG.png" Url="https://miranda-ng.org" />
-	<Ad Image="ErrorOliver.png" Url="https://erroroliver.neocities.org/" />
+	<Ad Image="ErrorOliver.png" Url="https://erroroliver.neocities.org/" Submitter="ErrorOliver" />
 	<Ad Image="VibRibbon.png" Url="https://vibribbon.neocities.org/" />
 	<Ad Image="GameBanana.png" Url="https://gamebanana.com/" />
 	<Ad Image="Blabla.png" Url="https://blablaland.co/" />
@@ -28,12 +30,12 @@
 	<Ad Image="Fin.png" Url="https://ftolnks.xyz/" />
 	<Ad Image="LightshowRUSH.png" Url="https://lightshow-rush.neocities.org/" />
 	<Ad Image="DeltarunebyTobyFox.png" Url="https://store.steampowered.com/app/1671210/DELTARUNE/" />
-	<Ad Image="Bookmarks.png" Url="https://codeberg.org/lime360/bookmarks" />
+	<Ad Image="Bookmarks.png" Url="https://codeberg.org/lime360/bookmarks" Submitter="lime360" />
 	<Ad Image="Soulseek.png" Url="https://www.slsknet.org/" />
 	<Ad Image="Explorer7.png" Url="https://winclassic.net/thread/2588/explorer7-windows-explorer-10-11" />
 	<Ad Image="MakeYourOwnAd.png" Url="https://discord.gg/Pn5dD7EyUQ" />
 	<Ad Image="OpenUtau.png" Url="http://www.openutau.com/" />
-	<Ad Image="21H2to7TransformationPack.png" Url="https://www.deviantart.com/imswordqueeen/art/1081353677" />
+	<Ad Image="21H2to7TransformationPack.png" Url="https://www.deviantart.com/imswordqueeen/art/1081353677" Submitter="ImSwordQueen" />
 	<Ad Image="Lucida.png" Url="https://lucida.to/" />
 	<Ad Image="GummibrsOfficialServer.png" Url="https://discord.gg/gummibar" />
 	<Ad Image="Windows93.png" Url="https://www.windows93.net/" />
@@ -50,19 +52,22 @@
 	<Ad Image="Sudomemo.png" Url="https://www.sudomemo.net/" />
 	<Ad Image="Rizzthereadme.png" Url="https://youtube.com/clip/Ugkx_n0scQZGzaV1F_ULluOjjJYRDo7Iw3ly" />
 	<Ad Image="Windows7.png" Url="https://web.archive.org/web/20091210134354/http://www.microsoft.com/windows/default.aspx?icid=winvan" />
-	<Ad Image="AerochatisOpenSource.png" Url="https://github.com/not-nullptr/Aerochat" />
-	<Ad Image="spacehey.png" Url="https://spacehey.com/" />
-	<Ad Image="Bitview.png" Url="https://www.bitview.net/" />
-	<Ad Image="NaziZombiesPortable.png" Url="https://nzp.gay" />
-	<Ad Image="Counter-StrikeSource.png" Url="http://web.archive.org/web/20140826043314/http://store.steampowered.com/app/240" />
-	<Ad Image="VorapisV3.png" Url="https://vorapis.pages.dev/#/" />
-	<Ad Image="TheOrangeBox.png" Url="https://web.archive.org/web/20090802020424/http://store.steampowered.com/sub/469/" />
-	<Ad Image="Blips.png" Url="https://blips.club" />
-	<Ad Image="Steam.png" Url="http://web.archive.org/web/20121019125044/http://store.steampowered.com/" />
-	<Ad Image="Lycos.jpeg" Url="https://web.archive.org/web/20050716085844/http://www.lycos.com/" />
+	<!-- This point is as far back as the #voting channel history goes, and is as far back as actual submission records were tracked.-->
+	<Ad Image="AerochatisOpenSource.png" Url="https://github.com/not-nullptr/Aerochat" Submitter="nullptr" />
+	<Ad Image="spacehey.png" Url="https://spacehey.com/" Submitter="patricktbp" />
+	<Ad Image="Bitview.png" Url="https://www.bitview.net/" Submitter="StuxDek" />
+	<Ad Image="NaziZombiesPortable.png" Url="https://nzp.gay" Submitter="Evolta" />
+	<Ad Image="Counter-StrikeSource.png" Url="http://web.archive.org/web/20140826043314/http://store.steampowered.com/app/240" Submitter="kauan" />
+	<Ad Image="VorapisV3.png" Url="https://vorapis.pages.dev/#/" Submitter="kauan" />
+	<Ad Image="TheOrangeBox.png" Url="https://web.archive.org/web/20090802020424/http://store.steampowered.com/sub/469/" Submitter="MartinFLL" />
+	<Ad Image="Blips.png" Url="https://blips.club" Submitter="Evolta" />
+	<Ad Image="Steam.png" Url="http://web.archive.org/web/20121019125044/http://store.steampowered.com/" Submitter="Evolta" />
+	<Ad Image="Lycos.jpeg" Url="https://web.archive.org/web/20050716085844/http://www.lycos.com/" Submitter="newazni16" />
+	<!-- Removed: Invalid formation, and at the request of the author.
 	<Ad Image="name.gif" Url="https://google.com" />
-	<Ad Image="Bytemind.gif" Url="https://bytemindcomic.org/" />
-	<Ad Image="FreeGamesatROBLOXcom.png" Url="http://web.archive.org/web/20110630075555/http://www.roblox.com/default.aspx" />
-	<Ad Image="janevortex.gif" Url="https://janevortex.neocities.org/" />
-	<Ad Image="ModTheSims.png" Url="https://modthesims.info/" />
+	-->
+	<Ad Image="Bytemind.gif" Url="https://bytemindcomic.org/" Submitter="DaniJam" />
+	<Ad Image="FreeGamesatROBLOXcom.png" Url="http://web.archive.org/web/20110630075555/http://www.roblox.com/default.aspx" Submitter="jane" />
+	<Ad Image="janevortex.gif" Url="https://janevortex.neocities.org/" Submitter="jane" />
+	<Ad Image="ModTheSims.png" Url="https://modthesims.info/" Submitter="StuxDeck" />
 </Ads>
