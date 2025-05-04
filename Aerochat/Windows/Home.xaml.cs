@@ -647,7 +647,7 @@ namespace Aerochat.Windows
 
                 channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
 
-                CreateAndInsertGuild(guild.Name, channelsList[0].Id, 1);
+                CreateAndInsertGuild(guild.Name, channelsList.ElementAtOrDefault(0)?.Id ?? 0, 1);
             }
             UpdateUnreadMessages();
         }
