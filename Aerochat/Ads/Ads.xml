@@ -13,7 +13,7 @@
 	<Ad Image="ENA.png" Url="https://joelgc.com" />
 	<Ad Image="PrismLauncher.png" Url="https://prismlauncher.org/" />
 	<Ad Image="RingRacers.png" Url="https://www.kartkrew.org/" />
-	<Ad Image="WiiLink.png" Url="https://www.wiilink24.com/" />
+	<Ad Image="WiiLink.png" Url="https://www.wiilink24.com/" Submitter="レイーン" />
 	<Ad Image="LibreWolf.png" Url="https://librewolf.net/" />
 	<Ad Image="ZorinOS.png" Url="https://zorin.com/os/" />
 	<Ad Image="Yume2kki.png" Url="https://yume.wiki/2kki/Yume_2kki_Wiki" />
@@ -48,9 +48,9 @@
 	<Ad Image="Xbox360.png" Url="https://web.archive.org/web/20090601171445/http://www.xbox.com/en-US/" />
 	<Ad Image="Minecraft.png" Url="https://web.archive.org/web/20130404173224/https://www.minecraft.net/" />
 	<Ad Image="Pissandshittium.png" Url="https://pissandshittium.org" />
-	<Ad Image="NintendoDSi.png" Url="https://web.archive.org/web/20090901155053/http://www.nintendodsi.com/" />
-	<Ad Image="Wii.png" Url="https://web.archive.org/web/20091201030340/http://www.nintendo.com/wii" />
-	<Ad Image="Sudomemo.png" Url="https://www.sudomemo.net/" />
+	<Ad Image="NintendoDSi.png" Url="https://web.archive.org/web/20090901155053/http://www.nintendodsi.com/" Submitter="レイーン" />
+	<Ad Image="Wii.png" Url="https://web.archive.org/web/20091201030340/http://www.nintendo.com/wii" Submitter="レイーン" />
+	<Ad Image="Sudomemo.png" Url="https://www.sudomemo.net/" Submitter="レイーン" />
 	<Ad Image="Rizzthereadme.png" Url="https://youtube.com/clip/Ugkx_n0scQZGzaV1F_ULluOjjJYRDo7Iw3ly" />
 	<Ad Image="Windows7.png" Url="https://web.archive.org/web/20091210134354/http://www.microsoft.com/windows/default.aspx?icid=winvan" />
 	<!-- This point is as far back as the #voting channel history goes, and is as far back as actual submission records were tracked.-->
