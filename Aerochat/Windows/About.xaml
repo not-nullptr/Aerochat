@@ -7,8 +7,9 @@
         xmlns:controls="clr-namespace:Aerochat.Controls"
         mc:Ignorable="d"
         Title="About" Height="400" Width="500"
-        ResizeMode="NoResize">
-    <controls:BaseTitlebar>
+        ResizeMode="NoResize"
+        Style="{StaticResource Window}">
+    <controls:BaseTitlebar BlackText="Black">
         <Grid>
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
