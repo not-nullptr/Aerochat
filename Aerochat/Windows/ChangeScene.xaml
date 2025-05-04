@@ -38,7 +38,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Width="108" Height="60" UseLayoutRounding="True" PreviewMouseDown="Border_PreviewMouseDown">
+                                        <Border Width="108" Height="60" UseLayoutRounding="True" PreviewMouseDown="Border_PreviewMouseDown" ToolTip="{Binding Scene.DisplayName}">
                                             <Grid UseLayoutRounding="True">
                                                 <controls:NineSlice Slice="4,4">
                                                     <controls:NineSlice.Style>
