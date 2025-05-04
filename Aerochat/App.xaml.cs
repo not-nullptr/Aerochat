@@ -42,6 +42,7 @@ namespace Aerochat
     {
         public static Guid _appGuid;
         private static Mutex? _appInstanceMutex = null;
+        private MessageWindow messageWindow;
 
         private Timer fullscreenInterval = new(500);
         private MediaPlayer mediaPlayer = new();
@@ -318,6 +319,9 @@ namespace Aerochat
             {
                 mediaPlayer.Play();
             };
+
+            // Now create the message window for messages from outside processes:
+            messageWindow = new();
 
             if (tokenFound)
             {
