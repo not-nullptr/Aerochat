@@ -1,4 +1,5 @@
 ﻿using Aerochat.Controls;
+using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.Voice;
 using Aerochat.Windows;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Aerochat.ViewModels
 {
@@ -24,6 +26,22 @@ namespace Aerochat.ViewModels
 
     public class ChatWindowViewModel : ViewModelBase
     {
+        public ChatWindowViewModel()
+        {
+            SettingsManager.Instance.PropertyChanged += OnSettingsChanged;
+        }
+
+        private void OnSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SettingsManager.Instance.DisplayUnimplementedButtons))
+            {
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    ShowEyecandy = SettingsManager.Instance.DisplayUnimplementedButtons;
+                });
+            }
+        }
+
         public List<ToolbarItem> ToolbarItems { get; set; } = new()
         {
             new("Photos", (FrameworkElement itemElement) =>
@@ -50,32 +68,32 @@ namespace Aerochat.ViewModels
             {
                 Debug.WriteLine("Video clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            }),
+            }, true),
             new("Call", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Call clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            }),
+            }, true),
             new("Games", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Games clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            }),
+            }, true),
             new("Activities", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Activities clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            }),
+            }, true),
             new("Invite", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Invite clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            }),
+            }, true),
             new("Block", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Block clicked");
                 OnAnyToolbarButtonClicked(itemElement);
-            })
+            }, true)
         };
 
         /// <summary>
@@ -95,6 +113,14 @@ namespace Aerochat.ViewModels
         public ObservableCollection<MessageViewModel> Messages { get; set; } = new();
 
         private int _topHeight = 80;
+
+        private bool _showEyecandy = SettingsManager.Instance.DisplayUnimplementedButtons;
+
+        public bool ShowEyecandy
+        {
+            get => _showEyecandy;
+            set => SetProperty(ref _showEyecandy, value);
+        }
 
         public int TopHeight
         {

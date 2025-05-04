@@ -1,10 +1,12 @@
-﻿using Aerochat.Theme;
+﻿using Aerochat.Settings;
+using Aerochat.Theme;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using static Aerochat.ViewModels.HomeListViewCategory;
 
@@ -32,6 +34,27 @@ namespace Aerochat.ViewModels
                 _searchDebounceTimer.Stop();
                 UpdateFilteredCategories();
             };
+
+            SettingsManager.Instance.PropertyChanged += OnSettingsChanged;
+        }
+
+        private void OnSettingsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SettingsManager.Instance.DisplayUnimplementedButtons))
+            {
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    ShowEyecandy = SettingsManager.Instance.DisplayUnimplementedButtons;
+                });
+            }
+        }
+
+        private bool _showEyecandy = SettingsManager.Instance.DisplayUnimplementedButtons;
+
+        public bool ShowEyecandy
+        {
+            get => _showEyecandy;
+            set => SetProperty(ref _showEyecandy, value);
         }
 
         private string _searchText = "";

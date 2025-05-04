@@ -49,9 +49,11 @@ using Aerochat.Helpers;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, ToolbarItemAction action)
+    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false)
     {
         public string Text { get; set; } = text;
+
+        public bool IsEyecandy { get; set; } = isEyecandy;
 
         public delegate void ToolbarItemAction(FrameworkElement itemElement);
 

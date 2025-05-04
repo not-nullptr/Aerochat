@@ -909,9 +909,14 @@ namespace Aerochat.Windows
             while (frameworkElement != null && !(frameworkElement is Button))
                 frameworkElement = VisualTreeHelper.GetParent(frameworkElement) as FrameworkElement;
             _lastHoveredControl = (Button)frameworkElement;
-            _hoverTimer.Stop();
-            _hoverTimer.Start();
-            tooltip?.StopKillTimer();
+
+            // Entire menu here is completely unimplemented, so we don't bother with it.
+            if (SettingsManager.Instance.DisplayUnimplementedButtons)
+            {
+                _hoverTimer.Stop();
+                _hoverTimer.Start();
+                tooltip?.StopKillTimer();
+            }
         }
 
         private void MouseExitedUser(object sender, MouseEventArgs e)
@@ -920,8 +925,11 @@ namespace Aerochat.Windows
             var frameworkElement = sender as FrameworkElement;
             if (frameworkElement?.DataContext is HomeListItemViewModel item)
             {
-                _hoverTimer.Stop();
-                tooltip?.StartKillTimer();
+                if (SettingsManager.Instance.DisplayUnimplementedButtons)
+                {
+                    _hoverTimer.Stop();
+                    tooltip?.StartKillTimer();
+                }
             }
         }
 

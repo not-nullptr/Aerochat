@@ -167,6 +167,9 @@ namespace Aerochat.Settings
         [Settings("Activity", "Make my status go \"away\" when I open a fullscreen application")]
         public bool GoIdleWithFullscreenProgram  { get; set; } = true;
 
+        [Settings("Appearance", "Display unimplemented buttons for eyecandy")]
+        public bool DisplayUnimplementedButtons { get; set; } = false;
+
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
 

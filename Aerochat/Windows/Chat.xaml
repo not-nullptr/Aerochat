@@ -154,9 +154,24 @@
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
                                     <Grid Height="27" PreviewMouseUp="ToolbarClick">
                                         <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                        <TextBlock Foreground="{Binding DataContext.Recipient.Scene.TextColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Margin="8,0,8,1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Text="{Binding Path=Text}"/>
+                                        <TextBlock Foreground="{Binding DataContext.Recipient.Scene.TextColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Margin="8,0,8,1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Text="{Binding Path=Text}" />
                                     </Grid>
                                     <Rectangle HorizontalAlignment="Right" Width="9" Height="0" />
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding DataContext.IsEyecandy, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                                                        <Condition Binding="{Binding DataContext.ShowEyecandy, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <MultiDataTrigger.Setters>
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </MultiDataTrigger.Setters>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

@@ -203,6 +203,15 @@
                         </Grid.Resources>
                         <controls:AnimatedTileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
                         <Grid Width="39" Height="35" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=DataContext.ShowEyecandy, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Home}}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
                             <Grid.ToolTip>
                                 <ToolTip Content="Open your e-mail inbox" />
                             </Grid.ToolTip>
@@ -307,13 +316,42 @@
                                                 </MenuItem>
                                                 <Separator />
                                                 <MenuItem Header="More statuses">
+                                                    <MenuItem.Style>
+                                                        <Style TargetType="MenuItem">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.DataContext.ShowEyecandy}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </MenuItem.Style>
                                                     <MenuItem Header="Personalized status..." />
                                                 </MenuItem>
                                                 <Separator />
                                                 <MenuItem x:Name="SignOut" Click="SignOut_Click" Header="Sign out from here" />
                                                 <Separator />
-                                                <MenuItem Header="Change display picture" />
-                                                <MenuItem Header="Change display name" />
+                                                <MenuItem Header="Change display picture">
+                                                    <MenuItem.Style>
+                                                        <Style TargetType="MenuItem">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.DataContext.ShowEyecandy}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </MenuItem.Style>
+                                                </MenuItem>
+                                                <MenuItem Header="Change display name">
+                                                    <MenuItem.Style>
+                                                        <Style TargetType="MenuItem">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.DataContext.ShowEyecandy}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </MenuItem.Style>
+                                                </MenuItem>
                                                 <Separator />
                                                 <MenuItem x:Name="OptionsBtn" Click="OptionsBtn_Click" Header="Options" />
                                                 <Separator />
@@ -322,7 +360,16 @@
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                     </Button>
-                                    <Button VerticalAlignment="Center" Style="{StaticResource TransparentStyle}" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0">
+                                    <Button VerticalAlignment="Center" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource TransparentStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=DataContext.ShowEyecandy, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Home}}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
                                         <Grid>
                                             <Grid.ToolTip>
                                                 <ToolTip Content="Enter a personal message or a link you want to share" />
@@ -412,6 +459,15 @@
                                 <Image HorizontalAlignment="Right" Margin="0,0,15,0" Source="/Resources/Home/SearchIconGray.png" Width="16" Height="16" Panel.ZIndex="10" IsHitTestVisible="False"/>
                             </Grid>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=DataContext.ShowEyecandy, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Home}}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                                 <Grid>
                                     <Grid.ToolTip>
                                         <ToolTip Content="Add a contact or group" />
