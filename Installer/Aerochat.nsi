@@ -53,6 +53,7 @@ ${Using:StrFunc} UnStrCase
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
+!define MUI_WELCOMEPAGE_TEXT "$(STRING_WELCOME_TEXT)"
 !insertmacro MUI_PAGE_WELCOME
 
 Page custom PageUpgradeConfirmation
