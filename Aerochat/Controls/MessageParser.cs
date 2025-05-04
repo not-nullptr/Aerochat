@@ -1,9 +1,11 @@
-﻿using DSharpPlus.Entities;
+using Aerochat.Hoarder;
+using DSharpPlus.Entities;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Vanara.Extensions.Reflection;
 
@@ -53,6 +55,15 @@ namespace Aerochat.Controls
 
             //// Prevent the usual context menu from showing up:
             //textBlock.ContextMenu = null;
+
+            //Throwing this in bcos i can :3 (messy nullcheck sawry :()
+            if (Message.MentionedUsers != null)
+            {
+                if (Message.MentionedUsers.Contains(Discord.Client.CurrentUser))
+                {
+                    textBlock.Foreground = new SolidColorBrush(Color.FromRgb(73, 164, 218));
+                }
+            }
 
             var parts = Message.Content.Split(' ');
             foreach (var part in parts)

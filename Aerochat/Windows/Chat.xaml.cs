@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -632,7 +632,11 @@ namespace Aerochat.Windows
                 }
                 else
                 {
-                    if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id) chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                    if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id)
+                    {
+                        if (SettingsManager.Instance.NotifyChat || message.MessageEntity.MentionedUsers.Contains(Discord.Client.CurrentUser)) // IDK
+                            chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                    }
                 }
             });
         }
@@ -1763,6 +1767,7 @@ namespace Aerochat.Windows
             }
         }
 
+ 
         private int _drawingHeight = 120;
         private int _writingHeight = 64;
 

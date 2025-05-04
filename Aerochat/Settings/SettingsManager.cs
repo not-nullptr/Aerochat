@@ -163,6 +163,9 @@ namespace Aerochat.Settings
         [Settings("Alerts", "Notify me when I am mentioned in a group chat or server")]
         public bool NotifyMention { get; set; } = true;
 
+        [Settings("Alerts", "Play a notification when any new message has been sent in chat")]
+        public bool NotifyChat { get; set; } = true;
+        
         [Settings("Alerts", "Open a new chat window whenever I get a DM")]
         public bool AutomaticallyOpenNotification { get; set; } = false;
 
