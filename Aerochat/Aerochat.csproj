@@ -314,6 +314,10 @@
 		<None Remove="Resources\Tray\Dnd.ico" />
 		<None Remove="Resources\Tray\Idle.ico" />
 		<None Remove="Resources\Tray\Offline.ico" />
+		<None Remove="Scenes\Meteora.jpeg" />
+		<None Remove="Scenes\Slipknot.jpeg" />
+		<None Remove="Scenes\Theslime.jpeg" />
+		<None Remove="Scenes\WhiteMountains.jpeg" />
 		<None Remove="Scenes\*.png" />
 		<None Remove="Scenes\*.jpg" />
 	</ItemGroup>
@@ -635,6 +639,10 @@
 
 	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
+	  <Resource Include="Scenes\Meteora.jpeg" />
+	  <Resource Include="Scenes\Slipknot.jpeg" />
+	  <Resource Include="Scenes\Theslime.jpeg" />
+	  <Resource Include="Scenes\WhiteMountains.jpeg" />
 	</ItemGroup>
 
 	<ItemGroup>
