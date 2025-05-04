@@ -1,0 +1,39 @@
+﻿<Window x:Class="Aerochat.Windows.CrashReport"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:controls="clr-namespace:Aerochat.Controls"
+        mc:Ignorable="d"
+        Title="Aerochat Crash Log" Height="400" Width="500"
+        ResizeMode="NoResize"
+        Style="{StaticResource Window}">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <LinearGradientBrush.GradientStops>
+                    <GradientStop Offset="0" Color="#f1f6fb" />
+                    <GradientStop Offset="1" Color="#e5eef8" />
+                </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0" Margin="16,10">
+            <StackPanel DockPanel.Dock="Top">
+                <TextBlock Foreground="#333" Text="Aerochat crashed. Here is the crash log. Please send this to a developer, preferably via a GitHub issue." Margin="0,0,0,6" TextWrapping="Wrap" />
+            </StackPanel>
+            <TextBox VerticalScrollBarVisibility="Auto"  TextWrapping="Wrap" DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="PART_LogTextbox" IsReadOnlyCaretVisible="True" IsReadOnly="True" />
+        </DockPanel>
+        <Grid Grid.Row="1">
+            <controls:NineSlice Slice="1,6" Image="/Resources/ChangeScene/Bottom.png" />
+            <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Click="OnClickRestartAerochatButton" MinWidth="110" Height="23" Content="Restart Aerochat" Margin="5,0,0,0" />
+                <Button Click="OnClickDismissButton" MinWidth="72" Height="23" Content="Dismiss" Margin="5,0,0,0" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

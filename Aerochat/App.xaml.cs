@@ -42,7 +42,7 @@ namespace Aerochat
     {
         public static Guid _appGuid;
         private static Mutex? _appInstanceMutex = null;
-        private MessageWindow messageWindow;
+        private MessageWindow _messageWindow;
 
         private Timer fullscreenInterval = new(500);
         private MediaPlayer mediaPlayer = new();
@@ -119,39 +119,67 @@ namespace Aerochat
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            _appGuid = Guid.Parse(((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value);
+            bool openingCrashLog = false;
+            string? crashReport = null;
 
-            _appInstanceMutex = new Mutex(true, _appGuid.ToString(), out bool isFirstAppInstance);
-
-            if (!isFirstAppInstance)
+            // Only initialise the mutex if we're not opening the crash log.
+            if (e.Args.ElementAtOrDefault(0) != "/OpenCrashLog")
             {
-                // We're already running, so send our arguments to the current instance and prevent
-                // further startup:
-                try
-                {
-                    using (NamedPipeClientStream client = new(_appGuid.ToString()))
-                    using (StreamWriter writer = new(client))
-                    {
-                        client.Connect(200);
-                        foreach (string arg in e.Args)
-                            writer.WriteLine(arg);
-                    }
-                }
-                catch (TimeoutException)
-                {}
-                catch (IOException)
-                {}
+                _appGuid = Guid.Parse(((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value);
 
-                Application.Current.Shutdown();
-                return;
+                _appInstanceMutex = new Mutex(true, _appGuid.ToString(), out bool isFirstAppInstance);
+
+                if (!isFirstAppInstance)
+                {
+                    // We're already running, so send our arguments to the current instance and prevent
+                    // further startup:
+                    try
+                    {
+                        using (NamedPipeClientStream client = new(_appGuid.ToString()))
+                        using (StreamWriter writer = new(client))
+                        {
+                            client.Connect(200);
+                            foreach (string arg in e.Args)
+                                writer.WriteLine(arg);
+                        }
+                    }
+                    catch (TimeoutException)
+                    { }
+                    catch (IOException)
+                    { }
+
+                    Application.Current.Shutdown();
+                    return;
+                }
+                else
+                {
+                    HandleArguments(e.Args, true);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(ListenForArgumentsMessage));
+                }
             }
             else
             {
-                HandleArguments(e.Args, true);
-                ThreadPool.QueueUserWorkItem(new WaitCallback(ListenForArgumentsMessage));
+                // Parse crash log arguments:
+                byte[] data = Convert.FromBase64String(e.Args.ElementAtOrDefault(1) ?? "Failed to parse crash information. Sorry :(");
+                crashReport = Encoding.UTF8.GetString(data);
+                openingCrashLog = true;
             }
 
             base.OnStartup(e);
+
+            if (openingCrashLog)
+            {
+                CrashReport crashReportWindow = new();
+                crashReportWindow.SetCrashReport(crashReport ?? "Failed to get crash information. Sorry :(");
+                crashReportWindow.Show();
+                return;
+            }
+
+            // DO NOT RUN THIS BEFORE THE CRASH REPORT WINDOW IS DEALT WITH -- IT WILL FORK BOMB
+            // AND RENDER YOUR SYSTEM UNUSABLE!
+            SetupUncaughtExceptionHandlers();
+
+            StartAerochatMain();
         }
 
         private void OnReceiveArgumentsMessage(object? sender, ArgumentsMessageReceivedEventArgs e)
@@ -199,15 +227,19 @@ namespace Aerochat
         public App()
         {
             FixMicrosoftBadCodeMakingBitmapsCrash.InstallHooks();
+            InitializeComponent();
+
+            ArgumentsMessageReceived += OnReceiveArgumentsMessage;
+        }
+
+        private void StartAerochatMain()
+        {
             SettingsManager.Load();
             if (SettingsManager.Instance.ReadRecieptReference == DateTime.MinValue)
             {
                 SettingsManager.Instance.ReadRecieptReference = DateTime.Now;
                 SettingsManager.Save();
             }
-            InitializeComponent();
-
-            ArgumentsMessageReceived += OnReceiveArgumentsMessage;
 
             _taskbarPresences = new()
                 {
@@ -321,7 +353,7 @@ namespace Aerochat
             };
 
             // Now create the message window for messages from outside processes:
-            messageWindow = new();
+            _messageWindow = new();
 
             if (tokenFound)
             {
@@ -832,6 +864,45 @@ namespace Aerochat
         {
             string[] arguments = (string[])state;
             ArgumentsMessageReceived?.Invoke(this, new(arguments));
+        }
+
+        public void SetupUncaughtExceptionHandlers()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                OnAnyUncaughtException((Exception)e.ExceptionObject);
+            };
+
+            DispatcherUnhandledException += (s, e) =>
+            {
+                OnAnyUncaughtException(e.Exception);
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                OnAnyUncaughtException(e.Exception);
+            };
+        }
+
+        static bool s_hasShownUncaughtExceptionBefore = false;
+
+        public void OnAnyUncaughtException(Exception exception)
+        {
+            if (s_hasShownUncaughtExceptionBefore)
+                return;
+
+            byte[] exceptionUtf8 = Encoding.UTF8.GetBytes(exception.ToString());
+            string exceptionBase64 = Convert.ToBase64String(exceptionUtf8);
+
+            Shell32.ShellExecute(HWND.NULL,
+                "open",
+                System.Environment.ProcessPath,
+                $"/OpenCrashLog {exceptionBase64}",
+                null,
+                ShowWindowCommand.SW_SHOWNORMAL
+            );
+
+            s_hasShownUncaughtExceptionBefore = true;
         }
     }
 }
