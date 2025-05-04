@@ -44,7 +44,12 @@ namespace Aerochat.Controls
             {
                 return;
             }
+
+#if FEATURE_SELECTABLE_MESSAGE_TEXT
             var textBlock = new SelectableTextBlock();
+#else
+            var textBlock = new TextBlock();
+#endif
 
             //// Prevent the usual context menu from showing up:
             //textBlock.ContextMenu = null;

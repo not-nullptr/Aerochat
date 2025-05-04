@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if FEATURE_SELECTABLE_MESSAGE_TEXT
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -69,3 +70,4 @@ namespace Aerochat.Controls
         }
     }
 }
+#endif

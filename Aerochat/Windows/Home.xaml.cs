@@ -1,6 +1,4 @@
-﻿#define WIP
-#define ISABELLA
-using Aerochat.Helpers;
+﻿using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Settings;
 using Aerochat.Theme;
@@ -17,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -28,6 +27,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
+using Vanara.PInvoke;
 using static Aerochat.ViewModels.HomeListViewCategory;
 using static Vanara.PInvoke.AdvApi32;
 using static Vanara.PInvoke.User32;
@@ -277,7 +277,7 @@ namespace Aerochat.Windows
                 Show();
                 Focus();
 
-#if WIP && !ISABELLA
+#if WIP && !DEVELOPER_PRERELEASE
                 Dialog betaNoticeDlg = new(
                     "Notice",
                     "This is a work-in-progress beta copy of Aerochat. Please stay updated with the GitHub " +
