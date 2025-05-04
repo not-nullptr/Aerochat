@@ -92,14 +92,23 @@ Function IsApplicationAlreadyInstalled
     # register: $R0 = return value: Boolean
     
     SetRegView 64
-    ReadRegStr $R0 SHCTX "${UNINSTALL_KEY}" "UninstallString"
+    ReadRegStr $R0 HKLM "${UNINSTALL_KEY}" "UninstallString"
+    SetRegView lastused
+    
+    IfErrors _TryHKCU
+    StrCpy $R0 "true"
+    return
+    
+_TryHKCU:
+    SetRegView 64
+    ReadRegStr $R0 HKCU "${UNINSTALL_KEY}" "UninstallString"
     SetRegView lastused
     
     IfErrors _nexists
     StrCpy $R0 "true"
     return
-    
 _nexists:
+
     StrCpy $R0 "false"
     return
 FunctionEnd
@@ -389,6 +398,27 @@ FunctionEnd
 Function PageUpgradeConfirmation
     Call SkipPageIfNotInstalled
     
+    # Find the installation directory:
+    SetRegView 64
+    ReadRegStr $R0 HKLM "${UNINSTALL_KEY}" "UninstallString"
+    SetRegView lastused
+    
+    IfErrors _TryHKCU
+    
+    goto _GetInstallDir
+    
+_TryHKCU:
+    SetRegView 64
+    ReadRegStr $R0 HKCU "${UNINSTALL_KEY}" "UninstallString"
+    SetRegView lastused
+    
+_GetInstallDir:
+    Push $R1
+    StrLen $R1 $R0
+    IntOp $R1 $R1 - 16 # Length of "\uninstall.exe" minus the first quote and the final quote
+    StrCpy $InstDir $R0 $R1 1
+    Pop $R1
+    
     !insertmacro MUI_HEADER_TEXT "$(STRING_UPGRADE_TITLE)" "$(STRING_UPGRADE_DESCRIPTION)"
     
     nsDialogs::Create 1018
@@ -470,5 +500,7 @@ Section "Uninstall"
 
     # Delete uninstall entry
     SetRegView 64
+    DeleteRegKey HKCU "${UNINSTALL_KEY}" # SHCTX doesn't seem to work properly, so we'll also just
+                                         # remove indiscriminately under HKCU
     DeleteRegKey SHCTX "${UNINSTALL_KEY}"
 SectionEnd
