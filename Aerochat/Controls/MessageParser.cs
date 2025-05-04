@@ -66,15 +66,16 @@ namespace Aerochat.Controls
                     object associatedObject = null;
 
                     // if there's no element at 0, continue
-                    if (id.Length == 0) break;
-                    switch (id.ElementAt(0))
+                    if (id.Length != 0)
                     {
-                        case '@':
-                            id = id.Replace("@", "");
-                            if (id.Length == 0) break;
-                            switch (id.ElementAt(0))
-                            {
-                                case '&':
+                        switch (id.ElementAt(0))
+                        {
+                            case '@':
+                                id = id.Replace("@", "");
+                                if (id.Length == 0) break;
+                                switch (id.ElementAt(0))
+                                {
+                                    case '&':
                                     {
                                         id = id.Replace("&", "");
                                         if (!ulong.TryParse(id, out ulong parsedId)) break;
@@ -89,7 +90,7 @@ namespace Aerochat.Controls
                                         associatedObject = role;
                                         break;
                                     }
-                                default:
+                                    default:
                                     {
                                         if (!ulong.TryParse(id, out ulong parsedId)) break;
                                         var user = Message.MentionedUsers?.FirstOrDefault(x => x?.Id == parsedId);
@@ -103,9 +104,9 @@ namespace Aerochat.Controls
                                         associatedObject = user;
                                         break;
                                     }
-                            }
-                            break;
-                        case '#':
+                                }
+                                break;
+                            case '#':
                             {
                                 id = id.Replace("#", "");
                                 if (!ulong.TryParse(id, out ulong parsedId)) break;
@@ -120,59 +121,60 @@ namespace Aerochat.Controls
                                 associatedObject = channel;
                                 break;
                             }
-                        case ':':
-                        {
-                            string[] emojiParts = id.Split(":");
-
-                            if (emojiParts.Length != 3)
+                            case ':':
                             {
+                                string[] emojiParts = id.Split(":");
+
+                                if (emojiParts.Length != 3)
+                                {
+                                    break;
+                                }
+
+                                string emojiName = emojiParts[1];
+                                string emojiIdStr = emojiParts[2];
+
+                                if (!ulong.TryParse(emojiIdStr, out ulong emojiId))
+                                {
+                                    break;
+                                }
+
+                                var emojiDefinition = Message?.Channel?.Guild?.Emojis?.FirstOrDefault(x => x.Key == emojiId);
+
+                                if (emojiDefinition?.Value?.Url == null)
+                                {
+                                    break;
+                                }
+
+                                InlineUIContainer inlineContainer = new();
+                                Image emojiImage = new();
+                                emojiImage.Source = new BitmapImage(new Uri(emojiDefinition.Value.Value.Url));
+                                emojiImage.Width = 19;
+                                emojiImage.Height = 19;
+                                emojiImage.VerticalAlignment = VerticalAlignment.Center;
+                                emojiImage.ToolTip = $":{emojiName}:";
+                                inlineContainer.Child = emojiImage;
+
+                                textBlock.Inlines.Add(inlineContainer);
+                                textBlock.Inlines.Add(new Run(" "));
+                                textBlock.TextWrapping = TextWrapping.Wrap;
+
+                                // Make the below loop continue:
+                                type = HyperlinkType.ServerEmoji;
+
                                 break;
                             }
-
-                            string emojiName = emojiParts[1];
-                            string emojiIdStr = emojiParts[2];
-
-                            if (!ulong.TryParse(emojiIdStr, out ulong emojiId))
-                            {
-                                break;
-                            }
-
-                            var emojiDefinition = Message?.Channel?.Guild?.Emojis?.FirstOrDefault(x => x.Key == emojiId);
-
-                            if (emojiDefinition?.Value?.Url == null)
-                            {
-                                break;
-                            }
-
-                            InlineUIContainer inlineContainer = new();
-                            Image emojiImage = new();
-                            emojiImage.Source = new BitmapImage(new Uri(emojiDefinition.Value.Value.Url));
-                            emojiImage.Width = 19;
-                            emojiImage.Height = 19;
-                            emojiImage.VerticalAlignment = VerticalAlignment.Center;
-                            emojiImage.ToolTip = $":{emojiName}:";
-                            inlineContainer.Child = emojiImage;
-
-                            textBlock.Inlines.Add(inlineContainer);
-                            textBlock.Inlines.Add(new Run(" "));
-                            textBlock.TextWrapping = TextWrapping.Wrap;
-
-                            // Make the below loop continue:
-                            type = HyperlinkType.ServerEmoji;
-
-                            break;   
                         }
-                    }
 
-                    if (link.Inlines.Count > 0 && type != null)
-                    {
-                        link.Click += (s, e) => OnHyperlinkClicked(type.Value, associatedObject);
-                        textBlock.Inlines.Add(link);
-                        continue;
-                    }
-                    else if (type == HyperlinkType.ServerEmoji)
-                    {
-                        continue;
+                        if (link.Inlines.Count > 0 && type != null)
+                        {
+                            link.Click += (s, e) => OnHyperlinkClicked(type.Value, associatedObject);
+                            textBlock.Inlines.Add(link);
+                            continue;
+                        }
+                        else if (type == HyperlinkType.ServerEmoji)
+                        {
+                            continue;
+                        }
                     }
                 }
                 else if (part.StartsWith("http://") || part.StartsWith("https://"))
