@@ -85,6 +85,9 @@ namespace Aerochat.Settings
                 .Where(prop => prop.CanWrite && !prop.GetMethod.IsStatic)
                 .ToDictionary(prop => prop.Name, prop => prop.GetValue(Instance));
 
+            // Ensure that the directory exists:
+            Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath)!);
+
             var json = JsonSerializer.Serialize(properties, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(SettingsFilePath, json);
 
@@ -100,7 +103,16 @@ namespace Aerochat.Settings
             if (!File.Exists(SettingsFilePath)) return;
 
             var json = File.ReadAllText(SettingsFilePath);
-            var settings = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+            Dictionary<string, JsonElement>? settings = null;
+            try
+            {
+                settings = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+            }
+            catch (Exception)
+            {
+                // Bypass any exception and skip loading settings.
+                return;
+            }
 
             var properties = Instance.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -118,7 +130,7 @@ namespace Aerochat.Settings
                 }
                 catch (JsonException ex)
                 {
-                    throw new InvalidOperationException($"Error deserializing property '{property.Name}'", ex);
+                    // throw new InvalidOperationException($"Error deserializing property '{property.Name}'", ex);
                 }
             }
         }
