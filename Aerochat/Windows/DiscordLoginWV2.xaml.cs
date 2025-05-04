@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Web.WebView2.Core;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +12,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Aerochat.Windows
 {
@@ -28,7 +29,10 @@ namespace Aerochat.Windows
 
         public async void OnLoad()
         {
-            await LoginWebView.EnsureCoreWebView2Async();
+            await LoginWebView.EnsureCoreWebView2Async(await CoreWebView2Environment.CreateAsync(
+                null,
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WebView2UserData")
+            ));
             var coreWebView = LoginWebView.CoreWebView2;
             coreWebView.WebMessageReceived += CoreWebView_WebMessageReceived;
             await coreWebView.Profile.ClearBrowsingDataAsync();
