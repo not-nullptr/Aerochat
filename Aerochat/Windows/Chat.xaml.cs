@@ -2346,6 +2346,10 @@ namespace Aerochat.Windows
             PART_AttachmentEditorRowDefinition.Height = new GridLength(64);
             PART_AttachmentEditorGrid.Visibility = Visibility.Visible;
 
+            // We can't use the push to draw feature when uploading another attachment, so we
+            // set the tab now:
+            ShowEditorTextTab();
+
             ViewModel.IsShowingAttachmentEditor = true;
             RevalidatePushToDrawVisibility();
         }
