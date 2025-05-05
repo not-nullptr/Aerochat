@@ -356,8 +356,8 @@ _SleepLoop:
     StrCmp $R0 "true" 0 _MutexClosedNicely
     
     # Otherwise, we're going to loop to give the program enough time to finish closing:
-    IntOp $R2 $R2 - 1
-    StrCmp $R0 0 0 _ExitSleepLoop
+    IntOp $R1 $R1 - 1
+    StrCmp $R1 0 _ExitSleepLoop
     
     goto _SleepLoop
     
