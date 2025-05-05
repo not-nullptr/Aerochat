@@ -450,7 +450,14 @@ namespace Aerochat.Windows
                 SettingsManager.Save();
 
                 App app = (App)Application.Current;
-                app.RebuildJumpLists();
+                try
+                {
+                    app.RebuildJumpLists();
+                }
+                catch (Exception)
+                {
+                    // Ignore. TODO: Logging for meaningless exceptions like this.
+                }
             }
             catch (UnauthorizedException e)
             {

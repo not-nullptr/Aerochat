@@ -730,7 +730,15 @@ namespace Aerochat
                 SettingsManager.Save();
             };
 
-            List<ulong> recentChats = SettingsManager.Instance.RecentDMChats.TakeLast(5).Reverse().ToList();
+            List<ulong> recentChats;
+            try
+            {
+                recentChats = SettingsManager.Instance.RecentDMChats.TakeLast(5).Reverse().ToList();
+            }
+            catch (ArgumentNullException)
+            {
+                recentChats = new();
+            }
 
             foreach (ulong channelId in recentChats)
             {
@@ -752,7 +760,15 @@ namespace Aerochat
                 string? recipientName = null;
                 if (newChannel is DiscordDmChannel)
                 {
-                    recipientName = newChannel.Name ?? string.Join(", ", ((DiscordDmChannel)newChannel).Recipients.Select(x => x.DisplayName));
+                    try
+                    {
+                        recipientName = newChannel.Name ?? string.Join(", ", ((DiscordDmChannel)newChannel).Recipients.Select(x => x.DisplayName));
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        // Bad recipient name.
+                        continue;
+                    }
                 }
 
                 JumpTask item = new()
@@ -769,7 +785,15 @@ namespace Aerochat
                 jumpList.JumpItems.Add(item);
             }
 
-            List<ulong> recentServers = SettingsManager.Instance.RecentServerChats.TakeLast(5).Reverse().ToList();
+            List<ulong> recentServers;
+            try
+            {
+                recentServers = SettingsManager.Instance.RecentServerChats.TakeLast(5).Reverse().ToList();
+            }
+            catch (ArgumentNullException)
+            {
+                recentServers = new();
+            }
 
             foreach (ulong guildId in recentServers)
             {
