@@ -13,6 +13,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Speech.Synthesis;
+using Aerochat.Settings;
 
 namespace Aerochat.Windows
 {
@@ -31,6 +33,7 @@ namespace Aerochat.Windows
 
     public partial class Notification : Window
     {
+        private SpeechSynthesizer synth = new();
         public NotificationState State = NotificationState.Opening;
         public int ScreenWidth => (int)SystemParameters.WorkArea.Width;
         public int ScreenHeight => (int)SystemParameters.WorkArea.Height;
@@ -139,6 +142,7 @@ namespace Aerochat.Windows
         public Notification(NotificationType type, dynamic RelevantThing)
         {
             InitializeComponent();
+            synth.SetOutputToDefaultAudioDevice();
             DataContext = ViewModel;
             //if (Message is not null)
             //{
@@ -154,12 +158,55 @@ namespace Aerochat.Windows
                     DiscordMessage message = (DiscordMessage)RelevantThing;
                     ViewModel.Message = MessageViewModel.FromMessage(message);
                     MessageEntity = message;
+
+                    if (SettingsManager.Instance.ReadMessageNotifications)
+                    {
+                        //Filters @mentions, links, channels, and emojis out of the TTS message so it doesn't ramble on forever.
+                        var FilteredMessage = "";
+                        var SplitFilteredMessage = ViewModel.Message.Message.Split(' ');
+                        foreach (var split in SplitFilteredMessage)
+                        {
+                            if (split.StartsWith('<') && split.EndsWith('>'))
+                            {
+                                string id = split.Replace("<", "").Replace(">", "");
+
+                                if (id.ElementAt(0) == '@')
+                                {
+                                    if (id.ElementAt(1) == '&')
+                                        FilteredMessage += " at role ";
+                                    else
+                                        FilteredMessage += " at user ";
+                                }
+                                else if (id.ElementAt(0) == '#')
+                                {
+                                    FilteredMessage += " a channel ";
+                                }
+                                else if (id.ElementAt(0) == ':')
+                                {
+                                    FilteredMessage += " (an emoji) ";
+                                }
+
+                            }
+                            else if (split.StartsWith("http://") || split.StartsWith("https://"))
+                            {
+                                FilteredMessage += " a link ";
+                            }
+                            else
+                            {
+                                FilteredMessage += " " + split + " ";
+                            }
+                        }
+                        synth.SpeakAsync($"{ViewModel.Message.Author.Name.ToLower()} said {FilteredMessage}.");
+                    }
                     break;
                 case NotificationType.SignOn:
                     UserViewModel user = UserViewModel.FromUser(RelevantThing.User);
                     PresenceViewModel presence = PresenceViewModel.FromPresence(RelevantThing.Presence);
                     ViewModel.User = user;
                     ViewModel.Presence = presence;
+
+                    if (SettingsManager.Instance.ReadOnlineNotifications)
+                        synth.SpeakAsync($"{ViewModel.User.Name.ToLower()} has just signed in.");
                     break;
                 default:
                     break;
