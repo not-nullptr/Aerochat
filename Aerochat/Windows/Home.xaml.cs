@@ -72,6 +72,11 @@ namespace Aerochat.Windows
             {
                 ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
 
+                // Load initial presence:
+                PreloadedUserSettings? userSettings = DiscordUserSettingsManager.Instance.UserSettingsProto;
+                if (userSettings is not null)
+                    ViewModel.CurrentUser.Presence = PresenceViewModel.GetPresenceForCurrentUser(userSettings);
+
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
@@ -247,6 +252,7 @@ namespace Aerochat.Windows
                 Discord.Client.ChannelCreated += ChannelCreatedEvent;
                 Discord.Client.ChannelDeleted += ChannelDeletedEvent;
                 Discord.Client.VoiceStateUpdated += VoiceStateUpdatedEvent;
+                DiscordUserSettingsManager.Instance.UserSettingsUpdated += OnUserSettingsUpdated;
 
                 UpdateStatuses();
                 AddGuilds();
@@ -320,6 +326,10 @@ namespace Aerochat.Windows
             });
         }
 
+        private void OnUserSettingsUpdated(object? sender, DiscordUserSettingsUpdateEventArgs e)
+        {
+            ViewModel.CurrentUser.Presence = PresenceViewModel.GetPresenceForCurrentUser(e.NewSettings);
+        }
 
         private void Image_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -882,11 +892,27 @@ namespace Aerochat.Windows
         {
             if (e.Key == System.Windows.Input.Key.Tab)
                 e.Handled = true;
-            else if (e.Key == System.Windows.Input.Key.Escape && SearchInput.IsFocused)
+            else if (e.Key == System.Windows.Input.Key.Escape)
             {
-                SearchInput.Text = "";
-                SearchInput.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                e.Handled = true;
+                if (SearchInput.IsFocused)
+                {
+                    SearchInput.Text = "";
+                    SearchInput.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                    e.Handled = true;
+                }
+                else if (PART_StatusInputBox.IsFocused)
+                {
+                    PART_StatusInputBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (PART_StatusInputBox.IsFocused)
+                {
+                    PART_StatusInputBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                    e.Handled = true;
+                }
             }
         }
 
@@ -1184,6 +1210,75 @@ namespace Aerochat.Windows
             if (ViewModel.CurrentNews is null) return;
             var index = ViewModel.News.IndexOf(ViewModel.CurrentNews);
             SetNews(ViewModel.News[(index + 1) % ViewModel.News.Count]);
+        }
+
+        private void StatusDropdown_Click(object sender, RoutedEventArgs e)
+        {
+            if (DiscordUserSettingsManager.Instance.UserSettingsProto?.Status.CustomStatus == null)
+            {
+                PART_StatusInputBox.Text = "";
+            }
+            else
+            {
+                PART_StatusInputBox.Text = PART_StatusStaticView.Text;
+            }
+
+            ViewModel.IsEditingStatus = true;
+
+            PART_StatusInputBox.Focus();
+        }
+
+        private void PART_StatusInputBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            OnStatusInputBoxLostFocus();
+        }
+
+        private void OnStatusInputBoxLostFocus()
+        {
+            ViewModel.IsEditingStatus = false;
+
+            if (PART_StatusInputBox.Text != PART_StatusStaticView.Text && DiscordUserSettingsManager.Instance.UserSettingsProto != null &&
+                ViewModel.CurrentUser.Presence != null && !(ViewModel.CurrentUser.Presence.CustomStatus == null && PART_StatusInputBox.Text == ""))
+            {
+                // Update the text for the brief period before the remote text is updated.
+                ViewModel.CurrentUser.Presence!.CustomStatus = PART_StatusInputBox.Text;
+
+                if (PART_StatusInputBox.Text == "")
+                {
+                    // Revert to the placeholder text:
+                    ViewModel.CurrentUser.Presence.CustomStatus = null;
+
+                    DiscordUserSettingsManager.Instance.UserSettingsProto.Status.CustomStatus = null;
+                }
+                else
+                {
+                    string croppedText = PART_StatusInputBox.Text;
+
+                    // Ensure that the text fits into the limit given by Discord.
+                    if (croppedText.Length > 128)
+                    {
+                        croppedText = croppedText.Substring(0, 128);
+                    }
+
+                    if (DiscordUserSettingsManager.Instance.UserSettingsProto.Status.CustomStatus == null)
+                    {
+                        DiscordUserSettingsManager.Instance.UserSettingsProto.Status.CustomStatus = new();
+                    }
+
+                    DiscordUserSettingsManager.Instance.UserSettingsProto.Status.CustomStatus.Text = PART_StatusInputBox.Text;
+                }
+
+                _ = DiscordUserSettingsManager.Instance.UpdateRemote();
+            }
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            IInputElement? focusedElement = Keyboard.FocusedElement;
+            Keyboard.ClearFocus();
+
+            if (focusedElement != null)
+                focusedElement.RaiseEvent(new RoutedEventArgs(LostFocusEvent));
         }
     }
 }

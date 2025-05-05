@@ -1,33 +1,45 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordProtos.DiscordUsers.V1;
+using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Aerochat.ViewModels
 {
     public class PresenceViewModel : ViewModelBase
     {
-        private string _presenceString;
-        private string _status;
-        private string _type;
+        private string _presenceString = "";
+        private string _status = "Offline";
+        private string _type = "";
+        private string _customStatus = null;
 
         public required string Type
         {
             get => _type;
             set => SetProperty(ref _type, value);
         }
+
         public string Status
         {
             get => _status;
             set => SetProperty(ref _status, value);
         }
+
         public required string Presence
         {
             get => _presenceString;
             set => SetProperty(ref _presenceString, value);
+        }
+
+        public string? CustomStatus
+        {
+            get => _customStatus;
+            set => SetProperty(ref _customStatus, value);
         }
 
         public static PresenceViewModel FromPresence(DiscordPresence presence)
@@ -72,11 +84,25 @@ namespace Aerochat.ViewModels
                 _ => ""
             };
 
+            string? customStatus = activity?.CustomStatus?.Name;
+
             return new PresenceViewModel
             {
                 Presence = presenceString.Trim(),
                 Status = presence.Status.ToString(),
-                Type = activity?.ActivityType.ToString() ?? ""
+                Type = activity?.ActivityType.ToString() ?? "",
+                CustomStatus = customStatus,
+            };
+        }
+
+        public static PresenceViewModel GetPresenceForCurrentUser(PreloadedUserSettings userSettings)
+        {
+            return new PresenceViewModel
+            {
+                Presence = userSettings.Status.CustomStatus?.Text ?? "", // TODO: Improve.
+                Status = userSettings.Status.Status.ToUserStatus().ToString(), // Intentionally ToString and not ToDiscordString.
+                Type = ActivityType.Custom.ToString(),
+                CustomStatus = userSettings.Status.CustomStatus?.Text ?? null,
             };
         }
     }

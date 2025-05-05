@@ -189,6 +189,7 @@
 		<None Remove="Resources\Home\SearchIconBlue.png" />
 		<None Remove="Resources\Home\SearchIconGray.png" />
 		<None Remove="Resources\Home\ShowMenu.png" />
+		<None Remove="Resources\Home\StatusTextBoxBg.png" />
 		<None Remove="Resources\Home\TreeActive.png" />
 		<None Remove="Resources\Home\TreeHover.png" />
 		<None Remove="Resources\Home\TreeHoverActive.png" />
@@ -455,6 +456,7 @@
 		<Resource Include="Resources\Home\RightActive.png" />
 		<Resource Include="Resources\Home\RightHover.png" />
 		<Resource Include="Resources\Home\ShowMenu.png" />
+		<Resource Include="Resources\Home\StatusTextBoxBg.png" />
 		<Resource Include="Resources\Home\Warning.png" />
 		<Resource Include="Resources\Home\WarningIcon.png" />
 		<Resource Include="Resources\ImagePreviewer\CaptionActive.png" />

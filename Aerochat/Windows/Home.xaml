@@ -10,6 +10,7 @@
         PreviewKeyDown="Window_PreviewKeyDown"
         Closing="Window_Closing"
         Title="Windows Live Messenger" Height="650" Width="400"
+        MouseDown="Window_MouseDown"
         Style="{StaticResource Window}">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="TaskbarInfo" />
@@ -360,16 +361,7 @@
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                     </Button>
-                                    <Button VerticalAlignment="Center" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource TransparentStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Path=DataContext.ShowEyecandy, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Home}}" Value="False">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
+                                    <Button Style="{StaticResource TransparentStyle}" VerticalAlignment="Center" Grid.Row="1" HorizontalAlignment="Left" x:Name="StatusDropdown" BorderThickness="0" Margin="0,-1,0,0" Click="StatusDropdown_Click">
                                         <Grid>
                                             <Grid.ToolTip>
                                                 <ToolTip Content="Enter a personal message or a link you want to share" />
@@ -382,18 +374,51 @@
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Style="{StaticResource Shadow}">
                                                     <Border Style="{StaticResource Shadow}">
-                                                        <TextBlock MaxHeight="36" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Share a quick message" Margin="6,2,6,4" Panel.ZIndex="5">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
-                                                                            <Setter Property="Foreground" Value="#333" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
+                                                        <Grid Grid.Column="0">
+                                                            <TextBlock x:Name="PART_StatusStaticView" MaxHeight="36" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Path=CurrentUser.Presence.CustomStatus, TargetNullValue='Share a quick message'}" Margin="6,2,6,4" Panel.ZIndex="5">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                                <Setter Property="Foreground" Value="#333" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsEditingStatus}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Image="/Resources/Home/StatusTextBoxBg.png" Slice="3, 3" Margin="6,2,6,4">
+                                                                <controls:ColorizedNineSlice.Style>
+                                                                    <Style TargetType="controls:ColorizedNineSlice">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsEditingStatus}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </controls:ColorizedNineSlice.Style>
+                                                            </controls:ColorizedNineSlice>
+                                                            <TextBox x:Name="PART_StatusInputBox" MaxLength="128" Background="Transparent" BorderThickness="0" MaxHeight="36" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Text="" Margin="6,2,6,4" Panel.ZIndex="5" LostFocus="PART_StatusInputBox_LostFocus">
+                                                                <TextBox.Style>
+                                                                    <Style TargetType="TextBox">
+                                                                        <Setter Property="Foreground" Value="{Binding Theme.Scene.TextColor}" />
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Theme.Scene.Default}" Value="True">
+                                                                                <Setter Property="Foreground" Value="#333" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsEditingStatus}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBox.Style>
+                                                            </TextBox>
+                                                        </Grid>
                                                     </Border>
                                                 </Border>
                                                 <Image HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4,9,8,0" Grid.Column="1" Source="/Resources/Home/Dropdown.png" Width="5" />

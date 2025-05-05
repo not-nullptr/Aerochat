@@ -160,6 +160,14 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _currentUser, value);
         }
 
+        private bool _isEditingStatus = false;
+
+        public bool IsEditingStatus
+        {
+            get => _isEditingStatus;
+            set => SetProperty(ref _isEditingStatus, value);
+        }
+
         public ObservableCollection<HomeListViewCategory> Categories { get; } = new();
 
         private AdViewModel _ad = new();
