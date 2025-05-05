@@ -221,6 +221,7 @@
 		<None Remove="Resources\Message\ToolbarHover.png" />
 		<None Remove="Resources\Message\TopBarBg.png" />
 		<None Remove="Resources\Message\Typing.png" />
+		<None Remove="Resources\Message\消しゴム.png" />
 		<None Remove="Resources\msgres_4000_1473_var.png" />
 		<None Remove="Resources\NonNativeTooltip\ItemActive.png" />
 		<None Remove="Resources\NonNativeTooltip\ItemHover.png" />
@@ -469,6 +470,7 @@
 		<Resource Include="Resources\Message\LeaveCall.png" />
 		<Resource Include="Resources\Message\Pen.png" />
 		<Resource Include="Resources\Message\Text.png" />
+		<Resource Include="Resources\Message\消しゴム.png" />
 		<Resource Include="Resources\ScrollBar\Active.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphActive.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphHover.png" />

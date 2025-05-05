@@ -1867,6 +1867,18 @@ namespace Aerochat.Windows
             DrawingContainer.Visibility = Visibility.Visible;
         }
 
+        private void DrawOnClickPen(object sender, MouseButtonEventArgs e)
+        {
+            DrawingCanvas.EditingMode = InkCanvasEditingMode.Ink;
+            ViewModel.DrawingTool = DrawingTool.Pen;
+        }
+
+        private void DrawOnClickKesigomu(object sender, MouseButtonEventArgs e)
+        {
+            DrawingCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
+            ViewModel.DrawingTool = DrawingTool.Kesigomu;
+        }
+
         private void ShowColorMenu(object sender, MouseButtonEventArgs e)
         {
             var picker = new ColorPicker();

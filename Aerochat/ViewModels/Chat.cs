@@ -24,6 +24,12 @@ namespace Aerochat.ViewModels
         Reply,
     }
 
+    public enum DrawingTool
+    {
+        Pen,      // ペン
+        Kesigomu, // 消しゴム
+    }
+
     public class ChatWindowViewModel : ViewModelBase
     {
         public ChatWindowViewModel()
@@ -253,6 +259,14 @@ namespace Aerochat.ViewModels
         {
             get => _isShowingAttachmentEditor;
             set => SetProperty(ref _isShowingAttachmentEditor, value);
+        }
+
+        private DrawingTool _drawingTool = DrawingTool.Pen;
+        
+        public DrawingTool DrawingTool
+        {
+            get => _drawingTool;
+            set => SetProperty(ref _drawingTool, value);
         }
     }
 }
