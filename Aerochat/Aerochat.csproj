@@ -54,6 +54,7 @@
 		<None Remove="Ads\Lycos.jpeg" />
 		<None Remove="Ads\MLG2460spersonalsite.gif" />
 		<None Remove="Ads\name.gif" />
+		<None Remove="Ads\NeedForSpeedProStreetPre-Order.gif" />
 		<None Remove="Ads\roblox.jpeg" />
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
@@ -318,6 +319,7 @@
 		<None Remove="Resources\Tray\Offline.ico" />
 		<None Remove="Scenes\Meteora.jpeg" />
 		<None Remove="Scenes\Slipknot.jpeg" />
+		<None Remove="Scenes\SuperMarioSunshine.jpeg" />
 		<None Remove="Scenes\Theslime.jpeg" />
 		<None Remove="Scenes\WhiteMountains.jpeg" />
 		<None Remove="Scenes\*.png" />
@@ -342,6 +344,7 @@
 		<Resource Include="Ads\Lycos.jpeg" />
 		<Resource Include="Ads\MLG2460spersonalsite.gif" />
 		<Resource Include="Ads\name.gif" />
+		<Resource Include="Ads\NeedForSpeedProStreetPre-Order.gif" />
 		<Resource Include="Ads\roblox.jpeg" />
 		<Resource Include="Ads\WWTHD.gif" />
 		<Resource Include="Ads\youtube.jpeg" />
@@ -625,26 +628,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Scenes\Counter-Strike16.jpg" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Remove="Controls\NativeToolTipControlService.cs" />
 	  <Compile Remove="Controls\NativeTooltipOld.cs" />
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Resource Remove="Scenes\Counter-Strike16.jpg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Scenes\Counter-Strike16.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
 	  <Resource Include="Scenes\Meteora.jpeg" />
 	  <Resource Include="Scenes\Slipknot.jpeg" />
+	  <Resource Include="Scenes\SuperMarioSunshine.jpeg" />
 	  <Resource Include="Scenes\Theslime.jpeg" />
 	  <Resource Include="Scenes\WhiteMountains.jpeg" />
 	</ItemGroup>
