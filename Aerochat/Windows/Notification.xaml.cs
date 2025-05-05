@@ -134,6 +134,7 @@ namespace Aerochat.Windows
                 Opacity = endOpacity;
             });
 
+            synth.Dispose();
             Close();
         }
 
