@@ -672,9 +672,10 @@ namespace Aerochat.Windows
             ViewModel.Categories[categoryIndex].Items.Add(guildItem);
         }
 
-        private async void UpdateStatuses()
+        private void UpdateStatuses()
         {
-            await Task.Run(() =>
+            // Update the UI with the sorted list
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 var oldList = ViewModel.Categories[0].Items;
                 var newList = new List<HomeListItemViewModel>();
@@ -763,16 +764,13 @@ namespace Aerochat.Windows
                     }
                 }
 
-                // Update the UI with the sorted list
-                Dispatcher.BeginInvoke(() =>
+                
+                if (isSame) return;
+                ViewModel.Categories[0].Items.Clear();
+                foreach (var item in newList)
                 {
-                    if (isSame) return;
-                    ViewModel.Categories[0].Items.Clear();
-                    foreach (var item in newList)
-                    {
-                        ViewModel.Categories[0].Items.Add(item);
-                    }
-                });
+                    ViewModel.Categories[0].Items.Add(item);
+                }
             });
         }
 
