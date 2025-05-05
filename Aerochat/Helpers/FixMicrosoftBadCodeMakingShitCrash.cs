@@ -12,6 +12,18 @@ using NAudio.MediaFoundation;
 namespace Aerochat.Helpers
 {
     /// <summary>
+    /// Installs our various hooks to fix Microsoft's bugs in WPF with the power of monkey patching.
+    /// </summary>
+    public class FixMicrosoftBadCodeMakingShitCrash
+    {
+        public static void InstallHooks()
+        {
+            Harmony harmony = new("live.aerochat.fixmicrosoftbadcodemakingshitcrash");
+            harmony.PatchAll();
+        }
+    }
+
+    /// <summary>
     /// Monkey patches WPF to prevent unhandled OverflowException objects from crashing the program when
     /// the user's display colour profile does not match whatever bitmap image is being attempted to be
     /// displayed.
@@ -27,15 +39,6 @@ namespace Aerochat.Helpers
     /// a chatting client where the majority of images that we display are arbitrary, this monkey patch
     /// works better than any "proper" or "safe" way to catch these exceptions in .NET.
     /// </remarks>
-    public class FixMicrosoftBadCodeMakingBitmapsCrash
-    {
-        public static void InstallHooks()
-        {
-            Harmony harmony = new("live.aerochat.fixmicrosoftbadcodemakingbitmapscrash");
-            harmony.PatchAll();
-        }
-    }
-
     [HarmonyPatch(typeof(BitmapSource))]
     [HarmonyPatch("CreateCachedBitmap")]
     class BitmapSource_FinalizeCreation_HookClass
@@ -70,6 +73,20 @@ namespace Aerochat.Helpers
             }
 
             return __exception;
+        }
+    }
+
+    /// <summary>
+    /// Another thing Microsoft refuses to fix. You can reproduce crashes here by changing DWM composition state, i.e.
+    /// on Windows 7. Fuck you, Satya Nadella. <see href="https://github.com/microsoft/PowerToys/issues/31779"/>
+    /// </summary>
+    [HarmonyPatch("System.Windows.Shell.WindowChromeWorker", "_WndProc")]
+    class WindowChromeWorker__WndProc_HookClass
+    {
+        [HarmonyFinalizer]
+        public static Exception Finalizer()
+        {
+            return null!;
         }
     }
 }

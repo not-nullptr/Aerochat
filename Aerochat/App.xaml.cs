@@ -226,7 +226,7 @@ namespace Aerochat
 
         public App()
         {
-            FixMicrosoftBadCodeMakingBitmapsCrash.InstallHooks();
+            FixMicrosoftBadCodeMakingShitCrash.InstallHooks();
             InitializeComponent();
 
             ArgumentsMessageReceived += OnReceiveArgumentsMessage;
