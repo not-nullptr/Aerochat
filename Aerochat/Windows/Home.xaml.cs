@@ -879,13 +879,13 @@ namespace Aerochat.Windows
                 if (rect.Width == double.NegativeInfinity ||
                     rect.Width == double.PositiveInfinity)
                 {
-                    rect.Width = 0;
+                    rect = new Rect(0, 0, 100, 100);
                 }
 
                 if (rect.Height == double.NegativeInfinity ||
                     rect.Height == double.PositiveInfinity)
                 {
-                    rect.Height = 0;
+                    rect = new Rect(0, 0, 100, 100);
                 }
 
                 chat.Left = Left + (Width - rect.Width) / 2;
