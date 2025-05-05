@@ -24,13 +24,16 @@ namespace Aerochat.Controls
             InitializeComponent();
 
             _timer = new Timer();
+
+            Loaded += AnimatedTileImage_Loaded;
+            Unloaded += AnimatedTileImage_Unloaded;
+        }
+
+        private void SetUpTimer()
+        {
             _timer.Elapsed += Timer_Elapsed;
             _timer.AutoReset = true;
             _timer.Start();
-            Unloaded += AnimatedTileImage_Unloaded;
-
-            SetupImageProperties();
-            UpdateFrameRenderProperties();
         }
 
         public static readonly DependencyProperty FrameWidthProperty = DependencyProperty.Register("FrameWidth", typeof(int), typeof(AnimatedTileImage), new PropertyMetadata(0, OnChange));
@@ -168,22 +171,20 @@ namespace Aerochat.Controls
             return false;
         }
 
+        // The control is added to the visual tree.
+        private void AnimatedTileImage_Loaded(object sender, RoutedEventArgs e)
+        {
+            SetUpTimer();
+            SetupImageProperties();
+            UpdateFrameRenderProperties();
+        }
+
+        // The control is removed from the visual tree.
         private void AnimatedTileImage_Unloaded(object sender, RoutedEventArgs e)
         {
+            // Clear the timer because we don't need it anymore.
             _timer.Stop();
             _timer.Elapsed -= Timer_Elapsed;
-            _timer.Dispose();
-            _timer = null;
-
-            Unloaded -= AnimatedTileImage_Unloaded;
-
-            // dispose of the image
-            if (Image is BitmapSource bitmapSource)
-            {
-                bitmapSource.Freeze();
-            }
-
-            Image = null;
 
             // force a GC collection
             GC.Collect(2, GCCollectionMode.Forced, true, true);
