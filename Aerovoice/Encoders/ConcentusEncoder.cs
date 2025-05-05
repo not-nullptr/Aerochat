@@ -1,5 +1,6 @@
 ﻿using Concentus;
 using Concentus.Oggfile;
+using System.Reflection;
 
 
 namespace Aerovoice.Encoders
@@ -8,7 +9,14 @@ namespace Aerovoice.Encoders
     {
         private IOpusEncoder encoder = OpusCodecFactory.CreateEncoder(48000, 2);
         private OpusOggWriteStream oggWriter;
-        private FileStream outputStream = new("output.ogg", FileMode.Create);
+        private FileStream outputStream = new(
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), // %LocalAppData%
+                Assembly.GetEntryAssembly()!.GetName().Name, // \Aerochat
+                "output.ogg" // \output.ogg
+            ), 
+            FileMode.Create
+        );
 
         public ConcentusEncoder()
         {

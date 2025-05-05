@@ -1538,7 +1538,21 @@ namespace Aerochat.Windows
                             dialog.ShowDialog();
                             return;
                         }
-                        await VoiceManager.Instance.JoinVoiceChannel(channel);
+                        try
+                        {
+                            await VoiceManager.Instance.JoinVoiceChannel(channel);
+                        }
+                        catch (Exception ex)
+                        {
+                            Dialog errorDialog = new(
+                                "Error",
+                                "Failed to open voice channel.\n\nTechnical details: " + ex.ToString(),
+                                SystemIcons.Error
+                            );
+                            errorDialog.Owner = this;
+                            errorDialog.ShowDialog();
+                            return;
+                        }
                         break;
                     default:
                         item.IsSelected = true;
