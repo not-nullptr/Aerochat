@@ -2,6 +2,7 @@
 using DiscordProtos.DiscordUsers.V1;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Google.Protobuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +55,13 @@ namespace Aerochat.Helpers
         }
 
         public event EventHandler<DiscordUserSettingsUpdateEventArgs> UserSettingsUpdated;
+
+        public async Task UpdateRemote()
+        {
+            byte[] protoBytes = UserSettingsProto.ToByteArray();
+            string base64Proto = Convert.ToBase64String(protoBytes);
+            await Discord.Client.UpdateUserSettingsProto(base64Proto);
+        }
 
         private async Task OnUserSettingsProtoUpdate(object sender, UserSettingsProtoUpdateEventArgs e)
         {

@@ -71,9 +71,7 @@ namespace Aerochat
                 if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto != null)
                 {
                     DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status = status.ToDiscordString();
-                    byte[] protoBytes = DiscordUserSettingsManager.Instance.UserSettingsProto.ToByteArray();
-                    string base64Proto = Convert.ToBase64String(protoBytes);
-                    await Discord.Client.UpdateUserSettingsProto(base64Proto);
+                    _ = DiscordUserSettingsManager.Instance.UpdateRemote();
                 }
             }
             catch (NullReferenceException)
