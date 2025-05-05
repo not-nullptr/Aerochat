@@ -316,11 +316,6 @@ namespace Aerochat.Windows
 
                 OpenChatQueue.Instance.ExecuteQueue();
                 OpenChatQueue.Instance.ExecuteOnAdd = true;
-
-                //Task.Run(async () =>
-                //{
-                //    await Task.Delay(1500);
-                //});
             });
         }
 
@@ -461,25 +456,64 @@ namespace Aerochat.Windows
 #if DEBUG || WIP
             return;
 #endif
-            if (showingUpdate) return;
-            var httpClient = new HttpClient();
+            if (showingUpdate)
+                return;
+
+            HttpClient httpClient = new();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
-            var response = await httpClient.GetAsync("https://api.github.com/repos/not-nullptr/AeroChat/tags");
-            var tags = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            var latestTag = tags.RootElement[0].GetProperty("name").GetString()?.Replace("v", "");
-            if (latestTag == null) return;
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await httpClient.GetAsync("https://api.github.com/repos/not-nullptr/Aerochat/tags");
+            }
+            catch (Exception)
+            {
+                // Ignore networking exception.
+                return;
+            }
+
+            JsonDocument tags = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+            string? latestTag;
+            try
+            {
+                latestTag = tags.RootElement[0].GetProperty("name").GetString();
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            if (latestTag == null)
+                return;
+
             var localVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            if (localVersion == null) return;
-            var remoteVersion = new Version(latestTag);
+            if (localVersion == null)
+                return;
+
+            string latestTagVersion = latestTag.Split('-')[0];
+            
+            if (latestTagVersion.StartsWith('v'))
+            {
+                latestTagVersion = latestTagVersion.Remove(0, 1);
+            }
+
+            Version remoteVersion = new(latestTagVersion);
             if (localVersion.CompareTo(remoteVersion) < 0)
             {
                 _ = Dispatcher.BeginInvoke(async () =>
                 {
                     showingUpdate = true;
-                    var dialog = new Dialog("A new version is available", $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", SystemIcons.Information);
+                    Dialog dialog = new(
+                        "A new version is available", 
+                        $"Version {remoteVersion} has been released, but you currently have {localVersion.ToString()}. Press Continue to update.", 
+                        SystemIcons.Information
+                    );
                     dialog.Owner = this;
                     dialog.ShowDialog();
                     Hide();
+
                     //close all windows other than this one
                     foreach (Window window in Application.Current.Windows)
                     {
@@ -488,19 +522,66 @@ namespace Aerochat.Windows
                     }
                     _ = Task.Run(async () =>
                     {
-                        var releaseResponse = await httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/v{latestTag}");
-                        var release = JsonDocument.Parse(await releaseResponse.Content.ReadAsStringAsync());
-                        var assetUrl = release.RootElement.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
+                        HttpResponseMessage releaseResponse;
+                        try
+                        {
+                            releaseResponse = await httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/{latestTag}");
+                        }
+                        catch (Exception)
+                        {
+                            await ShowAutomaticUpdateDownloadFailureDialog(latestTag);
+                            Dispatcher.BeginInvoke(Close);
+                            return;
+                        }
+
+                        JsonDocument release = JsonDocument.Parse(await releaseResponse.Content.ReadAsStringAsync());
+                        string? assetUrl = null;
+                        try
+                        {
+                            var assets = release.RootElement.GetProperty("assets");
+
+                            if (assets.GetArrayLength() > 0)
+                            {
+                                assetUrl = assets[0].GetProperty("browser_download_url").GetString();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            await ShowAutomaticUpdateDownloadFailureDialog(latestTag);
+                            Dispatcher.BeginInvoke(Close);
+                            return;
+                        }
+
+                        if (assetUrl == null)
+                        {
+                            await ShowAutomaticUpdateDownloadFailureDialog(latestTag);
+                            Dispatcher.BeginInvoke(Close);
+                            return;
+                        }
 
                         // get a temp folder
-                        var tempFolder = Path.GetTempPath();
-                        var tempFile = Path.Combine(tempFolder, "AeroChatSetup.exe");
+                        string tempFolder = Path.GetTempPath();
+                        string tempSetupExePath = Path.Combine(tempFolder, "aerochat-setup.exe");
 
                         // download the asset to the temp folder
                         var asset = await httpClient.GetAsync(assetUrl);
-                        var assetBytes = await asset.Content.ReadAsByteArrayAsync();
-                        File.WriteAllBytes(tempFile, assetBytes);
-                        Process.Start(tempFile);
+                        byte[] assetBytes = await asset.Content.ReadAsByteArrayAsync();
+
+                        try
+                        {
+                            File.WriteAllBytes(tempSetupExePath, assetBytes);
+
+                            // ShellExecute will open the UAC prompt, rather than trying to open the application with the same
+                            // permissions as the current process and potentially failing.
+                            Shell32.ShellExecute(HWND.NULL, "open", tempSetupExePath, null, null, ShowWindowCommand.SW_SHOWNORMAL);
+                        }
+                        catch (Exception)
+                        {
+                            await ShowAutomaticUpdateDownloadFailureDialog(latestTag);
+                            Dispatcher.BeginInvoke(Close);
+                            return;
+                        }
+
                         Dispatcher.BeginInvoke(Close);
                     });
                 });
@@ -510,6 +591,28 @@ namespace Aerochat.Windows
                 httpClient.Dispose();
                 tags.Dispose();
             }
+        }
+
+        private async Task ShowAutomaticUpdateDownloadFailureDialog(string latestTag)
+        {
+            // We couldn't fetch the release for whatever reason, so inform the user of the error and
+            // open the release's link in the user's browser:
+            await Dispatcher.InvokeAsync(() =>
+            {
+                Dialog failureDialog = new(
+                    "Failed to download update",
+                    "We failed to automatically download this update. We will open the download " +
+                    "link in your browser instead.",
+                    SystemIcons.Warning
+                );
+                failureDialog.Owner = this;
+                failureDialog.ShowDialog();
+
+                Shell32.ShellExecute(HWND.NULL, "open",
+                    $"https://github.com/not-nullptr/Aerochat/releases/tag/{latestTag}", null, null,
+                    ShowWindowCommand.SW_SHOWNORMAL
+                );
+            });
         }
 
         private async Task VoiceStateUpdatedEvent(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
