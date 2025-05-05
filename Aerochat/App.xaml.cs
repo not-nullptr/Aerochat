@@ -46,13 +46,6 @@ namespace Aerochat
 
         private Timer fullscreenInterval = new(500);
         private MediaPlayer mediaPlayer = new();
-        private PreloadedUserSettings? _userSettingsProto = null;
-
-        public PreloadedUserSettings? UserSettingsProto
-        {
-            get => _userSettingsProto;
-            private set => _userSettingsProto = value;
-        }
 
         public Login? LoginWindow;
 
@@ -75,10 +68,10 @@ namespace Aerochat
 
             try
             {
-                if (updateUserSettingsProto && instance?._userSettingsProto != null)
+                if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto != null)
                 {
-                    instance._userSettingsProto.Status.Status = status.ToDiscordString();
-                    byte[] protoBytes = instance._userSettingsProto.ToByteArray();
+                    DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status = status.ToDiscordString();
+                    byte[] protoBytes = DiscordUserSettingsManager.Instance.UserSettingsProto.ToByteArray();
                     string base64Proto = Convert.ToBase64String(protoBytes);
                     await Discord.Client.UpdateUserSettingsProto(base64Proto);
                 }
@@ -384,17 +377,11 @@ namespace Aerochat
 
             UserStatus? status = _initialUserStatus;
 
-            if (Discord.Client.UserSettingsProto.Length > 0)
+            DiscordUserSettingsManager.Instance.LoadInitialSettingsFromDiscordClient();
+            if (DiscordUserSettingsManager.Instance.UserSettingsProto?.Status?.Status != null)
             {
-                byte[] protoBytes = Convert.FromBase64String(Discord.Client.UserSettingsProto);
-
-                if (protoBytes.Length > 0)
-                {
-                    _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
-
-                    // Set the status from the protobuf settings.
-                    status = _userSettingsProto.Status.Status.ToUserStatus();
-                }
+                // Set the status from the protobuf settings.
+                status = DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status.ToUserStatus();
             }
 
             await Dispatcher.InvokeAsync(() => SetStatus(status ?? UserStatus.Online));
@@ -565,20 +552,7 @@ namespace Aerochat
 
                 };
 
-                Discord.Client.UserSettingsProtoUpdated += async (s, e) =>
-                {
-                    byte[] protoBytes = Convert.FromBase64String(e.Base64EncodedProto);
-
-                    if (protoBytes.Length > 0)
-                    {
-                        _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
-
-                        // Set the status from the protobuf settings.
-                        UserStatus status = _userSettingsProto.Status.Status.ToUserStatus();
-
-                        await Dispatcher.BeginInvoke(() => SetStatus(status, false));
-                    }
-                };
+                DiscordUserSettingsManager.Instance.Startup();
 
                 Discord.Client.CaptchaRequested += Client_CaptchaRequested;
 

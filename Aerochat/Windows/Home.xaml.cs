@@ -71,6 +71,12 @@ namespace Aerochat.Windows
             Dispatcher.Invoke(async () =>
             {
                 ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
+
+                // Load initial presence:
+                PreloadedUserSettings? userSettings = DiscordUserSettingsManager.Instance.UserSettingsProto;
+                if (userSettings is not null)
+                    ViewModel.CurrentUser.Presence = PresenceViewModel.GetPresenceForCurrentUser(userSettings);
+
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
@@ -693,9 +699,9 @@ namespace Aerochat.Windows
             // get all guilds which aren't sorted (ie not in a folder)
             List<ulong> processedGuilds = new();
 
-            if (((App)Application.Current)?.UserSettingsProto?.GuildFolders.Folders is not null)
+            if (DiscordUserSettingsManager.Instance.UserSettingsProto?.GuildFolders.Folders is not null)
             {
-                foreach (PreloadedUserSettings.Types.GuildFolder folder in ((App)Application.Current).UserSettingsProto.GuildFolders.Folders)
+                foreach (PreloadedUserSettings.Types.GuildFolder folder in DiscordUserSettingsManager.Instance.UserSettingsProto!.GuildFolders.Folders)
                 {
                     var index = 1;
                     if (!string.IsNullOrEmpty(folder.Name))
