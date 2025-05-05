@@ -31,8 +31,10 @@ namespace Aerochat.Controls
         {
             // clear the textblock
             Inlines.Clear();
-            var parsed = BBCodeParser.Parse(Text);
-            Inlines.Add(parsed.ToXaml());
+            BBCodeToken? parsed = BBCodeParser.Parse(Text);
+
+            if (parsed != null)
+                Inlines.Add(parsed.ToXaml());
         }
     }
 }

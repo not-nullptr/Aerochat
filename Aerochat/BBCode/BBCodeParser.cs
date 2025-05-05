@@ -10,8 +10,11 @@ namespace Aerochat.BBCode
 {
     public static class BBCodeParser
     {
-        public static BBCodeToken Parse(string text)
+        public static BBCodeToken? Parse(string? text)
         {
+            if (text == null)
+                return null;
+
             int index = 0;
             BBCodeToken root = new(BBCodeTokenType.Root);
             BBCodeToken current = root;

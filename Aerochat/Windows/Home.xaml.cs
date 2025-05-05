@@ -277,6 +277,17 @@ namespace Aerochat.Windows
                 Show();
                 Focus();
 
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        _ = CheckForUpdates();
+                        _ = GetNewNews();
+                        _ = GetNewNotices();
+                        await Task.Delay(60 * 5 * 1000);
+                    }
+                });
+
 #if WIP && !DEVELOPER_PRERELEASE
                 Dialog betaNoticeDlg = new(
                     "Notice",
@@ -305,17 +316,6 @@ namespace Aerochat.Windows
 
                 OpenChatQueue.Instance.ExecuteQueue();
                 OpenChatQueue.Instance.ExecuteOnAdd = true;
-
-                Task.Run(async () =>
-                {
-                    while (true)
-                    {
-                        _ = CheckForUpdates();
-                        _ = GetNewNews();
-                        _ = GetNewNotices();
-                        await Task.Delay(60 * 5 * 1000);
-                    }
-                });
 
                 //Task.Run(async () =>
                 //{
