@@ -72,11 +72,6 @@ namespace Aerochat.Windows
             {
                 ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
 
-                // Load initial presence:
-                PreloadedUserSettings? userSettings = DiscordUserSettingsManager.Instance.UserSettingsProto;
-                if (userSettings is not null)
-                    ViewModel.CurrentUser.Presence = PresenceViewModel.GetPresenceForCurrentUser(userSettings);
-
                 ViewModel.Categories.Clear();
                 DataContext = ViewModel;
                 Loaded += HomeListView_Loaded;
