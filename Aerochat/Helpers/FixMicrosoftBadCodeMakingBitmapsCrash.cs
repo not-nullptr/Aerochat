@@ -42,26 +42,28 @@ namespace Aerochat.Helpers
     {
         // Protection to ensure we don't run the hook multiple times between instances.
         // This prevents us from ever causing infinite recursion.
-        static bool _isRunningBypass = false;
+        static List<uint> _bypassThreadIds = new();
 
         [HarmonyFinalizer]
         public static Exception Finalizer(object[] __args, Exception __exception, MethodInfo __originalMethod, ref object __result)
         {
+            uint currentThreadId = Vanara.PInvoke.Kernel32.GetCurrentThreadId();
+
             // Bad colour profile. Bypass.
-            if (__exception is OverflowException && !_isRunningBypass)
+            if (__exception is OverflowException && !_bypassThreadIds.Contains(currentThreadId))
             {
                 // Modify the creation parameters to disable the colour profile:
                 BitmapCreateOptions createOptions = (BitmapCreateOptions)__args[2];
                 createOptions |= BitmapCreateOptions.IgnoreColorProfile;
                 __args[2] = createOptions;
 
-                _isRunningBypass = true;
+                _bypassThreadIds.Add(currentThreadId);
                 // "Original method" is actually a misnomer. It refers to the current method, with all the
                 // applied hooks. That's not a problem for us because we're augmenting the functionality
                 // of the original function rather than overriding it, but it does mean that we need to be
                 // careful to place a guard to prevent infinite recursion.
                 object result = __originalMethod.Invoke(null, __args);
-                _isRunningBypass = false;
+                _bypassThreadIds.Remove(currentThreadId);
                 __result = result;
 
                 return null;
