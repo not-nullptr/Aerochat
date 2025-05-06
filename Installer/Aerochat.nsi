@@ -13,7 +13,7 @@ RequestExecutionLevel user
 ManifestSupportedOS Win7
 
 !define AEROCHAT_BIN_FOLDER "bin\x64\Release\net8.0-windows7.0"
-!define AEROCHAT_VERSION "0.2.0"
+!define AEROCHAT_VERSION "0.2.1"
 
 # Required for detecting running Aerochat processes and closing them:
 !define AEROCHAT_APP_GUID_NOBRACE "8231C4FA-AD94-487A-BDBF-A936306AE009"
