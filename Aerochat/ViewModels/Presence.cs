@@ -99,10 +99,10 @@ namespace Aerochat.ViewModels
         {
             return new PresenceViewModel
             {
-                Presence = userSettings.Status.CustomStatus?.Text ?? "", // TODO: Improve.
-                Status = userSettings.Status.Status.ToUserStatus().ToString(), // Intentionally ToString and not ToDiscordString.
+                Presence = userSettings?.Status?.CustomStatus?.Text ?? "", // TODO: Improve.
+                Status = userSettings?.Status?.Status?.ToUserStatus().ToString() ?? "Offline", // Intentionally ToString and not ToDiscordString.
                 Type = ActivityType.Custom.ToString(),
-                CustomStatus = userSettings.Status.CustomStatus?.Text ?? null,
+                CustomStatus = userSettings?.Status?.CustomStatus?.Text ?? null,
             };
         }
     }
