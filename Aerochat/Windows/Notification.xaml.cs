@@ -262,6 +262,10 @@ namespace Aerochat.Windows
                     {
                         FilteredMessage += " (timestamp)";
                     }
+                    else
+                    {
+                        FilteredMessage += $" {split}";
+                    }
                 }
                 else
                 {
