@@ -156,11 +156,11 @@
                 <Grid Grid.Row="1" Margin="12,12" Opacity="0.75">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock>
-                    <Hyperlink>Privacy statement</Hyperlink>
+                    <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://discord.com/privacy">Privacy statement</Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="8,0" Foreground="#aaa">|</TextBlock>
                         <TextBlock>
-                    <Hyperlink>Server status</Hyperlink>
+                    <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://discordstatus.com/">Server status</Hyperlink>
                         </TextBlock>
                     </StackPanel>
                 </Grid>
