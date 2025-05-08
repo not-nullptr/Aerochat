@@ -730,7 +730,7 @@ namespace Aerochat.Windows
             // get all guilds which aren't sorted (ie not in a folder)
             List<ulong> processedGuilds = new();
 
-            if (DiscordUserSettingsManager.Instance.UserSettingsProto?.GuildFolders.Folders is not null)
+            if (DiscordUserSettingsManager.Instance.UserSettingsProto?.GuildFolders?.Folders is not null)
             {
                 foreach (PreloadedUserSettings.Types.GuildFolder folder in DiscordUserSettingsManager.Instance.UserSettingsProto!.GuildFolders.Folders)
                 {
