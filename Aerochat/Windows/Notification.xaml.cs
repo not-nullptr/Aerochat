@@ -158,6 +158,7 @@ namespace Aerochat.Windows
                 case NotificationType.Message:
                     DiscordMessage message = (DiscordMessage)RelevantThing;
                     ViewModel.Message = MessageViewModel.FromMessage(message);
+                    ViewModel.Message.Message = ParseNotificationContent(message);
                     MessageEntity = message;
 
                     if (SettingsManager.Instance.ReadMessageNotifications)
@@ -216,6 +217,64 @@ namespace Aerochat.Windows
             Left = ScreenWidth - Width - 10;
             Opacity = 0;
             RunOpenAnimation();
+        }
+
+        private string ParseNotificationContent(DiscordMessage message)
+        {
+            string FilteredMessage = "";
+            var SplitFilteredMessage = message.Content.Split(' ');
+            foreach (var split in SplitFilteredMessage)
+            {
+                if (split.StartsWith('<') && split.EndsWith('>'))
+                {
+                    string id = split.Replace("<", "").Replace(">", "");
+
+                    if (id.ElementAt(0) == '@')
+                    {
+                        id = id.Replace("@", "");
+                        if (id.ElementAt(0) == '&')
+                        {
+                            id = id.Replace("&", "");
+                            ulong.TryParse(id, out ulong parsedId);
+                            var role = message.MentionedRoles?.FirstOrDefault(x => x?.Id == parsedId);
+                            if (role == null)
+                                FilteredMessage += " @unknown-role";
+                            else
+                                FilteredMessage += $" @{role.Name}";
+                        }
+                        else
+                        {
+                            ulong.TryParse(id, out ulong parsedId);
+                            var user = message.MentionedUsers?.FirstOrDefault(x => x?.Id == parsedId);
+                            if (user == null)
+                                FilteredMessage += " @unknown-user";
+                            else
+                                FilteredMessage += $" @{user.DisplayName}";
+                        }
+                    }
+                    else if (id.ElementAt(0) == '#')
+                    {
+                        id = id.Replace("#", "");
+
+                        ulong.TryParse(id, out ulong parsedId);
+                        var channel = message.MentionedChannels?.FirstOrDefault(x => x?.Id == parsedId);
+                        if (channel == null)
+                            FilteredMessage += " #unknown-channel";
+                        else
+                            FilteredMessage += $" #{channel.Name}";
+                    }
+                    else if (id.ElementAt(0) == ':')
+                    {
+                        string emojiName = id.Split(':')[1];
+                        FilteredMessage += $" :{emojiName}:";
+                    }
+                }
+                else
+                {
+                    FilteredMessage += " " + split;
+                }
+            }
+            return FilteredMessage;
         }
 
         private void CloseButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)
