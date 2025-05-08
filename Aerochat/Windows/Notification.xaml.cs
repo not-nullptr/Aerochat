@@ -253,6 +253,15 @@ namespace Aerochat.Windows
                         string emojiName = id.Split(':')[1];
                         FilteredMessage += $" :{emojiName}:";
                     }
+                    else if (id.ElementAt(0) == '/')
+                    {
+                        string emojiName = id.Split(':')[0];
+                        FilteredMessage += $" {emojiName}";
+                    }
+                    else if (id.ElementAt(0) == 't')
+                    {
+                        FilteredMessage += " (timestamp)";
+                    }
                 }
                 else
                 {
