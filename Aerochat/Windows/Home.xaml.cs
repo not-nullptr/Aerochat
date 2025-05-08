@@ -400,27 +400,37 @@ namespace Aerochat.Windows
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
             var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/62b1fdeb4533c905b8145bc076af108e/raw/news.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
-            var news = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+            if (response.IsSuccessStatusCode)
             {
-                AllowTrailingCommas = true,
-                CommentHandling = JsonCommentHandling.Skip,
-            });
-            var newsList = new List<NewsViewModel>();
-            foreach (var n in news.RootElement.EnumerateArray())
-            {
-                newsList.Add(NewsViewModel.FromNews(n));
-            }
-
-            _ = Dispatcher.BeginInvoke(() =>
-            {
-                ViewModel.News.Clear();
-                foreach (var n in newsList)
+                try
                 {
-                    ViewModel.News.Add(n);
-                }
+                    var news = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+                    {
+                        AllowTrailingCommas = true,
+                        CommentHandling = JsonCommentHandling.Skip,
+                    });
+                    var newsList = new List<NewsViewModel>();
+                    foreach (var n in news.RootElement.EnumerateArray())
+                    {
+                        newsList.Add(NewsViewModel.FromNews(n));
+                    }
 
-                ViewModel.CurrentNews = ViewModel.News.FirstOrDefault(x => x.Date == ViewModel.CurrentNews?.Date) ?? ViewModel.News.FirstOrDefault();
-            });
+                    _ = Dispatcher.BeginInvoke(() =>
+                    {
+                        ViewModel.News.Clear();
+                        foreach (var n in newsList)
+                        {
+                            ViewModel.News.Add(n);
+                        }
+
+                        ViewModel.CurrentNews = ViewModel.News.FirstOrDefault(x => x.Date == ViewModel.CurrentNews?.Date) ?? ViewModel.News.FirstOrDefault();
+                    });
+                }
+                catch (JsonException)
+                {
+                    // The content is not valid JSON. Ignore.
+                }
+            }
         }
 
         public async Task GetNewNotices()
@@ -430,27 +440,37 @@ namespace Aerochat.Windows
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
             var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/26108f2ac8fcb8a24965a148fcf17363/raw/notices.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
-            var notices = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
-            { 
-                AllowTrailingCommas = true,
-                CommentHandling = JsonCommentHandling.Skip,
-            });
-            // this is an array so iterate through it
-            foreach (var notice in notices.RootElement.EnumerateArray())
+            if (response.IsSuccessStatusCode)
             {
-                var noticeViewModel = NoticeViewModel.FromNotice(notice);
-                if (!noticeViewModel.IsTargeted || SettingsManager.Instance.ViewedNotices.Contains(noticeViewModel.Date)) continue;
-                noticesList.Add(noticeViewModel);
-            }
-
-            _ = Dispatcher.BeginInvoke(() =>
-            {
-                ViewModel.Notices.Clear();
-                foreach (var n in noticesList)
+                try
                 {
-                    ViewModel.Notices.Add(n);
+                    var notices = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+                    {
+                        AllowTrailingCommas = true,
+                        CommentHandling = JsonCommentHandling.Skip,
+                    });
+                    // this is an array so iterate through it
+                    foreach (var notice in notices.RootElement.EnumerateArray())
+                    {
+                        var noticeViewModel = NoticeViewModel.FromNotice(notice);
+                        if (!noticeViewModel.IsTargeted || SettingsManager.Instance.ViewedNotices.Contains(noticeViewModel.Date)) continue;
+                        noticesList.Add(noticeViewModel);
+                    }
+
+                    _ = Dispatcher.BeginInvoke(() =>
+                    {
+                        ViewModel.Notices.Clear();
+                        foreach (var n in noticesList)
+                        {
+                            ViewModel.Notices.Add(n);
+                        }
+                    });
                 }
-            });
+                catch (JsonException)
+                {
+                    // The content is not valid JSON. Ignore.
+                }
+            }
         }
         private void CloseNoticeButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -481,6 +501,12 @@ namespace Aerochat.Windows
             catch (Exception)
             {
                 // Ignore networking exception.
+                return;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // Ignore unsuccessful requests.
                 return;
             }
 
