@@ -173,6 +173,12 @@ namespace Aerochat.Settings
         [Settings("Alerts", "Play notification sounds")]
         public bool PlayNotificationSounds { get; set; } = true;
 
+        [Settings("Alerts", "Read message notifications")]
+        public bool ReadMessageNotifications { get; set; } = false;
+
+        [Settings("Alerts", "Read online notifications")]
+        public bool ReadOnlineNotifications { get; set; } = false;
+
         [Settings("Alerts", "Nudge intensity")]
         public int NudgeIntensity { get; set; } = 10;
 

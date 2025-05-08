@@ -568,6 +568,7 @@
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+		<PackageReference Include="System.Speech" Version="9.0.4" />
 		<PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.0.3" />
 		<PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.3" />
 		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.3" />
