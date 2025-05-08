@@ -9,17 +9,25 @@ namespace Aerovoice.Encoders
     {
         private IOpusEncoder encoder = OpusCodecFactory.CreateEncoder(48000, 2);
         private OpusOggWriteStream oggWriter;
-        private FileStream outputStream = new(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), // %LocalAppData%
-                Assembly.GetEntryAssembly()!.GetName().Name, // \Aerochat
-                "output.ogg" // \output.ogg
-            ), 
-            FileMode.Create
-        );
+        private FileStream outputStream;
 
         public ConcentusEncoder()
         {
+            string outputStreamFilePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), // %LocalAppData%
+                Assembly.GetEntryAssembly()!.GetName().Name, // \Aerochat
+                "output.ogg" // \output.ogg
+            );
+
+            // Ensure that the directory exists:
+            Directory.CreateDirectory(Path.GetDirectoryName(outputStreamFilePath)!);
+
+            // Create the output stream file:
+            outputStream = new(
+                outputStreamFilePath,
+                FileMode.Create
+            );
+
             encoder.UseInbandFEC = true;
             oggWriter = new OpusOggWriteStream(encoder, outputStream);
         }
