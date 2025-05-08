@@ -163,39 +163,24 @@ namespace Aerochat.Windows
 
                     if (SettingsManager.Instance.ReadMessageNotifications)
                     {
-                        //Filters @mentions, links, channels, and emojis out of the TTS message so it doesn't ramble on forever.
+                        //Remove links from the TTS message so it doesn't ramble on forever.
+                        //also replaces # with "hashtag" so it doesnt say "number sign".
                         var FilteredMessage = "";
                         var SplitFilteredMessage = ViewModel.Message.Message.Split(' ');
                         foreach (var split in SplitFilteredMessage)
                         {
-                            if (split.StartsWith('<') && split.EndsWith('>'))
+                            if (split.StartsWith('#'))
                             {
-                                string id = split.Replace("<", "").Replace(">", "");
-
-                                if (id.ElementAt(0) == '@')
-                                {
-                                    if (id.ElementAt(1) == '&')
-                                        FilteredMessage += " at role ";
-                                    else
-                                        FilteredMessage += " at user ";
-                                }
-                                else if (id.ElementAt(0) == '#')
-                                {
-                                    FilteredMessage += " a channel ";
-                                }
-                                else if (id.ElementAt(0) == ':')
-                                {
-                                    FilteredMessage += " (an emoji) ";
-                                }
-
+                                string part = split.Replace("#", " hashtag");
+                                FilteredMessage += part;
                             }
                             else if (split.StartsWith("http://") || split.StartsWith("https://"))
                             {
-                                FilteredMessage += " a link ";
+                                FilteredMessage += " (a link)";
                             }
                             else
                             {
-                                FilteredMessage += " " + split + " ";
+                                FilteredMessage += " " + split;
                             }
                         }
                         synth.SpeakAsync($"{ViewModel.Message.Author.Name.ToLower()} said {FilteredMessage}.");
