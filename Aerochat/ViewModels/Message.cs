@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Speech.Synthesis;
 
 namespace Aerochat.ViewModels
 {
@@ -27,6 +28,7 @@ namespace Aerochat.ViewModels
         private string _type;
         private bool _isReply = false;
         private bool _isSelectedForUiAction = false;
+        private bool _isTTS = false;
         private MessageViewModel? _replyMessage;
         private DiscordMessage _messageEntity;
 
@@ -79,6 +81,12 @@ namespace Aerochat.ViewModels
         {
             get => _isReply;
             set => SetProperty(ref _isReply, value);
+        }
+
+        public bool IsTTS
+        {
+            get => _isTTS;
+            set => SetProperty(ref _isTTS, value);
         }
 
         public bool IsSelectedForUiAction
@@ -152,6 +160,9 @@ namespace Aerochat.ViewModels
         public static MessageViewModel FromMessage(DiscordMessage message, DiscordMember? member = null, bool isReply = false)
         {
             if (message == null) return new();
+            SpeechSynthesizer synth = new();
+            synth.SetOutputToDefaultAudioDevice();
+
             var user = member == null ? UserViewModel.FromUser(message.Author) : UserViewModel.FromMember(member);
             var vm = new MessageViewModel
             {
@@ -162,6 +173,7 @@ namespace Aerochat.ViewModels
                 Type = message.MessageType?.ToString() ?? "Unknown",
                 IsReply = message.MessageType == MessageType.Reply && !isReply,
                 MessageEntity = message,
+                IsTTS = message.IsTTS
             };
             foreach (var embed in message.Embeds)
             {
@@ -223,6 +235,11 @@ namespace Aerochat.ViewModels
             if (vm.IsReply)
             {
                 vm.ReplyMessage = FromMessage(message.ReferencedMessage, null, true);
+            }
+
+            if (vm.IsTTS)
+            {
+                synth.SpeakAsync($"{vm.Author.Name} said {message.Content}");
             }
 
             return vm;
