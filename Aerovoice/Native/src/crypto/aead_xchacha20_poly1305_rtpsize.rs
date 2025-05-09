@@ -1,0 +1,42 @@
+use crate::rtp::{Encrypted, HeaderExtensionType, RtpPacket};
+
+use super::Cryptor;
+use chacha20poly1305::{
+    KeyInit, XChaCha20Poly1305,
+    aead::{AeadMut, Payload},
+};
+
+const NONCE_BYTES: usize = 4;
+
+#[derive(Default)]
+pub struct AeadXChaCha20Poly1305RtpSize;
+
+impl Cryptor for AeadXChaCha20Poly1305RtpSize {
+    fn decrypt(&mut self, packet: &RtpPacket<Encrypted>, key: &[u8]) -> Option<Vec<u8>> {
+        let mut cipher = XChaCha20Poly1305::new(key.into());
+        let header = packet.header(HeaderExtensionType::Partial);
+        let blob = packet.encrypted_blob();
+        if blob.len() < 24 {
+            return None;
+        }
+
+        let ciphertext = &blob[..blob.len() - NONCE_BYTES];
+        let nonce_bytes = &blob[blob.len() - NONCE_BYTES..];
+        let mut nonce = [0; 24];
+        nonce[..NONCE_BYTES].copy_from_slice(nonce_bytes);
+        let payload = Payload {
+            msg: ciphertext,
+            aad: header,
+        };
+
+        cipher.decrypt(&nonce.into(), payload).ok()
+    }
+
+    fn encrypt(&mut self, packet: &RtpPacket<Encrypted>, key: &[u8]) -> Option<Vec<u8>> {
+        todo!()
+    }
+
+    fn name(&self) -> &'static str {
+        "aead_xchacha20_poly1305_rtpsize"
+    }
+}
