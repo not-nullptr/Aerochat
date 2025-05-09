@@ -16,7 +16,7 @@ impl Cryptor for AeadXChaCha20Poly1305RtpSize {
         let mut cipher = XChaCha20Poly1305::new(key.into());
         let header = packet.header(HeaderExtensionType::Partial);
         let blob = packet.encrypted_blob();
-        if blob.len() < 24 {
+        if blob.len() < NONCE_BYTES {
             return None;
         }
 
