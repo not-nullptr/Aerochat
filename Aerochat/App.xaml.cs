@@ -557,7 +557,8 @@ namespace Aerochat
                 Discord.Client.MessageCreated += async (s, e) =>
                 {
                     bool isDM = e.Message.Channel is DiscordDmChannel;
-                    bool isMention = e.Message.MentionedUsers.Contains(Discord.Client.CurrentUser);
+                    bool roleMention = e.Message.MentionedRoles.Any(r => (e.Guild?.GetMemberAsync(Discord.Client.CurrentUser.Id).Result?.Roles.Contains(r)).GetValueOrDefault());
+                    bool isMention = e.Message.MentionedUsers.Contains(Discord.Client.CurrentUser) || e.Message.MentionEveryone || roleMention;
                     bool isSelf = e.Author.Id == Discord.Client.CurrentUser.Id;
 
                     if (isSelf) return;
