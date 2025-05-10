@@ -1,6 +1,7 @@
 ﻿using Aerochat.Enums;
 using Aerochat.ViewModels;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -79,22 +80,28 @@ namespace Aerochat.Settings
 
         public static void Save()
         {
-            // Serialize non-static properties
-            var properties = Instance.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(prop => prop.CanWrite && !prop.GetMethod.IsStatic)
-                .ToDictionary(prop => prop.Name, prop => prop.GetValue(Instance));
-
-            // Ensure that the directory exists:
-            Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath)!);
-
-            var json = JsonSerializer.Serialize(properties, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(SettingsFilePath, json);
-
-            // Call OnPropertyChanged for all properties
-            foreach (var property in properties.Keys)
+            try
             {
-                Instance.InvokePropertyChanged(property);
+                // Serialize non-static properties
+                var properties = Instance.GetType()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(prop => prop.CanWrite && !prop.GetMethod.IsStatic)
+                    .ToDictionary(prop => prop.Name, prop => prop.GetValue(Instance));
+
+                // Ensure that the directory exists:
+                Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath)!);
+
+                var json = JsonSerializer.Serialize(properties, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(SettingsFilePath, json);
+
+                // Call OnPropertyChanged for all properties
+                foreach (var property in properties.Keys)
+                {
+                    Instance.InvokePropertyChanged(property);
+                }
+            } catch (Exception e)
+            {
+                Debug.WriteLine(e);
             }
         }
 
