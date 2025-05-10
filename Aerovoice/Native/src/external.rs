@@ -74,15 +74,20 @@ extern "C" fn voice_session_select_cryptor(
         .map(|s| s.to_string_lossy().to_string())
         .collect::<Vec<_>>();
 
-    let Some(cryptor) = encryption_by_priority(&available_methods) else {
+    let Some(send_cryptor) = encryption_by_priority(&available_methods) else {
         println!("!!! WARNING !!! No encryption method was found. VOICE CHAT WILL NOT WORK!");
         return std::ptr::null_mut();
     };
 
-    let name = cryptor.name().to_string();
+    let Some(recv_cryptor) = encryption_by_priority(&available_methods) else {
+        println!("!!! WARNING !!! No encryption method was found. VOICE CHAT WILL NOT WORK!");
+        return std::ptr::null_mut();
+    };
+
+    let name = recv_cryptor.name().to_string();
     let name = std::ffi::CString::new(name).unwrap();
 
-    session.set_cryptor(cryptor);
+    session.set_cryptor(send_cryptor, recv_cryptor);
 
     name.into_raw()
 }

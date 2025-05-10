@@ -1,17 +1,17 @@
 use std::marker::PhantomData;
 
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use thiserror::Error;
 
 use crate::crypto::Cryptor;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Encrypted;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Decrypted;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RtpPacket<T> {
     pub version_flags: u8,
     pub payload_type: u8,
@@ -20,6 +20,7 @@ pub struct RtpPacket<T> {
     pub ssrc: u32,
     payload: Vec<u8>,
     raw: Vec<u8>,
+    is_silence: Option<bool>,
     _marker: PhantomData<T>,
 }
 
@@ -37,11 +38,23 @@ pub enum PacketDecryptError {
     DecryptionFailed(&'static str),
 }
 
+#[derive(Debug, Error)]
+pub enum PacketEncryptError {
+    #[error("Encryption failed for cryptor {0}")]
+    EncryptionFailed(&'static str),
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum HeaderExtensionType {
     None,
     Partial,
     Full,
+}
+
+#[derive(Debug, Error)]
+pub enum PacketConstructError {
+    #[error("Failed to construct packet")]
+    PacketConstructFailed,
 }
 
 impl<T> RtpPacket<T> {
@@ -80,6 +93,10 @@ impl<T> RtpPacket<T> {
     pub fn raw(&self) -> &[u8] {
         &self.raw
     }
+
+    pub fn is_silent(&self) -> Option<bool> {
+        self.is_silence
+    }
 }
 
 impl RtpPacket<Encrypted> {
@@ -105,6 +122,7 @@ impl RtpPacket<Encrypted> {
             raw,
             payload: vec![],
             _marker: PhantomData,
+            is_silence: None,
         })
     }
 
@@ -121,6 +139,12 @@ impl RtpPacket<Encrypted> {
             decrypted.drain(..self.extension_length());
         }
 
+        let header = self.header(HeaderExtensionType::Partial);
+
+        let mut raw = Vec::with_capacity(header.len() + decrypted.len());
+        raw.extend_from_slice(header);
+        raw.extend_from_slice(&decrypted);
+
         Ok(RtpPacket::<Decrypted> {
             version_flags: self.version_flags,
             payload_type: self.payload_type,
@@ -128,8 +152,9 @@ impl RtpPacket<Encrypted> {
             timestamp: self.timestamp,
             ssrc: self.ssrc,
             payload: decrypted,
-            raw: self.raw,
+            raw,
             _marker: PhantomData,
+            is_silence: self.is_silence,
         })
     }
 
@@ -139,7 +164,153 @@ impl RtpPacket<Encrypted> {
 }
 
 impl RtpPacket<Decrypted> {
+    pub fn builder() -> RtpPacketBuilder {
+        RtpPacketBuilder::default()
+    }
+
     pub fn payload(&self) -> &[u8] {
         &self.payload
+    }
+
+    pub fn encrypt(
+        self,
+        cryptor: &mut (impl Cryptor + ?Sized),
+        secret: &[u8],
+    ) -> Result<RtpPacket<Encrypted>, PacketEncryptError> {
+        let encrypted_payload = cryptor
+            .encrypt(&self, secret)
+            .ok_or_else(|| PacketEncryptError::EncryptionFailed(cryptor.name()))?;
+
+        let header = self.header(HeaderExtensionType::Partial);
+        let mut raw = Vec::with_capacity(header.len() + encrypted_payload.len());
+        raw.extend_from_slice(header);
+        raw.extend_from_slice(&encrypted_payload);
+
+        Ok(RtpPacket::<Encrypted> {
+            version_flags: self.version_flags,
+            payload_type: self.payload_type,
+            sequence: self.sequence,
+            timestamp: self.timestamp,
+            ssrc: self.ssrc,
+            is_silence: self.is_silence,
+            payload: encrypted_payload,
+            raw,
+            _marker: PhantomData,
+        })
+    }
+
+    pub fn data_to_encrypt(&self) -> &[u8] {
+        &self.raw[self.header_length(HeaderExtensionType::Partial)..]
+    }
+}
+
+#[derive(Debug)]
+pub struct RtpPacketBuilder {
+    version_flags: u8,
+    payload_type: u8,
+    sequence: u16,
+    timestamp: u32,
+    ssrc: u32,
+    payload: Vec<u8>,
+    is_silence: Option<bool>,
+}
+
+impl Default for RtpPacketBuilder {
+    fn default() -> Self {
+        Self {
+            version_flags: 0x80,
+            payload_type: 0x78,
+            sequence: 0,
+            timestamp: 0,
+            ssrc: 0,
+            payload: vec![],
+            is_silence: None,
+        }
+    }
+}
+
+impl RtpPacketBuilder {
+    pub fn silence(mut self, is_silence: bool) -> Self {
+        self.is_silence = Some(is_silence);
+        self
+    }
+
+    pub fn sequence(mut self, sequence: u16) -> Self {
+        self.sequence = sequence;
+        self
+    }
+
+    pub fn timestamp(mut self, timestamp: u32) -> Self {
+        self.timestamp = timestamp;
+        self
+    }
+
+    pub fn ssrc(mut self, ssrc: u32) -> Self {
+        self.ssrc = ssrc;
+        self
+    }
+
+    pub fn payload(mut self, payload: Vec<u8>) -> Self {
+        self.payload = payload;
+        self
+    }
+
+    pub fn build(self) -> Result<RtpPacket<Decrypted>, PacketConstructError> {
+        let packet_size = 12 + self.payload.len();
+        let mut raw = Vec::with_capacity(packet_size);
+        raw.write_u8(self.version_flags)
+            .map_err(|_| PacketConstructError::PacketConstructFailed)?;
+        raw.write_u8(self.payload_type)
+            .map_err(|_| PacketConstructError::PacketConstructFailed)?;
+        raw.write_u16::<BigEndian>(self.sequence)
+            .map_err(|_| PacketConstructError::PacketConstructFailed)?;
+        raw.write_u32::<BigEndian>(self.timestamp)
+            .map_err(|_| PacketConstructError::PacketConstructFailed)?;
+        raw.write_u32::<BigEndian>(self.ssrc)
+            .map_err(|_| PacketConstructError::PacketConstructFailed)?;
+        raw.extend_from_slice(&self.payload);
+
+        Ok(RtpPacket::<Decrypted> {
+            version_flags: self.version_flags,
+            payload_type: self.payload_type,
+            sequence: self.sequence,
+            timestamp: self.timestamp,
+            ssrc: self.ssrc,
+            payload: self.payload,
+            is_silence: self.is_silence,
+            raw,
+            _marker: PhantomData,
+        })
+    }
+}
+
+mod tests {
+    const SECRET: [u8; 32] = [127; 32];
+    use crate::crypto::AeadXChaCha20Poly1305RtpSize;
+
+    use super::*;
+
+    #[test]
+    fn encrypt_decrypt() {
+        let packet = RtpPacket::builder()
+            .ssrc(250)
+            .sequence(24)
+            .timestamp(100)
+            .payload(vec![1, 2, 3, 4, 5, 6, 7, 8])
+            .build()
+            .expect("failed to construct packet");
+
+        let mut cryptor = AeadXChaCha20Poly1305RtpSize::default();
+
+        let encrypted = packet
+            .clone()
+            .encrypt(&mut cryptor, &SECRET)
+            .expect("failed to encrypt packet");
+
+        let decrypted = encrypted
+            .decrypt(&mut cryptor, &SECRET)
+            .expect("failed to decrypt packet");
+
+        assert_eq!(packet, decrypted);
     }
 }

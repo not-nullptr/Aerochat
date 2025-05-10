@@ -185,6 +185,27 @@ namespace Aerovoice.Clients
         private void InternalVoiceCallback(uint ssrc, bool speaking)
         {
             _onStateChange(new VoiceStateChanged(ssrc, speaking));
+            if (ssrc != _ssrc || _socket == null)
+            {
+                return;
+            }
+
+            Debug.WriteLine(speaking);
+
+            Task.Run(async () =>
+            {
+                var msg = new
+                {
+                    op = 5,
+                    d = new
+                    {
+                        speaking = speaking ? 1 : 0,
+                        delay = 0,
+                        ssrc
+                    }
+                };
+                await SendMessage(JObject.FromObject(msg));
+            });
         }
 
         public async Task SendMessage(JObject message)
@@ -245,6 +266,7 @@ namespace Aerovoice.Clients
                         var ip = _ready["ip"]!.Value<string>()!;
                         var port = _ready["port"]!.Value<ushort>();
                         _ssrc = _ready["ssrc"]!.Value<uint>();
+                        _userSsrcMap.Add(_ssrc, _client.CurrentUser.Id);
                         var modes = _ready["modes"]!.ToArray().Select(x => x.Value<string>()!);
                         Logger.Log($"Attempting to open UDP connection to {ip}:{port}.");
                         Logger.Log($"Your SSRC is {_ssrc}.");

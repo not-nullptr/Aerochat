@@ -1,31 +1,38 @@
 use crate::{
+    INPUT_DEVICE, OUTPUT_DEVICE,
     crypto::Cryptor,
     rtp::{Encrypted, RtpPacket},
     snowflake::Snowflake,
 };
-use audiopus::{Channels, SampleRate, coder::Decoder};
+use audiopus::{
+    Application, Channels, SampleRate,
+    coder::{Decoder, Encoder},
+};
 use byteorder::{BigEndian, WriteBytesExt};
 
 use cpal::{
-    Device, OutputCallbackInfo, Stream, StreamConfig,
-    traits::{DeviceTrait, HostTrait, StreamTrait as _},
+    InputCallbackInfo, OutputCallbackInfo, Stream, StreamConfig,
+    traits::{DeviceTrait, StreamTrait as _},
 };
 use rtrb::{Consumer, Producer, RingBuffer};
 use std::{
     collections::{HashMap, hash_map::Entry},
     net::UdpSocket,
-    sync::{
-        LazyLock,
-        mpsc::{self, Receiver, Sender},
-    },
+    sync::mpsc::{self, Receiver, Sender},
     thread::{self, JoinHandle},
+    time::Instant,
 };
 
-static DEVICE: LazyLock<Device> = LazyLock::new(|| {
-    let host = cpal::default_host();
-    host.default_output_device()
-        .expect("failed to get default output device")
-});
+struct RecorderState {
+    packet_tx: Sender<RtpPacket<Encrypted>>,
+    encoder: Encoder,
+    ssrc: u32,
+    cryptor: Box<dyn Cryptor>,
+    sequence: u16,
+    instant: Instant,
+    secret: Vec<u8>,
+    last_silences: [bool; 24],
+}
 
 #[derive(Debug)]
 #[repr(C)]
@@ -102,12 +109,14 @@ pub struct VoiceSession {
     discovered_ip: Option<IPInfo>,
     socket: Option<UdpSocket>,
     ssrc: u32,
-    cryptor: Option<Box<dyn Cryptor>>,
+    recv_cryptor: Option<Box<dyn Cryptor>>,
+    send_cryptor: Option<Box<dyn Cryptor>>,
     poll_thread: JoinHandle<()>,
     poll_thread_initialiser: Sender<ThreadInitialiser>,
     poll_thread_killer: Sender<()>,
-    packet_sender: Sender<RtpPacket<Encrypted>>,
     on_speaking: extern "C" fn(u32, bool),
+    packet_tx: Option<Sender<RtpPacket<Encrypted>>>,
+    recording_stream: Option<Stream>,
 }
 
 impl VoiceSession {
@@ -160,29 +169,130 @@ impl VoiceSession {
             discovered_ip: None,
             socket: Some(socket),
             ssrc,
-            cryptor: None,
+            recv_cryptor: None,
+            send_cryptor: None,
             poll_thread,
             poll_thread_initialiser: init_tx,
-            packet_sender: packet_tx,
             poll_thread_killer: killer_tx,
             on_speaking,
+            packet_tx: Some(packet_tx),
+            recording_stream: None,
+        }
+    }
+
+    fn record_audio(data: &[i16], _: &InputCallbackInfo, recorder_state: &mut RecorderState) {
+        recorder_state.sequence = recorder_state.sequence.wrapping_add(1);
+        let mut packet = vec![0; 2048];
+
+        let length = match recorder_state.encoder.encode(data, &mut packet) {
+            Ok(length) => length,
+            Err(e) => {
+                println!("Error encoding audio: {}", e);
+                return;
+            }
+        };
+
+        let packet = &packet[..length];
+
+        const CLOCK_RATE: u32 = 48000;
+        let elapsed_seconds = recorder_state.instant.elapsed().as_secs_f64();
+        let timestamp = (elapsed_seconds * CLOCK_RATE as f64) as u32;
+        let is_silent = !is_not_silent(data);
+
+        recorder_state.last_silences.rotate_right(1);
+        recorder_state.last_silences[0] = is_silent;
+
+        let is_silent = recorder_state.last_silences.iter().all(|&x| x);
+
+        let packet = match RtpPacket::builder()
+            .ssrc(recorder_state.ssrc)
+            .sequence(recorder_state.sequence)
+            .timestamp(timestamp)
+            .payload(packet.to_vec())
+            .silence(is_silent)
+            .build()
+        {
+            Ok(packet) => packet,
+            Err(e) => {
+                println!("Error building RTP packet: {}", e);
+                return;
+            }
+        };
+
+        let Ok(packet) = packet.encrypt(
+            recorder_state.cryptor.as_mut(),
+            recorder_state.secret.as_slice(),
+        ) else {
+            println!("failed to encrypt packet");
+            return;
+        };
+
+        if let Err(e) = recorder_state.packet_tx.send(packet) {
+            println!("Error sending packet: {}", e);
         }
     }
 
     pub fn init_poll_thread(&mut self) {
         let socket = self.socket.take().expect("socket is not set");
-        let cryptor = self.cryptor.take().expect("cryptor is not set");
+        let recv_cryptor = self.recv_cryptor.take().expect("cryptor is not set");
+        let send_cryptor = self.send_cryptor.take().expect("cryptor is not set");
         let secret = self.secret.take().expect("secret is not set");
+        let packet_tx = self.packet_tx.take().expect("packet tx is not set");
+        let ssrc = self.ssrc;
 
         let thread_initialiser = ThreadInitialiser {
-            cryptor,
-            secret,
+            cryptor: recv_cryptor,
+            secret: secret.clone(),
             socket,
         };
 
         self.poll_thread_initialiser
             .send(thread_initialiser)
             .expect("failed to send initialiser to poll thread");
+
+        let config = StreamConfig {
+            channels: 2,
+            sample_rate: cpal::SampleRate(48000),
+            buffer_size: cpal::BufferSize::Fixed(960),
+        };
+
+        println!(
+            "creating input stream with {}",
+            INPUT_DEVICE.name().unwrap_or_default()
+        );
+
+        let mut recorder_state = RecorderState {
+            packet_tx,
+            encoder: Encoder::new(SampleRate::Hz48000, Channels::Stereo, Application::Voip)
+                .expect("failed to create encoder"),
+            ssrc,
+            cryptor: send_cryptor,
+            sequence: 0,
+            instant: Instant::now(),
+            secret,
+            last_silences: [true; 24],
+        };
+
+        let input = match INPUT_DEVICE.build_input_stream(
+            &config,
+            move |data, info| {
+                Self::record_audio(data, info, &mut recorder_state);
+            },
+            |e| println!("An error occured in the recorder: {}", e),
+            None,
+        ) {
+            Ok(stream) => stream,
+            Err(e) => {
+                println!("Error creating input stream: {}", e);
+                return;
+            }
+        };
+
+        if let Err(e) = input.play() {
+            println!("Error playing input stream: {}", e)
+        }
+
+        self.recording_stream = Some(input);
     }
 
     fn poll_thread(
@@ -194,14 +304,30 @@ impl VoiceSession {
         killer_rx: Receiver<()>,
         on_speaking: extern "C" fn(u32, bool),
     ) {
+        let mut last_silent = true;
+        let mut faux_packets = vec![];
+
         loop {
             if killer_rx.try_recv().is_ok() {
                 println!("killing poll thread");
                 break;
             }
 
-            if let Ok(packet) = packet_rx.try_recv() {
-                println!("TODO: handle packet from sender thread ({})", packet.ssrc);
+            while let Ok(packet) = packet_rx.try_recv() {
+                let is_silent = packet.is_silent().unwrap_or(true);
+                if last_silent != is_silent {
+                    (on_speaking)(packet.ssrc, !is_silent);
+                }
+
+                if !is_silent {
+                    if let Err(e) = socket.send(packet.raw()) {
+                        println!("Error sending packet: {}", e);
+                    }
+                }
+
+                last_silent = is_silent;
+
+                faux_packets.push(packet);
             }
 
             let mut buf = [0; 1024];
@@ -223,8 +349,12 @@ impl VoiceSession {
                 continue;
             }
 
-            let Ok(packet) = RtpPacket::parse(packet) else {
-                println!("failed to parse packet");
+            // let Ok(packet) = RtpPacket::parse(packet) else {
+            //     println!("failed to parse packet");
+            //     continue;
+            // };
+
+            let Some(packet) = faux_packets.pop() else {
                 continue;
             };
 
@@ -239,7 +369,7 @@ impl VoiceSession {
                 // allow up to 1024 packets in the buffer
                 let (producer, mut consumer) = RingBuffer::new(960 * 2 * 2 * 1024);
 
-                let stream = DEVICE.build_output_stream(
+                let stream = OUTPUT_DEVICE.build_output_stream(
                     &config,
                     move |data, info| {
                         Self::process_audio(&mut consumer, data, info);
@@ -298,8 +428,9 @@ impl VoiceSession {
         }
     }
 
-    pub fn set_cryptor(&mut self, cryptor: Box<dyn Cryptor>) {
-        self.cryptor = Some(cryptor);
+    pub fn set_cryptor(&mut self, send_cryptor: Box<dyn Cryptor>, recv_cryptor: Box<dyn Cryptor>) {
+        self.recv_cryptor = Some(recv_cryptor);
+        self.send_cryptor = Some(send_cryptor);
     }
 
     pub fn process_audio(pcm_buffer: &mut Consumer<i16>, data: &mut [i16], _: &OutputCallbackInfo) {
@@ -373,4 +504,18 @@ impl Drop for VoiceSession {
             .send(())
             .expect("failed to send kill signal to poll thread");
     }
+}
+
+fn is_not_silent(data: &[i16]) -> bool {
+    const THRESHOLD: f32 = 0.03;
+    let sum_squares: f32 = data
+        .iter()
+        .map(|&sample| {
+            let normalized = sample as f32 / i16::MAX as f32;
+            normalized * normalized
+        })
+        .sum();
+
+    let rms = (sum_squares / data.len() as f32).sqrt();
+    rms > THRESHOLD
 }
