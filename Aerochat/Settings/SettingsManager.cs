@@ -195,7 +195,7 @@ namespace Aerochat.Settings
         public bool XPCaptionButtons { get; set; } = false;
 
         [Settings("Appearance", "Highlight messages that have mentioned you")]
-        public bool HighlightMentions { get; set; } = false;
+        public bool HighlightMentions { get; set; } = true;
 
         [Settings("Appearance", "Show the Aerochat Discord server link button on the home page")]
 
