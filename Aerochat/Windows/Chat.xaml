@@ -1542,6 +1542,26 @@
                                                         <Image Margin="4,0" Source="/Resources/Message/消しゴム.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
+                                                <Grid Height="30" MouseUp="DrawOnClickTrash">
+                                                    <Grid>
+                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                            <controls:NineSliceButton.Style>
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding DrawingTool}" Value="Trash">
+                                                                            <Setter Property="Visibility" Value="Hidden" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </controls:NineSliceButton.Style>
+                                                        </controls:NineSliceButton>
+
+                                                    </Grid>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                                                        <Image Margin="4,0" Source="/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
+                                                    </StackPanel>
+                                                </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickUndo">
                                                     <Grid>
                                                         <controls:NineSliceButton x:Name = "UndoButton" Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
@@ -1601,26 +1621,6 @@
                                                                 </Style>
                                                             </Image.Style>
                                                         </Image>
-                                                    </StackPanel>
-                                                </Grid>
-                                                <Grid Height="30" MouseUp="DrawOnClickTrash">
-                                                    <Grid>
-                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
-                                                            <controls:NineSliceButton.Style>
-                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
-                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding DrawingTool}" Value="Trash">
-                                                                            <Setter Property="Visibility" Value="Hidden" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </controls:NineSliceButton.Style>
-                                                        </controls:NineSliceButton>
-
-                                                    </Grid>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                                                        <Image Margin="4,0" Source="/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="ShowColorMenu">
