@@ -1480,11 +1480,72 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
+                                                <Grid Height="30" MouseUp="DrawOnClickUndo">
+                                                    <Grid>
+                                                        <controls:NineSliceButton x:Name = "UndoButton" Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                            <controls:NineSliceButton.Style>
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding UndoEnabled}" Value="false">
+                                                                            <Setter Property="Visibility" Value="Hidden" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </controls:NineSliceButton.Style>
+                                                        </controls:NineSliceButton>
+                                                    </Grid>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                                                        <Image x:Name="UndoIcon"  Margin="4,0"  Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/Resources/Message/Undo.png" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding UndoEnabled}" Value="false">
+                                                                            <Setter Property="Source" Value="/Resources/Message/UndoInactive.png" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid Height="30" MouseUp="DrawOnClickRedo">
+                                                    <Grid>
+                                                        <controls:NineSliceButton x:Name = "RedoButton"  Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                            <controls:NineSliceButton.Style>
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RedoEnabled}" Value="false">
+                                                                            <Setter Property="Visibility" Value="Hidden" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </controls:NineSliceButton.Style>
+                                                        </controls:NineSliceButton>
+
+                                                    </Grid>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                                                        <Image x:Name="RedoIcon"  Margin="4,0" Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/Resources/Message/Redo.png" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RedoEnabled}" Value="false">
+                                                                            <Setter Property="Source" Value="/Resources/Message/RedoInactive.png" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+                                                    </StackPanel>
+                                                </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickPen">
                                                     <Grid>
                                                         <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
-                                                                <Style TargetType="controls:NineSliceButton">
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding DrawingTool}" Value="Pen">
@@ -1496,7 +1557,7 @@
                                                         </controls:NineSliceButton>
                                                         <controls:NineSlice Image="/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSlice.Style>
-                                                                <Style TargetType="controls:NineSlice">
+                                                                <Style TargetType="{x:Type controls:NineSlice}">
                                                                     <Setter Property="Visibility" Value="Hidden" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding DrawingTool}" Value="Pen">
@@ -1515,7 +1576,7 @@
                                                     <Grid>
                                                         <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
-                                                                <Style TargetType="controls:NineSliceButton">
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding DrawingTool}" Value="Kesigomu">
@@ -1527,7 +1588,7 @@
                                                         </controls:NineSliceButton>
                                                         <controls:NineSlice Image="/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSlice.Style>
-                                                                <Style TargetType="controls:NineSlice">
+                                                                <Style TargetType="{x:Type controls:NineSlice}">
                                                                     <Setter Property="Visibility" Value="Hidden" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding DrawingTool}" Value="Kesigomu">
@@ -1540,6 +1601,26 @@
                                                     </Grid>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
                                                         <Image Margin="4,0" Source="/Resources/Message/消しゴム.png" Width="20" Height="16" />
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid Height="30" MouseUp="DrawOnClickTrash">
+                                                    <Grid>
+                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                            <controls:NineSliceButton.Style>
+                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding DrawingTool}" Value="Trash">
+                                                                            <Setter Property="Visibility" Value="Hidden" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </controls:NineSliceButton.Style>
+                                                        </controls:NineSliceButton>
+
+                                                    </Grid>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                                                        <Image Margin="4,0" Source="/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="ShowColorMenu">
