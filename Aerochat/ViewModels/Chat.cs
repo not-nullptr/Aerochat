@@ -268,5 +268,21 @@ namespace Aerochat.ViewModels
             get => _drawingTool;
             set => SetProperty(ref _drawingTool, value);
         }
+
+
+        private bool _undoEnabled = false;
+        public bool UndoEnabled
+        {
+            get => _undoEnabled;
+            set => SetProperty(ref _undoEnabled, value);
+        }
+
+        private bool _redoEnabled = false;
+        public bool RedoEnabled
+        {
+            get => _redoEnabled;
+            set => SetProperty(ref _redoEnabled, value);
+        }
+        
     }
 }

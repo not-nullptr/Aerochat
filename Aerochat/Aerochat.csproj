@@ -215,6 +215,8 @@
 		<None Remove="Resources\Message\LeaveCall.png" />
 		<None Remove="Resources\Message\Nudge.png" />
 		<None Remove="Resources\Message\Pen.png" />
+		<None Remove="Resources\Message\Redo.png" />
+		<None Remove="Resources\Message\RedoInactive.png" />
 		<None Remove="Resources\Message\Seperator.png" />
 		<None Remove="Resources\Message\SpeechBubbleArrow.png" />
 		<None Remove="Resources\Message\Text.png" />
@@ -222,6 +224,8 @@
 		<None Remove="Resources\Message\ToolbarHover.png" />
 		<None Remove="Resources\Message\TopBarBg.png" />
 		<None Remove="Resources\Message\Typing.png" />
+		<None Remove="Resources\Message\Undo.png" />
+		<None Remove="Resources\Message\UndoInactive.png" />
 		<None Remove="Resources\Message\消しゴム.png" />
 		<None Remove="Resources\msgres_4000_1473_var.png" />
 		<None Remove="Resources\NonNativeTooltip\ItemActive.png" />
@@ -472,7 +476,11 @@
 		<Resource Include="Resources\Message\Colors.png" />
 		<Resource Include="Resources\Message\LeaveCall.png" />
 		<Resource Include="Resources\Message\Pen.png" />
+    <Resource Include="Resources\Message\Redo.png" />
+    <Resource Include="Resources\Message\RedoInactive.png" />
 		<Resource Include="Resources\Message\Text.png" />
+		<Resource Include="Resources\Message\Undo.png" />
+		<Resource Include="Resources\Message\UndoInactive.png" />
 		<Resource Include="Resources\Message\消しゴム.png" />
 		<Resource Include="Resources\ScrollBar\Active.png" />
 		<Resource Include="Resources\ScrollBar\DownGlyphActive.png" />

@@ -59,7 +59,7 @@ namespace Aerochat.Controls
             //Throwing this in bcos i can :3 (messy nullcheck sawry :()
             if (Message.MentionedUsers != null)
             {
-                if (Message.MentionedUsers.Contains(Discord.Client.CurrentUser))
+                if (Message.MentionedUsers.Contains(Discord.Client.CurrentUser) && Settings.SettingsManager.Instance.HighlightMentions)
                 {
                     textBlock.Foreground = new SolidColorBrush(Color.FromRgb(73, 164, 218));
                 }

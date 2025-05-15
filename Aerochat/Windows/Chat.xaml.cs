@@ -46,6 +46,7 @@ using System;
 using System.Windows.Forms.Design;
 using System.Windows.Documents;
 using Aerochat.Helpers;
+using Aerochat.Controls;
 
 namespace Aerochat.Windows
 {
@@ -821,6 +822,8 @@ namespace Aerochat.Windows
             Discord.Client.PresenceUpdated += OnPresenceUpdated;
             Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+            ViewModel.UndoEnabled = false;
+            ViewModel.RedoEnabled = false;
 
             CommandManager.AddPreviewCanExecuteHandler(MessageTextBox, MessageTextBox_OnPreviewCanExecute);
             CommandManager.AddPreviewExecutedHandler(MessageTextBox, MessageTextBox_OnPreviewExecuted);
@@ -1709,6 +1712,7 @@ namespace Aerochat.Windows
             ViewModel.BottomHeight = Math.Max(newHeight, min);
         }
 
+
         private async void CanvasButton_Click(object sender, RoutedEventArgs e)
         {
             var canvas = DrawingCanvas;
@@ -1795,6 +1799,12 @@ namespace Aerochat.Windows
         private Stack<Stroke> _undoStack = new();
         private Stack<Stroke> _redoStack = new();
 
+        private void Update_Stroke_Buttons()
+        {
+            ViewModel.UndoEnabled = DrawingCanvas.Strokes.Count > 0;
+            ViewModel.RedoEnabled = _redoStack.Count > 0;
+        }
+
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
             if (e.Added.Count > 0)
@@ -1802,6 +1812,7 @@ namespace Aerochat.Windows
                 _undoStack.Push(e.Added[0]);
                 _redoStack.Clear();
             }
+            Update_Stroke_Buttons();
         }
 
         public void Undo()
@@ -1811,6 +1822,7 @@ namespace Aerochat.Windows
             _redoStack.Push(stroke);
             _undoStack.Pop();
             DrawingCanvas.Strokes.Remove(stroke);
+            Update_Stroke_Buttons();
         }
 
         public void Redo()
@@ -1821,6 +1833,7 @@ namespace Aerochat.Windows
             DrawingCanvas.Strokes.Add(stroke);
             DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged; // Re-enable the event
             _undoStack.Push(stroke);
+            Update_Stroke_Buttons();
         }
 
 
@@ -1865,6 +1878,24 @@ namespace Aerochat.Windows
             ViewModel.BottomHeight = _drawingHeight;
             MessageTextBox.Visibility = Visibility.Collapsed;
             DrawingContainer.Visibility = Visibility.Visible;
+        }
+
+        private void DrawOnClickUndo(object sender, MouseButtonEventArgs e)
+        {
+            Undo();
+        }
+
+        private void DrawOnClickRedo(object sender, MouseButtonEventArgs e)
+        {
+            Redo();
+        }
+
+        private void DrawOnClickTrash(object sender, MouseButtonEventArgs e)
+        {
+            DrawingCanvas.Strokes.Clear();
+            _redoStack.Clear();
+            _undoStack.Clear();
+            Update_Stroke_Buttons();
         }
 
         private void DrawOnClickPen(object sender, MouseButtonEventArgs e)
