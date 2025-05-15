@@ -194,6 +194,9 @@ namespace Aerochat.Settings
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
 
+        [Settings("Appearance", "Highlight messages that have mentioned you")]
+        public bool HighlightMentions { get; set; } = false;
+
         [Settings("Appearance", "Show the Aerochat Discord server link button on the home page")]
 
         public bool DisplayDiscordServerLink { get; set; } = true;
