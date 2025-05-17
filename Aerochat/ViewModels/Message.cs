@@ -175,9 +175,13 @@ namespace Aerochat.ViewModels
                 MessageEntity = message,
                 IsTTS = message.IsTTS
             };
-            foreach (var embed in message.Embeds)
+
+            if (SettingsManager.Instance.DisplayLinkPreviews)
             {
-                vm.Embeds.Add(EmbedViewModel.FromEmbed(embed));
+                foreach (var embed in message.Embeds)
+                {
+                    vm.Embeds.Add(EmbedViewModel.FromEmbed(embed));
+                }
             }
 
             // TO ANY DEVELOPER LOOKING AT THIS, THINKING "WHERE IS THIS CRASHING??"
