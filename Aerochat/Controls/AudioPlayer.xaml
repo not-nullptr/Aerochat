@@ -1,0 +1,111 @@
+﻿<UserControl x:Class="Aerochat.Controls.AudioPlayer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:enums="clr-namespace:Aerochat.Enums"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Aerochat.Controls" 
+             mc:Ignorable="d" 
+             d:DesignHeight="42" d:DesignWidth="200"
+             x:Name="Root">
+        
+    
+    <Grid>
+        <Button Click="OnPlayClick" ToolTip="Play" ToolTipService.InitialShowDelay="500" Margin="0,0,0,0" HorizontalAlignment="Left" Height="32">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Image Name="PART_Image" Source="/Resources/AudioPlayer/play.png" />
+                    <ControlTemplate.Triggers>
+
+                     
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/play_hover.png" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/play_pressed.png" />
+                        </Trigger>
+                        
+                        <DataTrigger Binding="{Binding Playing, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:PlayingState.Playing}">
+                            <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/pause.png" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                <Condition Binding="{Binding Playing, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:PlayingState.Playing}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/pause_hover.png" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                <Condition Binding="{Binding Playing, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:PlayingState.Playing}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/pause_pressed.png" />
+                        </MultiDataTrigger>
+                        
+
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <Slider x:Name="TimeSlider" VerticalAlignment="Center" Value="0" Margin="33,0,2,0" Minimum="0" Maximum="100" IsSelectionRangeEnabled="True" SelectionStart="0" SelectionEnd="{Binding RelativeSource={RelativeSource Self}, Path=Value}">
+            <Slider.Style>
+                <Style TargetType="Slider">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Slider">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                    <Grid>
+                                        <Border Height="1.9" Background="#CCCCCC" CornerRadius="1" Margin="-0.2,0,15.8,0"/>
+                                        <Border x:Name="PART_SelectionRange" Height="1.5" CornerRadius="1" Margin="0,0,0,0" HorizontalAlignment="Left">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                                    <GradientStop Color="#7fc9fa" Offset="0"/>
+                                                    <GradientStop Color="#014cb6" Offset="0.5"/>
+                                                    <GradientStop Color="#619ff2" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <Track x:Name="PART_Track">
+                                            <Track.Thumb>
+                                                <Thumb x:Name="TimeThumb">
+                                                    <Thumb.Style>
+                                                        <Style TargetType="Thumb">
+                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Thumb">
+                                                                        
+                                                                        <Image x:Name="ThumbImage" Source="/Resources/AudioPlayer/seekhandle.png" Width="16"></Image>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource FindAncestor, AncestorType=Slider}}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter TargetName="ThumbImage" Property="Source" Value="/Resources/AudioPlayer/seekhandle_hover.png"/>
+                                                                            </Trigger>
+                                                                            <Trigger Property="IsDragging" Value="True">
+                                                                                <Setter TargetName="ThumbImage" Property="Source" Value="/Resources/AudioPlayer/seekhandle_pressed.png"/>
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </Thumb.Style>
+                                                </Thumb>
+                                            </Track.Thumb>
+                                        </Track>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Slider.Style>
+        </Slider>
+
+
+    </Grid>
+</UserControl>
+  
