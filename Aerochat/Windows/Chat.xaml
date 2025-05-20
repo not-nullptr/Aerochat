@@ -840,7 +840,6 @@
                                                     <MenuItem x:Name="CopyImageButton" Header="Copy Image" Visibility="Collapsed"></MenuItem>
                                                     <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser" Visibility="Collapsed"></MenuItem>
                                                     <MenuItem x:Name="SaveImageButton" Header="Save Image" Visibility="Collapsed"></MenuItem>
-                                                    <MenuItem x:Name="SaveAudioButton" Header="Save Audio" Visibility="Collapsed" Click="SaveAudioButton_Click"></MenuItem>
                                                     <Separator x:Name="DeveloperActionsSeparator" />
                                                     <MenuItem x:Name="CopyAuthorIdButton" Header="Copy Author ID" Click="CopyAuthorIdButton_Click"></MenuItem>
                                                     <MenuItem x:Name="CopyMessageIdButton" Header="Copy Message ID" Click="CopyMessageIdButton_Click"></MenuItem>
@@ -1199,13 +1198,14 @@
                                                                         </MultiBinding>
                                                                     </TextBlock.Text>
                                                                 </TextBlock>
-                                                                <controls:AudioPlayer Height="40" Width="200" HorizontalAlignment="Left">
+                                                                <controls:AudioPlayer Height="40" Width="335" HorizontalAlignment="Left">
                                                                     <controls:AudioPlayer.Style>
                                                                         <Style TargetType="controls:AudioPlayer">
                                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                                             <Style.Triggers>
                                                                                 <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Audio}">
                                                                                     <Setter Property="Url" Value="{Binding Url}"/>
+                                                                                    <Setter Property="Name" Value="{Binding Name}"/>
                                                                                     <Setter Property="Visibility" Value="Visible" />
                                                                                 </DataTrigger>
                                                                             </Style.Triggers>

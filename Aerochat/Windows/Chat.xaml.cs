@@ -2058,25 +2058,6 @@ namespace Aerochat.Windows
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
-            // Make this cleaner or something
-            if (vm.Attachments.Count > 0)
-            {
-                Separator linkActionsSeparator = (Separator)FindContextMenuItemName(contextMenu, "LinkActionsSeparator");
-                linkActionsSeparator.Visibility = Visibility.Visible;
-            }
-            foreach (var attachment in vm.Attachments)
-            {
-                if (attachment != null)
-                {
-                    switch(attachment.MediaType)
-                    {
-                        case MediaType.Audio:
-                            MenuItem saveButton = (MenuItem)FindContextMenuItemName(contextMenu, "SaveAudioButton");
-                            saveButton.Visibility = Visibility;
-                            break;
-                    }
-                }
-            }
         }
 
         private FrameworkElement? FindContextMenuItemName(ContextMenu contextMenu, string itemName)
@@ -2156,40 +2137,6 @@ namespace Aerochat.Windows
             SetReplyTargetAndEnterReplyMode(messageVm);
         }
 
-        private async void SaveAudioButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
-
-            string URL = "";
-            string Name = "";
-
-            foreach(var attachment in messageVm?.Attachments)
-            {
-                if (attachment.MediaType == MediaType.Audio)
-                {
-                    URL = attachment.Url;
-                    Name = attachment.Name;
-                }
-            }
-
-            SaveFileDialog saveFile = new SaveFileDialog
-            {
-                Title = "Save Audio File",
-                Filter = "MP3 Files (*.mp3)|*.mp3|WAV Files (*.wav)|*.wav|All Files (*.*)|*.*",
-                FileName = Path.GetFileName(Name) // Suggest file name from URL
-            };
-
-            saveFile.ShowDialog();
-
-            string savePath = saveFile.FileName;
-
-            using HttpClient client = new HttpClient();
-            byte[] audioData = await client.GetByteArrayAsync(URL);
-
-            // Step 3: Save the file
-            await File.WriteAllBytesAsync(savePath, audioData);
-
-        }
 
         private void ClearMessageSelection()
         {

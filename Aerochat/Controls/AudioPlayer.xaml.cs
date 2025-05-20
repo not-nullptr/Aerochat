@@ -20,6 +20,8 @@ using Vanara.PInvoke;
 using System.Windows.Threading;
 using System.Reactive;
 using System.Windows.Controls.Primitives;
+using System.Net;
+using System.Net.Http;
 
 namespace Aerochat.Controls
 {
@@ -42,6 +44,17 @@ namespace Aerochat.Controls
         {
             get => (string)GetValue(UrlProperty);
             set => SetValue(UrlProperty, value);
+        }
+
+        public static readonly DependencyProperty NameProperty = DependencyProperty.Register(nameof(Name),
+            typeof(string),
+            typeof(AudioPlayer),
+            new PropertyMetadata(null, OnUrlChanged));
+
+        public string Name
+        {
+            get => (string)GetValue(NameProperty);
+            set => SetValue(NameProperty, value);
         }
 
         public static readonly DependencyProperty PlayingProperty = DependencyProperty.Register(nameof(Playing),
@@ -107,6 +120,7 @@ namespace Aerochat.Controls
         {
             TimeSpan currentPosition = _mediaPlayer.Position;
             TimeSlider.Value = currentPosition.TotalMilliseconds / _mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds * 100;
+            _mediaPlayer.Volume = VolumeSlider.Value / 100;
         }
 
         private void LoadSound(string url)
@@ -126,14 +140,33 @@ namespace Aerochat.Controls
         private void OnSoundOpened(object? sender, EventArgs e)
         {
             Visibility = Visibility.Visible;
+
+
         }
 
         private void OnSoundEnded(object sender, EventArgs e)
         {
             Playing = PlayingState.Stopped;
-        } 
+        }
 
-        
+
+        private async void DownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.SaveFileDialog saveFile = new System.Windows.Forms.SaveFileDialog
+            {
+                Title = "Save audio file",
+                Filter = "MP3 files (*.mp3)|*.mp3|WAV files (*.wav)|*.wav|OGG files (*.ogg)|*.ogg|FLAC files (*.flac)|*.flac|All files (*.*)|*.*",
+                FileName = Name
+            };
+
+            if (saveFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                HttpClient client = new HttpClient();
+                byte[] bytes = await client.GetByteArrayAsync(Url);
+            }
+
+
+        }
 
 
         public void OnPlayClick(object sender, RoutedEventArgs e)
