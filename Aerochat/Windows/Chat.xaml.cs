@@ -1,52 +1,53 @@
+using Aerochat.Controls;
+using Aerochat.Enums;
+using Aerochat.Helpers;
+using Aerochat.Hoarder;
+using Aerochat.Settings;
+using Aerochat.Theme;
+using Aerochat.ViewModels;
+using Aerochat.Voice;
+using Aerovoice.Clients;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Net.Http;
+using System.Reactive.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Channels;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using static Vanara.PInvoke.DwmApi;
-using System.Windows.Interop;
-using System.Drawing;
-using System.Timers;
-using DSharpPlus.Entities;
-using Aerochat.ViewModels;
-using Newtonsoft.Json.Linq;
-using System.Threading.Channels;
-using System.Reactive.Linq;
-using Aerochat.Hoarder;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using Aerochat.Theme;
-using Image = System.Windows.Controls.Image;
-using static Aerochat.ViewModels.HomeListViewCategory;
-using DSharpPlus;
-using System.Windows.Threading;
-using Aerochat.Settings;
-using System.Reflection;
-using System.Windows.Media.Imaging;
-using XamlAnimatedGif;
-using Aerovoice.Clients;
-using System.Collections.Concurrent;
-using Aerochat.Voice;
-using Brushes = System.Windows.Media.Brushes;
-using System.Globalization;
-using Size = System.Windows.Size;
-using Microsoft.Win32;
-using System.IO;
-using System.Windows.Ink;
-using Point = System.Windows.Point;
-using Timer = System.Timers.Timer;
-using DSharpPlus.Exceptions;
-using static Aerochat.Windows.ToolbarItem;
-using Aerochat.Enums;
-using Vanara.Collections;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using Vanara.PInvoke;
-using System;
-using System.Windows.Forms.Design;
 using System.Windows.Documents;
-using Aerochat.Helpers;
-using Aerochat.Controls;
+using System.Windows.Forms.Design;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using Vanara.Collections;
+using Vanara.PInvoke;
+using XamlAnimatedGif;
+using static Aerochat.ViewModels.HomeListViewCategory;
+using static Aerochat.Windows.ToolbarItem;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using static Vanara.PInvoke.DwmApi;
+using Brushes = System.Windows.Media.Brushes;
+using Image = System.Windows.Controls.Image;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
+using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
@@ -2056,6 +2057,26 @@ namespace Aerochat.Windows
             deleteButton.Visibility = isDeleteAllowed
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
+            // Make this cleaner or something
+            if (vm.Attachments.Count > 0)
+            {
+                Separator linkActionsSeparator = (Separator)FindContextMenuItemName(contextMenu, "LinkActionsSeparator");
+                linkActionsSeparator.Visibility = Visibility.Visible;
+            }
+            foreach (var attachment in vm.Attachments)
+            {
+                if (attachment != null)
+                {
+                    switch(attachment.MediaType)
+                    {
+                        case MediaType.Audio:
+                            MenuItem saveButton = (MenuItem)FindContextMenuItemName(contextMenu, "SaveAudioButton");
+                            saveButton.Visibility = Visibility;
+                            break;
+                    }
+                }
+            }
         }
 
         private FrameworkElement? FindContextMenuItemName(ContextMenu contextMenu, string itemName)
@@ -2133,6 +2154,41 @@ namespace Aerochat.Windows
             MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             SetReplyTargetAndEnterReplyMode(messageVm);
+        }
+
+        private async void SaveAudioButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
+
+            string URL = "";
+            string Name = "";
+
+            foreach(var attachment in messageVm?.Attachments)
+            {
+                if (attachment.MediaType == MediaType.Audio)
+                {
+                    URL = attachment.Url;
+                    Name = attachment.Name;
+                }
+            }
+
+            SaveFileDialog saveFile = new SaveFileDialog
+            {
+                Title = "Save Audio File",
+                Filter = "MP3 Files (*.mp3)|*.mp3|WAV Files (*.wav)|*.wav|All Files (*.*)|*.*",
+                FileName = Path.GetFileName(Name) // Suggest file name from URL
+            };
+
+            saveFile.ShowDialog();
+
+            string savePath = saveFile.FileName;
+
+            using HttpClient client = new HttpClient();
+            byte[] audioData = await client.GetByteArrayAsync(URL);
+
+            // Step 3: Save the file
+            await File.WriteAllBytesAsync(savePath, audioData);
+
         }
 
         private void ClearMessageSelection()

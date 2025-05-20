@@ -840,6 +840,7 @@
                                                     <MenuItem x:Name="CopyImageButton" Header="Copy Image" Visibility="Collapsed"></MenuItem>
                                                     <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser" Visibility="Collapsed"></MenuItem>
                                                     <MenuItem x:Name="SaveImageButton" Header="Save Image" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="SaveAudioButton" Header="Save Audio" Visibility="Collapsed" Click="SaveAudioButton_Click"></MenuItem>
                                                     <Separator x:Name="DeveloperActionsSeparator" />
                                                     <MenuItem x:Name="CopyAuthorIdButton" Header="Copy Author ID" Click="CopyAuthorIdButton_Click"></MenuItem>
                                                     <MenuItem x:Name="CopyMessageIdButton" Header="Copy Message ID" Click="CopyMessageIdButton_Click"></MenuItem>

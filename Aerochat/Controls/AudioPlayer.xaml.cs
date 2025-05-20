@@ -77,7 +77,7 @@ namespace Aerochat.Controls
 
         private void Slider_Loaded(object sender, RoutedEventArgs e)
         {
-            Thumb thumb = (Thumb)TimeSlider.FindName("TimeThumb");
+            Thumb thumb = (Thumb)TimeSlider.Template.FindName("TimeThumb", TimeSlider);
 
             if (thumb != null)
             {
