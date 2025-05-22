@@ -6,4 +6,13 @@
         Paused,
         Stopped
     }
+
+    public enum Volume
+    {
+        Muted,
+        Low,
+        Medium,
+        High,
+        Max // Unused
+    }
 }

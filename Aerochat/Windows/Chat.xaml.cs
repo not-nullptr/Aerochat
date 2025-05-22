@@ -1,4 +1,4 @@
-using Aerochat.Controls;
+﻿using Aerochat.Controls;
 using Aerochat.Enums;
 using Aerochat.Helpers;
 using Aerochat.Hoarder;
@@ -43,6 +43,7 @@ using static Aerochat.ViewModels.HomeListViewCategory;
 using static Aerochat.Windows.ToolbarItem;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using static Vanara.PInvoke.DwmApi;
+using static Vanara.PInvoke.User32.RAWINPUT;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
@@ -875,8 +876,17 @@ namespace Aerochat.Windows
         {
             if (Clipboard.ContainsImage())
             {
-                BitmapSource image = Clipboard.GetImage();
-                InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                if (Clipboard.ContainsData("PNG"))
+                {
+                    Object png_object = Clipboard.GetData("PNG");
+                    if (png_object is MemoryStream)
+                    {
+                        MemoryStream png_stream = png_object as MemoryStream;
+                        nint bitmap = new Bitmap(png_stream).GetHbitmap();
+                        BitmapSource image = Imaging.CreateBitmapSourceFromHBitmap(bitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                    }
+                }
             }
         }
 
@@ -908,7 +918,7 @@ namespace Aerochat.Windows
                         CloseAttachmentsEditor();
                 }
             }
-            else if (e.Key == Key.Enter)
+            else if (e.Key == Key.Enter && (!e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.LeftShift)) && !e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.RightShift)))) 
             {
                 // Send the current message from the chatbox:
                 SendMessageFromChatBox();

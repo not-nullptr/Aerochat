@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:enums="clr-namespace:Aerochat.Enums"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:Aerochat.Controls"
              xmlns:local="clr-namespace:Aerochat.Controls" 
              mc:Ignorable="d"
              d:DesignHeight="42" d:DesignWidth="335"
@@ -11,7 +12,8 @@
 
 
     <Grid>
-        <Button Click="OnPlayClick" ToolTip="Play" ToolTipService.InitialShowDelay="500" Margin="0,0,0,0" HorizontalAlignment="Left" Height="32">
+        <Label x:Name="TimeLabel" HorizontalAlignment="Left" Content="--:--/--:--" VerticalContentAlignment="Bottom" Margin="35,16,0,0" HorizontalContentAlignment="Center" Height="26" FontFamily="Segoe UI" FontSize="10" Width="58"></Label>
+        <Button Click="OnPlayClick" x:Name="PlayButton" Visibility="Collapsed" ToolTip="Play" ToolTipService.InitialShowDelay="500" Margin="0,0,0,0" HorizontalAlignment="Left" Height="32">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Image Name="PART_Image" Source="/Resources/AudioPlayer/play.png" />
@@ -46,7 +48,8 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Slider x:Name="TimeSlider" Width="165" VerticalAlignment="Center" Value="0" Margin="0,0,100,0" Minimum="0" Maximum="100" IsSelectionRangeEnabled="True" SelectionStart="0" SelectionEnd="{Binding RelativeSource={RelativeSource Self}, Path=Value}">
+        <Image x:Name="PlayButton_Disabled" HorizontalAlignment="Left" Source="/Resources/AudioPlayer/play_disabled.png" Height="32" ToolTip="Loading"></Image>
+        <Slider x:Name="TimeSlider" ValueChanged="TimeSlider_Changed" Width="165" VerticalAlignment="Center" Value="0" Margin="0,0,100,0" Minimum="0" Maximum="100" IsSelectionRangeEnabled="True" SelectionStart="0" SelectionEnd="{Binding RelativeSource={RelativeSource Self}, Path=Value}">
             <Slider.Style>
                 <Style TargetType="Slider">
                     <Setter Property="Template">
@@ -105,14 +108,28 @@
         <StackPanel Orientation="Horizontal" Margin="190,0,0,0">
             <!--<Label Content="0:00/0:00" VerticalAlignment="Center" x:Name="TimeLabel"/>-->
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="VolumeButton" Height="24" Width="24">
-                    <Button.Template>
-                        <ControlTemplate>
-                            <Image x:Name="PART_Image" Source="/Resources/AudioPlayer/vol_high.png" />
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-                <Slider x:Name="VolumeSlider" Height="24"  VerticalAlignment="Center" Value="50" Minimum="0" Maximum="100" IsSelectionRangeEnabled="True" SelectionStart="0" SelectionEnd="{Binding Value, RelativeSource={RelativeSource Mode=Self}}" Width="75">
+                <Grid Width="24" Height="24">
+                    <Button x:Name="VolumeButton" Height="24" Width="24">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Image x:Name="PART_Image" Source="/Resources/AudioPlayer/vol_mid.png" />
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding VolumeState, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:Volume.Muted}">
+                                        <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/vol_muted.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding VolumeState, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:Volume.Low}">
+                                        <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/vol_low.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding VolumeState, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:AudioPlayer}}}" Value="{x:Static enums:Volume.High}">
+                                        <Setter TargetName="PART_Image" Property="Source" Value="/Resources/AudioPlayer/vol_high.png"/>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <controls:NineSliceButton MouseUp="VolumeButton_Click" Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6"/>
+                </Grid>
+                <Slider x:Name="VolumeSlider" ValueChanged="VolumeSlider_Changed" Height="24" VerticalAlignment="Center" Value="50" Minimum="0" Maximum="100" IsSelectionRangeEnabled="True" SelectionStart="0" SelectionEnd="{Binding Value, RelativeSource={RelativeSource Mode=Self}}" Width="75">
                     <Slider.Style>
                         <Style TargetType="{x:Type Slider}">
                             <Setter Property="Template">

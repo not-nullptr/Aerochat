@@ -22,18 +22,19 @@ using System.Reactive;
 using System.Windows.Controls.Primitives;
 using System.Net;
 using System.Net.Http;
+using Vanara.Extensions.Reflection;
 
 namespace Aerochat.Controls
 {
     public partial class AudioPlayer : UserControl
     {
 
-        private MediaPlayer _mediaPlayer = new MediaPlayer();
+        private MediaPlayer mediaPlayer = new MediaPlayer();
 
         DispatcherTimer soundTimer = new DispatcherTimer();
 
-
-
+        private double preMuteVolume = 0;
+        private bool muted = false;
 
         public static readonly DependencyProperty UrlProperty = DependencyProperty.Register(nameof(Url), 
             typeof(string), 
@@ -68,6 +69,17 @@ namespace Aerochat.Controls
             set => SetValue(PlayingProperty, value);
         }
 
+        public static readonly DependencyProperty VolumeStateProperty = DependencyProperty.Register(nameof(VolumeState),
+            typeof(Volume),
+            typeof(AudioPlayer),
+            new PropertyMetadata(Volume.Medium));
+
+        public Volume VolumeState
+        {
+            get => (Volume)GetValue(VolumeStateProperty);
+            set => SetValue(VolumeStateProperty, value);
+        }
+
 
         private static void OnUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -80,15 +92,22 @@ namespace Aerochat.Controls
 
         public AudioPlayer()
         {
-            InitializeComponent();
-            Visibility = Visibility.Collapsed;
+            InitializeComponent();;
             soundTimer.Interval = TimeSpan.FromMilliseconds(1);
             soundTimer.Tick += Timer_Tick;
 
-            TimeSlider.Loaded += Slider_Loaded;
+            TimeSlider.Loaded += TimeSlider_Loaded;
+
+            Unloaded += AudioPlayer_Unloaded;
         }
 
-        private void Slider_Loaded(object sender, RoutedEventArgs e)
+        private void AudioPlayer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            mediaPlayer.Stop();
+            mediaPlayer.Close();
+        }
+
+        private void TimeSlider_Loaded(object sender, RoutedEventArgs e)
         {
             Thumb thumb = (Thumb)TimeSlider.Template.FindName("TimeThumb", TimeSlider);
 
@@ -99,37 +118,105 @@ namespace Aerochat.Controls
             }
         }
 
+        private void TimeSlider_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!mediaPlayer.NaturalDuration.HasTimeSpan) return;
+
+            TimeSpan currentTime = TimeSpan.FromSeconds(TimeSlider.Value / 100 * mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds);
+
+            TimeLabel.Content = ConvertTime(currentTime, mediaPlayer.NaturalDuration.TimeSpan);
+        }
+
+        private void VolumeButton_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (!muted)
+            {
+                preMuteVolume = mediaPlayer.Volume;
+                VolumeSlider.Value = 0;
+            }
+            else
+            {
+                mediaPlayer.Volume = preMuteVolume;
+                VolumeSlider.Value = preMuteVolume * 100;
+                muted = true;
+            }
+            muted = !muted;
+        }
+
+        private void VolumeSlider_Changed(object sender, RoutedEventArgs e)
+        {
+            mediaPlayer.Volume = VolumeSlider.Value / 100;
+            if (VolumeSlider.Value == 0) {
+                VolumeState = Volume.Muted;
+            }
+            if (VolumeSlider.Value > 0) {
+                VolumeState = Volume.Low;
+                if (muted) muted = false;
+            }
+            if (VolumeSlider.Value > 31)
+            {
+                VolumeState = Volume.Medium;
+            }
+            if (VolumeSlider.Value > 62)
+            {
+                VolumeState = Volume.High;
+            }
+        }
+
         private void OnDragEnd(object sender, DragCompletedEventArgs e)
         {
-            _mediaPlayer.Position = TimeSpan.FromMilliseconds(TimeSlider.Value / 100 * _mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds);
+            mediaPlayer.Position = TimeSpan.FromMilliseconds(TimeSlider.Value / 100 * mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds);
             if (Playing == PlayingState.Playing)
             {
-                _mediaPlayer.Play();
+                mediaPlayer.Play();
                 soundTimer.Start();
             }
         }
 
         private void OnDragStart(object sender, DragStartedEventArgs e)
         {
-            _mediaPlayer.Pause();
+            mediaPlayer.Pause();
             soundTimer.Stop();
+        }
+
+        // Forgive me father.
+        private string ConvertTime(TimeSpan time, TimeSpan maxtime)
+        {
+            string convertedTime = "";
+
+            var curTime = time;
+            string processConversion()
+            {
+                var minutes = curTime.TotalMinutes < 10 ? $"0{(int)curTime.TotalMinutes}" : ((int)curTime.TotalMinutes).ToString();
+                var seconds = curTime.TotalSeconds % 60 < 10 ? $"0{(int)(curTime.TotalSeconds % 60)}" : ((int)(curTime.TotalSeconds % 60)).ToString();
+                return $"{minutes}:{seconds}";
+            }
+            convertedTime += processConversion() + "/";
+            curTime = maxtime;
+            convertedTime += processConversion();
+
+            return convertedTime;
         }
 
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            TimeSpan currentPosition = _mediaPlayer.Position;
-            TimeSlider.Value = currentPosition.TotalMilliseconds / _mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds * 100;
-            _mediaPlayer.Volume = VolumeSlider.Value / 100;
+            if (!mediaPlayer.NaturalDuration.HasTimeSpan) return;
+            TimeSpan currentPosition = mediaPlayer.Position;
+            TimeSpan totalPosition = mediaPlayer.NaturalDuration.TimeSpan;
+            TimeSlider.Value = currentPosition.TotalMilliseconds / mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds * 100;
+            
+   
+
         }
 
         private void LoadSound(string url)
         {
             try
             {
-                _mediaPlayer.Open(new Uri(url, UriKind.Absolute));
-                _mediaPlayer.MediaEnded += OnSoundEnded;
-                _mediaPlayer.MediaOpened += OnSoundOpened;
+                mediaPlayer.Open(new Uri(url, UriKind.Absolute));
+                mediaPlayer.MediaEnded += OnSoundEnded;
+                mediaPlayer.MediaOpened += OnSoundOpened;
             }
             catch (Exception ex)
             {
@@ -139,9 +226,9 @@ namespace Aerochat.Controls
 
         private void OnSoundOpened(object? sender, EventArgs e)
         {
-            Visibility = Visibility.Visible;
-
-
+            PlayButton.Visibility = Visibility.Visible;
+            PlayButton_Disabled.Visibility = Visibility.Collapsed;
+            TimeLabel.Content = ConvertTime(TimeSpan.Zero, mediaPlayer.NaturalDuration.TimeSpan);
         }
 
         private void OnSoundEnded(object sender, EventArgs e)
@@ -173,23 +260,23 @@ namespace Aerochat.Controls
         {
             if (Playing == PlayingState.Stopped)
             {
-                if (_mediaPlayer.Position == _mediaPlayer.NaturalDuration.TimeSpan)
+                if (mediaPlayer.Position == mediaPlayer.NaturalDuration.TimeSpan)
                 { 
-                    _mediaPlayer.Position = TimeSpan.Zero;
+                    mediaPlayer.Position = TimeSpan.Zero;
                 }
-                _mediaPlayer.Play();
+                mediaPlayer.Play();
                 soundTimer.Start();
                 Playing = PlayingState.Playing;
             }
             else if (Playing == PlayingState.Playing)
             {
-                _mediaPlayer.Pause();
+                mediaPlayer.Pause();
                 soundTimer.Stop();
                 Playing = PlayingState.Paused;
             }
             else
             {
-                _mediaPlayer.Play();
+                mediaPlayer.Play();
                 soundTimer.Start();
                 Playing = PlayingState.Playing;
             }
