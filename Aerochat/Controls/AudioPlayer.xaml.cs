@@ -23,6 +23,7 @@ using System.Windows.Controls.Primitives;
 using System.Net;
 using System.Net.Http;
 using Vanara.Extensions.Reflection;
+using System.IO;
 
 namespace Aerochat.Controls
 {
@@ -250,6 +251,7 @@ namespace Aerochat.Controls
             {
                 HttpClient client = new HttpClient();
                 byte[] bytes = await client.GetByteArrayAsync(Url);
+                await File.WriteAllBytesAsync(saveFile.FileName, bytes);
             }
 
 
