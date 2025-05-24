@@ -12,7 +12,7 @@
 
 
     <Grid>
-        <Label x:Name="TimeLabel" HorizontalAlignment="Left" Content="--:--/--:--" VerticalContentAlignment="Bottom" Margin="35,16,0,0" HorizontalContentAlignment="Center" Height="26" FontFamily="Segoe UI" FontSize="10" Width="58"></Label>
+        <Label x:Name="TimeLabel" HorizontalAlignment="Left" Content="--:--/--:--" VerticalContentAlignment="Bottom" Margin="35,16,0,0" HorizontalContentAlignment="Left" Height="26" FontFamily="Segoe UI" FontSize="10" Width="58"></Label>
         <Button Click="OnPlayClick" x:Name="PlayButton" Visibility="Collapsed" ToolTip="Play" ToolTipService.InitialShowDelay="500" Margin="0,0,0,0" HorizontalAlignment="Left" Height="32">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
