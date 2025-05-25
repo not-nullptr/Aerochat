@@ -1,40 +1,53 @@
+﻿using Aerochat.Controls;
+using Aerochat.Enums;
+using Aerochat.Helpers;
+using Aerochat.Hoarder;
+using Aerochat.Settings;
+using Aerochat.Theme;
+using Aerochat.ViewModels;
+using Aerochat.Voice;
+using Aerovoice.Clients;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Net.Http;
+using System.Reactive.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Channels;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using static Vanara.PInvoke.DwmApi;
-using System.Windows.Interop;
-using System.Drawing;
-using System.Timers;
-using DSharpPlus.Entities;
-using Aerochat.ViewModels;
-using Newtonsoft.Json.Linq;
-using System.Threading.Channels;
-using System.Reactive.Linq;
-using Aerochat.Hoarder;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using Aerochat.Theme;
-using Image = System.Windows.Controls.Image;
-using static Aerochat.ViewModels.HomeListViewCategory;
-using DSharpPlus;
-using System.Windows.Threading;
-using Aerochat.Settings;
-using System.Reflection;
-using System.Windows.Media.Imaging;
-using XamlAnimatedGif;
-using Aerovoice.Clients;
-using System.Collections.Concurrent;
-using Aerochat.Voice;
-using Brushes = System.Windows.Media.Brushes;
-using System.Globalization;
-using Size = System.Windows.Size;
-using Microsoft.Win32;
-using System.IO;
+using System.Windows.Documents;
+using System.Windows.Forms.Design;
 using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using Vanara.Collections;
+using Vanara.PInvoke;
+using XamlAnimatedGif;
+using static Aerochat.ViewModels.HomeListViewCategory;
+using static Aerochat.Windows.ToolbarItem;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using static Vanara.PInvoke.DwmApi;
+using static Vanara.PInvoke.User32.RAWINPUT;
+using Brushes = System.Windows.Media.Brushes;
+using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
+using Size = System.Windows.Size;
 using Timer = System.Timers.Timer;
 using DSharpPlus.Exceptions;
 using static Aerochat.Windows.ToolbarItem;
@@ -874,8 +887,17 @@ namespace Aerochat.Windows
         {
             if (Clipboard.ContainsImage())
             {
-                BitmapSource image = Clipboard.GetImage();
-                InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                if (Clipboard.ContainsData("PNG"))
+                {
+                    Object png_object = Clipboard.GetData("PNG");
+                    if (png_object is MemoryStream)
+                    {
+                        MemoryStream png_stream = png_object as MemoryStream;
+                        nint bitmap = new Bitmap(png_stream).GetHbitmap();
+                        BitmapSource image = Imaging.CreateBitmapSourceFromHBitmap(bitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                    }
+                }
             }
         }
 
@@ -907,7 +929,7 @@ namespace Aerochat.Windows
                         CloseAttachmentsEditor();
                 }
             }
-            else if (e.Key == Key.Enter)
+            else if (e.Key == Key.Enter && (!e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.LeftShift)) && !e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.RightShift)))) 
             {
                 // Send the current message from the chatbox:
                 SendMessageFromChatBox();
@@ -2056,6 +2078,7 @@ namespace Aerochat.Windows
             deleteButton.Visibility = isDeleteAllowed
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
         }
 
         private FrameworkElement? FindContextMenuItemName(ContextMenu contextMenu, string itemName)
@@ -2134,6 +2157,7 @@ namespace Aerochat.Windows
 
             SetReplyTargetAndEnterReplyMode(messageVm);
         }
+
 
         private void ClearMessageSelection()
         {

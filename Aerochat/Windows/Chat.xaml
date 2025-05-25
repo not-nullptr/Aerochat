@@ -1198,6 +1198,20 @@
                                                                         </MultiBinding>
                                                                     </TextBlock.Text>
                                                                 </TextBlock>
+                                                                <controls:AudioPlayer Height="40" Width="335" HorizontalAlignment="Left">
+                                                                    <controls:AudioPlayer.Style>
+                                                                        <Style TargetType="controls:AudioPlayer">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding MediaType}" Value="{x:Static enums:MediaType.Audio}">
+                                                                                    <Setter Property="Url" Value="{Binding Url}"/>
+                                                                                    <Setter Property="Name" Value="{Binding Name}"/>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </controls:AudioPlayer.Style>
+                                                                </controls:AudioPlayer>
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>

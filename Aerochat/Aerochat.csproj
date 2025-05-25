@@ -58,12 +58,33 @@
 		<None Remove="Ads\roblox.jpeg" />
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
+		<None Remove="Controls\pbfillend.png" />
 		<None Remove="Resources\AttachmentsEditor\Delete.png" />
 		<None Remove="Resources\AttachmentsEditor\DeleteHover.png" />
 		<None Remove="Resources\AttachmentsEditor\DeletePressed.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgHover.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgKeyFocused.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgSelected.png" />
+		<None Remove="Resources\AudioPlayer\download.png" />
+		<None Remove="Resources\AudioPlayer\pause.png" />
+		<None Remove="Resources\AudioPlayer\pause_disabled.png" />
+		<None Remove="Resources\AudioPlayer\pause_hover.png" />
+		<None Remove="Resources\AudioPlayer\pause_pressed.png" />
+		<None Remove="Resources\AudioPlayer\pbfillend.png" />
+		<None Remove="Resources\AudioPlayer\play.png" />
+		<None Remove="Resources\AudioPlayer\play_disabled.png" />
+		<None Remove="Resources\AudioPlayer\play_hover.png" />
+		<None Remove="Resources\AudioPlayer\play_pressed.png" />
+		<None Remove="Resources\AudioPlayer\seekhandle.png" />
+		<None Remove="Resources\AudioPlayer\seekhandle_hover.png" />
+		<None Remove="Resources\AudioPlayer\seekhandle_pressed.png" />
+		<None Remove="Resources\AudioPlayer\volhandle.png" />
+		<None Remove="Resources\AudioPlayer\volhandle_hover.png" />
+		<None Remove="Resources\AudioPlayer\volhandle_pressed.png" />
+		<None Remove="Resources\AudioPlayer\vol_high.png" />
+		<None Remove="Resources\AudioPlayer\vol_low.png" />
+		<None Remove="Resources\AudioPlayer\vol_mid.png" />
+		<None Remove="Resources\AudioPlayer\vol_muted.png" />
 		<None Remove="Resources\bg-1.png" />
 		<None Remove="Resources\BoolEditor\Class.png" />
 		<None Remove="Resources\BoolEditor\Field.png" />
@@ -355,6 +376,26 @@
 		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeleteHover.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeletePressed.png" />
+		<Resource Include="Resources\AudioPlayer\download.png" />
+		<Resource Include="Resources\AudioPlayer\pause.png" />
+		<Resource Include="Resources\AudioPlayer\pause_disabled.png" />
+		<Resource Include="Resources\AudioPlayer\pause_hover.png" />
+		<Resource Include="Resources\AudioPlayer\pause_pressed.png" />
+		<Resource Include="Resources\AudioPlayer\pbfillend.png" />
+		<Resource Include="Resources\AudioPlayer\play.png" />
+		<Resource Include="Resources\AudioPlayer\play_disabled.png" />
+		<Resource Include="Resources\AudioPlayer\play_hover.png" />
+		<Resource Include="Resources\AudioPlayer\play_pressed.png" />
+		<Resource Include="Resources\AudioPlayer\seekhandle.png" />
+		<Resource Include="Resources\AudioPlayer\seekhandle_hover.png" />
+		<Resource Include="Resources\AudioPlayer\seekhandle_pressed.png" />
+		<Resource Include="Resources\AudioPlayer\volhandle.png" />
+		<Resource Include="Resources\AudioPlayer\volhandle_hover.png" />
+		<Resource Include="Resources\AudioPlayer\volhandle_pressed.png" />
+		<Resource Include="Resources\AudioPlayer\vol_high.png" />
+		<Resource Include="Resources\AudioPlayer\vol_low.png" />
+		<Resource Include="Resources\AudioPlayer\vol_mid.png" />
+		<Resource Include="Resources\AudioPlayer\vol_muted.png" />
 		<Resource Include="Resources\BoolEditor\Class.png" />
 		<Resource Include="Resources\BoolEditor\Field.png" />
 		<Resource Include="Resources\BoolEditor\Namespace.png" />
@@ -662,6 +703,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Enums\AudioPlayer.cs">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Compile>
 	  <Compile Update="Properties\Settings.Designer.cs">
 	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	    <AutoGen>True</AutoGen>
