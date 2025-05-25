@@ -215,6 +215,10 @@ namespace Aerochat.Settings
 
         public bool DisplayAerochatAttribution { get; set; } = true;
 
+        [Settings("Appearance", "Show link previews in chat")]
+
+        public bool DisplayLinkPreviews { get; set; } = true;
+
         [Settings("Appearance", "Time format")]
         public TimeFormat SelectedTimeFormat { get; set; } = TimeFormat.TwentyFourHour;
 

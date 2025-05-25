@@ -49,6 +49,17 @@ using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 using Timer = System.Timers.Timer;
+using DSharpPlus.Exceptions;
+using static Aerochat.Windows.ToolbarItem;
+using Aerochat.Enums;
+using Vanara.Collections;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using Vanara.PInvoke;
+using System;
+using System.Windows.Forms.Design;
+using System.Windows.Documents;
+using Aerochat.Helpers;
+using Aerochat.Controls;
 
 namespace Aerochat.Windows
 {
