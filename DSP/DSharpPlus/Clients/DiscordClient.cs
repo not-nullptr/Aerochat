@@ -373,7 +373,7 @@ namespace DSharpPlus
                 catch (UnauthorizedException e)
                 {
                     FailConnection(this.ConnectionLock);
-                    throw new Exception("Authentication failed. Check your token and try again.", e);
+                    throw;
                 }
                 catch (PlatformNotSupportedException)
                 {
