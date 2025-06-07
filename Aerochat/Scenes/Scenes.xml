@@ -89,4 +89,18 @@
 	<item id="87" credit="JJTNT123" mimetype="image/jpeg" contenttype="D" file="WhiteMountains.jpeg" displayname="White Mountains" color="#8896a4" default="false" />
 	<item id="88" credit="StuxDek" mimetype="image/png" contenttype="D" file="MyLittlePony.png" displayname="My Little Pony" color="#C1EAD8" default="false" />
 	<item id="89" credit="Nintendo" mimetype="image/jpeg" contenttype="D" file="SuperMarioSunshine.jpeg" displayname="Super Mario Sunshine" color="#8adbff" default="false" />
+	<item id="90" credit="xMcBuggz24" mimetype="image/png" contenttype="D" file="LittleBigPlanet.png" displayname="LittleBigPlanet" color="#b3dbdf" default="false" />
+	<item id="91" credit="Julian³" mimetype="image/png" contenttype="D" file="Persona3.png" displayname="Persona 3" color="#03aee7" default="false" />
+	<item id="92" credit="kawapure" mimetype="image/png" contenttype="D" file="Fallen-Evanescence.png" displayname="Fallen - Evanescence" color="#85b8cb" default="false" />
+	<item id="93" credit="Julian³" mimetype="image/png" contenttype="D" file="Paramore.png" displayname="Paramore" color="#ff8042" default="false" />
+	<item id="94" credit="Bandai Namco Inc." mimetype="image/png" contenttype="D" file="kakarotorgoku.png" displayname="kakarot (or goku)" color="#f0833a" default="false" />
+	<item id="95" credit="Julian³" mimetype="image/png" contenttype="D" file="TransFlag.png" displayname="Trans Flag" color="#ffddfe" default="false" />
+	<item id="96" credit="Microsoft" mimetype="image/png" contenttype="D" file="WindowsWhistler-Watercolor.png" displayname="Windows Whistler - Watercolor" color="#3300ca" default="false" />
+	<item id="97" credit="https://wallpaperswide.com/" mimetype="image/png" contenttype="D" file="TaigaAisakaScene.png" displayname="Taiga Aisaka Scene" color="#820d0d" default="false" />
+	<item id="98" credit="Kuroya Lily" mimetype="image/png" contenttype="D" file="IbukiSuikaScene.png" displayname="Ibuki Suika Scene" color="#0048f0" default="false" />
+	<item id="99" credit="NICHOLIEGE" mimetype="image/jpeg" contenttype="D" file="SuperMarioGalaxy.jpeg" displayname="Super Mario Galaxy" color="#0922dc" default="false" />
+	<item id="100" credit="Tyler, the Creator / patricktbp" mimetype="image/png" contenttype="D" file="IGOR-TylertheCreator.png" displayname="IGOR - Tyler, the Creator" color="#ff9799" default="false" />
+	<item id="101" credit="realerico" mimetype="image/png" contenttype="D" file="Yakuza0.png" displayname="Yakuza 0" color="#c8c8c8" default="false" />
+	<item id="102" credit="[𝐟𝐮𝐫𝐩𝐥𝐞 ⋆˚☆˖° ₍^. .^₎⟆] ⭐" mimetype="image/png" contenttype="D" file="Catstronaut.png" displayname="Catstronaut" color="#7928ff" default="false" />
+	<item id="103" credit="John" mimetype="image/png" contenttype="D" file="MModule.png" displayname="MModule" color="#000002" default="false" />
 </package>
