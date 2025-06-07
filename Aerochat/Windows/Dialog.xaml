@@ -30,7 +30,7 @@
                     <Image Grid.Column="0" Source="{Binding Icon}" Width="32" Height="32" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
                     <StackPanel Grid.Column="1" Margin="8,0,0,0">
                         <TextBlock TextWrapping="Wrap" Text="{Binding Title}" Foreground="#355a88" FontSize="19" />
-                        <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Foreground="#333" Text="{Binding Description}" />
+                        <TextBlock x:Name="PART_Description" TextWrapping="Wrap" Margin="0,4,0,0" Foreground="#333" />
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1">
