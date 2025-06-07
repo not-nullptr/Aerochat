@@ -287,6 +287,8 @@ namespace Aerochat
                     token = "";
                     tokenFound = false;
 
+                    // We set the shutdown mode to prevent the application from automatically closing when
+                    // this dialog is closed, which would otherwise happen due to the default OnLastWindowClose.
                     ShutdownMode origShutdownMode = this.ShutdownMode;
                     this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
