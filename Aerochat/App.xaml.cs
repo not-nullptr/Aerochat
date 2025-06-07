@@ -434,6 +434,7 @@ namespace Aerochat
                 byte[] encryptedToken = ProtectedData.Protect(Encoding.UTF8.GetBytes(givenToken), null, DataProtectionScope.CurrentUser);
                 string b64T = Convert.ToBase64String(encryptedToken);
                 SettingsManager.Instance.Token = b64T;
+                SettingsManager.Instance.HasUserLoggedInBefore = true;
                 SettingsManager.Save();
             }
             DiscordColor? colour = Discord.Client.CurrentUser.BannerColor;

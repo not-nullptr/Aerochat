@@ -143,7 +143,7 @@ namespace Aerochat.Settings
         public List<ulong> RecentDMChats { get ; set; } = new();
         public List<ulong> RecentServerChats { get; set; } = new();
         public DateTime ReadRecieptReference { get; set; } = DateTime.MinValue;
-        public bool WarningShown { get; set; } = false;
+        public bool HasUserLoggedInBefore { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
         public List<ulong> ViewedNotices { get; set; } = [];
 
