@@ -884,16 +884,6 @@ namespace Aerochat
             {
                 OnAnyUncaughtException((Exception)e.ExceptionObject);
             };
-
-            DispatcherUnhandledException += (s, e) =>
-            {
-                OnAnyUncaughtException(e.Exception);
-            };
-
-            TaskScheduler.UnobservedTaskException += (s, e) =>
-            {
-                OnAnyUncaughtException(e.Exception);
-            };
         }
 
         static bool s_hasShownUncaughtExceptionBefore = false;
