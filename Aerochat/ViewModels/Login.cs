@@ -24,6 +24,13 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _notLoggingIn, value);
         }
 
+        private bool _editBoxHasContent = false;
+        public bool EditBoxHasContent
+        {
+            get => _editBoxHasContent;
+            set => SetProperty(ref _editBoxHasContent, value);
+        }
+
         private bool _mfaRequired = false;
         public bool MFARequired
         {

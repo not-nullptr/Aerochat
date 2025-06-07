@@ -5,9 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:LoginWindowViewModel}"
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:converter="clr-namespace:Aerochat.Converter"
         mc:Ignorable="d"
         Title="Windows Live Messenger" Height="650" Width="400"
         Style="{StaticResource Window}">
+    <Window.Resources>
+        <converter:MultiBooleanConverter x:Key="MultiBooleanConverter"/>
+    </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Scene.Color}" BlackText="{Binding Scene.TextColor}">
         <Grid>
             <controls:ColorizedNineSlice Image="/Resources/Message/Background.png" TintColor="{Binding Scene.Color}" Slice="1,1" />
@@ -36,17 +40,20 @@
                     </Grid>
                     <TextBlock Margin="0,6,0,0" Text="Sign in" Foreground="#355a88" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Top" />
                     <TextBlock Foreground="#333333" Margin="0,6,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap">
-                Sign in with your Windows Live ID. Don't have one? <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://discord.com/login">Sign up.</Hyperlink>
+                Sign in with your Discord account. Don't have one? <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://discord.com/login">Sign up.</Hyperlink>
                     </TextBlock>
                     <Grid MaxWidth="238" Margin="0,20,0,0">
                         <controls:NineSlice Image="/Resources/Login/Frame.png" Slice="4,4" />
                         <StackPanel Margin="6">
                             <Grid Margin="0,0,0,8">
                                 <PasswordBox PasswordChanged="Password_PasswordChanged" PasswordChar="*" Foreground="#333333" x:Name="Password" Height="24" />
-                                <TextBlock x:Name="PasswordPlaceholder" Foreground="#6d6d6d" FontStyle="Italic" Text="Enter your token" IsHitTestVisible="False" VerticalAlignment="Center" Margin="5,0,5,2" />
+                                <TextBlock x:Name="PasswordPlaceholder" Foreground="#6d6d6d" FontStyle="Italic" Text="Enter your Discord token" IsHitTestVisible="False" VerticalAlignment="Center" Margin="5,0,5,2" />
                             </Grid>
                             <TextBlock Margin="0,-2,0,8">
-                                <Hyperlink Click="Hyperlink_Click" FontStyle="Italic">...or log-in via password</Hyperlink>
+                                <Hyperlink Click="OnClickLoginWithPassword" FontStyle="Italic">...or log-in via password</Hyperlink>
+                            </TextBlock>
+                            <TextBlock Margin="0,-2,0,8">
+                                <Hyperlink x:Name="PART_GetHelpLoggingInHyperlink" RequestNavigate="PART_GetHelpLoggingInHyperlink_Click" NavigateUri="FAKE URI THIS IS IN CODEBEHIND">Get help logging into Aerochat.</Hyperlink>
                             </TextBlock>
                             <Grid x:Name="MFATextBoxParent" Visibility="Collapsed" Margin="0,0,0,10">
                                 <TextBox IsEnabled="{Binding NotLoggingIn}" Foreground="#333333" x:Name="MFATextBox" Height="24" />
@@ -136,7 +143,7 @@
                                 </Button>
                             </StackPanel>
                             <StackPanel Margin="2,14">
-                                <CheckBox x:Name="RememberMe" Margin="0,0,0,11" IsEnabled="{Binding NotLoggingIn}">
+                                <CheckBox x:Name="RememberMe" Margin="0,0,0,11" IsEnabled="{Binding NotLoggingIn}" IsChecked="True">
                                     <TextBlock Foreground="#333">Remember me</TextBlock>
                                 </CheckBox>
                                 <CheckBox Margin="0,0,0,14" IsEnabled="False">
@@ -147,11 +154,18 @@
                                 </CheckBox>
                             </StackPanel>
                             <TextBlock>
-                            <Hyperlink>Forgot your password?</Hyperlink>
+                            <Hyperlink RequestNavigate="OnClickResetPasswordLink" NavigateUri="FAKE URI - HANDLED IN CODEBEHIND">Forgot your password?</Hyperlink>
                             </TextBlock>
                         </StackPanel>
                     </Grid>
-                    <Button IsEnabled="{Binding NotLoggingIn}" x:Name="SignIn" Click="SignIn_Click" Content="Sign in" HorizontalAlignment="Center" MinWidth="72" Margin="0,10" Height="23" />
+                    <Button x:Name="SignIn" Click="SignIn_Click" Content="Sign in" HorizontalAlignment="Center" MinWidth="72" Margin="0,10" Height="23">
+                        <Button.IsEnabled>
+                            <MultiBinding Converter="{StaticResource MultiBooleanConverter}">
+                                <Binding Path="NotLoggingIn" />
+                                <Binding Path="EditBoxHasContent" />
+                            </MultiBinding>
+                        </Button.IsEnabled>
+                    </Button>
                 </StackPanel>
                 <Grid Grid.Row="1" Margin="12,12" Opacity="0.75">
                     <StackPanel Orientation="Horizontal">

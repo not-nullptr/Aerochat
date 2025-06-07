@@ -26,29 +26,60 @@ namespace Aerochat.Windows
 {
     public partial class Login : Window
     {
+        public const string HELP_LOGON_URI = "https://github.com/not-nullptr/Aerochat/wiki/Get-help-logging-in";
+        public const string HELP_GET_TOKEN_URI = HELP_LOGON_URI + "#token-logon";
+
         public LoginWindowViewModel ViewModel { get; set; } = new LoginWindowViewModel();
-        public Login(bool alreadyErrored = false)
+        public Login(bool alreadyErrored = false, AerochatLoginStatus previousError = AerochatLoginStatus.Success)
         {
             InitializeComponent();
             DataContext = ViewModel;
             ViewModel.Scene = ThemeService.Instance.Scenes.FirstOrDefault(x => x.Default);
+
+            DataObject.AddPastingHandler(Password, OnPasteIntoTokenInputBox);
+
             if (!SettingsManager.Instance.HasUserLoggedInBefore)
             {
                 Show();
-                var dialog = new Dialog("Warning", "Using a custom Discord client is against Discord's rules. There is a non-zero chance your account will get terminated when using Aerochat. YOU WILL NOT BE WARNED AGAIN.", SystemIcons.Warning);
+                var dialog = new Dialog("Warning", "Using a custom Discord client is against Discord's rules.\n\nBy using Aerochat, " +
+                    "you risk the restriction or termination of your Discord account. If you do not wish to take this risk, please " +
+                    "do NOT use Aerochat on any account that you care about.\n\nYOU WILL NOT BE WARNED AGAIN.", SystemIcons.Warning);
                 dialog.Owner = this;
                 dialog.ShowDialog();
             }
+
             if (alreadyErrored)
             {
                 Show();
-                ShowErrorDialog();
+                ShowErrorDialog(previousError);
             }
         }
 
-        private void ShowErrorDialog()
+        private void ShowErrorDialog(AerochatLoginStatus loginStatus)
         {
-            var dialog = new Dialog("We can't sign you in to Windows Live Messenger", "The Discord token you entered is incorrect.", SystemIcons.Information);
+            List<Inline> message = loginStatus switch
+            {
+                AerochatLoginStatus.Success => new() {
+                    new Run("Invalid data passed to constructor. This is an error meant to be seen by Aerochat developers.") },
+
+                AerochatLoginStatus.Unauthorized => new() {
+                    new Run("The Discord token you entered is incorrect. "),
+                    new Hyperlink(new Run("For help retrieving your Discord token, click here."))
+                    {
+                        NavigateUri = new Uri(HELP_GET_TOKEN_URI),
+                    } },
+
+                AerochatLoginStatus.BadRequest => new() {
+                    new Run("The request Aerochat made is malformed and Discord did not accept it. This is a severe Aerochat bug.") },
+
+                AerochatLoginStatus.ServerError => new() {
+                    new Run("There was an error connecting to the server. Please check your internet connection and firewall " +
+                            "settings to ensure that Aerochat has access to the internet.") },
+
+                _ => new() { new Run("An unknown error occurred. Please try again later.") }
+            };
+
+            var dialog = new Dialog("We can't sign you in to Discord", message, SystemIcons.Information);
             dialog.Owner = this;
             dialog.ShowDialog();
         }
@@ -92,10 +123,12 @@ namespace Aerochat.Windows
             if (Password.Password.Length == 0)
             {
                 PasswordPlaceholder.Visibility = Visibility.Visible;
+                ViewModel.EditBoxHasContent = false;
             }
             else
             {
                 PasswordPlaceholder.Visibility = Visibility.Hidden;
+                ViewModel.EditBoxHasContent = true;
             }
         }
 
@@ -105,11 +138,13 @@ namespace Aerochat.Windows
         {
             ViewModel.NotLoggingIn = false;
             var app = (App)Application.Current;
+
             if (mfaCompletionSource != null && MFATextBoxParent.Visibility == Visibility.Visible)
             {
                 mfaCompletionSource.SetResult(MFATextBox.Text);
                 return;
             }
+
             bool rememberMe = RememberMe.IsChecked == true;
             UserStatus status = ViewModel.LoginStatus switch
             {
@@ -124,11 +159,30 @@ namespace Aerochat.Windows
             if (loginStatus != AerochatLoginStatus.Success)
             {
                 ViewModel.NotLoggingIn = true;
-                ShowErrorDialog();
+                ShowErrorDialog(loginStatus);
             }
         }
 
-        private async void Hyperlink_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Transforms a Discord token for consumption by removing surrounding information, such as
+        /// whitespace and keywords from browser console such as "Authorization:".
+        /// </summary>
+        /// <remarks>
+        /// This function was written because of many people coming into support channels to ask why
+        /// their tokens weren't working, even when they copied it from their browser's developer tools.
+        /// Turns out that they didn't understand how whitespace or other surrounding words needed to be
+        /// removed, so we should just handle it on our end for their sake.
+        /// </remarks>
+        private string TransformTokenForConsumption(string originalToken)
+        {
+            string processedToken = originalToken.Replace("Authorization:", "", true, null)
+                .Replace("\n", "")
+                .Replace("\r", "")
+                .Trim();
+            return processedToken;
+        }
+
+        private async void OnClickLoginWithPassword(object sender, RoutedEventArgs e)
         {
             string ver = "";
             try
@@ -138,7 +192,7 @@ namespace Aerochat.Windows
             catch (Exception) { }
             if (string.IsNullOrEmpty(ver))
             {
-                var dialog = new Dialog("Unsupported configuration", "This feature requires WebView2 to be installed.", SystemIcons.Information);
+                var dialog = new Dialog("Unsupported configuration", "This feature requires the WebView2 runtime to be installed on your computer.", SystemIcons.Information);
                 dialog.Owner = this;
                 dialog.ShowDialog();
                 return;
@@ -160,14 +214,69 @@ namespace Aerochat.Windows
                 _ => UserStatus.Online
             };
 
-            AerochatLoginStatus loginStatus = await app.BeginLogin(login.Token, rememberMe, status);
+            AerochatLoginStatus loginStatus = login.Succeeded
+                ? await app.BeginLogin(login.Token, rememberMe, status)
+                : AerochatLoginStatus.UnknownFailure;
+
             if (loginStatus != AerochatLoginStatus.Success)
             {
                 ViewModel.NotLoggingIn = true;
-                var dialog = new Dialog("We can't sign you in to Discord", "An unknown error occured attempting to use this .NET Passport.", SystemIcons.Information);
+
+                var dialog = new Dialog("We can't sign you in to Discord", new List<Inline>() {
+                    new Run("An error occurred attempting to use Discord password login. "),
+                    new Hyperlink(new Run("For help retrieving your Discord token, click here."))
+                    {
+                        NavigateUri = new Uri(HELP_GET_TOKEN_URI)
+                    },
+                }, SystemIcons.Information);
+
                 dialog.Owner = this;
                 dialog.ShowDialog();
             }
+        }
+
+        private void PART_GetHelpLoggingInHyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(HELP_LOGON_URI) { UseShellExecute = true });
+            e.Handled = true;
+        }
+
+        private void OnClickResetPasswordLink(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            Dialog dialog = new("Reset password",
+                new List<Inline>
+                {
+                    new Run("You cannot reset your Discord password from the Aerochat client. "),
+                    new Hyperlink(new Run("Please open the Discord website to change your password."))
+                    {
+                        NavigateUri = new Uri("https://discord.com/login")
+                    }
+                },
+                SystemIcons.Information
+            );
+            dialog.Owner = this;
+            dialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// Ensure that we can send multiline input to the token input box without it being clipped
+        /// to only the first line.
+        /// </summary>
+        private void OnPasteIntoTokenInputBox(object sender, DataObjectPastingEventArgs e)
+        {
+            bool isText = e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true);
+            if (!isText)
+                return;
+
+            string? text = e.SourceDataObject.GetData(DataFormats.UnicodeText) as string;
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            text = text.Replace("\r", " ").Replace("\n", " ");
+
+            DataObject d = new DataObject();
+            d.SetData(DataFormats.Text, text);
+            e.DataObject = d;
         }
     }
 }
