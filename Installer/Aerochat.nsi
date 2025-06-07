@@ -13,7 +13,7 @@ RequestExecutionLevel user
 ManifestSupportedOS Win7
 
 !define AEROCHAT_BIN_FOLDER "bin\x64\Release\net8.0-windows7.0"
-!define AEROCHAT_VERSION "0.2.1"
+!define AEROCHAT_VERSION "0.2.2"
 
 # Required for detecting running Aerochat processes and closing them:
 !define AEROCHAT_APP_GUID_NOBRACE "8231C4FA-AD94-487A-BDBF-A936306AE009"
@@ -38,6 +38,10 @@ VIAddVersionKey "LegalCopyright" "nullptr"
 
 ${Using:StrFunc} StrCase
 ${Using:StrFunc} UnStrCase
+
+Function CreateDesktopShortcut
+    CreateShortcut "$desktop\Aerochat.lnk" "$instdir\Aerochat.exe"
+FunctionEnd
 
 !define MULTIUSER_EXECUTIONLEVEL Highest
 !define MULTIUSER_INSTALLMODE_INSTDIR "$(^Name)"
@@ -67,6 +71,15 @@ Page custom PageUpgradeConfirmation
 !insertmacro MUI_PAGE_DIRECTORY
 
 !insertmacro MUI_PAGE_INSTFILES
+
+!define MUI_FINISHPAGE_RUN "$instdir\Aerochat.exe"
+!define MUI_FINISHPAGE_RUN_TEXT "$(STRING_AUTO_OPEN)"
+# We overload the "show readme" built-in control on the finish page to create a desktop
+# shortcut, since this is a more useful functionality, and we don't even have a readme
+# to begin with.
+!define MUI_FINISHPAGE_SHOWREADME ""
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "$(STRING_CREATE_DESKTOP_SHORTCUT)"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateDesktopShortcut
 !insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_WELCOME

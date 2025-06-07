@@ -11,3 +11,5 @@
 Aerochat is a custom Discord client that replicates the appearance of Windows Live Messenger 2009.$\r$\n$\r$\n\
 Please note that Aerochat is still beta software with many unimplemented features and bugs. You use this software at your own risk.$\r$\n$\r$\n\
 Click Next to continue."
+!insertmacro LANG_STRING STRING_CREATE_DESKTOP_SHORTCUT "Create desktop shortcut"
+!insertmacro LANG_STRING STRING_AUTO_OPEN "Start Aerochat once I close this installer"
