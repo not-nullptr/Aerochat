@@ -120,8 +120,9 @@ namespace Aerochat.Windows
                 "Appear offline" => UserStatus.Invisible,
                 _ => UserStatus.Online
             };
-            bool success = await app.BeginLogin(Password.Password, rememberMe, status);
-            if (!success)
+
+            AerochatLoginStatus loginStatus = await app.BeginLogin(TransformTokenForConsumption(Password.Password), rememberMe, status);
+            if (loginStatus != AerochatLoginStatus.Success)
             {
                 ViewModel.NotLoggingIn = true;
                 ShowErrorDialog();
@@ -159,8 +160,9 @@ namespace Aerochat.Windows
                 "Appear offline" => UserStatus.Invisible,
                 _ => UserStatus.Online
             };
-            bool success = await app.BeginLogin(login.Token, rememberMe, status);
-            if (!success)
+
+            AerochatLoginStatus loginStatus = await app.BeginLogin(login.Token, rememberMe, status);
+            if (loginStatus != AerochatLoginStatus.Success)
             {
                 ViewModel.NotLoggingIn = true;
                 var dialog = new Dialog("We can't sign you in to Discord", "An unknown error occured attempting to use this .NET Passport.", SystemIcons.Information);

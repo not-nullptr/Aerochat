@@ -35,6 +35,8 @@ using static ICSharpCode.AvalonEdit.Document.TextDocumentWeakEventManager;
 using Markdig.Extensions.Footnotes;
 using System.IO.Pipes;
 using System.Windows.Media.Animation;
+using Aerochat.Enums;
+using DSharpPlus.Exceptions;
 
 namespace Aerochat
 {
@@ -352,8 +354,8 @@ namespace Aerochat
             {
                 Task.Run(async () =>
                 {
-                    bool success = await BeginLogin(token);
-                    if (!success)
+                    AerochatLoginStatus success = await BeginLogin(token);
+                    if (success != AerochatLoginStatus.Success)
                     {
                         Dispatcher.Invoke(() =>
                         {
@@ -397,7 +399,7 @@ namespace Aerochat
             });
         }
 
-        public async Task<bool> BeginLogin(string givenToken, bool save = false, UserStatus? status = null)
+        public async Task<AerochatLoginStatus> BeginLogin(string givenToken, bool save = false, UserStatus? status = null)
         {
             Discord.Client = new(new()
             {
@@ -412,10 +414,20 @@ namespace Aerochat
             try
             {
                 await Discord.Client.ConnectAsync(status: status ?? UserStatus.Online);
-            } catch (Exception)
-            {
-                return false;
             }
+            catch (UnauthorizedException)
+            {
+                return AerochatLoginStatus.Unauthorized;
+            }
+            catch (BadRequestException)
+            {
+                return AerochatLoginStatus.BadRequest;
+            }
+            catch (ServerErrorException)
+            {
+                return AerochatLoginStatus.ServerError;
+            }
+
             // use ProtectedData to encrypt the token
             if (save)
             {
@@ -635,7 +647,8 @@ namespace Aerochat
                     });
                 };
             });
-            return true;
+
+            return AerochatLoginStatus.Success;
         }
 
         public async Task SignOut()
