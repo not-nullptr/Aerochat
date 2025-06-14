@@ -1,4 +1,5 @@
 ﻿using Aerochat.ViewModels;
+using Aerochat.Helpers;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Speech.Synthesis;
 using Aerochat.Settings;
 
 namespace Aerochat.Windows
@@ -33,7 +33,6 @@ namespace Aerochat.Windows
 
     public partial class Notification : Window
     {
-        private SpeechSynthesizer synth = new();
         public NotificationState State = NotificationState.Opening;
         public int ScreenWidth => (int)SystemParameters.WorkArea.Width;
         public int ScreenHeight => (int)SystemParameters.WorkArea.Height;
@@ -134,7 +133,6 @@ namespace Aerochat.Windows
                 Opacity = endOpacity;
             });
 
-            synth.Dispose();
             Close();
         }
 
@@ -143,7 +141,6 @@ namespace Aerochat.Windows
         public Notification(NotificationType type, dynamic RelevantThing)
         {
             InitializeComponent();
-            synth.SetOutputToDefaultAudioDevice();
             DataContext = ViewModel;
             //if (Message is not null)
             //{
@@ -161,7 +158,7 @@ namespace Aerochat.Windows
                     ViewModel.Message.Message = ParseNotificationContent(message);
                     MessageEntity = message;
 
-                    if (SettingsManager.Instance.ReadMessageNotifications)
+                    if (SettingsManager.Instance.ReadMessageNotifications && TextToSpeech.Instance.Available)
                     {
                         //Remove links from the TTS message so it doesn't ramble on forever.
                         //also replaces # with "hashtag" so it doesnt say "number sign".
@@ -183,7 +180,7 @@ namespace Aerochat.Windows
                                 FilteredMessage += " " + split;
                             }
                         }
-                        synth.SpeakAsync($"{ViewModel.Message.Author.Name.ToLower()} said {FilteredMessage}.");
+                        TextToSpeech.Instance.ReadOutMessage($"{ViewModel.Message.Author.Name.ToLower()} said {FilteredMessage}.");
                     }
                     break;
                 case NotificationType.SignOn:
@@ -192,8 +189,8 @@ namespace Aerochat.Windows
                     ViewModel.User = user;
                     ViewModel.Presence = presence;
 
-                    if (SettingsManager.Instance.ReadOnlineNotifications)
-                        synth.SpeakAsync($"{ViewModel.User.Name.ToLower()} has just signed in.");
+                    if (SettingsManager.Instance.ReadOnlineNotifications && TextToSpeech.Instance.Available)
+                        TextToSpeech.Instance.ReadOutMessage($"{ViewModel.User.Name.ToLower()} has just signed in.");
                     break;
                 default:
                     break;
