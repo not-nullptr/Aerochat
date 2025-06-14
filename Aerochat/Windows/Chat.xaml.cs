@@ -887,17 +887,8 @@ namespace Aerochat.Windows
         {
             if (Clipboard.ContainsImage())
             {
-                if (Clipboard.ContainsData("PNG"))
-                {
-                    Object png_object = Clipboard.GetData("PNG");
-                    if (png_object is MemoryStream)
-                    {
-                        MemoryStream png_stream = png_object as MemoryStream;
-                        nint bitmap = new Bitmap(png_stream).GetHbitmap();
-                        BitmapSource image = Imaging.CreateBitmapSourceFromHBitmap(bitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
-                    }
-                }
+                BitmapSource image = Clipboard.GetImage();
+                InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
             }
         }
 
