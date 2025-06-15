@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aerochat.Controls.NineSliceStuff;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,25 +9,33 @@ using Color = System.Windows.Media.Color;
 
 namespace Aerochat.Controls
 {
+    /// <summary>
+    /// A variant of the nine-slice image background control that can be tinted to a certain colour.
+    /// 
+    /// Note that this variant of the control is exempt from caching due to the nature of tinted backgrounds, so
+    /// it should not be used for common controls which may appear repeated a lot throughout the application.
+    /// Fortunately, this isn't the case in WLM 09, but it's worth consideration from Aerochat contributors.
+    /// </summary>
     public class ColorizedNineSlice : NineSlice
     {
         public static readonly DependencyProperty TintColorProperty =
             DependencyProperty.Register(nameof(TintColor), typeof(Color), typeof(ColorizedNineSlice),
-            new FrameworkPropertyMetadata(Colors.Red, FrameworkPropertyMetadataOptions.AffectsRender));
+            new FrameworkPropertyMetadata(Colors.Red, FrameworkPropertyMetadataOptions.AffectsRender, OnBackgroundDependentPropertyChanged));
 
         public static readonly DependencyProperty DarkenProperty =
             DependencyProperty.Register(nameof(Darken), typeof(double?), typeof(ColorizedNineSlice),
-            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceDarken));
+            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender, OnBackgroundDependentPropertyChanged, CoerceDarken));
 
         public static readonly DependencyProperty BackgroundProperty =
-    DependencyProperty.Register(nameof(Background), typeof(Brush), typeof(ColorizedNineSlice),
-    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register(nameof(Background), typeof(Brush), typeof(ColorizedNineSlice),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnBackgroundDependentPropertyChanged));
 
         public Brush Background
         {
             get { return (Brush)GetValue(BackgroundProperty); }
             set { SetValue(BackgroundProperty, value); }
         }
+
         public Color TintColor
         {
             get { return (Color)GetValue(TintColorProperty); }
@@ -47,21 +56,18 @@ namespace Aerochat.Controls
             return value.HasValue ? Math.Max(0.0, Math.Min(1.0, value.Value)) : 0.0;
         }
 
-        private void DrawImage(DrawingContext context, BitmapSource image, Int32Rect sourceRect, Rect destRect)
+        private static void OnBackgroundDependentPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            try
+            if (d is ColorizedNineSlice control)
             {
-                CroppedBitmap croppedBitmap = new CroppedBitmap(image, sourceRect);
-                context.DrawImage(croppedBitmap, destRect);
-            } catch (Exception)
-            {
-                context.DrawImage(image, destRect);
+                control.ReloadImage();
+                control.InvalidateVisual();
             }
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
+        protected override void ReloadImage()
         {
-            BitmapSource bitmapSource = null;
+            BitmapSource? bitmapSource = null;
 
             // If the Image is null and Background is set, create a solid color "image"
             if (Image == null && Background != null)
@@ -74,21 +80,16 @@ namespace Aerochat.Controls
             {
                 // Use the actual image if present
                 bitmapSource = source;
-
             }
 
-            if (bitmapSource == null)
+            _imageSet = null;
+
+            if (bitmapSource != null)
             {
-                // Clear the control if both the image and background are null
-                drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, ActualWidth, ActualHeight));
-                return;
+                // Apply tint to the image before drawing
+                BitmapSource tintedImage = ApplyTint(bitmapSource, TintColor, Darken ?? 0.0);
+                _imageSet = NineSliceImageSet.FromBitmap(tintedImage, Slice);
             }
-
-            // Apply tint to the image before drawing
-            BitmapSource tintedImage = ApplyTint(bitmapSource, TintColor, Darken ?? 0.0);
-
-            // Perform nine-slice rendering using the tinted image
-            DrawNineSliceImage(drawingContext, tintedImage);
         }
 
         private BitmapSource CreateSolidColorBitmap(Brush backgroundBrush)
@@ -178,55 +179,6 @@ namespace Aerochat.Controls
             }
 
             return (byte)(result * 255);
-        }
-
-        private void DrawNineSliceImage(DrawingContext context, BitmapSource image)
-        {
-            if (image == null) return;
-
-            // if slice width is smaller than image width or height smaller than height, just draw the img
-            if (Slice.Width >= image.PixelWidth || Slice.Height >= image.PixelHeight)
-            {
-                DrawImage(context, image, new Int32Rect(0, 0, image.PixelWidth, image.PixelHeight),
-                    new Rect(0, 0, image.PixelWidth, image.PixelHeight));
-                return;
-            }
-
-            // Same logic as in the base NineSlice class, but with the tinted image
-            DrawImage(context, image, new Int32Rect(0, 0, (int)Math.Max(Slice.Width, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(0, 0, Math.Max(Slice.Width, 0), Math.Max(Slice.Height, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(Slice.Width, 0), 0,
-                (int)Math.Max(image.Width - Slice.Width * 2, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(Math.Max(Slice.Width, 0), 0, Math.Max(ActualWidth - Slice.Width * 2, 0), Math.Max(Slice.Height, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(image.Width - Slice.Width, 0), 0,
-                (int)Math.Max(Slice.Width, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(Math.Max(ActualWidth - Slice.Width, 0), 0, Math.Max(Slice.Width, 0), Math.Max(Slice.Height, 0)));
-
-            DrawImage(context, image, new Int32Rect(0, (int)Math.Max(Slice.Height, 0),
-                (int)Math.Max(Slice.Width, 0), (int)Math.Max(image.Height - Slice.Height * 2, 0)),
-                new Rect(0, Math.Max(Slice.Height, 0), Math.Max(Slice.Width, 0), Math.Max(ActualHeight - Slice.Height * 2, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(Slice.Width, 0), (int)Math.Max(Slice.Height, 0),
-                (int)Math.Max(image.Width - Slice.Width * 2, 0), (int)Math.Max(image.Height - Slice.Height * 2, 0)),
-                new Rect(Math.Max(Slice.Width, 0), Math.Max(Slice.Height, 0), Math.Max(ActualWidth - Slice.Width * 2, 0), Math.Max(ActualHeight - Slice.Height * 2, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(image.Width - Slice.Width, 0), (int)Math.Max(Slice.Height, 0),
-                (int)Math.Max(Slice.Width, 0), (int)Math.Max(image.Height - Slice.Height * 2, 0)),
-                new Rect(Math.Max(ActualWidth - Slice.Width, 0), Math.Max(Slice.Height, 0), Math.Max(Slice.Width, 0), Math.Max(ActualHeight - Slice.Height * 2, 0)));
-
-            DrawImage(context, image, new Int32Rect(0, (int)Math.Max(image.Height - Slice.Height, 0),
-                (int)Math.Max(Slice.Width, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(0, Math.Max(ActualHeight - Slice.Height, 0), Math.Max(Slice.Width, 0), Math.Max(Slice.Height, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(Slice.Width, 0), (int)Math.Max(image.Height - Slice.Height, 0),
-                (int)Math.Max(image.Width - Slice.Width * 2, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(Math.Max(Slice.Width, 0), Math.Max(ActualHeight - Slice.Height, 0), Math.Max(ActualWidth - Slice.Width * 2, 0), Math.Max(Slice.Height, 0)));
-
-            DrawImage(context, image, new Int32Rect((int)Math.Max(image.Width - Slice.Width, 0), (int)Math.Max(image.Height - Slice.Height, 0),
-                (int)Math.Max(Slice.Width, 0), (int)Math.Max(Slice.Height, 0)),
-                new Rect(Math.Max(ActualWidth - Slice.Width, 0), Math.Max(ActualHeight - Slice.Height, 0), Math.Max(Slice.Width, 0), Math.Max(Slice.Height, 0)));
         }
     }
 }
