@@ -53,14 +53,7 @@ internal class NineSliceCacheManager
 
         if (uri is not null) // Eligible for caching:
         {
-            try
-            {
-                _entries.Add(uri, result);
-            }
-            catch (ArgumentException)
-            {
-                // Mostly just to ignore "System.ArgumentException: An item with the same key has already been added."
-            }
+            _entries.TryAdd(uri, result);
         }
 
         return result;
