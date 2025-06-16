@@ -25,7 +25,7 @@
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" Margin="16,10">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Foreground="#333" Text="Aerochat - shoddily made in two weeks by a fifteen year old with no idea what they're doing" Margin="0,0,0,16" TextWrapping="Wrap" />
+                    <TextBlock x:Name="PART_AerochatVersion" Foreground="#333" Text="AEROCHAT VERSION PLACEHOLDER" Margin="0,0,0,16" TextWrapping="Wrap" />
                     <TextBlock Foreground="#333" Text="I'm not a thief! Credits for all resources used in the application, including scenes and ads submitted by the community, are below. If a scene says 'Unknown Artist' or similar, and you know the artist, please contact us!" Margin="0,0,0,16" TextWrapping="Wrap" />
                 </StackPanel>
                 <TextBox VerticalScrollBarVisibility="Auto"  TextWrapping="Wrap" DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="CreditsTextbox" IsReadOnlyCaretVisible="True" IsReadOnly="True" />
