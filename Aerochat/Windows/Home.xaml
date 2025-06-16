@@ -564,7 +564,7 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                    <TreeView Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True"
+                    <controls:HomeTreeView Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True"
                               VirtualizingPanel.IsVirtualizing="True"
                               VirtualizingPanel.VirtualizationMode="Recycling"
                               ScrollViewer.CanContentScroll="True"
@@ -573,7 +573,7 @@
                               VirtualizingPanel.ScrollUnit="Pixel"
                               ItemsSource="{Binding FilteredCategories}"
                               BorderThickness="0">
-                        <TreeView.ItemContainerStyle>
+                        <controls:HomeTreeView.ItemContainerStyle>
                             <Style TargetType="{x:Type TreeViewItem}">
                                 <!-- We manage selection on our own anyway, so this overdoes it.  -->
                                 <Setter Property="Focusable" Value="False" />
@@ -600,9 +600,9 @@
                                     </Setter.Value>
                                 </Setter>
                             </Style>
-                        </TreeView.ItemContainerStyle>
+                        </controls:HomeTreeView.ItemContainerStyle>
 
-                        <TreeView.ItemTemplate>
+                        <controls:HomeTreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Items}">
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate>
@@ -612,8 +612,6 @@
                                                     <controls:NineSlice.Style>
                                                         <Style TargetType="controls:NineSlice">
                                                             <Style.Triggers>
-                                                                <!-- BUGBUG(isabella): This icon doesn't properly change when the header is double clicked, which can be
-                                                                     done since the restructure. -->
                                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
                                                                     <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
                                                                 </DataTrigger>
@@ -757,7 +755,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Grid Grid.Row="0" Margin="0,0,0,2">
+                                    <Grid Grid.Row="0" Margin="0,0,0,2" PreviewMouseDown="OnDoubleClickTreeViewExpander">
                                         <controls:NineSlice Slice="4,4">
                                             <controls:NineSlice.Style>
                                                 <Style TargetType="controls:NineSlice">
@@ -786,7 +784,7 @@
                                                 <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
+                                            <Image x:Name="PART_ExpanderButton" PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
                                             <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
                                                 <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#355a88" />
                                             </Grid>
@@ -819,8 +817,8 @@
                                     </Grid>
                                 </Grid>
                             </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
+                        </controls:HomeTreeView.ItemTemplate>
+                    </controls:HomeTreeView>
                     <Grid Grid.Row="3" Margin="-16,0">
                         <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1">
                             <controls:ColorizedNineSlice.Background>

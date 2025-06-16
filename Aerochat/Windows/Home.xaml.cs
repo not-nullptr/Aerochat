@@ -983,7 +983,7 @@ namespace Aerochat.Windows
 
         private void ItemToggleCollapse(object sender, MouseButtonEventArgs e)
         {
-            var item = (HomeListViewCategory)((Image)sender).DataContext;
+            var item = (HomeListViewCategory)((FrameworkElement)sender).DataContext;
             item.Collapsed = !item.Collapsed;
         }
 
@@ -1305,6 +1305,32 @@ namespace Aerochat.Windows
 
             if (focusedElement != null)
                 focusedElement.RaiseEvent(new RoutedEventArgs(LostFocusEvent));
+        }
+
+
+        private void OnDoubleClickTreeViewExpander(object sender, MouseButtonEventArgs e)
+        {
+            // In order to avoid double actions from occurring when the expander button is clicked (which
+            // takes action after a single input), we ignore clicks going to that area. As an easy hack,
+            // we just hit test and ignore the action if the mouse is not over the expander button.
+            FrameworkElement? expanderButton = ((FrameworkElement)sender).FindName("PART_ExpanderButton") as FrameworkElement;
+
+            bool isInExpanderButton = false;
+
+            if (expanderButton != null)
+            {
+                HitTestResult? hitTest = VisualTreeHelper.HitTest(this, e.GetPosition(this));
+
+                if (hitTest?.VisualHit == expanderButton)
+                {
+                    isInExpanderButton = true;
+                }
+            }
+
+            if (e.ClickCount == 2 && !e.Handled && !isInExpanderButton)
+            {
+                ItemToggleCollapse(sender, e);
+            }
         }
     }
 }
