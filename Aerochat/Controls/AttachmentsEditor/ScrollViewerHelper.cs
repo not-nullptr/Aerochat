@@ -57,13 +57,6 @@ namespace Aerochat.Controls.AttachmentsEditor
             scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + -args.Delta);
 
             args.Handled = true;
-
-            // EXPERIMENT:
-            //MouseWheelEventArgs newEvent = new(args.MouseDevice, args.Timestamp, args.Delta);
-            //newEvent.RoutedEvent = ScrollViewer.MouseWheelEvent;
-            //newEvent.Source = args.Source;
-
-            //scrollViewer.RaiseEvent(newEvent);
         }
     }
 }

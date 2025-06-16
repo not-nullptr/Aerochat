@@ -192,10 +192,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 }
 
                 CurrentPopup.UpdatePopupPosition();
-                //// Force WPF to refresh the position of the popup.
-                //var offset = CurrentPopup.Popup.HorizontalOffset;
-                //CurrentPopup.Popup.HorizontalOffset = offset + 1;
-                //CurrentPopup.Popup.HorizontalOffset = offset;
             }
 
             public void OnWindowActivated(object? sender, EventArgs args)
@@ -448,19 +444,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 _popup.IsOpen = false;
             }
 
-            // https://stackoverflow.com/a/1517794
-            private bool IsVisibleToUser(FrameworkElement element, FrameworkElement container)
-            {
-                if (!element.IsVisible)
-                {
-                    return false;
-                }
-
-                Rect bounds = element.TransformToAncestor(container).TransformBounds(new Rect(0, 0, element.ActualWidth, element.ActualHeight));
-                Rect rect = new(0, 0, container.ActualWidth, container.ActualHeight);
-                return rect.Contains(bounds.TopLeft) || rect.Contains(bounds.BottomRight);
-            }
-
             public void OnContainerScrolled(object sender, ScrollChangedEventArgs args)
             {
             }
@@ -471,8 +454,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 {
                     case WM_ENTERSIZEMOVE:
                     {
-                        Debug.WriteLine("WM_ENTERSIZEMOVE");
-
                         if (!_isWindowMoving)
                         {
                             _isWindowMoving = true;
@@ -485,8 +466,6 @@ namespace Aerochat.Controls.AttachmentsEditor
 
                     case WM_EXITSIZEMOVE:
                     {
-                        Debug.WriteLine("WM_EXITSIZEMOVE");
-
                         if (_isWindowMoving)
                         {
                             _isWindowMoving = false;
@@ -502,8 +481,6 @@ namespace Aerochat.Controls.AttachmentsEditor
 
                     case WM_MOVE:
                     {
-                        //Debug.WriteLine("WM_MOVE");
-
                         if (!_isOptimizingMovement)
                         {
                             // If we're not optimising movement (i.e. complex shape), then move the real popup
@@ -511,9 +488,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                             // it will look better than keeping the popup window in place for the duration of
                             // window movement.
                             UpdatePopupPosition();
-                            //var offset = _popup.HorizontalOffset;
-                            //_popup.HorizontalOffset = offset + 1;
-                            //_popup.HorizontalOffset = offset;
                         }
 
                         break;
@@ -661,7 +635,6 @@ namespace Aerochat.Controls.AttachmentsEditor
                 {
                     AdornerLayer.GetAdornerLayer((Visual)_window.Content).Remove(_moveImageAdorner);
                     _moveImageAdorner = null;
-                    //_moveBitmap = null;
                 }
             }
 

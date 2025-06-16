@@ -51,10 +51,6 @@ namespace Aerochat.Windows
 
         private void OnImagePreviewSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //e.Handled = true;
-            //if (!_finished || _closing) return;
-            //_closing = true;
-            //Close();
         }
 
         private void OnImagePreviewLoaded(object sender, RoutedEventArgs e)
@@ -62,13 +58,6 @@ namespace Aerochat.Windows
             // Without this, resizing the image viewer makes the app freak out and hang
             if (ViewModel.MediaType == MediaType.Gif)
                 AnimationBehavior.SetCacheFramesInMemory(ImageElement, true);
-
-            //Left = _srcRect.Left + 2;
-            //Top = _srcRect.Top + 16;
-            //Width = _srcRect.Width + 12;
-            //Height = _srcRect.Height + 28;
-
-            //AnimateWindowToDstRect();
 
             IntPtr mainWindowPtr = new WindowInteropHelper(this).Handle;
             HwndSource mainWindowSrc = HwndSource.FromHwnd(mainWindowPtr);
@@ -82,60 +71,6 @@ namespace Aerochat.Windows
                 _finished = true;
             });
         }
-
-
-        //private void AnimateWindowToDstRect()
-        //{
-        //    var duration = TimeSpan.FromSeconds(1);
-        //    var easingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut };
-
-        //    var leftAnimation = new DoubleAnimation
-        //    {
-        //        From = Left,
-        //        To = _dstRect.Left,
-        //        Duration = duration,
-        //        EasingFunction = easingFunction
-        //    };
-        //    BeginAnimation(Window.LeftProperty, leftAnimation);
-
-        //    var topAnimation = new DoubleAnimation
-        //    {
-        //        From = Top,
-        //        To = _dstRect.Top,
-        //        Duration = duration,
-        //        EasingFunction = easingFunction
-        //    };
-        //    BeginAnimation(Window.TopProperty, topAnimation);
-
-        //    var widthAnimation = new DoubleAnimation
-        //    {
-        //        From = Width,
-        //        To = _dstRect.Width,
-        //        Duration = duration,
-        //        EasingFunction = easingFunction
-        //    };
-        //    WndContent.BeginAnimation(Grid.WidthProperty, widthAnimation);
-
-
-        //    var heightAnimation = new DoubleAnimation
-        //    {
-        //        From = Height,
-        //        To = _dstRect.Height - 12,
-        //        Duration = duration,
-        //        EasingFunction = easingFunction
-        //    };
-        //    WndContent.BeginAnimation(Grid.HeightProperty, heightAnimation);
-
-        //    leftAnimation.Completed += (s, e) =>
-        //    {
-        //        SizeToContent = SizeToContent.Manual;
-        //        // cancel all animations
-        //        BeginAnimation(Window.LeftProperty, null);
-        //        BeginAnimation(Window.TopProperty, null);
-        //        WndContent.BeginAnimation(Grid.WidthProperty, null);
-        //        WndContent.BeginAnimation(Grid.HeightProperty, null);
-        //    };
-        //}
 
         private void OnOpenImageClick(object sender, RoutedEventArgs e)
         {

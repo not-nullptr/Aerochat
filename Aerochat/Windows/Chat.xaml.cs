@@ -49,17 +49,6 @@ using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 using Timer = System.Timers.Timer;
-using DSharpPlus.Exceptions;
-using static Aerochat.Windows.ToolbarItem;
-using Aerochat.Enums;
-using Vanara.Collections;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using Vanara.PInvoke;
-using System;
-using System.Windows.Forms.Design;
-using System.Windows.Documents;
-using Aerochat.Helpers;
-using Aerochat.Controls;
 
 namespace Aerochat.Windows
 {
@@ -1791,13 +1780,8 @@ namespace Aerochat.Windows
 
             canvas.Strokes.Clear();
 
-            //using (MemoryStream ms = new())
-            //{
-            //    encoder.Save(ms);
-            //    await SendMessage("", ms);
-            //}
-
             // write to tmp.png next to the .exe
+            // XXX(isabella): Why?
             using (var ms = new MemoryStream())
             {
                 encoder.Save(ms);

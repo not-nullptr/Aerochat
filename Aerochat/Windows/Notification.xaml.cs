@@ -142,11 +142,6 @@ namespace Aerochat.Windows
         {
             InitializeComponent();
             DataContext = ViewModel;
-            //if (Message is not null)
-            //{
-            //    ViewModel.Message = MessageViewModel.FromMessage(Message);
-            //    MessageEntity = Message;
-            //};
 
             // switch statement for the class of RelevantThing
             ViewModel.Type = type;

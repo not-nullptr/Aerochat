@@ -34,9 +34,6 @@ namespace Aerochat.Windows
             // use Discord.Client.CurrentUser.BannerColor.R, G and B to get the current color
             _initialColor = Discord.Client.CurrentUser.BannerColor?.Value ?? 0;
 
-            //if (ThemeService.Instance.Scene is not null && ThemeService.Instance.Scene.Id > 0)
-            //    ViewModel.Scenes[ThemeService.Instance.Scene.Id - 1].Selected = true;
-
             try
             {
                 if (ViewModel.Scenes.Count > ThemeService.Instance.Scene.Id - 1)

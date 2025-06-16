@@ -13,7 +13,6 @@
              xmlns:controls="clr-namespace:Aerochat.Controls"
              xmlns:scrollbar="clr-namespace:Aerochat.Controls.ScrollBar">
 
-    <!-- TODO: Should we read from system metrics set by the user? -->
     <system:Double x:Key="ScrollBarWidth">17</system:Double>
 
     <scrollbar:ShowThumbGripperConverter x:Key="ShowThumbGripperConverter" />

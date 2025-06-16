@@ -1,24 +1,18 @@
 ﻿using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Settings;
-using Aerochat.Theme;
 using Aerochat.ViewModels;
 using DiscordProtos.DiscordUsers.V1;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,9 +23,6 @@ using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using Vanara.PInvoke;
 using static Aerochat.ViewModels.HomeListViewCategory;
-using static Vanara.PInvoke.AdvApi32;
-using static Vanara.PInvoke.User32;
-using Image = System.Windows.Controls.Image;
 using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
