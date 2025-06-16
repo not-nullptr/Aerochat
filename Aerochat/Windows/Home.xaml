@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:converter="clr-namespace:Aerochat.Converter"
         xmlns:controls="clr-namespace:Aerochat.Controls"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:HomeWindowViewModel}"
         mc:Ignorable="d"
@@ -17,6 +18,7 @@
     </Window.TaskbarItemInfo>
     <Window.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <Storyboard x:Key="FadeOutStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              To="0"
@@ -117,33 +119,6 @@
                     <Setter Property="Image" Value="/Resources/Home/SearchBarActive.png"/>
                     <Setter Property="Darken" Value="0" />
                 </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="HomePageScrollViewer" TargetType="{x:Type ScrollViewer}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
-                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                            <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Background="Transparent" />
-                            <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="false">
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                </Trigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
@@ -589,21 +564,56 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                    <ScrollViewer Style="{DynamicResource HomePageScrollViewer}" VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True">
-                        <Grid>
-                            <ItemsControl ItemsSource="{Binding FilteredCategories}">
-                                <ItemsControl.ItemTemplate>
+                    <TreeView Grid.Row="1" Margin="2,2,2,0" UseLayoutRounding="True"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              ItemsSource="{Binding FilteredCategories}"
+                              BorderThickness="0">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <!-- We manage selection on our own anyway, so this overdoes it.  -->
+                                <Setter Property="Focusable" Value="False" />
+
+                                <Setter Property="IsExpanded" Value="{Binding Collapsed, Converter={StaticResource InverseBooleanConverter}}" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <ContentPresenter Grid.Row="0" ContentSource="Header" />
+                                                <ItemsPresenter Grid.Row="1" x:Name="PART_ItemsPresenter" />
+                                            </Grid>
+
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsExpanded" Value="False">
+                                                    <Setter TargetName="PART_ItemsPresenter" Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Items}">
+                                <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
-                                            <Grid Grid.Row="0" Margin="0,0,0,2">
+                                        <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
+                                            <Grid Height="20" PreviewMouseDown="ItemClick">
                                                 <controls:NineSlice Slice="4,4">
                                                     <controls:NineSlice.Style>
                                                         <Style TargetType="controls:NineSlice">
                                                             <Style.Triggers>
+                                                                <!-- BUGBUG(isabella): This icon doesn't properly change when the header is double clicked, which can be
+                                                                     done since the restructure. -->
                                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
                                                                     <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
                                                                 </DataTrigger>
@@ -623,206 +633,194 @@
                                                         </Style>
                                                     </controls:NineSlice.Style>
                                                 </controls:NineSlice>
-                                                <Grid Height="24" PreviewMouseDown="ItemClick">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="12" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
-                                                    <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
-                                                        <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#355a88" />
+                                                <Grid VerticalAlignment="Center">
+                                                    <Grid Margin="16,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="16" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Image MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" Grid.Column="0" Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameActive.png" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameIdle.png" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameDnd.png" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Offline">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="Invisible">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Presence.Status}" Value="">
+                                                                            <Setter Property="Source" Value="{Binding Image}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                            <Setter Property="Source" Value="/Resources/Frames/XSFrameActiveM.png" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+                                                        <DockPanel HorizontalAlignment="Stretch" Grid.Column="1">
+                                                            <DockPanel.ToolTip>
+                                                                <ToolTip Content="{Binding Name}" />
+                                                            </DockPanel.ToolTip>
+                                                            <TextBlock Foreground="#333333" MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" HorizontalAlignment="Left" Text="{Binding Name}" TextTrimming="CharacterEllipsis">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="">
+                                                                                <Setter Property="Margin" Value="2,0,0,0" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <DockPanel>
+                                                                <TextBlock Foreground="#333333" Text=" - " TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Presence.Presence}" Value="">
+                                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <Image Width="16" Height="16" Margin="1,0,3,0">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Presence.Type}" Value="Playing">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Setter Property="Source" Value="/Resources/Status/Playing.png" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding Presence.Type}" Value="ListeningTo">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Setter Property="Source" Value="/Resources/Status/Listening.png" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
+                                                                <TextBlock Foreground="#888888" TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                            <Setter Property="Text" Value="{Binding Presence.Presence}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Presence.Presence}" Value="">
+                                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                    <Setter Property="Text">
+                                                                                        <Setter.Value>
+                                                                                            <MultiBinding StringFormat="{}{0} members">
+                                                                                                <Binding Path="RecipientCount" />
+                                                                                            </MultiBinding>
+                                                                                        </Setter.Value>
+                                                                                    </Setter>
+                                                                                </DataTrigger>
+
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                            </DockPanel>
+                                                        </DockPanel>
                                                     </Grid>
                                                 </Grid>
                                             </Grid>
-                                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="1">
-                                                <Grid.Style>
-                                                    <Style TargetType="Grid">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Collapsed}" Value="False">
-                                                                <Setter Property="Visibility" Value="Visible" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Grid.Style>
-                                                <Grid>
-                                                    <Grid.Style>
-                                                        <Style TargetType="Grid">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Items.Count}" Value="0">
-                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Grid.Style>
-                                                    <TextBlock Margin="20,0,0,2" Opacity="0.5" Text="There are no items in this category." />
-                                                </Grid>
-                                                <ItemsControl ItemsSource="{Binding Items}" Margin="0,-2,0,0">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
-                                                                <Grid Height="20" PreviewMouseDown="ItemClick">
-                                                                    <controls:NineSlice Slice="4,4">
-                                                                        <controls:NineSlice.Style>
-                                                                            <Style TargetType="controls:NineSlice">
-                                                                                <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                                        <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
-                                                                                    </DataTrigger>
-                                                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                                        <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
-                                                                                    </DataTrigger>
-                                                                                    <MultiDataTrigger>
-                                                                                        <MultiDataTrigger.Conditions>
-                                                                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
-                                                                                            <Condition Binding="{Binding IsSelected}" Value="True" />
-                                                                                        </MultiDataTrigger.Conditions>
-                                                                                        <MultiDataTrigger.Setters>
-                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
-                                                                                        </MultiDataTrigger.Setters>
-                                                                                    </MultiDataTrigger>
-                                                                                </Style.Triggers>
-                                                                            </Style>
-                                                                        </controls:NineSlice.Style>
-                                                                    </controls:NineSlice>
-                                                                    <Grid VerticalAlignment="Center">
-                                                                        <Grid Margin="16,0">
-                                                                            <Grid.ColumnDefinitions>
-                                                                                <ColumnDefinition Width="16" />
-                                                                                <ColumnDefinition Width="*" />
-                                                                            </Grid.ColumnDefinitions>
-                                                                            <Image MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" Grid.Column="0" Width="16" Height="16">
-                                                                                <Image.Style>
-                                                                                    <Style TargetType="Image">
-                                                                                        <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
-                                                                                        <Style.Triggers>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameActive.png" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameIdle.png" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameDnd.png" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Offline">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="Invisible">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding Presence.Status}" Value="">
-                                                                                                <Setter Property="Source" Value="{Binding Image}" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
-                                                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameActiveM.png" />
-                                                                                            </DataTrigger>
-                                                                                        </Style.Triggers>
-                                                                                    </Style>
-                                                                                </Image.Style>
-                                                                            </Image>
-                                                                            <DockPanel HorizontalAlignment="Stretch" Grid.Column="1">
-                                                                                <DockPanel.ToolTip>
-                                                                                    <ToolTip Content="{Binding Name}" />
-                                                                                </DockPanel.ToolTip>
-                                                                                <TextBlock Foreground="#333333" MouseLeave="MouseExitedUser" MouseEnter="MouseEnteredUser" HorizontalAlignment="Left" Text="{Binding Name}" TextTrimming="CharacterEllipsis">
-                                                                                    <TextBlock.Style>
-                                                                                        <Style TargetType="TextBlock">
-                                                                                            <Style.Triggers>
-                                                                                                <DataTrigger Binding="{Binding Presence.Status}" Value="">
-                                                                                                    <Setter Property="Margin" Value="2,0,0,0" />
-                                                                                                </DataTrigger>
-                                                                                            </Style.Triggers>
-                                                                                        </Style>
-                                                                                    </TextBlock.Style>
-                                                                                </TextBlock>
-                                                                                <DockPanel>
-                                                                                    <TextBlock Foreground="#333333" Text=" - " TextTrimming="CharacterEllipsis">
-                                                                                        <TextBlock.Style>
-                                                                                            <Style TargetType="TextBlock">
-                                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                                                <Style.Triggers>
-                                                                                                    <DataTrigger Binding="{Binding Presence.Presence}" Value="">
-                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                                                    </DataTrigger>
-                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
-                                                                                                        <Setter Property="Visibility" Value="Visible" />
-                                                                                                    </DataTrigger>
-                                                                                                </Style.Triggers>
-                                                                                            </Style>
-                                                                                        </TextBlock.Style>
-                                                                                    </TextBlock>
-                                                                                    <Image Width="16" Height="16" Margin="1,0,3,0">
-                                                                                        <Image.Style>
-                                                                                            <Style TargetType="Image">
-                                                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                                                                <Style.Triggers>
-                                                                                                    <DataTrigger Binding="{Binding Presence.Type}" Value="Playing">
-                                                                                                        <Setter Property="Visibility" Value="Visible" />
-                                                                                                        <Setter Property="Source" Value="/Resources/Status/Playing.png" />
-                                                                                                    </DataTrigger>
-                                                                                                    <DataTrigger Binding="{Binding Presence.Type}" Value="ListeningTo">
-                                                                                                        <Setter Property="Visibility" Value="Visible" />
-                                                                                                        <Setter Property="Source" Value="/Resources/Status/Listening.png" />
-                                                                                                    </DataTrigger>
-                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
-                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                                                    </DataTrigger>
-                                                                                                </Style.Triggers>
-                                                                                            </Style>
-                                                                                        </Image.Style>
-                                                                                    </Image>
-                                                                                    <TextBlock Foreground="#888888" TextTrimming="CharacterEllipsis">
-                                                                                        <TextBlock.Style>
-                                                                                            <Style TargetType="TextBlock">
-                                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                                                <Setter Property="Text" Value="{Binding Presence.Presence}" />
-                                                                                                <Style.Triggers>
-                                                                                                    <DataTrigger Binding="{Binding Presence.Presence}" Value="">
-                                                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                                                    </DataTrigger>
-                                                                                                    <DataTrigger Binding="{Binding IsGroupChat}" Value="True">
-                                                                                                        <Setter Property="Visibility" Value="Visible" />
-                                                                                                        <Setter Property="Text">
-                                                                                                            <Setter.Value>
-                                                                                                                <MultiBinding StringFormat="{}{0} members">
-                                                                                                                    <Binding Path="RecipientCount" />
-                                                                                                                </MultiBinding>
-                                                                                                            </Setter.Value>
-                                                                                                        </Setter>
-                                                                                                    </DataTrigger>
-
-                                                                                                </Style.Triggers>
-                                                                                            </Style>
-                                                                                        </TextBlock.Style>
-                                                                                    </TextBlock>
-                                                                                </DockPanel>
-                                                                            </DockPanel>
-                                                                        </Grid>
-                                                                    </Grid>
-                                                                </Grid>
-                                                            </Button>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                </ItemsControl>
+                                        </Button>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Margin="0,0,0,2">
+                                        <controls:NineSlice Slice="4,4">
+                                            <controls:NineSlice.Style>
+                                                <Style TargetType="controls:NineSlice">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
+                                                            <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                        </DataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True" />
+                                                                <Condition Binding="{Binding IsSelected}" Value="True" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <MultiDataTrigger.Setters>
+                                                                <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                            </MultiDataTrigger.Setters>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </controls:NineSlice.Style>
+                                        </controls:NineSlice>
+                                        <Grid Height="24" PreviewMouseDown="ItemClick">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="12" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Image PreviewMouseUp="ItemToggleCollapse" Style="{StaticResource DropdownIconStyle}" />
+                                            <Grid Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
+                                                <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#355a88" />
                                             </Grid>
                                         </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </Grid>
-                    </ScrollViewer>
+                                    </Grid>
+                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="1">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Collapsed}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Items.Count}" Value="0">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <TextBlock Margin="20,0,0,2" Opacity="0.5" Text="There are no items in this category." />
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
                     <Grid Grid.Row="3" Margin="-16,0">
                         <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1">
                             <controls:ColorizedNineSlice.Background>
