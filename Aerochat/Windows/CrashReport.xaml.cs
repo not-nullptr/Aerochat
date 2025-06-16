@@ -29,7 +29,8 @@ namespace Aerochat.Windows
 
         public void SetCrashReport(string text)
         {
-            PART_LogTextbox.Text = text;
+            PART_LogTextbox.Text = "Aerochat version " + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + "\n";
+            PART_LogTextbox.Text += text;
         }
 
         private void OnClickDismissButton(object sender, RoutedEventArgs e)
