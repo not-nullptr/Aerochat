@@ -678,11 +678,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Controls\NativeToolTipControlService.cs" />
-	  <Compile Remove="Controls\NativeTooltipOld.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
 	  <Resource Include="Scenes\Meteora.jpeg" />
 	  <Resource Include="Scenes\Slipknot.jpeg" />
@@ -695,11 +690,6 @@
 	  <ProjectReference Include="..\Aerobool\Aerobool\Aerobool.csproj" />
 	  <ProjectReference Include="..\Aerovoice\Aerovoice.csproj" />
 	  <ProjectReference Include="..\DSP\DSharpPlus\DSharpPlus.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Controls\NativeToolTipControlService.cs" />
-	  <None Include="Controls\NativeTooltipOld.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
