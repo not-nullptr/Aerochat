@@ -172,7 +172,6 @@ namespace Aerochat.Windows
             return 0;
         }
 
-
         private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
         {
             await Dispatcher.BeginInvoke(() =>
