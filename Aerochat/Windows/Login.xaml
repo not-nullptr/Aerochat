@@ -8,7 +8,7 @@
         xmlns:converter="clr-namespace:Aerochat.Converter"
         mc:Ignorable="d"
         Title="Windows Live Messenger" Height="650" Width="400"
-        Style="{StaticResource Window}">
+        Style="{StaticResource Window}" ResizeMode="NoResize">
     <Window.Resources>
         <converter:MultiBooleanConverter x:Key="MultiBooleanConverter"/>
     </Window.Resources>

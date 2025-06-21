@@ -11,6 +11,8 @@
         PreviewKeyDown="Window_PreviewKeyDown"
         Closing="Window_Closing"
         Title="Windows Live Messenger" Height="650" Width="400"
+        MinWidth="300"
+        MinHeight="500"
         MouseDown="Window_MouseDown"
         Style="{StaticResource Window}">
     <Window.TaskbarItemInfo>
