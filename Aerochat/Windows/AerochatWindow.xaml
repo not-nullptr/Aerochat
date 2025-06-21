@@ -6,6 +6,10 @@
         xmlns:local="clr-namespace:Aerochat.Windows"
         mc:Ignorable="d" Width="800" Height="450">
     <Grid>
-        <ContentControl x:Name="WindowContent" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="47*"/>
+            <ColumnDefinition Width="113*"/>
+        </Grid.ColumnDefinitions>
+        <ContentControl x:Name="WindowContent" Grid.ColumnSpan="2" />
     </Grid>
 </Window>

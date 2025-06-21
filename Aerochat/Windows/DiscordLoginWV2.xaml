@@ -8,6 +8,10 @@
         mc:Ignorable="d"
         Title=".NET Passport Log-on" Height="500" Width="850">
     <Grid>
-        <wv2:WebView2 x:Name="LoginWebView" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="139*"/>
+            <ColumnDefinition Width="286*"/>
+        </Grid.ColumnDefinitions>
+        <wv2:WebView2 x:Name="LoginWebView" Grid.ColumnSpan="2" />
     </Grid>
 </Window>
