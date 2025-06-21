@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Settings" Height="570" Width="520"
         Background="#f0f0f0"
-        Style="{StaticResource Window}">
+        Style="{StaticResource Window}" WindowStartupLocation="CenterScreen">
     <Grid Margin="7">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="92" />

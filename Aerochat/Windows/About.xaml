@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="About" Height="400" Width="500"
         ResizeMode="NoResize"
-        Style="{StaticResource Window}">
+        Style="{StaticResource Window}" WindowStartupLocation="CenterScreen">
     <controls:BaseTitlebar BlackText="Black">
         <Grid>
             <Grid.Background>
