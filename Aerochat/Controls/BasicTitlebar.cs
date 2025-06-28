@@ -407,7 +407,7 @@ namespace Aerochat.Controls
 
         [DllImport("gdi32.dll", SetLastError = false, ExactSpelling = true)]
         [PInvokeData("wingdi.h", MSDNShortId = "16f387e1-b00c-4755-8b21-1ee0f25bc46b")]
-        public static extern SafeHRGN CreateRoundRectRgn(int x1, int y1, int x2, int y2, int w, int h);
+        public static extern HRGN CreateRoundRectRgn(int x1, int y1, int x2, int y2, int w, int h);
         #endregion
 
         /// <summary>
