@@ -75,18 +75,4 @@ namespace Aerochat.Helpers
             return __exception;
         }
     }
-
-    /// <summary>
-    /// Another thing Microsoft refuses to fix. You can reproduce crashes here by changing DWM composition state, i.e.
-    /// on Windows 7. Fuck you, Satya Nadella. <see href="https://github.com/microsoft/PowerToys/issues/31779"/>
-    /// </summary>
-    [HarmonyPatch("System.Windows.Shell.WindowChromeWorker", "_WndProc")]
-    class WindowChromeWorker__WndProc_HookClass
-    {
-        [HarmonyFinalizer]
-        public static Exception Finalizer()
-        {
-            return null!;
-        }
-    }
 }
