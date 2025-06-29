@@ -445,14 +445,6 @@ namespace Aerochat.Controls
             // Using properties on the Window object will get us out-of-date values, which we do not want.
             GetWindowRect(hWnd, out RECT rcWindow);
 
-            /*
-             * TODO(isabella): On high-DPI systems, the border radius we use for the mask will become
-             * desynchronised with the border radius we use for drawing. The solution is very easy:
-             * the rounded corner radius just needs to be multiplied by the monitor's DPI over 96.
-             * 
-             * Otherwise, some white pixels seep through (the higher the DPI, the more white pixels).
-             */
-
             HRGN hrgnTop = CreateRoundRectRgn(
                 0, 0,
                 // Rounded rect regions require an extra pixel of padding on the right or they'll get cut off.
