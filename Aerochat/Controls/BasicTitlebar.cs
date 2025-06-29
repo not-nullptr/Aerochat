@@ -423,6 +423,14 @@ namespace Aerochat.Controls
             // Using properties on the Window object will get us out-of-date values, which we do not want.
             GetWindowRect(hWnd, out RECT rcWindow);
 
+            /*
+             * TODO(isabella): On high-DPI systems, the border radius we use for the mask will become
+             * desynchronised with the border radius we use for drawing. The solution is very easy:
+             * the rounded corner radius just needs to be multiplied by the monitor's DPI over 96.
+             * 
+             * Otherwise, some white pixels seep through (the higher the DPI, the more white pixels).
+             */
+
             HRGN hrgnTop = CreateRoundRectRgn(
                 0, 0,
                 // Rounded rect regions require an extra pixel of padding on the right or they'll get cut off.
@@ -486,9 +494,6 @@ namespace Aerochat.Controls
                         
                         // The titlebar has complex inner geometry, so we only check hittesting for titlebar children if the
                         // mouse is over the titlebar in the first place to be a little more efficient.
-                        // TODO(isabella): This checking MUST be tested on a high-DPI system before release to verify that
-                        // it will not distorted. I think that this is not DPI-safe, but I don't care enough to research how
-                        // to safely handle DPI at the very moment.
                         if (point.Y <= TITLEBAR_HEIGHT)
                         {
                             HitTestResult? hitResult = VisualTreeHelper.HitTest(Window, point);
