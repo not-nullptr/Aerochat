@@ -125,6 +125,8 @@ namespace Aerochat.Windows
         {
             try
             {
+                AerochatVersionLink.Text = "Aerochat v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + " by nullptr";
+
                 MouseEnter += (s, e) => SetVisibleProperty(true);
                 MouseLeave += (s, e) =>
                 {
@@ -1020,7 +1022,7 @@ namespace Aerochat.Windows
                     // WPF. RaisePropertyChanged is useless, so I just opted for swapping the value
                     // and relying on the assignment operator overload or whatever.
                     var temp = message.MessageEntity;
-                    message.MessageEntity = null; // ignore warning
+                    message.MessageEntity = null!;
                     message.MessageEntity = temp;
 
                     message.RaisePropertyChanged(nameof(message.MessageEntity));
