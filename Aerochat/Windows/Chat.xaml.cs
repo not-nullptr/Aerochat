@@ -1839,15 +1839,17 @@ namespace Aerochat.Windows
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            // handle (ctrl) + z | v
-            if (!e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.LeftCtrl)) && !e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.RightCtrl))) return;
-            if (e.Key == Key.Z)
+            // handle (ctrl) + z | y
+            if (e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.LeftCtrl)) && !e.KeyStates.HasFlag(Keyboard.GetKeyStates(Key.RightCtrl)))
             {
-                Undo();
-            }
-            else if (e.Key == Key.Y)
-            {
-                Redo();
+                if (e.Key == Key.Z)
+                {
+                    Undo();
+                }
+                else if (e.Key == Key.Y)
+                {
+                    Redo();
+                }
             }
         }
 
