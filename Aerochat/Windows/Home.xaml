@@ -179,7 +179,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Resources>
-                        <controls:AnimatedTileImage PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
+                        <controls:AnimatedTileImage ToolTip="Change your scene" PreviewMouseLeftButtonUp="SceneTileImage_PreviewMouseLeftButtonUp" Cursor="Hand" x:Name="SceneTileImage" HorizontalAlignment="Right" VerticalAlignment="Top" FrameWidth="31" FrameHeight="31" FrameDuration="75" Width="31" Height="31" Loop="False" />
                         <Grid Width="39" Height="35" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                             <Grid.Style>
                                 <Style TargetType="Grid">
