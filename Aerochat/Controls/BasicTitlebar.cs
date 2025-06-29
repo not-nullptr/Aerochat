@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,6 +36,18 @@ namespace Aerochat.Controls
         /// The radius, in pixels, of the rounded corners at the top of the window.
         /// </summary>
         private const int ROUNDED_CORNER_RADIUS = 6;
+
+        /// <summary>
+        /// Although we use a 6 pixel compromise on 96 DPI, this looks better at 200%. This value is 8, which is
+        /// congruent with the definitions in NoDwmTitlebar.xaml on the topmost Border element.
+        /// </summary>
+        private const int HIDPI_ROUNDED_CORNER_RADIUS = 8;
+
+        /// <summary>
+        /// <see cref="ROUNDED_CORNER_RADIUS">ROUNDED_CORNER_RADIUS</see> or <see cref="HIDPI_ROUNDED_CORNER_RADIUS">HIDPI_ROUNDED_CORNER_RADIUS</see>
+        /// scaled to the user's DPI.
+        /// </summary>
+        private int _scaledRoundedCornerRadius = ROUNDED_CORNER_RADIUS;
         #endregion
 
         ContentPresenter AddedContent;
@@ -172,6 +185,15 @@ namespace Aerochat.Controls
             {
                 Window.SourceInitialized += Window_SourceInitialized;
                 Window.StateChanged += Window_StateChanged;
+
+                DpiScale dpiScale = VisualTreeHelper.GetDpi(Window);
+                double fDpiScale = (dpiScale.DpiScaleX + dpiScale.DpiScaleY) / 2;
+
+                // To avoid white pixels along the corners at higher DPIs, we settle for a slightly higher
+                // border radius.
+                double baseCornerRadius = fDpiScale == 1.0 ? ROUNDED_CORNER_RADIUS : HIDPI_ROUNDED_CORNER_RADIUS;
+
+                _scaledRoundedCornerRadius = (int)Math.Ceiling(baseCornerRadius * fDpiScale);
             }
         }
 
@@ -434,12 +456,12 @@ namespace Aerochat.Controls
             HRGN hrgnTop = CreateRoundRectRgn(
                 0, 0,
                 // Rounded rect regions require an extra pixel of padding on the right or they'll get cut off.
-                rcWindow.Width + 1, (rcWindow.Height / 2) + ROUNDED_CORNER_RADIUS + 1,
-                ROUNDED_CORNER_RADIUS, ROUNDED_CORNER_RADIUS
+                rcWindow.Width + 1, (rcWindow.Height / 2) + _scaledRoundedCornerRadius + 1,
+                _scaledRoundedCornerRadius, _scaledRoundedCornerRadius
             );
 
             HRGN hrgnTarget = CreateRectRgn(
-                0, (rcWindow.Height / 2) - ROUNDED_CORNER_RADIUS,
+                0, (rcWindow.Height / 2) - _scaledRoundedCornerRadius,
                 rcWindow.Width, rcWindow.Height
             );
 
