@@ -12,7 +12,6 @@ namespace Aerovoice.Recorders {
             {
                 WaveInCapabilities deviceInfo = WaveInEvent.GetCapabilities(waveInDevice);
                 devices.Add(deviceInfo.ProductName);
-                Console.WriteLine($"Found Device {waveInDevice} of {waveInDevices}: {WaveInEvent.GetCapabilities(waveInDevice).ProductName}");
             }
             
             return devices;
