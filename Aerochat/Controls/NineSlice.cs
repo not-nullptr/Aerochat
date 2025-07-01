@@ -25,7 +25,7 @@ namespace Aerochat.Controls
         public static readonly DependencyProperty ImageProperty =
             DependencyProperty.Register("Image", typeof(ImageSource), typeof(NineSlice), new PropertyMetadata(default(ImageSource), OnImageChanged));
 
-        private static void OnImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected static void OnImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is NineSlice control)
             {
@@ -104,7 +104,13 @@ namespace Aerochat.Controls
         {
             base.OnRender(drawingContext);
 
-            if (Image == null || !(Image is BitmapSource bitmapSource) || bitmapSource.PixelWidth == 0 || bitmapSource.PixelHeight == 0)
+            // For NineSliceButton: Instead of using the Image property to make sure that the image is not transparent,
+            // we'll just test that we have a top-left fragment. If we do, then we certainly have other fragments as
+            // well. If we were to test Image, then this wouldn't work for nine-slice buttons where the default state
+            // is transparent (no image) but there is another state.
+            CroppedBitmap? testingFragment = ResolvePartBitmap(NineSlicePart.TopLeft);
+
+            if (testingFragment == null || !(testingFragment is BitmapSource bitmapSource) || bitmapSource.PixelWidth == 0 || bitmapSource.PixelHeight == 0)
             {
                 // clear the control if the image is null or empty
                 drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, ActualWidth, ActualHeight));

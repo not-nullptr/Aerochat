@@ -33,34 +33,49 @@ namespace Aerochat.Controls
 
         private ButtonState _state = ButtonState.Normal;
 
-        // XXX isabella: These properties may only be set once and will not respond to updates. If such functionality
-        // is desired in the future, then these need to be replaced with dependency properties.
-        public ImageSource? Normal { get; set; }
-        public ImageSource? Hover { get; set; }
-        public ImageSource? Pressed { get; set; }
+        public ImageSource? Normal
+        {
+            get { return (ImageSource)GetValue(NormalProperty); }
+            set { SetValue(NormalProperty, value); InvalidateVisual(); }
+        }
+
+        public static readonly DependencyProperty NormalProperty =
+            DependencyProperty.Register("Normal", typeof(ImageSource), typeof(NineSliceButton), new PropertyMetadata(default(ImageSource), OnImageChanged));
+
+        public ImageSource? Hover
+        {
+            get { return (ImageSource)GetValue(HoverProperty); }
+            set { SetValue(HoverProperty, value); InvalidateVisual(); }
+        }
+
+        public static readonly DependencyProperty HoverProperty =
+            DependencyProperty.Register("Hover", typeof(ImageSource), typeof(NineSliceButton), new PropertyMetadata(default(ImageSource), OnImageChanged));
+
+        public ImageSource? Pressed
+        {
+            get { return (ImageSource)GetValue(PressedProperty); }
+            set { SetValue(PressedProperty, value); InvalidateVisual(); }
+        }
+
+        public static readonly DependencyProperty PressedProperty =
+            DependencyProperty.Register("Pressed", typeof(ImageSource), typeof(NineSliceButton), new PropertyMetadata(default(ImageSource), OnImageChanged));
 
         protected override void ReloadImage()
         {
-            if (Normal == null || !(Normal is BitmapSource normalBitmapSource) || normalBitmapSource.PixelWidth == 0 || normalBitmapSource.PixelHeight == 0)
+            if (Normal != null && (Normal is BitmapSource normalBitmapSource) && normalBitmapSource.PixelWidth != 0 && normalBitmapSource.PixelHeight != 0)
             {
-                return;
+                _imageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(normalBitmapSource, Slice);
             }
 
-            _imageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(normalBitmapSource, Slice);
-
-            if (Hover == null || !(Hover is BitmapSource hoverBitmapSource) || hoverBitmapSource.PixelWidth == 0 || hoverBitmapSource.PixelHeight == 0)
+            if (Hover != null && (Hover is BitmapSource hoverBitmapSource) && hoverBitmapSource.PixelWidth != 0 && hoverBitmapSource.PixelHeight != 0)
             {
-                return;
+                _hoverImageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(hoverBitmapSource, Slice);
             }
 
-            _hoverImageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(hoverBitmapSource, Slice);
-
-            if (Pressed == null || !(Pressed is BitmapSource pressedBitmapSource) || pressedBitmapSource.PixelWidth == 0 || pressedBitmapSource.PixelHeight == 0)
+            if (Pressed != null && (Pressed is BitmapSource pressedBitmapSource) && pressedBitmapSource.PixelWidth != 0 && pressedBitmapSource.PixelHeight != 0)
             {
-                return;
+                _pressedImageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(pressedBitmapSource, Slice);
             }
-
-            _pressedImageSet = NineSliceCacheManager.Instance.FindOrCreateImageSet(pressedBitmapSource, Slice);
         }
 
         protected override CroppedBitmap? ResolvePartBitmap(NineSlicePart part)
