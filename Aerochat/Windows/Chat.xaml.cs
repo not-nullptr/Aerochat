@@ -614,7 +614,17 @@ namespace Aerochat.Windows
 
             await Dispatcher.BeginInvoke(() =>
             {
-                if (messageIndex != -1) ViewModel.Messages.RemoveAt(messageIndex);
+                if (messageIndex > -1)
+                {
+                    try
+                    {
+                        ViewModel.Messages.RemoveAt(messageIndex);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        // We literally couldn't care less. This case should never crash the program.
+                    }
+                }
 
                 ViewModel.LastReceivedMessage = message;
                 ViewModel.Messages.Add(message);
