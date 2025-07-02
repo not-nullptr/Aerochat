@@ -75,4 +75,23 @@ namespace Aerochat.Helpers
             return __exception;
         }
     }
+
+    /// <summary>
+    /// It is possible, for a variety of reasons, for the clipboard to throw a COM exception or whatever. This is,
+    /// of course, a bug within WPF itself which has yet to be patched, so we have no choice but to patch it
+    /// ourselves. <see href="https://github.com/dotnet/wpf/issues/9901">It's rather pathetic, in my opinion.</see>
+    /// </summary>
+    /// <remarks>
+    /// Exceptions thrown from System.Windows.Clipboard.Flush() get bubbled up into other Clipboard methods, such as
+    /// SetText(), without documentation, so this is a quite nasty framework bug too.
+    /// </remarks>
+    [HarmonyPatch("System.Windows.Clipboard", "Flush")]
+    class Clipboard_Flush_HookClass
+    {
+        [HarmonyFinalizer]
+        public static Exception Finalizer()
+        {
+            return null!;
+        }
+    }
 }
