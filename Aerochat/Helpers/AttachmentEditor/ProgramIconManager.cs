@@ -38,6 +38,7 @@ namespace Aerochat.Helpers.AttachmentEditor
                     BitmapSource result = Imaging.CreateBitmapSourceFromHIcon(
                         (nint)fileInfo.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(32, 32)
                     );
+                    result.Freeze();
 
                     return result;
                 }

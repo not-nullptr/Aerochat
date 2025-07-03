@@ -272,6 +272,7 @@ namespace Aerochat.Controls
                         if (!EmojiCache.TryGetValue(emojiName, out BitmapSource? value))
                         {
                             value = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{emojiName}"));
+                            value.Freeze();
                             EmojiCache[emojiName] = value;
                         }
                         image.Source = value;

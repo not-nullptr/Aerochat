@@ -49,42 +49,65 @@ namespace Aerochat.Controls
             {
                 LoadVistaTheme();
             }
+
+            FreezeThemeResources();
+        }
+
+        /// <summary>
+        /// Freezes theme resources for optimisation.
+        /// </summary>
+        private void FreezeThemeResources()
+        {
+            CloseImagePath.Freeze();
+            CloseHoverImagePath.Freeze();
+            CloseActiveImagePath.Freeze();
+            CloseInactiveImagePath.Freeze();
+
+            MaximizeImagePath.Freeze();
+            MaximizeHoverImagePath.Freeze();
+            MaximizeActiveImagePath.Freeze();
+            MaximizeInactiveImagePath.Freeze();
+
+            MinimizeImagePath.Freeze();
+            MinimizeHoverImagePath.Freeze();
+            MinimizeActiveImagePath.Freeze();
+            MinimizeInactiveImagePath.Freeze();
         }
 
         private void LoadXPTheme()
         {
-            CloseImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/Close.png", UriKind.Relative));
-            CloseHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/CloseHover.png", UriKind.Relative));
-            CloseActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/CloseActive.png", UriKind.Relative));
-            CloseInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/CloseInactive.png", UriKind.Relative));
+            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Close.png"));
+            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseHover.png"));
+            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseActive.png"));
+            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseInactive.png"));
 
-            MaximizeImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/Maximize.png", UriKind.Relative));
-            MaximizeHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MaximizeHover.png", UriKind.Relative));
-            MaximizeActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MaximizeActive.png", UriKind.Relative));
-            MaximizeInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MaximizeInactive.png", UriKind.Relative));
+            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Maximize.png"));
+            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeHover.png"));
+            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeActive.png"));
+            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeInactive.png"));
 
-            MinimizeImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/Minimize.png", UriKind.Relative));
-            MinimizeHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MinimizeHover.png", UriKind.Relative));
-            MinimizeActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MinimizeActive.png", UriKind.Relative));
-            MinimizeInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/XP/MinimizeInactive.png", UriKind.Relative));
+            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Minimize.png"));
+            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeHover.png"));
+            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeActive.png"));
+            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeInactive.png"));
         }
 
         private void LoadVistaTheme()
         {
-            CloseImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/Close.png", UriKind.Relative));
-            CloseHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/CloseHover.png", UriKind.Relative));
-            CloseActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/CloseActive.png", UriKind.Relative));
-            CloseInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/CloseInactive.png", UriKind.Relative));
+            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Close.png"));
+            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseHover.png"));
+            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseActive.png"));
+            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseInactive.png"));
 
-            MaximizeImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/Maximize.png", UriKind.Relative));
-            MaximizeHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MaximizeHover.png", UriKind.Relative));
-            MaximizeActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MaximizeActive.png", UriKind.Relative));
-            MaximizeInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MaximizeInactive.png", UriKind.Relative));
+            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Maximize.png"));
+            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeHover.png"));
+            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeActive.png"));
+            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeInactive.png"));
 
-            MinimizeImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/Minimize.png", UriKind.Relative));
-            MinimizeHoverImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MinimizeHover.png", UriKind.Relative));
-            MinimizeActiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MinimizeActive.png", UriKind.Relative));
-            MinimizeInactiveImagePath = new BitmapImage(new Uri("/Resources/Titlebar/Vista/MinimizeInactive.png", UriKind.Relative));
+            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Minimize.png"));
+            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeHover.png"));
+            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeActive.png"));
+            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeInactive.png"));
         }
 
         #region Property boilerplate

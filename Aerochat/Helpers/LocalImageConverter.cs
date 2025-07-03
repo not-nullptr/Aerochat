@@ -15,7 +15,9 @@ namespace Aerochat.Helpers
             {
                 var uri = value as string;
                 if (uri is null || string.IsNullOrWhiteSpace(uri)) return DependencyProperty.UnsetValue;
-                return new BitmapImage(new Uri("pack://application:,,," + uri));
+                BitmapImage result = new(new Uri("pack://application:,,," + uri));
+                result.Freeze();
+                return result;
             }
             return value;
         }

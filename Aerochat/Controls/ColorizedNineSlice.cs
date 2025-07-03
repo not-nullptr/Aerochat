@@ -88,6 +88,7 @@ namespace Aerochat.Controls
             {
                 // Apply tint to the image before drawing
                 BitmapSource tintedImage = ApplyTint(bitmapSource, TintColor, Darken ?? 0.0);
+                tintedImage.Freeze();
                 _imageSet = NineSliceImageSet.FromBitmap(tintedImage, Slice);
             }
         }
@@ -107,6 +108,7 @@ namespace Aerochat.Controls
 
             RenderTargetBitmap bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(drawingVisual);
+            bitmap.Freeze();
 
             return bitmap;
         }
