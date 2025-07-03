@@ -50,8 +50,6 @@ namespace Aerochat.Controls.ButtonTheme
             Size desired;
             UIElement child = ButtonContent;
 
-            System.Diagnostics.Debug.WriteLine("Child is " + (child == null ? "not there" : "there"));
-
             if (child != null)
             {
                 Size childConstraint = new Size();
@@ -70,8 +68,6 @@ namespace Aerochat.Controls.ButtonTheme
                 child.Measure(childConstraint);
 
                 desired = child.DesiredSize;
-
-                System.Diagnostics.Debug.WriteLine("Height is " + desired.Height);
 
                 if (!isWidthTooSmall)
                 {
