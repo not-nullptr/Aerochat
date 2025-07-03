@@ -38,6 +38,21 @@ namespace Aerochat.Windows
 
         public int AdIndex { get; set; } = 0;
 
+        /// <summary>
+        /// The base URL used for dynamic notices and news content.
+        /// </summary>
+        const string DYNAMIC_BASE_URL = "https://raw.githubusercontent.com/not-nullptr/Aerochat/refs/heads/main/Dynamic/";
+
+        /// <summary>
+        /// The URL for remote dynamic news content shown along the bottom of the client.
+        /// </summary>
+        const string DYNAMIC_NEWS_URL    = DYNAMIC_BASE_URL + "news.json";
+
+        /// <summary>
+        /// The URL for remote notices shown along the top of the client until dismissal.
+        /// </summary>
+        const string DYNAMIC_NOTICES_URL = DYNAMIC_BASE_URL + "notices.json";
+
         public PresenceViewModel? FindPresenceForUserId(ulong userId)
         {
             foreach (var category in ViewModel.Categories)
@@ -384,82 +399,111 @@ namespace Aerochat.Windows
             newsTimer.Start();
         }
 
+        /// <summary>
+        /// Gets the user agent we report when making a request to remote servers.
+        /// </summary>
+        private static string GetAerochatUserAgent()
+        {
+            return "Aerochat/" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3);
+        }
+
+        /// <summary>
+        /// Retrieves new news headlines from the remote server. This is shown along the bottom of the home window
+        /// at all times unless disabled in the user's appearance settings.
+        /// </summary>
         public async Task GetNewNews()
         {
-            // news is at https://gist.githubusercontent.com/not-nullptr/62b1fdeb4533c905b8145bc076af108e/raw/news.json?breaker={TIMESTAMP}
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
-            var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/62b1fdeb4533c905b8145bc076af108e/raw/news.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
-            if (response.IsSuccessStatusCode)
+            httpClient.DefaultRequestHeaders.Add("User-Agent", GetAerochatUserAgent());
+            try
             {
-                try
+                var response = await httpClient.GetAsync(DYNAMIC_NEWS_URL + "?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                if (response.IsSuccessStatusCode)
                 {
-                    var news = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+                    try
                     {
-                        AllowTrailingCommas = true,
-                        CommentHandling = JsonCommentHandling.Skip,
-                    });
-                    var newsList = new List<NewsViewModel>();
-                    foreach (var n in news.RootElement.EnumerateArray())
-                    {
-                        newsList.Add(NewsViewModel.FromNews(n));
-                    }
-
-                    _ = Dispatcher.BeginInvoke(() =>
-                    {
-                        ViewModel.News.Clear();
-                        foreach (var n in newsList)
+                        var news = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
                         {
-                            ViewModel.News.Add(n);
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip,
+                        });
+                        var newsList = new List<NewsViewModel>();
+                        foreach (var n in news.RootElement.EnumerateArray())
+                        {
+                            newsList.Add(NewsViewModel.FromNews(n));
                         }
 
-                        ViewModel.CurrentNews = ViewModel.News.FirstOrDefault(x => x.Date == ViewModel.CurrentNews?.Date) ?? ViewModel.News.FirstOrDefault();
-                    });
+                        _ = Dispatcher.BeginInvoke(() =>
+                        {
+                            ViewModel.News.Clear();
+                            foreach (var n in newsList)
+                            {
+                                ViewModel.News.Add(n);
+                            }
+
+                            ViewModel.CurrentNews = ViewModel.News.FirstOrDefault(x => x.Date == ViewModel.CurrentNews?.Date) ?? ViewModel.News.FirstOrDefault();
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        // The content is not valid JSON. Ignore.
+                    }
                 }
-                catch (JsonException)
-                {
-                    // The content is not valid JSON. Ignore.
-                }
+            }
+            catch (HttpRequestException)
+            {
+                // Doesn't matter.
             }
         }
 
+        /// <summary>
+        /// Retrieves new notices which are shown along the top of the server list periodically as they update.
+        /// </summary>
         public async Task GetNewNotices()
         {
             var noticesList = new List<NoticeViewModel>();
-            // get the latest notices from https://gist.githubusercontent.com/not-nullptr/26108f2ac8fcb8a24965a148fcf17363/raw/notices.json?breaker={TIMESTAMP}
+            
+            // Get the latest notices from the GitHub repo.
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
-            var response = await httpClient.GetAsync("https://gist.githubusercontent.com/not-nullptr/26108f2ac8fcb8a24965a148fcf17363/raw/notices.json?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
-            if (response.IsSuccessStatusCode)
+            httpClient.DefaultRequestHeaders.Add("User-Agent", GetAerochatUserAgent());
+            try
             {
-                try
+                var response = await httpClient.GetAsync(DYNAMIC_NOTICES_URL + "?breaker=" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                if (response.IsSuccessStatusCode)
                 {
-                    var notices = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
+                    try
                     {
-                        AllowTrailingCommas = true,
-                        CommentHandling = JsonCommentHandling.Skip,
-                    });
-                    // this is an array so iterate through it
-                    foreach (var notice in notices.RootElement.EnumerateArray())
-                    {
-                        var noticeViewModel = NoticeViewModel.FromNotice(notice);
-                        if (!noticeViewModel.IsTargeted || SettingsManager.Instance.ViewedNotices.Contains(noticeViewModel.Date)) continue;
-                        noticesList.Add(noticeViewModel);
-                    }
-
-                    _ = Dispatcher.BeginInvoke(() =>
-                    {
-                        ViewModel.Notices.Clear();
-                        foreach (var n in noticesList)
+                        var notices = JsonDocument.Parse(await response.Content.ReadAsStringAsync(), new JsonDocumentOptions()
                         {
-                            ViewModel.Notices.Add(n);
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip,
+                        });
+                        // this is an array so iterate through it
+                        foreach (var notice in notices.RootElement.EnumerateArray())
+                        {
+                            var noticeViewModel = NoticeViewModel.FromNotice(notice);
+                            if (!noticeViewModel.IsTargeted || SettingsManager.Instance.ViewedNotices.Contains(noticeViewModel.Date)) continue;
+                            noticesList.Add(noticeViewModel);
                         }
-                    });
+
+                        _ = Dispatcher.BeginInvoke(() =>
+                        {
+                            ViewModel.Notices.Clear();
+                            foreach (var n in noticesList)
+                            {
+                                ViewModel.Notices.Add(n);
+                            }
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        // The content is not valid JSON. Ignore.
+                    }
                 }
-                catch (JsonException)
-                {
-                    // The content is not valid JSON. Ignore.
-                }
+            }
+            catch (HttpRequestException)
+            {
+                // Doesn't matter.
             }
         }
         private void CloseNoticeButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -481,7 +525,7 @@ namespace Aerochat.Windows
                 return;
 
             HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "AeroChat");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", GetAerochatUserAgent());
 
             HttpResponseMessage response;
             try
@@ -552,7 +596,7 @@ namespace Aerochat.Windows
                         HttpResponseMessage releaseResponse;
                         try
                         {
-                            releaseResponse = await httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/AeroChat/releases/tags/{latestTag}");
+                            releaseResponse = await httpClient.GetAsync($"https://api.github.com/repos/not-nullptr/Aerochat/releases/tags/{latestTag}");
                         }
                         catch (Exception)
                         {
