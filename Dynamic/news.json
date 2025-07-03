@@ -1,18 +1,26 @@
 [
 	{
-		"date": 1727495677649,
-		"body": "Welcome to the new [b][color color=#1D80A6]Aerochat[/color][/b]! If you're on the latest version, you'll be able to [i](experimentally)[/i] join voice chats. Enjoy!"
+		"date": 1751552418000,
+		"body": "[b][color color=#1D80A6]Aerochat v0.2.3[/color][/b]: We spent a long time focusing on improving the performance and stability of the client in this version. Hopefully you'll find things feeling a lot smoother going forward."
+	},
+	{
+		"date": 1751552418000,
+		"body": "Aerochat has been proudly featured in MattKC's recent video. [link url=https://www.youtube.com/watch?v=wxdn30G2LE8]Check it out here![/link] MattKC makes awesome content and the aforementioned video regards other alternative Discord clients you may be interested in."
 	},
 	{
 		"date": 1704470245486,
-		"body": "Have any feedback? Questions? Answers? Join our [link url=https://discord.gg/EfHdHThNGX]Discord Server[/link]!"
+		"body": "Have any feedback? Questions? Answers? Join our [link url=https://discord.gg/Jcg84hmSqM]Discord Server[/link]!"
 	},
 	{
-		"date": 1704726141901,
-		"body": "The native rewrite is finally here! It boasts better memory usage, higher performance and more accuracy. Read more in the [link url=https://discord.gg/EfHdHThNGX]Discord Server[/link]."
+		"date": 1751552418000,
+		"body": "[b]Want to submit an ad or a scene?[/b] Join our [link url=https://discord.gg/Jcg84hmSqM]Discord Server[/link] to participate in the next voting period! It's fun and you can submit anything related to your interests."
 	},
 	{
-		"date": 1704392834427,
-		"body": "Did you know AeroChat has a website? Visit it [link url=https://aerochat.live]here[/link]!"
+		"date": 1751552418000,
+		"body": "[b]Did you submit an ad in the past?[/b] We are trying to fill out past credits. Due to improper management in the past, we did not track credits and lost attribution information for all ads submitted prior to September 27th, 2024. If you submitted an ad at all before this time, please reach out to us so we can fill in the missing information."
+	},
+	{
+		"date": 1751552418000,
+		"body" :"[b]Interested in Aerochat development?[/b] Aerochat is free-and-open-source software which is maintained through community contributions. Please check out [link url=https://github.com/not-nullptr/Aerochat]our GitHub repository[/link] if you'd like to help out. You don't have to be a skilled programmer or anything; we are welcoming to all contributors."
 	}
 ]
