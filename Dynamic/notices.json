@@ -1,14 +1,8 @@
 [
 	{
 		"type": "info",
-		"message": "Welcome to Aerochat v0.0.0.8! This release includes news and notes ported from the old Aerochat, various accuracy improvements, experimental voice chat and more. Enjoy!",
-		"date": 1727484274,
-		"targets": "=0.0.0.8"
-	},
-	{
-		"type": "info",
-		"message": "Did you know we have a Discord server? You can join [link url=https://discord.gg/aerochat]here[/link]!",
-		"date": 1727484275,
+		"message": "Did you know we have a Discord server? You can join [link url=https://discord.gg/Jcg84hmSqM]here[/link]!",
+		"date": 1751552418,
 		"targets": ">=0.0.0.8"
 	},
 ]
