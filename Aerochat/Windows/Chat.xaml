@@ -767,7 +767,7 @@
                                     </Border>
                                 </Grid>
                             </Grid>
-                            <ItemsControl ScrollViewer.CanContentScroll="True" x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="MessagesListItemsControl" ScrollViewer.ScrollChanged="MessagesScrollViewer_ScrollChanged"  ItemsSource="{Binding Path=Messages, Mode=OneWay}" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <ItemsControl.Style>
                                     <Style TargetType="ItemsControl">
                                         <Style.Triggers>
@@ -779,13 +779,13 @@
                                 </ItemsControl.Style>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel Orientation="Vertical" IsVirtualizing="True" VirtualizationMode="Recycling" />
+                                        <StackPanel Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
 
                                 <ItemsControl.Template>
                                     <ControlTemplate>
-                                        <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                                        <ScrollViewer PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" CanContentScroll="False">
                                             <ScrollViewer.Style>
                                                 <Style TargetType="ScrollViewer">
                                                     <Setter Property="Template">
@@ -815,9 +815,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </ScrollViewer.Style>
-                                            <Grid>
-                                                <ItemsPresenter />
-                                            </Grid>
+                                            <ItemsPresenter />
                                         </ScrollViewer>
                                     </ControlTemplate>
                                 </ItemsControl.Template>
@@ -1135,7 +1133,7 @@
                                                                             </TextBlock.Style>
                                                                         </TextBlock>
                                                                         <!-- Embed image -->
-                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Image.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Image}">
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Image.Url}" MaxWidth="500" MaxHeight="250" Width="{Binding Image.Width}" Height="{Binding Image.Height}" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Image}">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1148,7 +1146,7 @@
                                                                             </Image.Style>
                                                                         </Image>
                                                                         <!-- Embed thumbnail -->
-                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Thumbnail.Url}" MaxWidth="500" MaxHeight="250" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Thumbnail}">
+                                                                        <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,24,0,0" Source="{Binding Thumbnail.Url}" MaxWidth="500" MaxHeight="250" Width="{Binding Thumbnail.Width}" Height="{Binding Thumbnail.Height}" HorizontalAlignment="Left" Cursor="Hand" MouseLeftButtonDown="OpenMediaEmbed" Tag="{Binding Thumbnail}">
                                                                             <Image.Style>
                                                                                 <Style TargetType="Image">
                                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1558,19 +1556,7 @@
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickTrash">
                                                     <Grid>
-                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
-                                                            <controls:NineSliceButton.Style>
-                                                                <Style TargetType="{x:Type controls:NineSliceButton}">
-                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding DrawingTool}" Value="Trash">
-                                                                            <Setter Property="Visibility" Value="Hidden" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </controls:NineSliceButton.Style>
-                                                        </controls:NineSliceButton>
-
+                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                     </Grid>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
                                                         <Image Margin="4,0" Source="/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
