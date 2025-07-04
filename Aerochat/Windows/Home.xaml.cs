@@ -300,18 +300,19 @@ namespace Aerochat.Windows
                     }
                 });
 
-#if WIP && !DEVELOPER_PRERELEASE
+#if AEROCHAT_RC && !DEVELOPER_PRERELEASE
                 Dialog betaNoticeDlg = new(
                     "Notice",
                     "This is a work-in-progress beta copy of Aerochat. Please stay updated with the GitHub " +
-                    "page for official releases.",
+                    "page for the full release. You will be prompted to install the full release when it " +
+                    "comes out.",
                     SystemIcons.Information
                 );
                 betaNoticeDlg.Owner = null;
                 betaNoticeDlg.ShowDialog();
 #endif
 
-#if RELEASE && !WIP
+#if RELEASE && !AEROCHAT_RC
                 if (SettingsManager.Instance.ShowBetaWarning)
                 {
                     Dialog betaNoticeDlg = new(
@@ -518,7 +519,7 @@ namespace Aerochat.Windows
 
         public async Task CheckForUpdates()
         {
-#if DEBUG || WIP
+#if DEBUG || DEVELOPER_PRERELEASE
             return;
 #endif
             if (showingUpdate)
@@ -559,7 +560,11 @@ namespace Aerochat.Windows
             if (latestTag == null)
                 return;
 
+#if !AEROCHAT_RC
             var localVersion = Assembly.GetExecutingAssembly().GetName().Version;
+#else
+            var localVersion = Version.Parse(AssemblyInfo.RC_LAST_VERSION);
+#endif
             if (localVersion == null)
                 return;
 

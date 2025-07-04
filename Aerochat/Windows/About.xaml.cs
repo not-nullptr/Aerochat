@@ -25,7 +25,11 @@ namespace Aerochat.Windows
         {
             InitializeComponent();
 
-            PART_AerochatVersion.Text = "Aerochat version " + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + "\n";
+            PART_AerochatVersion.Text = "Aerochat version " + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3)
+#if AEROCHAT_RC
+                + " " + AssemblyInfo.RC_REVISION
+#endif
+                + "\n";
 
             string credits = "Aerochat is a project by nullptr. Most assets belong to Microsoft, please don't sue!\n\n";
 

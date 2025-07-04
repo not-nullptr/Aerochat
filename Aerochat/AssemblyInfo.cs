@@ -21,4 +21,18 @@ using System.Windows;
 static class AssemblyInfo
 {
     public const string Version = "0.2.3";
+
+#if AEROCHAT_RC
+    /// <summary>
+    /// The last version of Aerochat. Prerelease versions are treated as their previous version by the
+    /// update checker so they get pushed to update to the final RTM build.
+    /// </summary>
+    public static readonly string RC_LAST_VERSION = "0.2.2";
+
+    /// <summary>
+    /// The revision string for the current prerelease version. This can be any arbitrary string such as
+    /// "RC1" or "[User] Testing Release".
+    /// </summary>
+    public static readonly string RC_REVISION = "RC1";
+#endif
 }

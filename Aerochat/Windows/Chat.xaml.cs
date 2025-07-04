@@ -125,7 +125,12 @@ namespace Aerochat.Windows
         {
             try
             {
+#if !AEROCHAT_RC
                 AerochatVersionLink.Text = "Aerochat v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + " by nullptr";
+#else
+                AerochatVersionLink.Text = "Aerochat v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) +
+                    " " + AssemblyInfo.RC_REVISION + " by nullptr";
+#endif
 
                 MouseEnter += (s, e) => SetVisibleProperty(true);
                 MouseLeave += (s, e) =>
