@@ -359,7 +359,7 @@ namespace Aerochat
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            LoginWindow = new(true);
+                            LoginWindow = new(true, success);
                             LoginWindow.Show();
                         });
                     }
