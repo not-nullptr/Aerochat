@@ -18,12 +18,23 @@ namespace Aerovoice.Recorders
         public override void Start()
         {
             waveInEvent.StartRecording();
+            waveInEvent.DeviceNumber = 0;
             waveInEvent.DataAvailable += WaveInEvent_DataAvailable;
         }
 
         public override void Stop() {
             waveInEvent.StopRecording();
             waveInEvent.DataAvailable -= WaveInEvent_DataAvailable;
+        }
+        
+        public override void SetInputDevice(int deviceIndex)
+        {
+            if (deviceIndex < 0 || deviceIndex >= WaveInEvent.DeviceCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(deviceIndex), "Invalid device index.");
+            }
+
+            waveInEvent.DeviceNumber = deviceIndex;
         }
 
         public override void Dispose()

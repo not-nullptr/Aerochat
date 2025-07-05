@@ -39,6 +39,7 @@ namespace Aerochat.Voice
             await LeaveVoiceChannel();
             voiceSocket = new(Discord.Client);
             await voiceSocket.ConnectAsync(channel);
+            voiceSocket.Recorder.SetInputDevice(Settings.SettingsManager.Instance.InputDeviceIndex);
             ChannelVM = ChannelViewModel.FromChannel(channel);
         }
     }

@@ -145,6 +145,30 @@
                                 <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
                                 <TextBox TextChanged="TextBox_TextChanged" Tag="{Binding Name}" Text="{Binding DefaultValue}" PreviewTextInput="TextBox_PreviewTextInput" VerticalContentAlignment="Center" Width="150" Height="22" HorizontalAlignment="Left" />
                             </StackPanel>
+                            
+                            <!-- For Multi-String to Index Settings -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Int32">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
+                                <ComboBox 
+                                    SelectionChanged="ComboBox_SelectionChanged" 
+                                    SelectedItem="{Binding DefaultValue, Mode=TwoWay}" 
+                                    Tag="{Binding Name}"
+                                    ItemsSource="{Binding StringValues}" 
+                                    Width="150" 
+                                    Height="22" 
+                                    HorizontalAlignment="Left" />
+                            </StackPanel>
+                            
 
                             <!-- For Enum Settings -->
                             <StackPanel>
