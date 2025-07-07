@@ -474,12 +474,24 @@
                                                                                         </Grid>
                                                                                     </Grid>
                                                                                 </Button>
-                                                                                <ItemsControl ItemsSource="{Binding ConnectedUsers}">
+                                                                                <ItemsControl ItemsSource="{Binding ConnectedUsers, Mode=OneWay}">
                                                                                     <ItemsControl.ItemTemplate>
                                                                                         <DataTemplate>
                                                                                             <StackPanel Orientation="Horizontal" Margin="4,2,0,2">
+                                                                                                <StackPanel.Style>
+                                                                                                    <Style TargetType="StackPanel">
+                                                                                                        <Style.Triggers>
+                                                                                                            <DataTrigger Binding="{Binding IsSpeaking}" Value="True">
+                                                                                                                <Setter Property="Opacity" Value="1" />
+                                                                                                            </DataTrigger>
+                                                                                                            <DataTrigger Binding="{Binding IsSpeaking}" Value="False">
+                                                                                                                <Setter Property="Opacity" Value="0.5" />
+                                                                                                            </DataTrigger>
+                                                                                                        </Style.Triggers>
+                                                                                                    </Style>
+                                                                                                </StackPanel.Style>
                                                                                                 <controls:ProfilePictureFrame FrameSize="ExtraSmall" UserStatus="{Binding Presence.Status}" />
-                                                                                                <TextBlock Margin="4,0,0,0" Opacity="0.5" Text="{Binding Name}" />
+                                                                                                <TextBlock Margin="4,0,0,0" Text="{Binding Name}" />
                                                                                             </StackPanel>
                                                                                         </DataTemplate>
                                                                                     </ItemsControl.ItemTemplate>
