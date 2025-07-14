@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Aerochat.Attributes;
 
 namespace Aerochat.Settings
 {
@@ -228,6 +229,11 @@ namespace Aerochat.Settings
         [Settings("Appearance", "Enable developer commands in context menus")]
 
         public bool DiscordDeveloperMode { get; set; } = false;
+        
+        [Settings("Audio", "Input device [Requires rejoining if changed mid-call]"), MultiStringToIntAction("FetchInputDevices")]
+        
+        public int InputDeviceIndex { get; set; } = 0;
+
         #endregion
     }
 }
