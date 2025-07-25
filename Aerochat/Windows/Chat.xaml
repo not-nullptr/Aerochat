@@ -609,8 +609,8 @@
                                 <RowDefinition Height="{Binding BottomHeight}" />
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
-                                <Grid Cursor="SizeNS" VerticalAlignment="Bottom" x:Name="Seperator" PreviewMouseDown="Seperator_PreviewMouseDown">
-                                    <controls:ColorizedNineSlice Height="12" Slice="1,1" TintColor="{Binding Recipient.Scene.Color}" Image="/Resources/Message/Seperator.png">
+                                <Grid Cursor="SizeNS" VerticalAlignment="Bottom" x:Name="Separator" PreviewMouseDown="Separator_PreviewMouseDown">
+                                    <controls:ColorizedNineSlice Height="12" Slice="1,1" TintColor="{Binding Recipient.Scene.Color}" Image="/Resources/Message/Separator.png">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Margin" Value="0,0,0,0" />
@@ -1314,7 +1314,7 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                     </Grid>
-                                    <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Cursor="SizeNS" PreviewMouseDown="BottomSeperator_PreviewMouseDown" x:Name="BottomSeperator" Height="8" Slice="64,2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Image="/Resources/Message/BottomSeperator.png" />
+                                    <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Cursor="SizeNS" PreviewMouseDown="BottomSeparator_PreviewMouseDown" x:Name="BottomSeparator" Height="8" Slice="64,2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Image="/Resources/Message/BottomSeparator.png" />
                                 </StackPanel>
                             </Grid>
                             <Grid Grid.Row="4" Margin="0,0,18,0" IsHitTestVisible="{Binding Channel.CanTalk}">

@@ -187,7 +187,7 @@
 		<None Remove="Resources\Emoji\ZipMouth.png" />
 		<None Remove="Resources\Frames\*.png" />
 		<None Remove="Resources\Home\AddFriend.png" />
-		<None Remove="Resources\Home\BottomSeperator.png" />
+		<None Remove="Resources\Home\BottomSeparator.png" />
 		<None Remove="Resources\Home\ChangeLayout.png" />
 		<None Remove="Resources\Home\Close.png" />
 		<None Remove="Resources\Home\CloseHover.png" />
@@ -226,7 +226,7 @@
 		<None Remove="Resources\ImagePreviewer\OpenHover.png" />
 		<None Remove="Resources\Login\Frame.png" />
 		<None Remove="Resources\Message\Background.png" />
-		<None Remove="Resources\Message\BottomSeperator.png" />
+		<None Remove="Resources\Message\BottomSeparator.png" />
 		<None Remove="Resources\Message\BottomToolbar.png" />
 		<None Remove="Resources\Message\Colors.png" />
 		<None Remove="Resources\Message\Embed.png" />
@@ -238,7 +238,7 @@
 		<None Remove="Resources\Message\Pen.png" />
 		<None Remove="Resources\Message\Redo.png" />
 		<None Remove="Resources\Message\RedoInactive.png" />
-		<None Remove="Resources\Message\Seperator.png" />
+		<None Remove="Resources\Message\Separator.png" />
 		<None Remove="Resources\Message\SpeechBubbleArrow.png" />
 		<None Remove="Resources\Message\Text.png" />
 		<None Remove="Resources\Message\ToolbarActive.png" />
@@ -635,7 +635,7 @@
 		<Resource Include="Resources\Dropdown\DropdownExpandedHover.png" />
 		<Resource Include="Resources\Dropdown\DropdownHover.png" />
 		<Resource Include="Resources\Frames\*.png" />
-		<Resource Include="Resources\Home\BottomSeperator.png" />
+		<Resource Include="Resources\Home\BottomSeparator.png" />
 		<Resource Include="Resources\Home\SearchBar.png" />
 		<Resource Include="Resources\Home\SearchBarActive.png" />
 		<Resource Include="Resources\Home\SearchBarHover.png" />
@@ -646,7 +646,7 @@
 		<Resource Include="Resources\Home\TreeHoverActive.png" />
 		<Resource Include="Resources\Icons\DiscordIcon.png" />
 		<Resource Include="Resources\Login\Frame.png" />
-		<Resource Include="Resources\Message\BottomSeperator.png" />
+		<Resource Include="Resources\Message\BottomSeparator.png" />
 		<Resource Include="Resources\Message\BottomToolbar.png" />
 		<Resource Include="Resources\Message\Embed.png" />
 		<Resource Include="Resources\Message\Expand.png" />
@@ -654,7 +654,7 @@
 		<Resource Include="Resources\Message\InputBackground.png" />
 		<Resource Include="Resources\Message\Background.png" />
 		<Resource Include="Resources\Message\Nudge.png" />
-		<Resource Include="Resources\Message\Seperator.png" />
+		<Resource Include="Resources\Message\Separator.png" />
 		<Resource Include="Resources\Message\SpeechBubbleArrow.png" />
 		<Resource Include="Resources\Message\ToolbarActive.png" />
 		<Resource Include="Resources\Message\ToolbarHover.png" />

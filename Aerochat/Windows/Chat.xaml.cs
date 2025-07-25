@@ -68,8 +68,8 @@ namespace Aerochat.Windows
         private MediaPlayer chatSoundPlayer = new();
         public DiscordChannel Channel;
         public ulong ChannelId;
-        bool isDraggingTopSeperator = false;
-        bool isDraggingBottomSeperator = false;
+        bool isDraggingTopSeparator = false;
+        bool isDraggingBottomSeparator = false;
         int initialPos = 0;
         private Dictionary<ulong, Timer> timers = new();
         private VoiceSocket voiceSocket;
@@ -1447,30 +1447,30 @@ namespace Aerochat.Windows
             }
         }
 
-        private void Seperator_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void Separator_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            isDraggingTopSeperator = true;
+            isDraggingTopSeparator = true;
             initialPos = (int)e.GetPosition(this).Y;
         }
 
         private void Window_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            isDraggingTopSeperator = false;
-            isDraggingBottomSeperator = false;
+            isDraggingTopSeparator = false;
+            isDraggingBottomSeparator = false;
         }
 
         private void Window_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             // drag the ViewModel.TopHeight
             var pos = (int)e.GetPosition(this).Y;
-            if (isDraggingTopSeperator)
+            if (isDraggingTopSeparator)
             {
                 ViewModel.TopHeight += pos - initialPos;
                 ViewModel.TopHeightMinus10 = ViewModel.TopHeight - 10;
                 initialPos = pos;
             }
 
-            if (isDraggingBottomSeperator)
+            if (isDraggingBottomSeparator)
             {
                 ViewModel.BottomHeight -= pos - initialPos;
                 int min = 64;
@@ -1511,9 +1511,9 @@ namespace Aerochat.Windows
             }
         }
 
-        private void BottomSeperator_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void BottomSeparator_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            isDraggingBottomSeperator = true;
+            isDraggingBottomSeparator = true;
             initialPos = (int)e.GetPosition(this).Y;
         }
 
@@ -1716,7 +1716,7 @@ namespace Aerochat.Windows
 
         private void MessageTextBox_SizeChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (isDraggingBottomSeperator) return;
+            if (isDraggingBottomSeparator) return;
             var textBox = (TextBox)sender;
             var newHeight = (int)textBox.ExtentHeight + 40;
             if ((ViewModel.BottomHeight > newHeight && sizeTainted) || newHeight > 200) return;

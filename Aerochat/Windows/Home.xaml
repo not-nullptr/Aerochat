@@ -408,7 +408,7 @@
                     </Grid>
                 </Grid>
                 <Grid Grid.Row="1" Panel.ZIndex="4" UseLayoutRounding="True">
-                    <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1" Margin="0,0,0,6" Image="/Resources/Message/Seperator.png" />
+                    <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Slice="1,1" Margin="0,0,0,6" Image="/Resources/Message/Separator.png" />
                 </Grid>
                 <Grid Grid.Row="3" Margin="0,0" Panel.ZIndex="4">
                     <Grid.RowDefinitions>
@@ -833,7 +833,7 @@
                         </controls:ColorizedNineSlice>
                         <StackPanel Margin="16,0" VerticalAlignment="Bottom">
                             <Grid x:Name="NewsContainer" Visibility="Visible">
-                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
+                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeparator.png" Height="6" />
                                 <Grid Height="90">
                                     <StackPanel Margin="16,8,16,0">
                                         <StackPanel Orientation="Horizontal">
@@ -897,7 +897,7 @@
                                 </Grid>
                             </Grid>
                             <Grid x:Name="AdContainer" Visibility="Visible">
-                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeperator.png" Height="6" />
+                                <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Resources/Home/BottomSeparator.png" Height="6" />
                                 <Grid Margin="16,4,16,16">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
