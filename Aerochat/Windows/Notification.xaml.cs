@@ -157,17 +157,23 @@ namespace Aerochat.Windows
                     if (SettingsManager.Instance.ReadMessageNotifications && TextToSpeech.Instance.Available)
                     {
                         //Remove links from the TTS message so it doesn't ramble on forever.
-                        //also replaces # with "hashtag" so it doesnt say "number sign".
+                        //also replaces a few characters with different pronounciations
+
                         var FilteredMessage = "";
                         var SplitFilteredMessage = ViewModel.Message.Message.Split(' ');
                         foreach (var split in SplitFilteredMessage)
                         {
-                            if (split.StartsWith('#'))
+                            if (split.StartsWith('#')) //Pronounced as "number sign", replaced with "hashtag"
                             {
                                 string part = split.Replace("#", " hashtag");
                                 FilteredMessage += part;
                             }
-                            else if (split.StartsWith("http://") || split.StartsWith("https://"))
+                            else if (split.StartsWith('^')) //Pronounced as "circumflex accent", replaced with "caret"
+                            {
+                                string part = split.Replace("^", " caret");
+                                FilteredMessage += part;
+                            }
+                            else if (split.StartsWith("http://") || split.StartsWith("https://")) //Replace all links with "a link"
                             {
                                 FilteredMessage += " (a link)";
                             }
