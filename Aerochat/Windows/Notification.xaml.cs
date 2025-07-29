@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Aerochat.Settings;
+using Aerochat.Hoarder;
 
 namespace Aerochat.Windows
 {
@@ -231,7 +232,8 @@ namespace Aerochat.Windows
                             else
                             {
                                 ulong.TryParse(id, out ulong parsedId);
-                                var user = message.MentionedUsers?.FirstOrDefault(x => x?.Id == parsedId);
+                                var user = Discord.Client.GetUserProfileAsync(parsedId).GetAwaiter().GetResult().User;
+
                                 if (user == null)
                                     FilteredMessage += " @unknown-user";
                                 else
