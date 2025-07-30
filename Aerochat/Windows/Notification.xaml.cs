@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Aerochat.Settings;
+using Aerochat.Hoarder;
 
 namespace Aerochat.Windows
 {
@@ -156,17 +157,23 @@ namespace Aerochat.Windows
                     if (SettingsManager.Instance.ReadMessageNotifications && TextToSpeech.Instance.Available)
                     {
                         //Remove links from the TTS message so it doesn't ramble on forever.
-                        //also replaces # with "hashtag" so it doesnt say "number sign".
+                        //also replaces a few characters with different pronounciations
+
                         var FilteredMessage = "";
                         var SplitFilteredMessage = ViewModel.Message.Message.Split(' ');
                         foreach (var split in SplitFilteredMessage)
                         {
-                            if (split.StartsWith('#'))
+                            if (split.StartsWith('#')) //Pronounced as "number sign", replaced with "hashtag"
                             {
                                 string part = split.Replace("#", " hashtag");
                                 FilteredMessage += part;
                             }
-                            else if (split.StartsWith("http://") || split.StartsWith("https://"))
+                            else if (split.StartsWith('^')) //Pronounced as "circumflex accent", replaced with "caret"
+                            {
+                                string part = split.Replace("^", " caret");
+                                FilteredMessage += part;
+                            }
+                            else if (split.StartsWith("http://") || split.StartsWith("https://")) //Replace all links with "a link"
                             {
                                 FilteredMessage += " (a link)";
                             }
@@ -175,6 +182,7 @@ namespace Aerochat.Windows
                                 FilteredMessage += " " + split;
                             }
                         }
+
                         TextToSpeech.Instance.ReadOutMessage($"{ViewModel.Message.Author.Name.ToLower()} said {FilteredMessage}.");
                     }
                     break;
@@ -198,73 +206,83 @@ namespace Aerochat.Windows
 
         private string ParseNotificationContent(DiscordMessage message)
         {
-            string FilteredMessage = "";
-            var SplitFilteredMessage = message.Content.Split(' ');
-            foreach (var split in SplitFilteredMessage)
+            if (message.Attachments.Count > 0 && message.Content == String.Empty)
             {
-                if (split.StartsWith('<') && split.EndsWith('>'))
+                return $"Uploaded {message.Attachments.Count} attachment{(message.Attachments.Count == 1 ? '\0' : 's')}.";
+            }
+            else
+            {
+                string FilteredMessage = "";
+
+                var SplitFilteredMessage = message.Content.Split(' ');
+
+                foreach (var split in SplitFilteredMessage)
                 {
-                    string id = split.Replace("<", "").Replace(">", "");
-
-                    if (id.ElementAt(0) == '@')
+                    if (split.StartsWith('<') && split.EndsWith('>'))
                     {
-                        id = id.Replace("@", "");
-                        if (id.ElementAt(0) == '&')
+                        string id = split.Replace("<", "").Replace(">", "");
+
+                        if (id.ElementAt(0) == '@')
                         {
-                            id = id.Replace("&", "");
-                            ulong.TryParse(id, out ulong parsedId);
-                            var role = message.MentionedRoles?.FirstOrDefault(x => x?.Id == parsedId);
-                            if (role == null)
-                                FilteredMessage += " @unknown-role";
+                            id = id.Replace("@", "");
+                            if (id.ElementAt(0) == '&')
+                            {
+                                id = id.Replace("&", "");
+                                ulong.TryParse(id, out ulong parsedId);
+                                var role = message.MentionedRoles?.FirstOrDefault(x => x?.Id == parsedId);
+                                if (role == null)
+                                    FilteredMessage += " @unknown-role";
+                                else
+                                    FilteredMessage += $" @{role.Name}";
+                            }
                             else
-                                FilteredMessage += $" @{role.Name}";
+                            {
+                                ulong.TryParse(id, out ulong parsedId);
+                                var user = Discord.Client.GetUserProfileAsync(parsedId).GetAwaiter().GetResult().User;
+
+                                if (user == null)
+                                    FilteredMessage += " @unknown-user";
+                                else
+                                    FilteredMessage += $" @{user.DisplayName}";
+                            }
+                        }
+                        else if (id.ElementAt(0) == '#')
+                        {
+                            id = id.Replace("#", "");
+
+                            ulong.TryParse(id, out ulong parsedId);
+                            var channel = message.MentionedChannels?.FirstOrDefault(x => x?.Id == parsedId);
+                            if (channel == null)
+                                FilteredMessage += " #unknown-channel";
+                            else
+                                FilteredMessage += $" #{channel.Name}";
+                        }
+                        else if (id.ElementAt(0) == ':')
+                        {
+                            string emojiName = id.Split(':')[1];
+                            FilteredMessage += $" :{emojiName}:";
+                        }
+                        else if (id.ElementAt(0) == '/')
+                        {
+                            string emojiName = id.Split(':')[0];
+                            FilteredMessage += $" {emojiName}";
+                        }
+                        else if (id.ElementAt(0) == 't')
+                        {
+                            FilteredMessage += " (timestamp)";
                         }
                         else
                         {
-                            ulong.TryParse(id, out ulong parsedId);
-                            var user = message.MentionedUsers?.FirstOrDefault(x => x?.Id == parsedId);
-                            if (user == null)
-                                FilteredMessage += " @unknown-user";
-                            else
-                                FilteredMessage += $" @{user.DisplayName}";
+                            FilteredMessage += $" {split}";
                         }
-                    }
-                    else if (id.ElementAt(0) == '#')
-                    {
-                        id = id.Replace("#", "");
-
-                        ulong.TryParse(id, out ulong parsedId);
-                        var channel = message.MentionedChannels?.FirstOrDefault(x => x?.Id == parsedId);
-                        if (channel == null)
-                            FilteredMessage += " #unknown-channel";
-                        else
-                            FilteredMessage += $" #{channel.Name}";
-                    }
-                    else if (id.ElementAt(0) == ':')
-                    {
-                        string emojiName = id.Split(':')[1];
-                        FilteredMessage += $" :{emojiName}:";
-                    }
-                    else if (id.ElementAt(0) == '/')
-                    {
-                        string emojiName = id.Split(':')[0];
-                        FilteredMessage += $" {emojiName}";
-                    }
-                    else if (id.ElementAt(0) == 't')
-                    {
-                        FilteredMessage += " (timestamp)";
                     }
                     else
                     {
-                        FilteredMessage += $" {split}";
+                        FilteredMessage += " " + split;
                     }
                 }
-                else
-                {
-                    FilteredMessage += " " + split;
-                }
+                return FilteredMessage;
             }
-            return FilteredMessage;
         }
 
         private void CloseButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)

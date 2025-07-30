@@ -40,7 +40,9 @@ namespace Aerochat.Helpers
 
         public void ReadOutMessage(string message)
         {
-            _speechSynth?.SpeakAsync(message);
+            //Force text to always be in lowercase.
+            //Pronounciation of words in all uppercase with some voices (Microsoft Sam) spells out the word letter by letter (WOWZA -> W O W Z A)
+            _speechSynth?.SpeakAsync(message.ToLower());
         }
     }
 }
