@@ -208,7 +208,7 @@ namespace Aerochat.Windows
         {
             if (message.Attachments.Count > 0 && message.Content == String.Empty)
             {
-                return $"Uploaded {message.Attachments.Count} attachments.";
+                return $"Uploaded {message.Attachments.Count} attachment{(message.Attachments.Count == 1 ? '\0' : 's')}.";
             }
             else
             {
