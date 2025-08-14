@@ -28,7 +28,7 @@ namespace Aerochat.ViewModels
 
     public class AdViewModel : ViewModelBase
     {
-        private string _image = "/Resources/Ads/Aerochat.png";
+        private string _image="/Aerochat;component/Resources/Ads/Aerochat.png";
         private string _url = "";
         private AdImageType _imageType = AdImageType.StaticImage;
         private int _animationFrames = 0;

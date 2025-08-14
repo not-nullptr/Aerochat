@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aerotest", "Aerotest\Aerotest.csproj", "{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,18 @@ Global
 		{12AF7BB0-F546-45E5-9D1F-C69E76696774}.Release|x64.Build.0 = Release|Any CPU
 		{12AF7BB0-F546-45E5-9D1F-C69E76696774}.Release|x86.ActiveCfg = Release|Any CPU
 		{12AF7BB0-F546-45E5-9D1F-C69E76696774}.Release|x86.Build.0 = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|x64.Build.0 = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Debug|x86.Build.0 = Debug|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|x64.ActiveCfg = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|x64.Build.0 = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|x86.ActiveCfg = Release|Any CPU
+		{2B958F89-17D2-4CD2-B755-ED1572F9BEC3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

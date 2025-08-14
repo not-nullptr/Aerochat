@@ -76,38 +76,38 @@ namespace Aerochat.Controls
 
         private void LoadXPTheme()
         {
-            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Close.png"));
-            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseHover.png"));
-            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseActive.png"));
-            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/CloseInactive.png"));
+            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/Close.png"));
+            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/CloseHover.png"));
+            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/CloseActive.png"));
+            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/CloseInactive.png"));
 
-            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Maximize.png"));
-            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeHover.png"));
-            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeActive.png"));
-            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MaximizeInactive.png"));
+            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/Maximize.png"));
+            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MaximizeHover.png"));
+            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MaximizeActive.png"));
+            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MaximizeInactive.png"));
 
-            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/Minimize.png"));
-            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeHover.png"));
-            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeActive.png"));
-            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/XP/MinimizeInactive.png"));
+            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/Minimize.png"));
+            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MinimizeHover.png"));
+            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MinimizeActive.png"));
+            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/XP/MinimizeInactive.png"));
         }
 
         private void LoadVistaTheme()
         {
-            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Close.png"));
-            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseHover.png"));
-            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseActive.png"));
-            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/CloseInactive.png"));
+            CloseImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/Close.png"));
+            CloseHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/CloseHover.png"));
+            CloseActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/CloseActive.png"));
+            CloseInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/CloseInactive.png"));
 
-            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Maximize.png"));
-            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeHover.png"));
-            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeActive.png"));
-            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MaximizeInactive.png"));
+            MaximizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/Maximize.png"));
+            MaximizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MaximizeHover.png"));
+            MaximizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MaximizeActive.png"));
+            MaximizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MaximizeInactive.png"));
 
-            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/Minimize.png"));
-            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeHover.png"));
-            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeActive.png"));
-            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Resources/Titlebar/Vista/MinimizeInactive.png"));
+            MinimizeImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/Minimize.png"));
+            MinimizeHoverImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MinimizeHover.png"));
+            MinimizeActiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MinimizeActive.png"));
+            MinimizeInactiveImagePath = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Titlebar/Vista/MinimizeInactive.png"));
         }
 
         #region Property boilerplate

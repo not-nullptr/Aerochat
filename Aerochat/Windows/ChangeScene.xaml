@@ -14,7 +14,7 @@
     <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
         <Grid>
             <Grid.Background>
-                <ImageBrush ImageSource="/Resources/ChangeScene/Background.png" />
+                <ImageBrush ImageSource="/Aerochat;component/Resources/ChangeScene/Background.png" />
             </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -46,10 +46,10 @@
                                                             <Setter Property="Image" Value="{x:Null}" />
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Selected}" Value="True">
-                                                                    <Setter Property="Image" Value="/Resources/ChangeScene/Active.png" />
+                                                                    <Setter Property="Image" Value="/Aerochat;component/Resources/ChangeScene/Active.png" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}" Value="True">
-                                                                    <Setter Property="Image" Value="/Resources/ChangeScene/Hover.png" />
+                                                                    <Setter Property="Image" Value="/Aerochat;component/Resources/ChangeScene/Hover.png" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -71,7 +71,7 @@
                 </Grid>
             </StackPanel>
             <Grid Grid.Row="1">
-                <controls:NineSlice Slice="1,6" Image="/Resources/ChangeScene/Bottom.png" />
+                <controls:NineSlice Slice="1,6" Image="/Aerochat;component/Resources/ChangeScene/Bottom.png" />
                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="OkButton" Click="Button_Click" MinWidth="72" Content="OK" Margin="5,0,0,0" />
                     <Button x:Name="CloseButton" Click="Button_Click" MinWidth="72" Content="Close" Margin="5,0,0,0" />

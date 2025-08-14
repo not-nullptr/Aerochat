@@ -29,7 +29,7 @@
             <TextBox VerticalScrollBarVisibility="Auto"  TextWrapping="Wrap" DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="PART_LogTextbox" IsReadOnlyCaretVisible="True" IsReadOnly="True" />
         </DockPanel>
         <Grid Grid.Row="1">
-            <controls:NineSlice Slice="1,6" Image="/Resources/ChangeScene/Bottom.png" />
+            <controls:NineSlice Slice="1,6" Image="/Aerochat;component/Resources/ChangeScene/Bottom.png" />
             <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Click="OnClickRestartAerochatButton" MinWidth="110" Height="23" Content="Restart Aerochat" Margin="5,0,0,0" />
                 <Button Click="OnClickDismissButton" MinWidth="72" Height="23" Content="Dismiss" Margin="5,0,0,0" />

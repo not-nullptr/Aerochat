@@ -154,12 +154,12 @@ namespace Aerochat.Windows
                         var lastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(((long)(lastMessageId >> 22) + 1420070400000)).DateTime;
                         if (lastMessageTime > lastReadMessageTime)
                         {
-                            item.Image = "/Resources/Frames/XSFrameActiveM.png";
+                            item.Image="/Aerochat;component/Resources/Frames/XSFrameActiveM.png";
                             break;
                         }
                         else
                         {
-                            item.Image = "/Resources/Frames/XSFrameIdleM.png";
+                            item.Image="/Aerochat;component/Resources/Frames/XSFrameIdleM.png";
                         }
                     }
                 }
@@ -195,7 +195,7 @@ namespace Aerochat.Windows
                 newsTimer.Start();
                 ViewModel.Buttons.Add(new()
                 {
-                    Image = "/Resources/Icons/DiscordIcon.png",
+                    Image="/Aerochat;component/Resources/Icons/DiscordIcon.png",
                     Click = () =>
                     {
                         Process.Start(new ProcessStartInfo("https://discord.gg/Jcg84hmSqM") { UseShellExecute = true });
@@ -720,7 +720,7 @@ namespace Aerochat.Windows
             }
             if (item is null) return;
 
-            item.Image = "/Resources/Frames/XSFrameActiveM.png";
+            item.Image="/Aerochat;component/Resources/Frames/XSFrameActiveM.png";
 
             if (_typingTimers.ContainsKey(guildId.Value))
             {
@@ -735,7 +735,7 @@ namespace Aerochat.Windows
                     _typingTimers[guildId.Value].Stop();
                     Dispatcher.BeginInvoke(() =>
                     {
-                        item.Image = "/Resources/Frames/XSFrameIdleM.png";
+                        item.Image="/Aerochat;component/Resources/Frames/XSFrameIdleM.png";
                     });
                 };
                 _typingTimers[guildId.Value].Start();
@@ -836,7 +836,7 @@ namespace Aerochat.Windows
             var guildItem = new HomeListItemViewModel
             {
                 Name = name,
-                Image = "/Resources/Frames/XSFrameIdleM.png",
+                Image="/Aerochat;component/Resources/Frames/XSFrameIdleM.png",
                 Presence = new PresenceViewModel
                 {
                     Presence = "",
@@ -1235,14 +1235,14 @@ namespace Aerochat.Windows
 
         private void Grid_MouseEnter(object sender, MouseEventArgs e)
         {
-            SceneTileImage.Image = new BitmapImage(new Uri("pack://application:,,,/Resources/Home/PageOpen.png"));
+            SceneTileImage.Image = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Home/PageOpen.png"));
             SceneTileImage.Reset();
             Debug.WriteLine("Enter");
         }
 
         private void Grid_MouseLeave(object sender, MouseEventArgs e)
         {
-            SceneTileImage.Image = new BitmapImage(new Uri("pack://application:,,,/Resources/Home/PageClose.png"));
+            SceneTileImage.Image = new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Home/PageClose.png"));
             SceneTileImage.Reset();
             Debug.WriteLine("Exit");
         }

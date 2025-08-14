@@ -49,7 +49,7 @@
                 </Image.Clip>
                 <Image.Style>
                     <Style TargetType="Image">
-                        <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionClose.png" />
+                        <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/CaptionClose.png" />
                         <Setter Property="Effect">
                             <Setter.Value>
                                 <DropShadowEffect
@@ -89,10 +89,10 @@
                                 </EventTrigger.Actions>
                             </EventTrigger>
                             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionHover.png" />
+                                <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/CaptionHover.png" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                <Setter Property="Source" Value="/Resources/ImagePreviewer/CaptionActive.png" />
+                                <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/CaptionActive.png" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -105,7 +105,7 @@
                 <Image Width="20" Height="19" UseLayoutRounding="True">
                     <Image.Style>
                         <Style TargetType="Image">
-                            <Setter Property="Source" Value="/Resources/ImagePreviewer/Open.png" />
+                            <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/Open.png" />
                             <Setter Property="Effect">
                                 <Setter.Value>
                                     <DropShadowEffect
@@ -145,10 +145,10 @@
                                     </EventTrigger.Actions>
                                 </EventTrigger>
                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                    <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenHover.png" />
+                                    <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/OpenHover.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                    <Setter Property="Source" Value="/Resources/ImagePreviewer/OpenActive.png" />
+                                    <Setter Property="Source" Value="/Aerochat;component/Resources/ImagePreviewer/OpenActive.png" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

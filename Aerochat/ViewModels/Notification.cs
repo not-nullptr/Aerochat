@@ -14,7 +14,7 @@ namespace Aerochat.ViewModels
         {
             Author = new()
             {
-                Avatar = "/Resources/Frames/PlaceholderPfp.png",
+                Avatar = "/Aerochat;component/Resources/Frames/PlaceholderPfp.png",
                 Id = 0,
                 Name = "Some person's incredibly, stupidly long name",
                 Username = "SomePerson"
@@ -39,7 +39,7 @@ namespace Aerochat.ViewModels
 
         private UserViewModel _user = new()
         {
-            Avatar = "/Resources/Frames/PlaceholderPfp.png",
+            Avatar = "/Aerochat;component/Resources/Frames/PlaceholderPfp.png",
             Id = 0,
             Name = "nullptr",
             Username = "notnullptr"

@@ -20,7 +20,7 @@
         <viewmodels:NotificationWindowViewModel />
     </Window.DataContext>
     <Grid>
-        <controls:NineSlice Image="/Resources/Notification/Background.png" Slice="16,16" />
+        <controls:NineSlice Image="/Aerochat;component/Resources/Notification/Background.png" Slice="16,16" />
         <Grid Margin="8" Panel.ZIndex="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="28" />
@@ -33,15 +33,15 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="16" />
                     </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" HorizontalAlignment="Left" Width="16" Height="16" Source="/Resources/Notification/Logo.png" />
+                    <Image Grid.Column="0" HorizontalAlignment="Left" Width="16" Height="16" Source="/Aerochat;component/Resources/Notification/Logo.png" />
                     <TextBlock Margin="6,0,0,0" Grid.Column="1" Text="Windows Live Messenger" Foreground="#333" />
                     <Image Grid.Column="2" Width="16" Height="16" Cursor="Hand" Margin="0,1,0,0" PreviewMouseUp="CloseButton_PreviewMouseUp" x:Name="CloseButton">
                         <Image.Style>
                             <Style TargetType="Image">
-                                <Setter Property="Source" Value="/Resources/Notification/Close.png" />
+                                <Setter Property="Source" Value="/Aerochat;component/Resources/Notification/Close.png" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Source" Value="/Resources/Notification/CloseHover.png" />
+                                        <Setter Property="Source" Value="/Aerochat;component/Resources/Notification/CloseHover.png" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -125,13 +125,13 @@
                                 <Style TargetType="Image">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Presence.Status}" Value="Online">
-                                            <Setter Property="Source" Value="/Resources/Frames/LargeFrameActive.png" />
+                                            <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/LargeFrameActive.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Presence.Status}" Value="Idle">
-                                            <Setter Property="Source" Value="/Resources/Frames/LargeFrameIdle.png" />
+                                            <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/LargeFrameIdle.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Presence.Status}" Value="DoNotDisturb">
-                                            <Setter Property="Source" Value="/Resources/Frames/LargeFrameDnd.png" />
+                                            <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/LargeFrameDnd.png" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
