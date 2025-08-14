@@ -23,13 +23,13 @@
     <Style x:Key="ScrollBarButtonBackground" TargetType="controls:NineSlice">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Slice" Value="3, 3" />
-        <Setter Property="Image" Value="/Resources/ScrollBar/Inactive.png" />
+        <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/Inactive.png" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/Hover.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/Hover.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/Active.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/Active.png" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -37,13 +37,13 @@
     <Style x:Key="ScrollBarHorizontalThumbBackground" TargetType="controls:NineSlice">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Slice" Value="3, 3" />
-        <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbInactive.png" />
+        <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/HorzThumbInactive.png" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbHover.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/HorzThumbHover.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsDragging, RelativeSource={RelativeSource AncestorType=Thumb}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/HorzThumbActive.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/HorzThumbActive.png" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -59,10 +59,10 @@
                 <Setter Property="Opacity" Value="0" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/Inactive.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/Inactive.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                <Setter Property="Image" Value="/Resources/ScrollBar/Active.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/ScrollBar/Active.png" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -146,23 +146,23 @@
             </Grid.RowDefinitions>
 
             <Grid.Background>
-                <ImageBrush ImageSource="/Resources/ScrollBar/VertScrollBarBg.png" />
+                <ImageBrush ImageSource="/Aerochat;component/Resources/ScrollBar/VertScrollBarBg.png" />
             </Grid.Background>
 
             <!-- Vertical scrollbar jump-to-top button -->
             <Button Grid.Row="0" Command="ScrollBar.ScrollToTopCommand" Height="{StaticResource ScrollBarWidth}"
                     Template="{StaticResource ScrollBarDirectionButton}"
-                    scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToTopInactive.png"
-                    scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToTopHover.png"
-                    scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToTopActive.png"
+                    scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToTopInactive.png"
+                    scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/JumpToTopHover.png"
+                    scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToTopActive.png"
                     Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToTop), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
             <!-- Vertical scrollbar up button -->
             <RepeatButton Grid.Row="1" Command="ScrollBar.LineUpCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/UpGlyphInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/UpGlyphHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/UpGlyphActive.png" />
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/UpGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/UpGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/UpGlyphActive.png" />
 
 
             <!-- Vertical scrollbar track -->
@@ -189,9 +189,9 @@
                 <Track.Thumb>
                     <Thumb Template="{StaticResource ScrollBarThumb}"
                            scrollbar:ThemeProperties.BackgroundStyle="{StaticResource ScrollBarButtonBackground}"
-                           scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/VertThumbGripperInactive.png"
-                           scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/VertThumbGripperHover.png"
-                           scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/VertThumbGripperActive.png"/>
+                           scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/VertThumbGripperInactive.png"
+                           scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/VertThumbGripperHover.png"
+                           scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/VertThumbGripperActive.png"/>
                 </Track.Thumb>
 
                 <!-- Bottom button of the track; scrolls to position on click. -->
@@ -203,16 +203,16 @@
             <!-- Vertical scrollbar down button -->
             <RepeatButton Grid.Row="3" Command="ScrollBar.LineDownCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/DownGlyphInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/DownGlyphHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/DownGlyphActive.png" />
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/DownGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/DownGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/DownGlyphActive.png" />
 
             <!-- Vertical scrollbar jump-to-bottom button -->
             <Button Grid.Row="4" Command="ScrollBar.ScrollToBottomCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToBottomInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToBottomHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToBottomActive.png"
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToBottomInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/JumpToBottomHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToBottomActive.png"
                 Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToBottom), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
         </Grid>
@@ -235,23 +235,23 @@
             </Grid.ColumnDefinitions>
             
             <Grid.Background>
-                <ImageBrush ImageSource="/Resources/ScrollBar/HorzScrollBarBg.png" />
+                <ImageBrush ImageSource="/Aerochat;component/Resources/ScrollBar/HorzScrollBarBg.png" />
             </Grid.Background>
 
             <!-- Horizontal scrollbar jump-to-left button -->
             <Button Grid.Column="0" Command="ScrollBar.ScrollToLeftEndCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToLeftInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToLeftHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToLeftActive.png"
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToLeftInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/JumpToLeftHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToLeftActive.png"
                 Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToLeft), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
             <!-- Horizontal scrollbar left button -->
             <RepeatButton Grid.Column="1" Command="ScrollBar.LineLeftCommand" Width="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/LeftGlyphInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/LeftGlyphHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/LeftGlyphActive.png" />
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/LeftGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/LeftGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/LeftGlyphActive.png" />
 
             <!-- Horizontal scrollbar track -->
             <Track Grid.Column="2" Name="PART_Track" IsDirectionReversed="False" SnapsToDevicePixels="True" HorizontalAlignment="Stretch">
@@ -277,9 +277,9 @@
                 <Track.Thumb>
                     <Thumb Template="{StaticResource ScrollBarThumb}"
                        scrollbar:ThemeProperties.BackgroundStyle="{StaticResource ScrollBarHorizontalThumbBackground}"
-                       scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/HorzThumbGripperInactive.png"
-                       scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/HorzThumbGripperHover.png"
-                       scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/HorzThumbGripperActive.png"/>
+                       scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/HorzThumbGripperInactive.png"
+                       scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/HorzThumbGripperHover.png"
+                       scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/HorzThumbGripperActive.png"/>
                 </Track.Thumb>
 
                 <!-- Right button of the track; scrolls to position on click. -->
@@ -291,16 +291,16 @@
             <!-- Horizontal scrollbar right button -->
             <RepeatButton Grid.Column="3" Command="ScrollBar.LineRightCommand" Width="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/RightGlyphInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/RightGlyphHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/RightGlyphActive.png" />
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/RightGlyphInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/RightGlyphHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/RightGlyphActive.png" />
 
             <!-- Horizontal scrollbar jump-to-right button -->
             <Button Grid.Column="4" Command="ScrollBar.ScrollToRightEndCommand" Height="{StaticResource ScrollBarWidth}"
                 Template="{StaticResource ScrollBarDirectionButton}"
-                scrollbar:ThemeProperties.InactiveGlyph="/Resources/ScrollBar/JumpToRightInactive.png"
-                scrollbar:ThemeProperties.HoverGlyph="/Resources/ScrollBar/JumpToRightHover.png"
-                scrollbar:ThemeProperties.ActiveGlyph="/Resources/ScrollBar/JumpToRightActive.png"
+                scrollbar:ThemeProperties.InactiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToRightInactive.png"
+                scrollbar:ThemeProperties.HoverGlyph="/Aerochat;component/Resources/ScrollBar/JumpToRightHover.png"
+                scrollbar:ThemeProperties.ActiveGlyph="/Aerochat;component/Resources/ScrollBar/JumpToRightActive.png"
                 Visibility="{Binding Path=(scrollbar:ScrollBarProperties.ShowJumpToRight), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
 
         </Grid>

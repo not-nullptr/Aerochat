@@ -19,13 +19,13 @@
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardFocused, Converter={StaticResource OnlyIfKeyboardMostRecentInputDevice}, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgKeyFocused.png" />
+                    <Setter Property="Image" Value="/Aerochat;component/Resources/AttachmentsEditor/ItemBgKeyFocused.png" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgHover.png" />
+                    <Setter Property="Image" Value="/Aerochat;component/Resources/AttachmentsEditor/ItemBgHover.png" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                    <Setter Property="Image" Value="/Resources/AttachmentsEditor/ItemBgSelected.png" />
+                    <Setter Property="Image" Value="/Aerochat;component/Resources/AttachmentsEditor/ItemBgSelected.png" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>

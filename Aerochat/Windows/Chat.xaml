@@ -68,7 +68,7 @@
         <Style TargetType="Image" x:Key="DropdownIconStyle">
             <Setter Property="Width" Value="16" />
             <Setter Property="Height" Value="16" />
-            <Setter Property="Source" Value="/Resources/Dropdown/Dropdown.png" />
+            <Setter Property="Source" Value="/Aerochat;component/Resources/Dropdown/Dropdown.png" />
             <Setter Property="Opacity" Value="0" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsVisibleProperty}" Value="True">
@@ -83,7 +83,7 @@
                 </DataTrigger>
 
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Source" Value="/Resources/Dropdown/DropdownHover.png" />
+                    <Setter Property="Source" Value="/Aerochat;component/Resources/Dropdown/DropdownHover.png" />
                 </Trigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
@@ -91,7 +91,7 @@
                         <Condition Binding="{Binding Collapsed}" Value="False" />
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpanded.png" />
+                        <Setter Property="Source" Value="/Aerochat;component/Resources/Dropdown/DropdownExpanded.png" />
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
@@ -100,7 +100,7 @@
                         <Condition Binding="{Binding Collapsed}" Value="False" />
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Source" Value="/Resources/Dropdown/DropdownExpandedHover.png" />
+                        <Setter Property="Source" Value="/Aerochat;component/Resources/Dropdown/DropdownExpandedHover.png" />
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
             </Style.Triggers>
@@ -124,7 +124,7 @@
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
         <Grid AllowDrop="{Binding Channel.CanAttachFiles}" Drop="OnDropFileIntoChatWindow">
             <Grid>
-                <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Image="/Resources/Message/Background.png" />
+                <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Image="/Aerochat;component/Resources/Message/Background.png" />
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
@@ -142,7 +142,7 @@
                     <Grid.Effect>
                         <DropShadowEffect BlurRadius="4" Opacity="0.25" Direction="270" ShadowDepth="2"/>
                     </Grid.Effect>
-                    <controls:NineSlice Image="/Resources/Message/TopBarBg.png" Slice="3,3" />
+                    <controls:NineSlice Image="/Aerochat;component/Resources/Message/TopBarBg.png" Slice="3,3" />
                     <ItemsControl ItemsSource="{Binding Path=ToolbarItems}" x:Name="ToolbarOverflowPanel">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -153,7 +153,7 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
                                     <Grid Height="27" PreviewMouseUp="ToolbarClick">
-                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                        <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                         <TextBlock Foreground="{Binding DataContext.Recipient.Scene.TextColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Margin="8,0,8,1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Text="{Binding Path=Text}" />
                                     </Grid>
                                     <Rectangle HorizontalAlignment="Right" Width="9" Height="0" />
@@ -180,8 +180,8 @@
                 <Grid Grid.Row="0" Panel.ZIndex="7">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0">
                         <Grid Visibility="Collapsed" x:Name="ExpandBtn" Height="27" Width="17" PreviewMouseUp="HiddenItemsClick">
-                            <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                            <Image Source="/Resources/Message/Expand.png" Width="8" Height="5"  HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                            <Image Source="/Aerochat;component/Resources/Message/Expand.png" Width="8" Height="5"  HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
                             <Grid.ContextMenu>
                                 <ContextMenu x:Name="HiddenItemsContextMenu">
                                     <MenuItem Header="Test" />
@@ -213,7 +213,7 @@
                         </Rectangle.Style>
                     </Rectangle>
                     <Grid Height="{Binding TopHeight}" VerticalAlignment="Top" Panel.ZIndex="6">
-                        <controls:ColorizedNineSlice Slice="1,1" Image="/Resources/top-blue-thing-transparent.png" TintColor="{Binding Recipient.Scene.Color}">
+                        <controls:ColorizedNineSlice Slice="1,1" Image="/Aerochat;component/Resources/top-blue-thing-transparent.png" TintColor="{Binding Recipient.Scene.Color}">
                             <controls:ColorizedNineSlice.Style>
                                 <Style TargetType="controls:ColorizedNineSlice">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -287,7 +287,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" Height="75" />
+                                <Image Source="/Aerochat;component/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" Height="75" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -344,10 +344,10 @@
                                                                 <Style TargetType="controls:NineSlice">
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeHover.png" />
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                            <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeActive.png" />
                                                                         </DataTrigger>
                                                                         <MultiDataTrigger>
                                                                             <MultiDataTrigger.Conditions>
@@ -355,7 +355,7 @@
                                                                                 <Condition Binding="{Binding IsSelected}" Value="True" />
                                                                             </MultiDataTrigger.Conditions>
                                                                             <MultiDataTrigger.Setters>
-                                                                                <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeHoverActive.png" />
                                                                             </MultiDataTrigger.Setters>
                                                                         </MultiDataTrigger>
                                                                     </Style.Triggers>
@@ -436,10 +436,10 @@
                                                                                                 <Style TargetType="controls:NineSlice">
                                                                                                     <Style.Triggers>
                                                                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeHover.png" />
                                                                                                         </DataTrigger>
                                                                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                                                            <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeActive.png" />
                                                                                                         </DataTrigger>
                                                                                                         <MultiDataTrigger>
                                                                                                             <MultiDataTrigger.Conditions>
@@ -447,7 +447,7 @@
                                                                                                                 <Condition Binding="{Binding IsSelected}" Value="True" />
                                                                                                             </MultiDataTrigger.Conditions>
                                                                                                             <MultiDataTrigger.Setters>
-                                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeHoverActive.png" />
+                                                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeHoverActive.png" />
                                                                                                             </MultiDataTrigger.Setters>
                                                                                                         </MultiDataTrigger>
                                                                                                     </Style.Triggers>
@@ -514,7 +514,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Margin="0,0,0,0" Grid.Row="0">
-                                <Image Source="/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" />
+                                <Image Source="/Aerochat;component/Resources/Message/Group.png" HorizontalAlignment="Center" Margin="0,0,0,3" VerticalAlignment="Bottom" Width="100" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="4,4,16,4">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -566,10 +566,10 @@
                                                                                     <Style TargetType="controls:NineSlice">
                                                                                         <Style.Triggers>
                                                                                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}" Value="True">
-                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeHover.png" />
+                                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeHover.png" />
                                                                                             </DataTrigger>
                                                                                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
-                                                                                                <Setter Property="Image" Value="/Resources/Home/TreeActive.png" />
+                                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/Home/TreeActive.png" />
                                                                                             </DataTrigger>
                                                                                         </Style.Triggers>
                                                                                     </Style>
@@ -610,7 +610,7 @@
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
                                 <Grid Cursor="SizeNS" VerticalAlignment="Bottom" x:Name="Separator" PreviewMouseDown="Separator_PreviewMouseDown">
-                                    <controls:ColorizedNineSlice Height="12" Slice="1,1" TintColor="{Binding Recipient.Scene.Color}" Image="/Resources/Message/Separator.png">
+                                    <controls:ColorizedNineSlice Height="12" Slice="1,1" TintColor="{Binding Recipient.Scene.Color}" Image="/Aerochat;component/Resources/Message/Separator.png">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Margin" Value="0,0,0,0" />
@@ -684,11 +684,11 @@
                                                                 <Setter Property="Margin" Value="0,0,0,0" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="Playing">
-                                                                        <Setter Property="Source" Value="/Resources/Status/Playing.png" />
+                                                                        <Setter Property="Source" Value="/Aerochat;component/Resources/Status/Playing.png" />
                                                                         <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                     <DataTrigger Binding="{Binding Recipient.Presence.Type}" Value="ListeningTo">
-                                                                        <Setter Property="Source" Value="/Resources/Status/Listening.png" />
+                                                                        <Setter Property="Source" Value="/Aerochat;component/Resources/Status/Listening.png" />
                                                                         <Setter Property="Margin" Value="0,5,4,0" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
@@ -1255,7 +1255,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:AnimatedTileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
+                                <controls:AnimatedTileImage Margin="0,16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Image="/Aerochat;component/Resources/Speen.png" FrameDuration="50" FrameWidth="48" FrameHeight="36" />
                             </Grid>
                             <Grid Grid.Row="2">
                                 <Grid.Style>
@@ -1281,7 +1281,7 @@
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <controls:AnimatedTileImage Grid.Column="0" Image="/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
+                                        <controls:AnimatedTileImage Grid.Column="0" Image="/Aerochat;component/Resources/Message/Typing.png" FrameWidth="22" FrameHeight="16" FrameDuration="500">
                                             <controls:AnimatedTileImage.Style>
                                                 <Style TargetType="controls:AnimatedTileImage">
                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1314,7 +1314,7 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                     </Grid>
-                                    <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Cursor="SizeNS" PreviewMouseDown="BottomSeparator_PreviewMouseDown" x:Name="BottomSeparator" Height="8" Slice="64,2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Image="/Resources/Message/BottomSeparator.png" />
+                                    <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Cursor="SizeNS" PreviewMouseDown="BottomSeparator_PreviewMouseDown" x:Name="BottomSeparator" Height="8" Slice="64,2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Image="/Aerochat;component/Resources/Message/BottomSeparator.png" />
                                 </StackPanel>
                             </Grid>
                             <Grid Grid.Row="4" Margin="0,0,18,0" IsHitTestVisible="{Binding Channel.CanTalk}">
@@ -1338,7 +1338,7 @@
                                 </Grid.RowDefinitions>
                                 <!-- Super huge height to hack around the reused background being cut off: -->
                                 <Grid x:Name="PART_ReplyTargetContainer" Grid.Row="0" Height="100">
-                                    <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
+                                    <controls:ColorizedNineSlice HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Image="/Aerochat;component/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Darken" Value="0.25" />
@@ -1409,7 +1409,7 @@
                                             <Button x:Name="CanvasButton" Click="CanvasButton_Click" IsDefault="True" Width="72" Content="Send" />
                                         </Grid>
                                     </Grid>
-                                    <controls:ColorizedNineSlice Image="/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}" Grid.ColumnSpan="2">
+                                    <controls:ColorizedNineSlice Image="/Aerochat;component/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}" Grid.ColumnSpan="2">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Darken" Value="0.25" />
@@ -1440,7 +1440,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Grid>
-                                <controls:ColorizedNineSlice Image="/Resources/Message/SpeechBubbleArrow.png" Slice="4,4" Panel.ZIndex="12" Grid.Row="1"  UseLayoutRounding="False" Width="12" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,0" TintColor="{Binding Recipient.Scene.Color}">
+                                <controls:ColorizedNineSlice Image="/Aerochat;component/Resources/Message/SpeechBubbleArrow.png" Slice="4,4" Panel.ZIndex="12" Grid.Row="1"  UseLayoutRounding="False" Width="12" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-12,0,0,0" TintColor="{Binding Recipient.Scene.Color}">
                                     <controls:ColorizedNineSlice.Style>
                                         <Style TargetType="controls:ColorizedNineSlice">
                                             <Setter Property="Darken" Value="0.25" />
@@ -1460,7 +1460,7 @@
                                         <ColumnDefinition Width="12*"/>
                                         <ColumnDefinition Width="89*"/>
                                     </Grid.ColumnDefinitions>
-                                    <controls:ColorizedNineSlice Image="/Resources/Message/BottomToolbar.png" TintColor="{Binding Recipient.Scene.Color}" Margin="-1,-1,0,-1" Grid.ColumnSpan="2">
+                                    <controls:ColorizedNineSlice Image="/Aerochat;component/Resources/Message/BottomToolbar.png" TintColor="{Binding Recipient.Scene.Color}" Margin="-1,-1,0,-1" Grid.ColumnSpan="2">
                                         <controls:ColorizedNineSlice.Style>
                                             <Style TargetType="controls:ColorizedNineSlice">
                                                 <Setter Property="Darken" Value="0.25" />
@@ -1494,7 +1494,7 @@
                                                 </StackPanel.Style>
                                                 <Grid Height="30" MouseUp="DrawOnClickPen">
                                                     <Grid>
-                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
                                                                 <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1506,7 +1506,7 @@
                                                                 </Style>
                                                             </controls:NineSliceButton.Style>
                                                         </controls:NineSliceButton>
-                                                        <controls:NineSlice Image="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSlice Image="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSlice.Style>
                                                                 <Style TargetType="{x:Type controls:NineSlice}">
                                                                     <Setter Property="Visibility" Value="Hidden" />
@@ -1520,12 +1520,12 @@
                                                         </controls:NineSlice>
                                                     </Grid>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                                                        <Image Margin="4,0" Source="/Resources/Message/Pen.png" Width="20" Height="16" />
+                                                        <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Pen.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickKesigomu">
                                                     <Grid>
-                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
                                                                 <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1537,7 +1537,7 @@
                                                                 </Style>
                                                             </controls:NineSliceButton.Style>
                                                         </controls:NineSliceButton>
-                                                        <controls:NineSlice Image="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSlice Image="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSlice.Style>
                                                                 <Style TargetType="{x:Type controls:NineSlice}">
                                                                     <Setter Property="Visibility" Value="Hidden" />
@@ -1551,20 +1551,20 @@
                                                         </controls:NineSlice>
                                                     </Grid>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                                                        <Image Margin="4,0" Source="/Resources/Message/消しゴム.png" Width="20" Height="16" />
+                                                        <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/消しゴム.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickTrash">
                                                     <Grid>
-                                                        <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                        <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                     </Grid>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                                                        <Image Margin="4,0" Source="/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
+                                                        <Image Margin="4,0" Source="/Aerochat;component/Resources/AttachmentsEditor/Delete.png" Width="20" Height="16" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickUndo">
                                                     <Grid>
-                                                        <controls:NineSliceButton x:Name = "UndoButton" Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSliceButton x:Name = "UndoButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
                                                                 <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1581,10 +1581,10 @@
                                                         <Image x:Name="UndoIcon"  Margin="4,0"  Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="{x:Type Image}">
-                                                                    <Setter Property="Source" Value="/Resources/Message/Undo.png" />
+                                                                    <Setter Property="Source" Value="/Aerochat;component/Resources/Message/Undo.png" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding UndoEnabled}" Value="false">
-                                                                            <Setter Property="Source" Value="/Resources/Message/UndoInactive.png" />
+                                                                            <Setter Property="Source" Value="/Aerochat;component/Resources/Message/UndoInactive.png" />
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -1594,7 +1594,7 @@
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="DrawOnClickRedo">
                                                     <Grid>
-                                                        <controls:NineSliceButton x:Name = "RedoButton"  Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6">
+                                                        <controls:NineSliceButton x:Name = "RedoButton"  Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6">
                                                             <controls:NineSliceButton.Style>
                                                                 <Style TargetType="{x:Type controls:NineSliceButton}">
                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -1612,10 +1612,10 @@
                                                         <Image x:Name="RedoIcon"  Margin="4,0" Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="{x:Type Image}">
-                                                                    <Setter Property="Source" Value="/Resources/Message/Redo.png" />
+                                                                    <Setter Property="Source" Value="/Aerochat;component/Resources/Message/Redo.png" />
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding RedoEnabled}" Value="false">
-                                                                            <Setter Property="Source" Value="/Resources/Message/RedoInactive.png" />
+                                                                            <Setter Property="Source" Value="/Aerochat;component/Resources/Message/RedoInactive.png" />
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -1624,27 +1624,27 @@
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid Height="30" MouseUp="ShowColorMenu">
-                                                    <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                    <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                                                        <Image Margin="4,0" Source="/Resources/Message/Colors.png" Width="24" Height="16" />
-                                                        <Image Margin="2,0,6,0" Source="/Resources/Home/Dropdown.png" Width="5" />
+                                                        <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Colors.png" Width="24" Height="16" />
+                                                        <Image Margin="2,0,6,0" Source="/Aerochat;component/Resources/Home/Dropdown.png" Width="5" />
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
                                             <Grid Height="30" MouseUp="RunNudge">
-                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                                <Image Margin="4,0" Source="/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
+                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
                                             </Grid>
                                         </StackPanel>
                                         <StackPanel Margin="0,0,4,0" Grid.Column="1" Orientation="Horizontal">
                                             <!-- Button visibility is controlled from codebehind. -->
                                             <Grid Width="24" Height="30" x:Name="SwitchToDraw" MouseUp="SwitchToDraw_MouseUp">
-                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                                <Image Margin="4,0" Source="/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
+                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
                                             </Grid>
                                             <Grid Height="30" Width="24" x:Name="SwitchToText" MouseUp="SwitchToText_MouseUp">
-                                                <controls:NineSliceButton Hover="/Resources/Message/ToolbarHover.png" Pressed="/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                                <Image Margin="4,0" Source="/Resources/Message/Text.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="13" Height="13" />
+                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Text.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="13" Height="13" />
                                             </Grid>
                                         </StackPanel>
                                     </Grid>
@@ -1694,7 +1694,7 @@
                                 </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
-                        <Image UseLayoutRounding="True" Margin="8,0,0,0" x:Name="LeaveCallButton" PreviewMouseLeftButtonUp="LeaveCallButton_PreviewMouseLeftButtonUp" Cursor="Hand" Source="/Resources/Message/LeaveCall.png" Width="16" Height="16" />
+                        <Image UseLayoutRounding="True" Margin="8,0,0,0" x:Name="LeaveCallButton" PreviewMouseLeftButtonUp="LeaveCallButton_PreviewMouseLeftButtonUp" Cursor="Hand" Source="/Aerochat;component/Resources/Message/LeaveCall.png" Width="16" Height="16" />
                     </StackPanel>
                 </Grid>
             </Grid>

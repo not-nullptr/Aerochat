@@ -148,7 +148,7 @@ namespace Aerochat.ViewModels
 
         private UserViewModel _currentUser = new()
         {
-            Avatar = "/Resources/Frames/PlaceholderPfp.png",
+            Avatar = "/Aerochat;component/Resources/Frames/PlaceholderPfp.png",
             Id = 0,
             Name = "nullptr",
             Username = "notnullptr"

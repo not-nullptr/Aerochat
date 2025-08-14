@@ -14,7 +14,7 @@
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Scene.Color}" BlackText="{Binding Scene.TextColor}">
         <Grid>
-            <controls:ColorizedNineSlice Image="/Resources/Message/Background.png" TintColor="{Binding Scene.Color}" Slice="1,1" />
+            <controls:ColorizedNineSlice Image="/Aerochat;component/Resources/Message/Background.png" TintColor="{Binding Scene.Color}" Slice="1,1" />
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="128" Background="{Binding Scene.Color}">
                 <Image Source="{Binding Scene.File}" Stretch="Fill" />
                 <Rectangle>
@@ -35,15 +35,15 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" UseLayoutRounding="True" Margin="24,0">
                     <Grid Width="139" Height="139" Margin="0,12,0,0">
-                        <Image Source="/Resources/Frames/PlaceholderPfp.png" Width="96" Height="96" Margin="4,0,0,6" />
-                        <Image Source="/Resources/Frames/XLFrameOffline.png" />
+                        <Image Source="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" Width="96" Height="96" Margin="4,0,0,6" />
+                        <Image Source="/Aerochat;component/Resources/Frames/XLFrameOffline.png" />
                     </Grid>
                     <TextBlock Margin="0,6,0,0" Text="Sign in" Foreground="#355a88" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Top" />
                     <TextBlock Foreground="#333333" Margin="0,6,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap">
                 Sign in with your Discord account. Don't have one? <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://discord.com/login">Sign up.</Hyperlink>
                     </TextBlock>
                     <Grid MaxWidth="238" Margin="0,20,0,0">
-                        <controls:NineSlice Image="/Resources/Login/Frame.png" Slice="4,4" />
+                        <controls:NineSlice Image="/Aerochat;component/Resources/Login/Frame.png" Slice="4,4" />
                         <StackPanel Margin="6">
                             <Grid Margin="0,0,0,8">
                                 <PasswordBox PasswordChanged="Password_PasswordChanged" PasswordChar="*" Foreground="#333333" x:Name="Password" Height="24" />
@@ -79,13 +79,13 @@
                                                 <Style TargetType="controls:NineSlice">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
-                                                            <Setter Property="Image" Value="/Resources/Message/ToolbarHover.png" />
+                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Message/ToolbarHover.png" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
-                                                            <Setter Property="Image" Value="/Resources/Message/ToolbarActive.png" />
+                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Message/ToolbarActive.png" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding ElementName=Dropdown, Path=IsOpen}" Value="True">
-                                                            <Setter Property="Image" Value="/Resources/Message/ToolbarActive.png" />
+                                                            <Setter Property="Image" Value="/Aerochat;component/Resources/Message/ToolbarActive.png" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -97,45 +97,45 @@
                                                     <Style TargetType="Image">
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding LoginStatus}" Value="Available">
-                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameActive.png" />
+                                                                <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/XSFrameActive.png" />
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding LoginStatus}" Value="Busy">
-                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameDnd.png" />
+                                                                <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/XSFrameDnd.png" />
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding LoginStatus}" Value="Away">
-                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameIdle.png" />
+                                                                <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/XSFrameIdle.png" />
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding LoginStatus}" Value="Appear offline">
-                                                                <Setter Property="Source" Value="/Resources/Frames/XSFrameOffline.png" />
+                                                                <Setter Property="Source" Value="/Aerochat;component/Resources/Frames/XSFrameOffline.png" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Image.Style>
                                             </Image>
                                             <TextBlock Margin="2,0,0,0" VerticalAlignment="Center" Text="{Binding LoginStatus}" />
-                                            <Image Margin="8,0,4,0" Width="5" Height="5" Source="/Resources/Dropdown.png" />
+                                            <Image Margin="8,0,4,0" Width="5" Height="5" Source="/Aerochat;component/Resources/Dropdown.png" />
                                         </StackPanel>
                                     </Grid>
                                     <Button.ContextMenu>
                                         <ContextMenu x:Name="Dropdown" Placement="Bottom">
                                             <MenuItem Header="Available" x:Name="Available" Click="Available_Click">
                                                 <MenuItem.Icon>
-                                                    <Image Width="16" Source="/Resources/Frames/XSFrameActive.png" />
+                                                    <Image Width="16" Source="/Aerochat;component/Resources/Frames/XSFrameActive.png" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="Busy" x:Name="Busy" Click="Busy_Click">
                                                 <MenuItem.Icon>
-                                                    <Image Width="16" Source="/Resources/Frames/XSFrameDnd.png" />
+                                                    <Image Width="16" Source="/Aerochat;component/Resources/Frames/XSFrameDnd.png" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="Away" x:Name="Away" Click="Away_Click">
                                                 <MenuItem.Icon>
-                                                    <Image Width="16" Source="/Resources/Frames/XSFrameIdle.png" />
+                                                    <Image Width="16" Source="/Aerochat;component/Resources/Frames/XSFrameIdle.png" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="Appear offline" x:Name="AppearsOffline" Click="AppearsOffline_Click">
                                                 <MenuItem.Icon>
-                                                    <Image Width="16" Source="/Resources/Frames/XSFrameOffline.png" />
+                                                    <Image Width="16" Source="/Aerochat;component/Resources/Frames/XSFrameOffline.png" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>

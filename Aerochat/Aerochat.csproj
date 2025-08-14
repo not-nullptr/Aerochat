@@ -65,6 +65,14 @@
 		<None Remove="Resources\AttachmentsEditor\ItemBgHover.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgKeyFocused.png" />
 		<None Remove="Resources\AttachmentsEditor\ItemBgSelected.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewImageBackground.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewNavButtonsSeparator.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewNextButton.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewNextButtonHover.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewNextButtonPressed.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewPrevButton.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewPrevButtonHover.png" />
+		<None Remove="Resources\AttachmentsEditor\PreviewPrevButtonPressed.png" />
 		<None Remove="Resources\AudioPlayer\download.png" />
 		<None Remove="Resources\AudioPlayer\pause.png" />
 		<None Remove="Resources\AudioPlayer\pause_disabled.png" />
@@ -294,12 +302,19 @@
 		<None Remove="Resources\ScrollBar\VertThumbGripperHover.png" />
 		<None Remove="Resources\ScrollBar\VertThumbGripperInactive.png" />
 		<None Remove="Resources\Sounds\newalert.mp3" />
+		<None Remove="Resources\Sounds\newalert.wav" />
 		<None Remove="Resources\Sounds\newemail.mp3" />
+		<None Remove="Resources\Sounds\newemail.wav" />
 		<None Remove="Resources\Sounds\nudge.mp3" />
+		<None Remove="Resources\Sounds\nudge.wav" />
 		<None Remove="Resources\Sounds\online.mp3" />
+		<None Remove="Resources\Sounds\online.wav" />
 		<None Remove="Resources\Sounds\outgoing.mp3" />
+		<None Remove="Resources\Sounds\outgoing.wav" />
 		<None Remove="Resources\Sounds\phone.mp3" />
+		<None Remove="Resources\Sounds\phone.wav" />
 		<None Remove="Resources\Sounds\type.mp3" />
+		<None Remove="Resources\Sounds\type.wav" />
 		<None Remove="Resources\Speen.png" />
 		<None Remove="Resources\Status\Listening.png" />
 		<None Remove="Resources\Status\Playing.png" />
@@ -377,6 +392,14 @@
 		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeleteHover.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeletePressed.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewImageBackground.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewNavButtonsSeparator.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewNextButton.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewNextButtonHover.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewNextButtonPressed.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewPrevButton.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewPrevButtonHover.png" />
+		<Resource Include="Resources\AttachmentsEditor\PreviewPrevButtonPressed.png" />
 		<Resource Include="Resources\AudioPlayer\download.png" />
 		<Resource Include="Resources\AudioPlayer\pause.png" />
 		<Resource Include="Resources\AudioPlayer\pause_disabled.png" />
@@ -561,6 +584,27 @@
 		<Resource Include="Resources\ScrollBar\UpGlyphActive.png" />
 		<Resource Include="Resources\ScrollBar\UpGlyphHover.png" />
 		<Resource Include="Resources\ScrollBar\UpGlyphInactive.png" />
+		<Resource Include="Resources\Sounds\newalert.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\newemail.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\nudge.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\online.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\outgoing.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\phone.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\Sounds\type.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
 		<Resource Include="Resources\Titlebar\Vista\Close.png" />
 		<Resource Include="Resources\Titlebar\Vista\CloseActive.png" />
 		<Resource Include="Resources\Titlebar\Vista\CloseHover.png" />
@@ -709,27 +753,6 @@
 		<None Update="Properties\Settings.settings">
 		  <Generator>SettingsSingleFileGenerator</Generator>
 		  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-		</None>
-		<None Update="Resources\Sounds\newalert.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\newemail.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\nudge.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\online.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\outgoing.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\phone.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Sounds\type.wav">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="WebDir\hCaptcha.html">
 			<Generator>MSBuild:Compile</Generator>

@@ -22,11 +22,11 @@
                         <Button Grid.Column="0" Content="Change orientation" Click="Button_Click" Margin="0,0,1,0"></Button>
                         <Button Grid.Column="1" Content="Select file" Click="Button_Click_1"  Margin="1,0,0,0"></Button>
                     </Grid>
-                    <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraSmall" />
-                    <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Small" />
-                    <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Medium" />
-                    <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
-                    <controls:ProfilePictureFrame ProfilePicture="/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
+                    <controls:ProfilePictureFrame ProfilePicture="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraSmall" />
+                    <controls:ProfilePictureFrame ProfilePicture="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Small" />
+                    <controls:ProfilePictureFrame ProfilePicture="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Medium" />
+                    <controls:ProfilePictureFrame ProfilePicture="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="Large" />
+                    <controls:ProfilePictureFrame ProfilePicture="/Aerochat;component/Resources/Frames/PlaceholderPfp.png" UserStatus="{Binding UserStatus}" FrameSize="ExtraLarge" />
                     <ComboBox x:Name="StatusesComboBox" />
                 </StackPanel>
             </ScrollViewer>

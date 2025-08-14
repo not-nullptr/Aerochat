@@ -15,7 +15,7 @@
     <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
         <Grid>
             <Grid.Background>
-                <ImageBrush ImageSource="/Resources/Dialog/Background.png" />
+                <ImageBrush ImageSource="/Aerochat;component/Resources/Dialog/Background.png" />
             </Grid.Background>
             <Grid>
                 <Grid.RowDefinitions>

@@ -12,23 +12,23 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="OverridesDefaultStyle" Value="True"/>
 
-        <Setter Property="Image" Value="/Resources/Button/Normal.png" />
+        <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Normal.png" />
         <Setter Property="Slice" Value="3, 3" />
 
         <Style.Triggers>
             <!-- This rule must go first since it should be trumped by hover and pressed states: -->
             <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                <Setter Property="Image" Value="/Resources/Button/Focused.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Focused.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsDefault, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                <Setter Property="Image" Value="/Resources/Button/Focused.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Focused.png" />
             </DataTrigger>
 
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                <Setter Property="Image" Value="/Resources/Button/Hover.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Hover.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="True">
-                <Setter Property="Image" Value="/Resources/Button/Pressed.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Pressed.png" />
             </DataTrigger>
             
             
@@ -36,7 +36,7 @@
             <!-- TODO: Optimise loading. If a button defaults to the disabled state, then it will
                        render the normal state for a split second. -->
             <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType=ButtonBase}}" Value="False">
-                <Setter Property="Image" Value="/Resources/Button/Disabled.png" />
+                <Setter Property="Image" Value="/Aerochat;component/Resources/Button/Disabled.png" />
             </DataTrigger>
         </Style.Triggers>
     </Style>

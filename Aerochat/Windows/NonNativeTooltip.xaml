@@ -16,7 +16,7 @@
         Title="NonNativeTooltip" SizeToContent="WidthAndHeight"
         Style="{StaticResource Window}">
     <Grid>
-        <controls:NineSlice Image="/Resources/Notification/Background.png" Slice="16,16" />
+        <controls:NineSlice Image="/Aerochat;component/Resources/Notification/Background.png" Slice="16,16" />
         <StackPanel Margin="16,14,16,16" Panel.ZIndex="5">
             <ItemsControl ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
@@ -32,10 +32,10 @@
                                             <!-- when the button is hovered -->
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
-                                                    <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemHover.png" />
+                                                    <Setter Property="Image" Value="/Aerochat;component/Resources/NonNativeTooltip/ItemHover.png" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
-                                                    <Setter Property="Image" Value="/Resources/NonNativeTooltip/ItemActive.png" />
+                                                    <Setter Property="Image" Value="/Aerochat;component/Resources/NonNativeTooltip/ItemActive.png" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
