@@ -96,6 +96,10 @@ namespace Aerochat.Windows
 
                 // Subscribe to changes in the DisplayAds property
                 SettingsManager.Instance.PropertyChanged += OnSettingsChange;
+
+                await Task.Delay(1000);
+                Chat chat = new(1287027740452716606);
+                chat.Show();
             });
         }
 
