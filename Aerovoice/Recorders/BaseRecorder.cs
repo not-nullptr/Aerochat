@@ -12,6 +12,7 @@ namespace Aerovoice.Recorders
 
         public abstract void Start();
         public abstract void Stop();
+        public abstract void SetInputDevice(int deviceIndex);
 
         protected void OnDataAvailable(byte[] data)
         {
