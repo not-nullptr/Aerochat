@@ -18,7 +18,7 @@ namespace Aerochat.ViewModels
         private string _type = "";
         private string _customStatus = null;
 
-        public required string Type
+        public string Type
         {
             get => _type;
             set => SetProperty(ref _type, value);
@@ -30,7 +30,7 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _status, value);
         }
 
-        public required string Presence
+        public string Presence
         {
             get => _presenceString;
             set => SetProperty(ref _presenceString, value);

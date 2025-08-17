@@ -10,14 +10,14 @@ namespace Aerochat.ViewModels
     public class NonNativeItem : ViewModelBase
     {
         private string _name;
-        public required string Name
+        public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
 
         private string _key;
-        public required string Key
+        public string Key
         {
             get => _key;
             set => SetProperty(ref _key, value);

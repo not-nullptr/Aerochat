@@ -21,22 +21,22 @@ namespace Aerochat.ViewModels
         private string? _color = "#525252";
         private string? _image;
 
-        public required string Name
+        public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
-        public required string Avatar
+        public string Avatar
         {
             get => _avatar;
             set => SetProperty(ref _avatar, value);
         }
-        public required ulong Id
+        public ulong Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
         }
-        public required string Username
+        public string Username
         {
             get => _username;
             set => SetProperty(ref _username, value);

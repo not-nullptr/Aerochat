@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aerochat.ViewModels
 {
@@ -21,19 +19,19 @@ namespace Aerochat.ViewModels
         private bool _canAttachFiles;
         private GuildViewModel? _guild;
 
-        public required string Name
+        public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
 
-        public required string Topic
+        public string Topic
         {
             get => _topic;
             set => SetProperty(ref _topic, value);
         }
 
-        public required ulong Id
+        public ulong Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
@@ -75,7 +73,7 @@ namespace Aerochat.ViewModels
             return new ChannelViewModel
             {
                 Name = channel is DiscordDmChannel ? channel.Name ?? string.Join(", ", ((DiscordDmChannel)channel).Recipients.Select(x => x.DisplayName)) : channel.Name,
-                Topic = channel.Topic ?? "",
+                Topic = channel.Topic ?? string.Empty,
                 Id = channel.Id,
                 CanTalk = channel is not DiscordDmChannel dmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages) : !dmChannel.Recipients.Select(x => x.Id).ToList().Contains(643945264868098049),
                 CanManageMessages = channel is not DiscordDmChannel ? ((channel.PermissionsFor(channel.Guild.CurrentMember) & Permissions.ManageMessages) == Permissions.ManageMessages) : false,
