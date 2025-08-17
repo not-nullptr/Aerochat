@@ -411,7 +411,7 @@ namespace Aerochat.Controls
                 return lRes;
             }
 
-            return nint.Zero;
+            return IntPtr.Zero;
         }
 
         #region DLL imports
@@ -565,7 +565,7 @@ namespace Aerochat.Controls
                     if (_titlebarStyle == TitlebarStyle.Custom)
                     {
                         handled = true;
-                        return 0;
+                        return IntPtr.Zero;
                     }
                     break;
                 }

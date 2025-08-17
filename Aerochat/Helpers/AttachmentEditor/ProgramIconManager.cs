@@ -12,6 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using static Vanara.PInvoke.User32;
 using static Vanara.PInvoke.Shell32;
+using Vanara.PInvoke;
 
 namespace Aerochat.Helpers.AttachmentEditor
 {
@@ -33,7 +34,7 @@ namespace Aerochat.Helpers.AttachmentEditor
                     SHGFI.SHGFI_ICON | SHGFI.SHGFI_USEFILEATTRIBUTES | SHGFI.SHGFI_LARGEICON
                 );
 
-                if (fileInfo.hIcon != 0)
+                if (fileInfo.hIcon != HICON.NULL)
                 {
                     BitmapSource result = Imaging.CreateBitmapSourceFromHIcon(
                         (nint)fileInfo.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(32, 32)
@@ -47,7 +48,7 @@ namespace Aerochat.Helpers.AttachmentEditor
             }
             finally
             {
-                if (fileInfo.hIcon != 0)
+                if (fileInfo.hIcon != HICON.NULL)
                 {
                     DestroyIcon(fileInfo.hIcon);
                 }
