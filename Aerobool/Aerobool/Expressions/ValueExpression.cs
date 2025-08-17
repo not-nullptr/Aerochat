@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 
 namespace Aerobool.Expressions
 {
-    public class ValueExpression(object value) : IExpression
+    public class ValueExpression : IExpression
     {
-        public object Value { get; set; } = value;
+        public object Value { get; set; }
+
+        public ValueExpression(object value)
+        {
+            Value = value;
+        }
 
         public object Evaluate(object? context)
         {

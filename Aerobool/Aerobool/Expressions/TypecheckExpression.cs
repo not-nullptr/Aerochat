@@ -7,10 +7,16 @@ using System.Threading.Tasks;
 
 namespace Aerobool.Expressions
 {
-    public class TypecheckExpression(IExpression left, IExpression right) : IExpression
+    public class TypecheckExpression : IExpression
     {
-        public IExpression Left { get; set; } = left;
-        public IExpression Right { get; set; } = right;
+        public IExpression Left { get; set; }
+        public IExpression Right { get; set; }
+
+        public TypecheckExpression(IExpression left, IExpression right)
+        {
+            Left = left;
+            Right = right;
+        }
 
         public object Evaluate(object? context)
         {

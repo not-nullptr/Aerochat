@@ -1,16 +1,17 @@
 ﻿using Aerobool.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aerobool.Expressions
 {
-    public class EqualsExpression(IExpression left, IExpression right) : IExpression
+    public class EqualsExpression : IExpression
     {
-        public IExpression Left { get; set; } = left;
-        public IExpression Right { get; set; } = right;
+        public IExpression Left { get; }
+        public IExpression Right { get; }
+
+        public EqualsExpression(IExpression left, IExpression right)
+        {
+            Left = left;
+            Right = right;
+        }
 
         public object Evaluate(object? context)
         {

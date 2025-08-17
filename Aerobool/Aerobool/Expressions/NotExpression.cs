@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 
 namespace Aerobool.Expressions
 {
-    public class NotExpression(IExpression expression) : IExpression
+    public class NotExpression : IExpression
     {
-        public IExpression Expression = expression;
+        public IExpression Expression;
+
+        public NotExpression(IExpression expression)
+        {
+            Expression = expression;
+        }
 
         public object Evaluate(object? context)
         {
