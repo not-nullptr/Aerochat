@@ -52,15 +52,22 @@ using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false)
+    public class ToolbarItem
     {
-        public string Text { get; set; } = text;
+        public string Text { get; set; }
 
-        public bool IsEyecandy { get; set; } = isEyecandy;
+        public bool IsEyecandy { get; set; }
 
         public delegate void ToolbarItemAction(FrameworkElement itemElement);
 
-        public ToolbarItemAction Action { get; set; } = action;
+        public ToolbarItemAction Action { get; set; }
+
+        public ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false)
+        {
+            Text = text;
+            Action = action;
+            IsEyecandy = isEyecandy;
+        }
     }
 
     public partial class Chat : Window
@@ -894,7 +901,7 @@ namespace Aerochat.Windows
             if (Clipboard.ContainsImage())
             {
                 BitmapSource image = Clipboard.GetImage();
-                InsertAttachmentsFromAnyThreadFromBitmapSourceArray([image]);
+                InsertAttachmentsFromAnyThreadFromBitmapSourceArray(new BitmapSource[] { image });
             }
         }
 
