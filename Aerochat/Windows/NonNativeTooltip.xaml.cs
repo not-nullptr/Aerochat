@@ -17,9 +17,14 @@ using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
-    public class ItemClickedEventArgs(NonNativeItem item) : EventArgs
+    public class ItemClickedEventArgs : EventArgs
     {
-        public NonNativeItem Item { get; set; } = item;
+        public NonNativeItem Item { get; set; }
+
+        public ItemClickedEventArgs(NonNativeItem item)
+        {
+            Item = item;
+        }
     }
     public partial class NonNativeTooltip : Window
     {
