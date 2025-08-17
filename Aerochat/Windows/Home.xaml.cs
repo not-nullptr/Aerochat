@@ -207,7 +207,7 @@ namespace Aerochat.Windows
                 using StreamReader reader = new(stream);
                 string result = reader.ReadToEnd();
                 XDocument doc = XDocument.Parse(result);
-                foreach (XElement adXml in doc.Root?.Elements() ?? [])
+                foreach (XElement adXml in doc.Root?.Elements() ?? Enumerable.Empty<XElement>())
                 {
                     AdViewModel ad = AdViewModel.FromAd(adXml);
                     _ads.Add(ad);

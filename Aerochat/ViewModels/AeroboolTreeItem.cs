@@ -28,6 +28,6 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _value, value);
         }
 
-        public ObservableCollection<AeroboolTreeItemViewModel> Children { get; } = [];
+        public ObservableCollection<AeroboolTreeItemViewModel> Children { get; } = new();
     }
 }

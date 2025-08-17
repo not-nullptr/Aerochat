@@ -250,7 +250,7 @@ namespace Aerochat
             string result = reader.ReadToEnd();
             XDocument doc = XDocument.Parse(result);
 
-            foreach (XElement sceneXml in doc.Root?.Elements() ?? [])
+            foreach (XElement sceneXml in doc.Root?.Elements() ?? Enumerable.Empty<XElement>())
             {
                 SceneViewModel scene = SceneViewModel.FromScene(sceneXml);
                 var existing = ThemeService.Instance.Scenes.FirstOrDefault(x => x.Color == scene.Color);

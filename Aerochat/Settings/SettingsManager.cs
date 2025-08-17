@@ -145,7 +145,7 @@ namespace Aerochat.Settings
         public DateTime ReadRecieptReference { get; set; } = DateTime.MinValue;
         public bool HasUserLoggedInBefore { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
-        public List<ulong> ViewedNotices { get; set; } = [];
+        public List<ulong> ViewedNotices { get; set; } = new();
 
         #endregion
 

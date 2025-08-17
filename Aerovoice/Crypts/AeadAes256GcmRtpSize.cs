@@ -37,7 +37,7 @@ namespace Aerovoice.Crypts
         }
         public override byte[] Encrypt(byte[] data, byte[] key)
         {
-            if (key is null) return [];
+            if (key is null) return Array.Empty<byte>();
             var header = new byte[12];
             Array.Copy(data, header, 12);
             var opusSpan = data.Skip(12).ToArray();

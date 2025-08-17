@@ -24,7 +24,7 @@ namespace Aerovoice.Decoders
             {
                 FEC = true,
             });
-            byte[] decoded = [];
+            byte[] decoded = Array.Empty<byte>();
             if (lastIncrement + 1 != increment)
             {
                 decoded = decoder.Decode(null, -1, out decodedLength);

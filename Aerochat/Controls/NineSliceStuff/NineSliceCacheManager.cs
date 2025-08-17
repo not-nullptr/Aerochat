@@ -20,7 +20,7 @@ internal class NineSliceCacheManager
 {
     public static NineSliceCacheManager Instance { get; private set; } = new();
 
-    private WeakDictionary<string, NineSliceImageSet> _entries = [];
+    private WeakDictionary<string, NineSliceImageSet> _entries = new();
 
     /// <summary>
     /// Attempts to find an already existing image set meeting the same parameters, or creates a new one

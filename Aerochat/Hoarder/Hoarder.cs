@@ -17,8 +17,8 @@ namespace Aerochat.Hoarder
 
         public static bool Ready = false;
 
-        public static List<BitmapImage> ProfileFrames =
-        [
+        public static List<BitmapImage> ProfileFrames = new()
+        {
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/LargeFrameActive.png")),
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/LargeFrameActiveAnimation.png")),
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/LargeFrameDnd.png")),
@@ -55,6 +55,6 @@ namespace Aerochat.Hoarder
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/XSFrameIdleM.png")),
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/XSFrameOffline.png")),
             new BitmapImage(new Uri("pack://application:,,,/Aerochat;component/Resources/Frames/XSFrameOfflineM.png")),
-        ];
+        };
     }
 }

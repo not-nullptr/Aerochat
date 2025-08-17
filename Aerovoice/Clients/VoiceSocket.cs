@@ -23,7 +23,6 @@ using Aerovoice.Logging;
 using Aerovoice.Recorders;
 using Aerovoice.Encoders;
 using Aerovoice.Timestamp;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Aerovoice.Clients
 {

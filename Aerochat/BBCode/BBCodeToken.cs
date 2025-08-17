@@ -19,8 +19,8 @@ namespace Aerochat.BBCode
     {
         public BBCodeTokenType Type;
         public string Content;
-        public List<BBCodeToken> Children = [];
-        public Dictionary<string, string> Attributes = [];
+        public List<BBCodeToken> Children = new();
+        public Dictionary<string, string> Attributes = new();
         public BBCodeToken? Parent;
 
         public BBCodeToken(BBCodeTokenType type)

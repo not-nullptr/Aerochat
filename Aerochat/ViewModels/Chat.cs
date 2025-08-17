@@ -211,7 +211,7 @@ namespace Aerochat.ViewModels
 
         public ThemeService Theme { get; } = ThemeService.Instance;
 
-        public ObservableCollection<HomeListViewCategory> Categories { get; } = [];
+        public ObservableCollection<HomeListViewCategory> Categories { get; } = new();
 
         private bool _loading = false;
 
