@@ -25,7 +25,7 @@ ManifestSupportedOS Win7
 
 VIProductVersion "${AEROCHAT_VERSION}.0"
 VIFileVersion "${AEROCHAT_VERSION}.0"
-VIAddVersionKey "FileDescription" "Aerochat Setup v${AEROCHAT_VERSION} RC1"
+VIAddVersionKey "FileDescription" "Aerochat Setup v${AEROCHAT_VERSION}"
 VIAddVersionKey "FileVersion" "${AEROCHAT_VERSION}"
 VIAddVersionKey "LegalCopyright" "nullptr"
 
