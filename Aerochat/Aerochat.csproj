@@ -46,16 +46,26 @@
 	<ItemGroup>
 		<None Remove="Ads\*.png" />
 		<None Remove="Ads\*.jpg" />
+		<None Remove="Ads\AVASTRAWPAGE.gif" />
+		<None Remove="Ads\BurnoutRevenge.gif" />
 		<None Remove="Ads\Bytemind.gif" />
+		<None Remove="Ads\Firefox.gif" />
 		<None Remove="Ads\furplesawesomead.gif" />
+		<None Remove="Ads\Geode.gif" />
 		<None Remove="Ads\Homestuck.gif" />
 		<None Remove="Ads\janevortex.gif" />
+		<None Remove="Ads\jvtexadWILLLOOKBETTERTRUST.gif" />
 		<None Remove="Ads\KWSXRADIO.gif" />
 		<None Remove="Ads\Lycos.jpeg" />
 		<None Remove="Ads\MLG2460spersonalsite.gif" />
+		<None Remove="Ads\MSPAINTADVENTURES.gif" />
 		<None Remove="Ads\name.gif" />
 		<None Remove="Ads\NeedForSpeedProStreetPre-Order.gif" />
+		<None Remove="Ads\Persona3.jpeg" />
 		<None Remove="Ads\roblox.jpeg" />
+		<None Remove="Ads\SPAMTONSWEEPSTAKES.gif" />
+		<None Remove="Ads\visitnhrevise.gif" />
+		<None Remove="Ads\WelcometoBitviewBlaynchannel.gif" />
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
 		<None Remove="Controls\pbfillend.png" />
@@ -357,6 +367,8 @@
 		<None Remove="Resources\Tray\Dnd.ico" />
 		<None Remove="Resources\Tray\Idle.ico" />
 		<None Remove="Resources\Tray\Offline.ico" />
+		<None Remove="Scenes\COD4Chernobyl.jpeg" />
+		<None Remove="Scenes\HatsuneMiku.jpeg" />
 		<None Remove="Scenes\Meteora.jpeg" />
 		<None Remove="Scenes\Slipknot.jpeg" />
 		<None Remove="Scenes\SuperMarioGalaxy.jpeg" />
@@ -377,16 +389,26 @@
 		<EmbeddedResource Include="Ads\Ads.xml" />
 		<Resource Include="Ads\*.png" />
 		<Resource Include="Ads\*.jpg" />
+		<Resource Include="Ads\AVASTRAWPAGE.gif" />
+		<Resource Include="Ads\BurnoutRevenge.gif" />
 		<Resource Include="Ads\Bytemind.gif" />
+		<Resource Include="Ads\Firefox.gif" />
 		<Resource Include="Ads\furplesawesomead.gif" />
+		<Resource Include="Ads\Geode.gif" />
 		<Resource Include="Ads\Homestuck.gif" />
 		<Resource Include="Ads\janevortex.gif" />
+		<Resource Include="Ads\jvtexadWILLLOOKBETTERTRUST.gif" />
 		<Resource Include="Ads\KWSXRADIO.gif" />
 		<Resource Include="Ads\Lycos.jpeg" />
 		<Resource Include="Ads\MLG2460spersonalsite.gif" />
+		<Resource Include="Ads\MSPAINTADVENTURES.gif" />
 		<Resource Include="Ads\name.gif" />
 		<Resource Include="Ads\NeedForSpeedProStreetPre-Order.gif" />
+		<Resource Include="Ads\Persona3.jpeg" />
 		<Resource Include="Ads\roblox.jpeg" />
+		<Resource Include="Ads\SPAMTONSWEEPSTAKES.gif" />
+		<Resource Include="Ads\visitnhrevise.gif" />
+		<Resource Include="Ads\WelcometoBitviewBlaynchannel.gif" />
 		<Resource Include="Ads\WWTHD.gif" />
 		<Resource Include="Ads\youtube.jpeg" />
 		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
@@ -724,6 +746,8 @@
 
 	<ItemGroup>
 	  <Resource Include="Resources\Home\Mail.png" />
+	  <Resource Include="Scenes\COD4Chernobyl.jpeg" />
+	  <Resource Include="Scenes\HatsuneMiku.jpeg" />
 	  <Resource Include="Scenes\Meteora.jpeg" />
 	  <Resource Include="Scenes\Slipknot.jpeg" />
 	  <Resource Include="Scenes\SuperMarioGalaxy.jpeg" />

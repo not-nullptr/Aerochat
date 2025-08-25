@@ -103,4 +103,25 @@
 	<item id="101" credit="realerico" mimetype="image/png" contenttype="D" file="Yakuza0.png" displayname="Yakuza 0" color="#c8c8c8" default="false" />
 	<item id="102" credit="[𝐟𝐮𝐫𝐩𝐥𝐞 ⋆˚☆˖° ₍^. .^₎⟆] ⭐" mimetype="image/png" contenttype="D" file="Catstronaut.png" displayname="Catstronaut" color="#7928ff" default="false" />
 	<item id="103" credit="John" mimetype="image/png" contenttype="D" file="MModule.png" displayname="MModule" color="#000002" default="false" />
+	<item id="104" credit="realerico" mimetype="image/png" contenttype="D" file="Yakuza0DirectorsCut.png" displayname="Yakuza 0 Director's Cut" color="#ccb829" default="false" />
+	<item id="105" credit="Linear artwork from CD release, edited to banner by HayBombYT" mimetype="image/png" contenttype="D" file="JogeirLiljedahl-TheWanderer.png" displayname="Jogeir Liljedahl - The Wanderer" color="#5260bd" default="false" />
+	<item id="106" credit="UnderscoreAngel" mimetype="image/png" contenttype="D" file="KasaneTerritory.png" displayname="Kasane Territory" color="#d35050" default="false" />
+	<item id="107" credit="https://www.steamgriddb.com/hero/131756 (Modified by Leap)" mimetype="image/png" contenttype="D" file="Deltarune.png" displayname="Deltarune" color="#08f0ff" default="false" />
+	<item id="108" credit="Realerico/PatrickTBP" mimetype="image/png" contenttype="D" file="YakuzaTeto.png" displayname="Yakuza + Teto" color="#000003" default="false" />
+	<item id="109" credit="Jack Shorenstein" mimetype="image/jpeg" contenttype="D" file="HatsuneMiku.jpeg" displayname="Hatsune Miku" color="#a3bbf5" default="false" />
+	<item id="110" credit="SmashHug, Artoon (Model provided by)" mimetype="image/png" contenttype="D" file="BLiNXTheTimeSweeper.png" displayname="BLiNX The Time Sweeper" color="#5416d4" default="false" />
+	<item id="111" credit="UnderscoreAngel" mimetype="image/png" contenttype="D" file="TripleBaka.png" displayname="TripleBaka" color="#ff6c70" default="false" />
+	<item id="112" credit="VORBiTAL" mimetype="image/png" contenttype="D" file="PopnMusic11.png" displayname="Pop'n Music 11" color="#ff3e3e" default="false" />
+	<item id="113" credit="(ballin&amp;cantgetup) cat" mimetype="image/png" contenttype="D" file="mostwantedm3.png" displayname="most wanted m3" color="#407c8b" default="false" />
+	<item id="114" credit="Lumacy" mimetype="image/png" contenttype="D" file="Persona3Boxart.png" displayname="Persona 3 Boxart" color="#68b0ca" default="false" />
+	<item id="115" credit="Lumacy" mimetype="image/png" contenttype="D" file="OuterWallCaveStory.png" displayname="Outer Wall (Cave Story)" color="#22456f" default="false" />
+	<item id="116" credit="Lumacy" mimetype="image/png" contenttype="D" file="Persona2InnocentSinPSP.png" displayname="Persona 2: Innocent Sin (PSP)" color="#960000" default="false" />
+	<item id="117" credit="Lumacy" mimetype="image/png" contenttype="D" file="Persona2EternalPunishmentPSP.png" displayname="Persona 2: Eternal Punishment (PSP)" color="#a66d83" default="false" />
+	<item id="118" credit="ringo" mimetype="image/png" contenttype="D" file="SouthParkBiggerLongerUncut.png" displayname="South Park: Bigger, Longer &amp; Uncut" color="#b30000" default="false" />
+	<item id="119" credit="GeneralOnyx" mimetype="image/jpeg" contenttype="D" file="COD4Chernobyl.jpeg" displayname="COD4 Chernobyl" color="#7c9486" default="false" />
+	<item id="120" credit="realerico" mimetype="image/png" contenttype="D" file="YakuzaKiwami.png" displayname="Yakuza Kiwami" color="#cccccc" default="false" />
+	<item id="121" credit="Edmund McMillen - Team Meat" mimetype="image/png" contenttype="D" file="SuperMeatBoy.png" displayname="Super Meat Boy!" color="#d50005" default="false" />
+	<item id="122" credit="fail0verflow" mimetype="image/png" contenttype="D" file="DarkWaters.png" displayname="Dark Waters" color="#009fce" default="false" />
+	<item id="123" credit="content: 'Kyra';" mimetype="image/png" contenttype="D" file="Cloudsdale.png" displayname="Cloudsdale" color="#d892aa" default="false" />
+	<item id="124" credit="original comic by RobotixFox!" mimetype="image/png" contenttype="D" file="niconicomiku.png" displayname="niconico &amp; miku" color="#71bbe8" default="false" />
 </package>
