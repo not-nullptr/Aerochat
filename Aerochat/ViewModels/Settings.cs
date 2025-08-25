@@ -17,6 +17,7 @@ namespace Aerochat.ViewModels
         private string _defaultValue;
 
         public ObservableCollection<string> EnumValues { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> StringValues { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> TimeFormatOptions { get; set; }
         public TimeFormat SelectedTimeFormat { get; set; }
 

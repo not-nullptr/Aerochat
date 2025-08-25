@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using Vanara.PInvoke;
 using Aerochat.Attributes;
 using System.Collections.ObjectModel;
+using HarmonyLib;
 
 namespace Aerochat.Windows
 {
@@ -86,12 +87,28 @@ namespace Aerochat.Windows
                 }
                 else
                 {
-                    settings.Add(new SettingViewModel
+                    var attribute = prop.GetCustomAttribute<MultiStringToIntAction>();
+                    if (attribute != null)
                     {
-                        Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
-                        Type = prop.PropertyType.Name,
-                        DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString()
-                    });
+                        var displayNames = attribute.GetDisplayNames();
+                        
+                        settings.Add(new SettingViewModel
+                        {
+                            Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Type = prop.PropertyType.Name,
+                            DefaultValue = displayNames.ElementAtOrDefault(SettingsManager.Instance.InputDeviceIndex) ?? "Unknown",
+                            StringValues = new ObservableCollection<string>(displayNames),
+                        });
+                    }
+                    else
+                    {
+                        settings.Add(new SettingViewModel
+                        {
+                            Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Type = prop.PropertyType.Name,
+                            DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString()
+                        });
+                    }
                 }
             }
 
@@ -173,6 +190,26 @@ namespace Aerochat.Windows
                 {
                     property.SetValue(SettingsManager.Instance, enumValue);
                 }
+            }
+            
+            // If it's an integer, it's a List of strings to Int mapping
+            if (property!.PropertyType.IsInteger()) 
+            {
+                int foundIndex = 0;
+                int index = 0;
+                
+                foreach (string comboBoxItem in comboBox.Items)
+                {
+                    if (comboBoxItem == selectedValue)
+                    {
+                        foundIndex = index;
+                        break;
+                    }
+
+                    index++;
+                }
+                
+                property.SetValue(SettingsManager.Instance, foundIndex);
             }
 
             // Save the settings
