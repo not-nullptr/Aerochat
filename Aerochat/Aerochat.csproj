@@ -69,6 +69,7 @@
 		<None Remove="Ads\WelcometoBitviewBlaynchannel.gif" />
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
+		<None Remove="AppHostBin\apphost.exe" />
 		<None Remove="Controls\pbfillend.png" />
 		<None Remove="Resources\AttachmentsEditor\Delete.png" />
 		<None Remove="Resources\AttachmentsEditor\DeleteHover.png" />
@@ -667,6 +668,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="AppHostBin\apphost.exe" />
 		<EmbeddedResource Include="Scenes\Scenes.xml" />
 	</ItemGroup>
 
