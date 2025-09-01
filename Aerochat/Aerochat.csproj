@@ -14,6 +14,7 @@
 		<NuGetAudit>false</NuGetAudit>
 		<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppHostSourcePath>$(MSBuildProjectDirectory)\AppHostBin\apphost.exe</AppHostSourcePath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
