@@ -14,10 +14,10 @@ ManifestSupportedOS Win7
 
 !define AEROCHAT_BIN_FOLDER "bin\x64\Release\net8.0-windows7.0"
 !define AEROCHAT_VERSION "0.2.4"
-!define AEROCHAT_RC true
+!define AEROCHAT_RC # Comment this line out if you aren't building RC
 !define AEROCHAT_RC_VERSION "Stability Test Release"
 
-!if AEROCHAT_RC
+!ifdef AEROCHAT_RC
     !define AEROCHAT_RC_SUFFIX " ${AEROCHAT_RC_VERSION}"
 !else
     !define AEROCHAT_RC_SUFFIX ""
@@ -613,7 +613,7 @@ Section "Aerochat" Aerochat
     WriteUninstaller "$InstDir\uninstall.exe"
     ${PLACE_FILE} /r /x *.pdb /x *.xml /x Aerochat.json "..\Aerochat\${AEROCHAT_BIN_FOLDER}\*"
     
-!if AEROCHAT_RC # We include PDBs for RC builds.
+!ifdef AEROCHAT_RC # We include PDBs for RC builds.
     ${PLACE_FILE} /r "..\Aerochat\${AEROCHAT_BIN_FOLDER}\*.pdb"
 !else
     Delete "$InstDir\*.pdb" # Delete all PDBs from a previous RC build, if present.
