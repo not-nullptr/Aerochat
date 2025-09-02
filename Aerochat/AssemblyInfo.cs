@@ -33,6 +33,6 @@ static class AssemblyInfo
     /// The revision string for the current prerelease version. This can be any arbitrary string such as
     /// "RC1" or "[User] Testing Release".
     /// </summary>
-    public static readonly string RC_REVISION = "RC1";
+    public static readonly string RC_REVISION = "Stability Test Release";
 #endif
 }
