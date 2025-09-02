@@ -13,3 +13,18 @@ Please note that Aerochat is still beta software with many unimplemented feature
 Click Next to continue."
 !insertmacro LANG_STRING STRING_CREATE_DESKTOP_SHORTCUT "Create desktop shortcut"
 !insertmacro LANG_STRING STRING_AUTO_OPEN "Start Aerochat once I close this installer"
+
+!insertmacro LANG_STRING STRING_NOTICE_TITLE "Notice"
+!insertmacro LANG_STRING STRING_NEEDSKB2533623_DESCRIPTION "Your system requires updates in order to run Aerochat."
+!insertmacro LANG_STRING STRING_NEEDSKB2533623_BODY "Your older Windows operating system is lacking the quality-of-life update $\"KB2533623$\", which supplements the functionality of the operating system with new security features.$\r$\n$\r$\nSince the .NET Runtime assumes these security features are available and does not fall back to older functionality, you will have to install this update in order to use Aerochat."
+!insertmacro LANG_STRING STRING_NEEDSKB2533623_GETHELP_BUTTON "Get help installing this update"
+!insertmacro LANG_STRING STRING_NEEDSKB2533623_GETHELP_LINK "https://github.com/not-nullptr/Aerochat/wiki/Frequently%E2%80%90asked-questions#q-im-on-windows-7-and-nothing-happens-when-i-try-to-open-aerochat"
+!insertmacro LANG_STRING STRING_NEEDSKB2533623_CONTINUEANYWAY_BUTTON "Continue anyway"
+
+!insertmacro LANG_STRING STRING_CONTINUEANYWAY_BODY "Are you sure you want to continue? If you continue, Aerochat may not work correctly."
+
+!insertmacro LANG_STRING STRING_STATUS_MSVCRT_ENSURING "Ensuring that Visual C++ Runtime libraries are installed... This may take a second."
+!insertmacro LANG_STRING STRING_STATUS_MSVCRT_ENSURED "Visual C++ Runtime libraries are installed."
+
+!insertmacro LANG_STRING STRING_STATUS_DOTNET_ENSURING "Ensuring that the .NET Desktop Runtime 8.0 is installed... This may take a second."
+!insertmacro LANG_STRING STRING_STATUS_DOTNET_ENSURED "The .NET Desktop Runtime 8.0 is installed."
