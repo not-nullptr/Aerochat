@@ -24,42 +24,152 @@ using Aerovoice.Recorders;
 using Aerovoice.Encoders;
 using Aerovoice.Timestamp;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Runtime.InteropServices;
+using static Vanara.PInvoke.Kernel32;
 
 namespace Aerovoice.Clients
 {
+    public class VoiceStateChanged
+    {
+        public uint SSRC;
+        public bool Speaking;
+
+        public VoiceStateChanged(uint SSRC, bool Speaking)
+        {
+            this.SSRC = SSRC;
+            this.Speaking = Speaking;
+        }
+    }
+
+    struct IPInfo
+    {
+        public string Address;
+        public ushort Port;
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void VoiceUserCallback(uint ssrc, bool speaking);
+
+    partial class VoiceSession : IDisposable
+    {
+        unsafe struct RawIPInfo
+        {
+            public fixed byte IP[64];
+            public ushort Port;
+        }
+
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        private static partial IntPtr voice_session_new(uint ssrc, ulong channelId, [MarshalAs(UnmanagedType.LPUTF8Str)] string ip, ushort port, VoiceUserCallback onSpeaking);
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        private static partial void voice_session_free(IntPtr sessionHandle);
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        private static partial void voice_session_init_poll_thread(IntPtr sessionHandle);
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        private static partial IntPtr voice_session_discover_ip(IntPtr sessionHandle);
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        private unsafe static partial IntPtr voice_session_set_secret(IntPtr sessionHandle, byte* secret, uint secretLen);
+        [LibraryImport("AerovoiceNative.dll")]
+        [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+        [return: MarshalAs(UnmanagedType.LPUTF8Str)]
+        private unsafe static partial string voice_session_select_cryptor(IntPtr sessionHandle, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPUTF8Str, SizeParamIndex = 2)] string[] availableMethods, uint availableMethodsLen);
+
+        private IntPtr _sessionHandle;
+
+        public VoiceSession(uint ssrc, ulong channelId, string ip, ushort port, VoiceUserCallback onSpeaking)
+        {
+            AllocConsole();
+            _sessionHandle = voice_session_new(ssrc, channelId, ip, port, onSpeaking);
+            if (_sessionHandle == IntPtr.Zero)
+            {
+                throw new Exception("Failed to create voice session.");
+            }
+        }
+
+        public void BeginPolling()
+        {
+            voice_session_init_poll_thread(_sessionHandle);
+        }
+
+        public IPInfo DiscoverIP()
+        {
+            unsafe
+            {
+                var result = *(RawIPInfo*)voice_session_discover_ip(_sessionHandle).ToPointer();
+                byte[] managedIP = new byte[64];
+                for (int i = 0; i < 64; i++)
+                {
+                    managedIP[i] = result.IP[i];
+                }
+
+                string ip = Encoding.UTF8.GetString(managedIP).Trim((char)0);
+                ushort port = result.Port;
+                return new IPInfo { Address = ip, Port = port };
+            }
+        }
+
+        public void SetSecret(byte[] secret)
+        {
+            var len = (uint)secret.Length;
+            unsafe
+            {
+                fixed (byte* secretPtr = &secret[0])
+                {
+                    voice_session_set_secret(_sessionHandle, secretPtr, len);
+                }
+            }
+        }
+
+        public string SelectCryptor(string[] availableCryptors)
+        {
+            return voice_session_select_cryptor(_sessionHandle, availableCryptors, (uint)availableCryptors.Length);
+        }
+
+        public void Dispose()
+        {
+            FreeConsole();
+            if (_sessionHandle != IntPtr.Zero)
+            {
+                voice_session_free(_sessionHandle);
+                _sessionHandle = IntPtr.Zero;
+            }
+        }
+    }
+
+
     public class VoiceSocket
     {
         private WebsocketClient _socket;
-        private UDPClient UdpClient;
         private DiscordClient _client;
         private JObject _ready;
         private bool _disposed = false;
+        private VoiceSession? _session;
 
-
-        public IPlayer Player = new NAudioPlayer();
-        public IDecoder Decoder = new OpusDotNetDecoder();
-        public IEncoder Encoder = new ConcentusEncoder();
-        public BaseRecorder Recorder = new NAudioRecorder();
-        public string? ForceEncryptionName;
-
-
-        private BaseCrypt cryptor;
-        private byte[] _secretKey;
+        //private BaseCrypt cryptor;
+        private string _serverSdp;
         private int _sequence;
         private string _sessionId;
         private string _voiceToken;
         private Uri _endpoint;
         public DiscordChannel Channel { get; private set; }
         private bool _connected = false;
-        private List<string> _availableEncryptionModes;
         private RTPTimestamp _timestamp = new(3840);
         private uint _ssrc = 0;
+        private VoiceUserCallback _cb;
+        private Dictionary<uint, ulong> _userSsrcMap = [];
+        public Dictionary<uint, ulong> UserSSRCMap { get { return _userSsrcMap; } }
 
         public bool Speaking { get; private set; } = false;
 
         System.Timers.Timer _timer;
 
-        public VoiceSocket(DiscordClient client)
+        Action<VoiceStateChanged> _onStateChange;
+
+        public VoiceSocket(DiscordClient client, Action<VoiceStateChanged> onStateChange)
         {
             _client = client;
             // every 1/60 seconds, on another thread, incrementTimestamp using 3840
@@ -68,6 +178,34 @@ namespace Aerovoice.Clients
             _timer.AutoReset = true;
             _timer.Elapsed += (s, e) => _timestamp.Increment(3840);
             _timer.Start();
+            _onStateChange = onStateChange;
+            _cb = new VoiceUserCallback(InternalVoiceCallback);
+        }
+
+        private void InternalVoiceCallback(uint ssrc, bool speaking)
+        {
+            _onStateChange(new VoiceStateChanged(ssrc, speaking));
+            if (ssrc != _ssrc || _socket == null)
+            {
+                return;
+            }
+
+            Debug.WriteLine(speaking);
+
+            Task.Run(async () =>
+            {
+                var msg = new
+                {
+                    op = 5,
+                    d = new
+                    {
+                        speaking = speaking ? 1 : 0,
+                        delay = 0,
+                        ssrc
+                    }
+                };
+                await SendMessage(JObject.FromObject(msg));
+            });
         }
 
         public async Task SendMessage(JObject message)
@@ -84,7 +222,7 @@ namespace Aerovoice.Clients
 
             byte[] packetLength = new byte[2];
             BitConverter.GetBytes((ushort)70).CopyTo(packetLength, 0);
-            Array.Reverse(packetLength);    
+            Array.Reverse(packetLength);
 
             byte[] ssrcBuf = new byte[4];
             BitConverter.GetBytes(ssrc).CopyTo(ssrcBuf, 0);
@@ -108,8 +246,12 @@ namespace Aerovoice.Clients
             return packet;
         }
 
+        private void OnSpeaking(uint ssrc, bool speaking)
+        { }
+
         public async Task OnMessageReceived(JObject message)
         {
+            Debug.WriteLine(message);
             // if message["seq"] exists, set _sequence to it
             if (message["seq"] != null)
             {
@@ -119,190 +261,81 @@ namespace Aerovoice.Clients
             switch (op)
             {
                 case 2: // ready
-                {
-                    _ready = message["d"]!.Value<JObject>()!;
-                    var ip = _ready["ip"]!.Value<string>()!;
-                    var port = _ready["port"]!.Value<ushort>();
-                    _ssrc = _ready["ssrc"]!.Value<uint>();
-                    var modes = _ready["modes"]!.ToArray().Select(x => x.Value<string>()!);
-                    _availableEncryptionModes = modes.ToList();
-                    Logger.Log($"Attempting to open UDP connection to {ip}:{port}.");
-                    Logger.Log($"Your SSRC is {_ssrc}.");
-                    UdpClient = new(ip, port);
-                    UdpClient.MessageReceived += (s, e) => Task.Run(() => UdpClient_MessageReceived(s, e));
-
-                    var discoveryPacket = ConstructPortScanPacket(_ssrc, ip, port);
-
-                    UdpClient.SendMessage(discoveryPacket);
-                    break;
-                }
-                case 4: // session description
-                {
-                    // secret_key is a number array
-                    var secretKey = message["d"]!["secret_key"]!.Value<JArray>()!.Select(x => (byte)x.Value<int>()).ToArray();
-                    _secretKey = secretKey;
-                    if (cryptor is null)
                     {
-                        cryptor = GetPreferredEncryption();
-                    }
-                    break;
-                }
-            }
-        }
-
-        private readonly SortedList<uint, byte[]> _packetBuffer = new();
-        private readonly object _bufferLock = new();
-        private uint _lastPlayedTimestamp = 0;
-        private const int BUFFER_THRESHOLD = 5;
-
-        private async Task UdpClient_MessageReceived(object? sender, byte[] e)
-        {
-            byte packetType = e[1];
-            switch (packetType)
-            {
-                case 0x2: // ip discovery
-                {
-                    var address = Encoding.UTF8.GetString(e, 8, 64).TrimEnd('\0');
-                    var port = (ushort)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(e, 72));
-                    Logger.Log($"IP discovery was successful, your port is {port}.");
-                    if (cryptor is null)
-                    {
-                        cryptor = GetPreferredEncryption();
-                    }
-                    await SendMessage(JObject.FromObject(new
-                    {
-                        op = 1,
-                        d = new
+                        _ready = message["d"]!.Value<JObject>()!;
+                        var ip = _ready["ip"]!.Value<string>()!;
+                        var port = _ready["port"]!.Value<ushort>();
+                        _ssrc = _ready["ssrc"]!.Value<uint>();
+                        _userSsrcMap.Add(_ssrc, _client.CurrentUser.Id);
+                        var modes = _ready["modes"]!.ToArray().Select(x => x.Value<string>()!);
+                        Logger.Log($"Attempting to open UDP connection to {ip}:{port}.");
+                        Logger.Log($"Your SSRC is {_ssrc}.");
+                        _session = new VoiceSession(_ssrc, this.Channel.Id, ip, port, _cb);
+                        var discovered = _session.DiscoverIP();
+                        Debug.WriteLine($"IP: {discovered.Address}");
+                        Debug.WriteLine($"Port: {discovered.Port}");
+                        var cryptor = _session.SelectCryptor([.. modes]);
+                        if (cryptor == null) return;
+                        var msg = new
                         {
-                            protocol = "udp",
-                            data = new
+                            op = 1,
+                            d = new
                             {
-                                address,
-                                port,
-                                mode = cryptor.PName
-                            },
-                            codecs = new[]
-        {
-                                new
+                                protocol = "udp",
+                                data = new
                                 {
-                                    name = "opus",
-                                    type = "audio",
-                                    priority = 1000,
-                                    payload_type = 120
+                                    address = discovered.Address,
+                                    port = discovered.Port,
+                                    mode = cryptor
+                                },
+                                codecs = new[]
+                                {
+                                    new
+                                    {
+                                        name = "opus",
+                                        type = "audio",
+                                        priority = 1000,
+                                        payload_type = 109,
+                                    }
                                 }
                             }
-                        }
-                    }));
-                    Recorder.Start();
-                    break;
-                }
-                case 0x78:
-                {
-                    // TODO: thread manager where each user gets one thread
-                    await Task.Run(() =>
-                    {
-                        if (cryptor is null || _secretKey is null) return;
+                        };
 
-                        var rtpTimestamp = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(4));
-                        lock (_bufferLock)
-                        {
-                            _packetBuffer[rtpTimestamp] = e;
-                        }
-
-                        TryProcessBufferedPackets();
-                    });
-                    break;
-                }
-            }
-        }
-
-        private void TryProcessBufferedPackets()
-        {
-            lock (_bufferLock)
-            {
-                if (_packetBuffer.Count < BUFFER_THRESHOLD)
-                    return;
-
-                foreach (var key in _packetBuffer.Keys.ToList())
-                {
-                    if (key > _lastPlayedTimestamp)
-                    {
-                        byte[] packet = _packetBuffer[key];
-                        _packetBuffer.Remove(key);
-                        _lastPlayedTimestamp = key;
-
-                        ProcessPacket(packet);
-                    }
-                }
-            }
-        }
-
-        private void ProcessPacket(byte[] e)
-        {
-            var ssrc = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(8));
-
-            byte[] decryptedData = cryptor.Decrypt(e, _secretKey);
-            if (decryptedData.Length == 0) return;
-            // read ushort increment, 2 bytes in
-            ushort increment = BinaryPrimitives.ReadUInt16BigEndian(e.AsSpan(2));
-            var decoded = Decoder.Decode(decryptedData, decryptedData.Length, out int decodedLength, ssrc, increment);
-            Player.AddSamples(decoded, decodedLength, ssrc);
-        }
-
-        public BaseCrypt GetPreferredEncryption()
-        {
-            var decryptors = typeof(BaseCrypt).Assembly.GetTypes().Where(x => x.Namespace == "Aerovoice.Crypts" && x.IsSubclassOf(typeof(BaseCrypt)) && _availableEncryptionModes.Contains((string)x.GetProperty("Name")!.GetValue(null)!));
-            var priority = new[] { "aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize" };
-            BaseCrypt? decryptor = null;
-            if (ForceEncryptionName != null)
-            {
-                var forced = decryptors.FirstOrDefault(x => x.GetProperty("Name")!.GetValue(null)!.Equals(ForceEncryptionName));
-                if (forced != null)
-                {
-                    decryptor = (BaseCrypt)Activator.CreateInstance(forced)!;
-                } else
-                {
-                    Logger.Log($"\"{ForceEncryptionName}\" is not supported, falling back to default.");
-                }
-            }
-            if (decryptor == null)
-            {
-                foreach (var p in priority)
-                {
-                    var d = decryptors.FirstOrDefault(x => x.GetProperty("Name")!.GetValue(null)!.Equals(p));
-                    if (d != null && _availableEncryptionModes.Contains(p))
-                    {
-                        decryptor = (BaseCrypt)Activator.CreateInstance(d)!;
+                        await SendMessage(JObject.FromObject(msg));
                         break;
                     }
-                }
-            }
+                case 4: // session description
+                    {
+                        //var serverSdp = message["d"]!["sdp"]!.Value<string>()!;
+                        //_serverSdp = serverSdp;
+                        //_session.SetServerSdp(_serverSdp);
+                        var secret = message["d"]!["secret_key"]!.Value<JArray>()!.Select(x => (byte)x.Value<int>()).ToArray();
+                        _session?.SetSecret(secret);
+                        _session?.BeginPolling();
+                        var msg = new
+                        {
+                            op = 5,
+                            d = new
+                            {
+                                speaking = 0,
+                                delay = 0,
+                                ssrc = _ssrc
+                            }
+                        };
+                        await SendMessage(JObject.FromObject(msg));
+                        break;
+                    }
+                case 5: // speaking
+                    {
+                        var userId = ulong.Parse(message["d"]!["user_id"]!.Value<string>()!);
+                        var ssrc = message["d"]!["ssrc"]!.Value<uint>()!;
 
-            decryptor = decryptor ?? (BaseCrypt)Activator.CreateInstance(decryptors.FirstOrDefault(x => _availableEncryptionModes.Contains(x.GetProperty("Name")!.GetValue(null))!)!)!;
-            // log all encryption modes but make the preferred one bold
-            Logger.Log($"Encryption mode selected:");
-            var names = decryptors.Select(x => (string)x.GetProperty("Name")!.GetValue(null)!);
-            // sort the modes such that the preferred one is first, then the supported ones, then the unsupported ones
-            // unsupported modes are modes where Name isn't in names
-            _availableEncryptionModes = _availableEncryptionModes.OrderBy(x => x != decryptor.PName).ThenBy(x => !names.Contains(x)).ThenBy(x => x).ToList();
-            foreach (var mode in _availableEncryptionModes)
-            {
-                if (mode == decryptor.PName)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                } 
-                else if (!names.Contains(mode))
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
-                Console.WriteLine($"- {mode}");
-                Console.ResetColor();
+                        _userSsrcMap.Remove(ssrc);
+                        _userSsrcMap.Add(ssrc, userId);
+
+                        break;
+                    }
             }
-            return decryptor;
         }
 
         public async Task ConnectAsync(DiscordChannel channel)
@@ -312,118 +345,8 @@ namespace Aerovoice.Clients
             await _client.UpdateVoiceStateAsync(Channel.Guild?.Id ?? Channel.Id, Channel.Id, false, false);
             _client.VoiceStateUpdated += _client_VoiceStateUpdated;
             _client.VoiceServerUpdated += _client_VoiceServerUpdated;
-            Recorder.DataAvailable += Recorder_DataAvailable;
         }
 
-        private short _udpSequence = (short)new Random().Next(0, short.MaxValue);
-
-        private const int BufferDurationMs = 200;
-        private const int ChunkDurationMs = 20;
-        private const int SampleRate = 48000; // 48kHz
-        private const int BytesPerSample = 2; // 16-bit PCM
-        private const int Channels = 2; // Stereo
-        private const int BufferSizeBytes = (SampleRate * Channels * BytesPerSample * BufferDurationMs) / 1000; // 38400 bytes
-        private byte[] _circularBuffer = new byte[BufferSizeBytes];
-        private int _bufferOffset = 0;
-        private bool _bufferFilled = false;
-
-        private async void Recorder_DataAvailable(object? sender, byte[] e)
-        {
-            await Task.Run(() =>
-            {
-                // Append incoming 20ms audio to the circular buffer
-                AddToCircularBuffer(e);
-
-                // Check if the user is speaking using the circular buffer
-                var sampleIsSpeaking = IsSpeaking(_circularBuffer, _bufferFilled ? BufferSizeBytes : _bufferOffset);
-
-                if (sampleIsSpeaking)
-                {
-                    if (Speaking)
-                    {
-                        _ = SendMessage(JObject.FromObject(new
-                        {
-                            op = 5,
-                            d = new
-                            {
-                                speaking = 0, // not speaking
-                                delay = 0,
-                                ssrc = _ssrc
-                            }
-                        }));
-                    }
-                    Speaking = false;
-                    return;
-                }
-
-                if (!Speaking)
-                {
-                    _ = SendMessage(JObject.FromObject(new
-                    {
-                        op = 5,
-                        d = new
-                        {
-                            speaking = 1 << 0, // VOICE
-                            delay = 0,
-                            ssrc = _ssrc
-                        }
-                    }));
-                    Speaking = true;
-                }
-
-                if (cryptor is null) return;
-                var opus = Encoder.Encode(e);
-                var header = new byte[12];
-                header[0] = 0x80; // Version + Flags
-                header[1] = 0x78; // Payload Type
-                BinaryPrimitives.WriteInt16BigEndian(header.AsSpan(2), _udpSequence++); // Sequence
-                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), _timestamp.GetCurrentTimestamp()); // Timestamp
-                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(8), _ssrc); // SSRC
-                var packet = new byte[header.Length + opus.Length];
-                Array.Copy(header, 0, packet, 0, header.Length);
-                Array.Copy(opus, 0, packet, header.Length, opus.Length);
-                var encrypted = cryptor.Encrypt(packet, _secretKey);
-                UdpClient.SendMessage(encrypted);
-            });
-        }
-
-        private void AddToCircularBuffer(byte[] data)
-        {
-            int dataLength = data.Length;
-
-            if (_bufferOffset + dataLength > BufferSizeBytes)
-            {
-                int overflow = _bufferOffset + dataLength - BufferSizeBytes;
-                Array.Copy(data, 0, _circularBuffer, _bufferOffset, dataLength - overflow);
-                Array.Copy(data, dataLength - overflow, _circularBuffer, 0, overflow);
-                _bufferOffset = overflow;
-                _bufferFilled = true;
-            }
-            else
-            {
-                Array.Copy(data, 0, _circularBuffer, _bufferOffset, dataLength);
-                _bufferOffset += dataLength;
-            }
-        }
-
-        private bool IsSpeaking(byte[] buffer, int length)
-        {
-            int samples = length / BytesPerSample; // Convert byte length to number of samples
-            double sum = 0;
-
-            for (int i = 0; i < length; i += 2)
-            {
-                short sample = (short)((buffer[i + 1] << 8) | buffer[i]); // Convert to 16-bit sample
-                sum += sample * sample;
-            }
-
-            // Calculate RMS
-            double rms = Math.Sqrt(sum / samples);
-
-            // Threshold for speaking detection
-            const double threshold = 300; // Adjust this value based on the microphone and environment
-            return rms < threshold;
-        }
         private async Task _client_VoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
         {
             _sessionId = args.SessionId;
@@ -470,10 +393,10 @@ namespace Aerovoice.Clients
                 op = 0,
                 d = new
                 {
-                    server_id = Channel.Guild?.Id ?? Channel.Id,
-                    user_id = _client.CurrentUser.Id,
+                    server_id = Channel.Guild?.Id.ToString() ?? "",
+                    user_id = _client.CurrentUser.Id.ToString(),
                     session_id = _sessionId,
-                    token = _voiceToken
+                    token = _voiceToken,
                 }
             }));
         }
@@ -486,10 +409,8 @@ namespace Aerovoice.Clients
             _disposed = true;
             await _client.UpdateVoiceStateAsync(Channel.GuildId, null, false, false);
             _socket?.Dispose();
-            UdpClient?.Dispose();
-            Recorder?.Dispose();
             _timer.Dispose();
-            Encoder?.Dispose();
+            _session?.Dispose();
         }
     }
 }

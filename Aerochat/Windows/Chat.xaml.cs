@@ -162,7 +162,8 @@ namespace Aerochat.Windows
             // We cannot edit messages or upload images across channels, so close the respective UIs.
             // In the future, this design should possibly be reconsidered: the official Discord client
             // persists such state between channels, and it only applies to the currently-active channel.
-            await Dispatcher.BeginInvoke(() => {
+            await Dispatcher.BeginInvoke(() =>
+            {
                 ClearReplyTarget();
                 LeaveEditingMessage();
                 CloseAttachmentsEditor();
@@ -683,7 +684,8 @@ namespace Aerochat.Windows
                     if (!SettingsManager.Instance.LastReadMessages.TryGetValue(ChannelId, out var msgId))
                     {
                         SettingsManager.Instance.LastReadMessages[ChannelId] = message.Id ?? 0;
-                    } else
+                    }
+                    else
                     {
                         long prevTimestamp = ((long)(msgId >> 22)) + 1420070400000;
                         DateTime prevLastMessageTime = DateTimeOffset.FromUnixTimeMilliseconds(prevTimestamp).DateTime;
@@ -795,7 +797,8 @@ namespace Aerochat.Windows
                         if (firstChannel is not null)
                         {
                             ChannelId = firstChannel.Id;
-                        } else
+                        }
+                        else
                         {
                             UnavailableDialog();
                             return;
@@ -876,7 +879,8 @@ namespace Aerochat.Windows
                             PresentationSource.FromVisual(MessageTextBox),
                             0,
                             e.Key
-                        ) { RoutedEvent = Keyboard.KeyDownEvent });
+                        )
+                        { RoutedEvent = Keyboard.KeyDownEvent });
                         MessageTextBox.Focus();
                     }
                 }
@@ -1131,7 +1135,8 @@ namespace Aerochat.Windows
         private async void TypingUsers_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             List<DiscordUser> tempUsers = new();
-            foreach (var user in TypingUsers.ToList()) {
+            foreach (var user in TypingUsers.ToList())
+            {
                 if (!Discord.Client.TryGetCachedUser(user.Id, out DiscordUser discordUser))
                 {
                     // I believe this is fully safe since it'll only occur in a server context,
@@ -1441,7 +1446,8 @@ namespace Aerochat.Windows
             if (hiddenItems)
             {
                 expandBtn.Visibility = Visibility.Visible;
-            } else
+            }
+            else
             {
                 expandBtn.Visibility = Visibility.Collapsed;
             }
@@ -1569,7 +1575,26 @@ namespace Aerochat.Windows
                         }
                         try
                         {
-                            await VoiceManager.Instance.JoinVoiceChannel(channel);
+                            await VoiceManager.Instance.JoinVoiceChannel(channel, (e) =>
+                            {
+                                var castedItem = (HomeListItemViewModel)item;
+                                var channelID = castedItem.Id;
+                                Dispatcher.InvokeAsync(() =>
+                                {
+                                    // FIXME: this code sucks
+                                    var category = ViewModel.Categories.ToList().Find(f => f.Items.Any(f => f.Id == channelID));
+                                    if (category == null) return;
+                                    var channel = category.Items.ToList().Find(f => f.Id == channelID);
+                                    if (channel == null) return;
+                                    ulong userID = 0;
+                                    VoiceManager.Instance.VoiceSocket?.UserSSRCMap.TryGetValue(e.SSRC, out userID);
+                                    var user = castedItem.ConnectedUsers.FirstOrDefault(u => u.Id == userID, null!);
+                                    if (user == null) return;
+                                    var index = castedItem.ConnectedUsers.IndexOf(user);
+                                    if (index == -1) return;
+                                    channel.ConnectedUsers[index].IsSpeaking = e.Speaking;
+                                });
+                            });
                         }
                         catch (Exception ex)
                         {
@@ -1639,38 +1664,38 @@ namespace Aerochat.Windows
             switch (e.Type)
             {
                 case Controls.HyperlinkType.WebLink:
-                {
-                    string? uri = (string)e.AssociatedObject;
+                    {
+                        string? uri = (string)e.AssociatedObject;
 
-                    if (uri is null)
-                        return;
+                        if (uri is null)
+                            return;
 
-                    OpenExternalUrl(uri);
-                    break;
-                }
+                        OpenExternalUrl(uri);
+                        break;
+                    }
 
                 case Controls.HyperlinkType.Channel:
-                {
-                    var channel = (DiscordChannel)e.AssociatedObject;
-                    ChannelId = channel.Id;
-                    foreach (var category in ViewModel.Categories)
                     {
-                        foreach (var item in category.Items)
+                        var channel = (DiscordChannel)e.AssociatedObject;
+                        ChannelId = channel.Id;
+                        foreach (var category in ViewModel.Categories)
                         {
-                            if (item.Id == channel.Id)
+                            foreach (var item in category.Items)
                             {
-                                item.IsSelected = true;
-                            }
-                            else
-                            {
-                                item.IsSelected = false;
+                                if (item.Id == channel.Id)
+                                {
+                                    item.IsSelected = true;
+                                }
+                                else
+                                {
+                                    item.IsSelected = false;
+                                }
                             }
                         }
+                        await OnChannelChange().ConfigureAwait(false);
+                        // find the item in the list
+                        break;
                     }
-                    await OnChannelChange().ConfigureAwait(false);
-                    // find the item in the list
-                    break;
-                }
             }
         }
 
@@ -1806,7 +1831,7 @@ namespace Aerochat.Windows
             }
         }
 
- 
+
         private int _drawingHeight = 120;
         private int _writingHeight = 64;
 
@@ -1947,7 +1972,7 @@ namespace Aerochat.Windows
         private string _lastValue = "";
 
         Timer typingTimer = new(1000)
-        { 
+        {
             AutoReset = false
         };
 
@@ -1977,7 +2002,8 @@ namespace Aerochat.Windows
                 _isTyping = true;
                 TypingTimer_Elapsed(null, null!);
                 typingTimer.Start();
-            };
+            }
+            ;
         }
 
         private void OnMessageContextMenuOpening(object senderRaw, ContextMenuEventArgs e)

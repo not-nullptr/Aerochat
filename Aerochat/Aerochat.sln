@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aerochat - Backup", "Aerochat - Backup.csproj", "{ED5B95D5-B0D5-62F8-71E6-4FC049C771E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aerochat", "Aerochat.csproj", "{2F7F88E9-35D7-18CE-8024-F96DADC79732}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED5B95D5-B0D5-62F8-71E6-4FC049C771E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5B95D5-B0D5-62F8-71E6-4FC049C771E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5B95D5-B0D5-62F8-71E6-4FC049C771E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5B95D5-B0D5-62F8-71E6-4FC049C771E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F7F88E9-35D7-18CE-8024-F96DADC79732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F7F88E9-35D7-18CE-8024-F96DADC79732}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F7F88E9-35D7-18CE-8024-F96DADC79732}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F7F88E9-35D7-18CE-8024-F96DADC79732}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C47F4002-1679-4B5E-83C6-32EFCEA09CDF}
+	EndGlobalSection
+EndGlobal

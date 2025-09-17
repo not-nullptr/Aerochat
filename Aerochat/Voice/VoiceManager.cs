@@ -16,6 +16,11 @@ namespace Aerochat.Voice
     {
         public static VoiceManager Instance = new();
         private VoiceSocket? voiceSocket;
+        public VoiceSocket? VoiceSocket
+        {
+            get => voiceSocket;
+        }
+
         public DiscordChannel? Channel => voiceSocket?.Channel;
 
         private ChannelViewModel? _channelVM;
@@ -34,10 +39,10 @@ namespace Aerochat.Voice
             ChannelVM = null;
         }
 
-        public async Task JoinVoiceChannel(DiscordChannel channel)
+        public async Task JoinVoiceChannel(DiscordChannel channel, Action<VoiceStateChanged> onStateChange)
         {
             await LeaveVoiceChannel();
-            voiceSocket = new(Discord.Client);
+            voiceSocket = new(Discord.Client, onStateChange);
             await voiceSocket.ConnectAsync(channel);
             voiceSocket.Recorder.SetInputDevice(Settings.SettingsManager.Instance.InputDeviceIndex);
             ChannelVM = ChannelViewModel.FromChannel(channel);
