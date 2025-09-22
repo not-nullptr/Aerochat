@@ -1,26 +1,32 @@
-using Aerochat.Windows;
+using Aerochat.Services;
+using DSharpPlus.Entities;
+using Moq;
+using Aerochat.Hoarder;
 
 namespace Aerotest.ChatRequests
 {
-    [TestFixture, Apartment(ApartmentState.STA)]
     public class GivenARequestToSendAnImage
     {
-        private bool _result;
+        private SendResult _result;
 
         [SetUp]
         public async Task WhenTheUserIsNotAuthorized()
         {
-            //This test will be used for what's being described in the names of the method and class name but for this initial commit it will just be a placeholder
+            var api = new Mock<IDiscordApi>();
+            api.Setup(a => a.SendMessageAsync(It.IsAny<ulong>(), It.IsAny<DiscordMessageBuilder>()))
+                .ThrowsAsync(new DiscordUnauthorizedException("401"));
 
-            //var chat = new Chat(12, false, null, null);
-            //await chat.OnChannelChange();
-            _result = true;
+            var chatService = new ChatService(Discord.Client, api.Object);
+
+            _result = await chatService.SendAsync(123UL, new DiscordMessageBuilder().WithContent("hi"));
         }
 
         [Test]
-        public void ThenAnErrorIsReturned()
+        public void ThenAnErrorIsHandledGracefully()
         {
-            Assert.True(_result);
+            Assert.False(_result.Success);
+            Assert.IsNull(_result.Message);
+            Assert.That(_result.ErrorCode, Is.EqualTo("Unauthorized"));
         }
     }
 }

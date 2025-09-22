@@ -1,26 +1,27 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus;
-using Aerochat.Hoarder;
-using System.Threading.Channels;
+using Google.Protobuf.WellKnownTypes;
 
 namespace Aerochat.Services
 {
-    internal interface IChatService
+    public interface IChatService
     {
         Task<DiscordChannel> GetChannelAsync(ulong channelId);
         Task<DiscordUser> GetCurrentUser();
         bool TryGetCachedUser(ulong id, out DiscordUser user);
         Task<DiscordProfile> GetUserProfileAsync(ulong userId, bool updateCache = false);
         Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel newChannel);
+        Task<SendResult> SendAsync(ulong channelId, DiscordMessageBuilder builder);
     }
 
-    internal class ChatService : IChatService
+    public class ChatService : IChatService
     {
         private readonly DiscordClient _discordClient;
-
-        public ChatService(DiscordClient discordClient)
+        private readonly IDiscordApi _discordApi;
+        public ChatService(DiscordClient discordClient, IDiscordApi discordDiscordApi)
         {
             _discordClient = discordClient;
+            _discordApi = discordDiscordApi;
         }
 
         public async Task<DiscordChannel> GetChannelAsync(ulong channelId)
@@ -47,7 +48,23 @@ namespace Aerochat.Services
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel newChannel) =>
             newChannel.GetMessagesAsync(50);
 
-        
+        public async Task<SendResult> SendAsync(ulong channelId, DiscordMessageBuilder builder)
+        {
+            try
+            {
+                var msg = await _discordApi.SendMessageAsync(channelId, builder).ConfigureAwait(false);
+                return new SendResult(true, msg);
+            }
+            catch (DiscordUnauthorizedException ex)
+            {
+                return new SendResult(false, null, "Unauthorized", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return new SendResult(false, null, "Unknown", ex.Message);
+            }
+        }
     }
+    public record SendResult(bool Success, DiscordMessage? Message, string? ErrorCode = null, string? ErrorMessage = null);
 
 }

@@ -260,7 +260,7 @@ namespace Aerochat.Windows
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
 
-            var chatService = new ChatService(_discordClient);
+            var chatService = new ChatService(_discordClient, null);
             var newChannel = await chatService.GetChannelAsync(ChannelId);
 
             await Dispatcher.BeginInvoke(delegate
@@ -1316,8 +1316,8 @@ namespace Aerochat.Windows
                 }
 
                 CloseAttachmentsEditor();
-
-                await builder.SendAsync(Channel);
+                var chatService = new ChatService(Discord.Client, null);
+                await chatService.SendAsync(Channel.Id, builder);
             }
             catch (Exception)
             {
