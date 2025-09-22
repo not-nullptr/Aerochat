@@ -77,10 +77,98 @@ namespace Aerochat.Windows
         private bool sizeTainted = false;
         private PresenceViewModel? _initialPresence = null;
         private HomeListItemViewModel? _openingItem = null;
+        private DiscordClient _discordClient;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
+        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null, HomeListItemViewModel? openingItem = null, DiscordClient discordClient = null)
+        {
+            typingTimer.Elapsed += TypingTimer_Elapsed;
+            typingTimer.AutoReset = false;
+            Hide();
+            _initialPresence = initialPresence;
+            _openingItem = openingItem;
+            _discordClient = Discord.Client;
 
+            if (allowDefault)
+            {
+                SettingsManager.Instance.SelectedChannels.TryGetValue(id, out ulong channelId);
+                if (_discordClient.TryGetCachedChannel(channelId, out DiscordChannel channel))
+                {
+                    ChannelId = id;
+                }
+                else
+                {
+                    // get the key of `id` in the dictionary
+                    var key = SettingsManager.Instance.SelectedChannels.FirstOrDefault(x => x.Value == id).Key;
+                    if (_discordClient.TryGetCachedGuild(key, out DiscordGuild guild))
+                    {
+                        // get the first channel in the guild
+                        var firstChannel = guild.Channels.Values.FirstOrDefault(x => x.Type == ChannelType.Text && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels));
+                        if (firstChannel is not null)
+                        {
+                            ChannelId = firstChannel.Id;
+                        }
+                        else
+                        {
+                            UnavailableDialog();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (ChannelId == 0)
+            {
+                ChannelId = id;
+            }
+
+
+            InitializeComponent();
+            DataContext = ViewModel;
+
+            // Ensure that visual elements that aren't supposed to be initially
+            // displayed are not initially displayed:
+            HideReplyView();
+            HideAttachmentsEditor(true);
+
+            Task.Run(BeginDiscordLoop);
+            chatSoundPlayer.MediaOpened += (sender, args) =>
+            {
+                chatSoundPlayer.Play();
+            };
+            ViewModel.Messages.CollectionChanged += UpdateHiddenInfo;
+            TypingUsers.CollectionChanged += TypingUsers_CollectionChanged;
+
+            // (iL - 20.12.2024) Subscribe to settings changes for live update
+            SettingsManager.Instance.PropertyChanged += OnSettingsChanged;
+
+            Closing += Chat_Closing;
+            Loaded += Chat_Loaded;
+            _discordClient.TypingStarted += OnType;
+            _discordClient.MessageCreated += OnMessageCreation;
+            _discordClient.MessageDeleted += OnMessageDeleted;
+            _discordClient.MessageUpdated += OnMessageUpdated;
+            _discordClient.ChannelCreated += OnChannelCreated;
+            _discordClient.ChannelDeleted += OnChannelDeleted;
+            _discordClient.ChannelUpdated += OnChannelUpdated;
+            _discordClient.PresenceUpdated += OnPresenceUpdated;
+            _discordClient.VoiceStateUpdated += OnVoiceStateUpdated;
+            DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+            ViewModel.UndoEnabled = false;
+            ViewModel.RedoEnabled = false;
+
+            CommandManager.AddPreviewCanExecuteHandler(MessageTextBox, MessageTextBox_OnPreviewCanExecute);
+            CommandManager.AddPreviewExecutedHandler(MessageTextBox, MessageTextBox_OnPreviewExecuted);
+
+            PreviewKeyDown += Chat_PreviewKeyDown;
+            KeyDown += Chat_KeyDown;
+
+            PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged
+                += OnAttachmentsEditorAttachmentsUpdated;
+
+            RefreshAerochatVersionLinkVisibility();
+        }
         public async Task ExecuteNudgePrettyPlease(double initialLeft, double initialTop, double duration = 2, double intensity = 10, bool forceFocus = false)
         {
             double GetRandomNumber(double minimum, double maximum)
@@ -172,7 +260,7 @@ namespace Aerochat.Windows
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
 
-            var chatService = new ChatService(Discord.Client);
+            var chatService = new ChatService(_discordClient);
             var newChannel = await chatService.GetChannelAsync(ChannelId);
 
             await Dispatcher.BeginInvoke(delegate
@@ -193,19 +281,19 @@ namespace Aerochat.Windows
 
             ViewModel.IsDM = isDM;
             ViewModel.IsGroupChat = isGroupChat;
-            ViewModel.CurrentUser = UserViewModel.FromUser(Discord.Client.CurrentUser);
+            ViewModel.CurrentUser = UserViewModel.FromUser(_discordClient.CurrentUser);
 
             DiscordUser? recipient = null;
             if (isDM && !isGroupChat)
             {
-                recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != Discord.Client.CurrentUser.Id);
-                if (!Discord.Client.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
+                recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != _discordClient.CurrentUser.Id);
+                if (!_discordClient.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
                     // GetUserProfileAsync can fail if the recipient is not friends with you and shares no
                     // mutual servers. We need to fail gracefully in this case.
                     try
                     {
-                        DiscordProfile userProfile = await Discord.Client.GetUserProfileAsync(recipient.Id, true);
+                        DiscordProfile userProfile = await _discordClient.GetUserProfileAsync(recipient.Id, true);
                         recipient = userProfile.User;
                     }
                     catch (NotFoundException)
@@ -244,9 +332,9 @@ namespace Aerochat.Windows
             var messages = await newChannel.GetMessagesAsync(50);
             List<MessageViewModel> messageViewModels = new();
 
-            if (!Discord.Client.TryGetCachedGuild(newChannel.GuildId ?? 0, out DiscordGuild guild) && !isDM)
+            if (!_discordClient.TryGetCachedGuild(newChannel.GuildId ?? 0, out DiscordGuild guild) && !isDM)
             {
-                guild = await Discord.Client.GetGuildAsync(newChannel.GuildId ?? 0);
+                guild = await _discordClient.GetGuildAsync(newChannel.GuildId ?? 0);
             }
 
             foreach (var msg in messages)
@@ -319,7 +407,7 @@ namespace Aerochat.Windows
                 {
                     foreach (var item in category.Items)
                     {
-                        Discord.Client.TryGetCachedChannel(item.Id, out var c);
+                        _discordClient.TryGetCachedChannel(item.Id, out var c);
                         if (c == null) continue;
 
                         bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(c.Id, out var lastReadMessageId);
@@ -393,10 +481,10 @@ namespace Aerochat.Windows
 
             ViewModel.Categories[0].Items.Add(new()
             {
-                Name = Discord.Client.CurrentUser.DisplayName,
-                Id = Discord.Client.CurrentUser.Id,
-                Image = Discord.Client.CurrentUser.AvatarUrl,
-                Presence = Discord.Client.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(Discord.Client.CurrentUser.Presence)
+                Name = _discordClient.CurrentUser.DisplayName,
+                Id = _discordClient.CurrentUser.Id,
+                Image = _discordClient.CurrentUser.AvatarUrl,
+                Presence = _discordClient.CurrentUser.Presence == null ? null : PresenceViewModel.FromPresence(_discordClient.CurrentUser.Presence)
             });
 
             foreach (var rec in ((DiscordDmChannel)Channel).Recipients)
@@ -416,17 +504,17 @@ namespace Aerochat.Windows
             try
             {
                 await OnChannelChange();
-                Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
+                _discordClient.TryGetCachedChannel(ChannelId, out DiscordChannel currentChannel);
                 if (currentChannel is null)
                 {
-                    currentChannel = await Discord.Client.GetChannelAsync(ChannelId);
+                    currentChannel = await _discordClient.GetChannelAsync(ChannelId);
                 }
 
                 bool isDM = currentChannel is DiscordDmChannel;
-                Discord.Client.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
+                _discordClient.TryGetCachedGuild(currentChannel.GuildId ?? 0, out DiscordGuild guild);
                 if (guild is null && !isDM)
                 {
-                    guild = await Discord.Client.GetGuildAsync(currentChannel.GuildId ?? 0);
+                    guild = await _discordClient.GetGuildAsync(currentChannel.GuildId ?? 0);
                 }
 
                 await Dispatcher.BeginInvoke(() =>
@@ -438,7 +526,7 @@ namespace Aerochat.Windows
                     }
                 });
                 await Dispatcher.BeginInvoke(Show);
-                if (!isDM) await Discord.Client.SyncGuildsAsync(guild).ConfigureAwait(false);
+                if (!isDM) await _discordClient.SyncGuildsAsync(guild).ConfigureAwait(false);
 
                 if (isDM)
                 {
@@ -576,8 +664,8 @@ namespace Aerochat.Windows
             }
             catch (Exception) { }
             base.OnClosing(e);
-            Discord.Client.TypingStarted -= OnType;
-            Discord.Client.MessageCreated -= OnMessageCreation;
+            _discordClient.TypingStarted -= OnType;
+            _discordClient.MessageCreated -= OnMessageCreation;
             // dispose of the chat
             ViewModel.Messages.Clear();
             TypingUsers.Clear();
@@ -647,7 +735,7 @@ namespace Aerochat.Windows
 
             await Dispatcher.BeginInvoke(() =>
             {
-                if (Discord.Client.CurrentUser.Presence.Status == UserStatus.DoNotDisturb)
+                if (_discordClient.CurrentUser.Presence.Status == UserStatus.DoNotDisturb)
                 {
                     return;
                 }
@@ -658,9 +746,9 @@ namespace Aerochat.Windows
                 }
                 else
                 {
-                    if (IsActive && message.Author?.Id != Discord.Client.CurrentUser.Id)
+                    if (IsActive && message.Author?.Id != _discordClient.CurrentUser.Id)
                     {
-                        if (SettingsManager.Instance.NotifyChat || message.MessageEntity.MentionedUsers.Contains(Discord.Client.CurrentUser)) // IDK
+                        if (SettingsManager.Instance.NotifyChat || message.MessageEntity.MentionedUsers.Contains(_discordClient.CurrentUser)) // IDK
                             chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
                     }
                 }
@@ -715,7 +803,7 @@ namespace Aerochat.Windows
         private async Task OnType(DSharpPlus.DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)
         {
             if (args.Channel.Id != ChannelId) return;
-            if (args.User.Id == Discord.Client.CurrentUser.Id) return;
+            if (args.User.Id == _discordClient.CurrentUser.Id) return;
             await Dispatcher.BeginInvoke(() =>
             {
                 if (timers.TryGetValue(args.User.Id, out System.Timers.Timer? timer))
@@ -767,93 +855,7 @@ namespace Aerochat.Windows
             Close();
         }
 
-        public Chat(ulong id, bool allowDefault = false, PresenceViewModel? initialPresence = null, HomeListItemViewModel? openingItem = null)
-        {
-            typingTimer.Elapsed += TypingTimer_Elapsed;
-            typingTimer.AutoReset = false;
-            Hide();
-
-            _initialPresence = initialPresence;
-            _openingItem = openingItem;
-
-            if (allowDefault)
-            {
-                SettingsManager.Instance.SelectedChannels.TryGetValue(id, out ulong channelId);
-                if (Discord.Client.TryGetCachedChannel(channelId, out DiscordChannel channel))
-                {
-                    ChannelId = id;
-                }
-                else
-                {
-                    // get the key of `id` in the dictionary
-                    var key = SettingsManager.Instance.SelectedChannels.FirstOrDefault(x => x.Value == id).Key;
-                    if (Discord.Client.TryGetCachedGuild(key, out DiscordGuild guild))
-                    {
-                        // get the first channel in the guild
-                        var firstChannel = guild.Channels.Values.FirstOrDefault(x => x.Type == ChannelType.Text && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels));
-                        if (firstChannel is not null)
-                        {
-                            ChannelId = firstChannel.Id;
-                        } else
-                        {
-                            UnavailableDialog();
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (ChannelId == 0)
-            {
-                ChannelId = id;
-            }
-
-
-            InitializeComponent();
-            DataContext = ViewModel;
-
-            // Ensure that visual elements that aren't supposed to be initially
-            // displayed are not initially displayed:
-            HideReplyView();
-            HideAttachmentsEditor(true);
-
-            Task.Run(BeginDiscordLoop);
-            chatSoundPlayer.MediaOpened += (sender, args) =>
-            {
-                chatSoundPlayer.Play();
-            };
-            ViewModel.Messages.CollectionChanged += UpdateHiddenInfo;
-            TypingUsers.CollectionChanged += TypingUsers_CollectionChanged;
-
-            // (iL - 20.12.2024) Subscribe to settings changes for live update
-            SettingsManager.Instance.PropertyChanged += OnSettingsChanged;
-
-            Closing += Chat_Closing;
-            Loaded += Chat_Loaded;
-            Discord.Client.TypingStarted += OnType;
-            Discord.Client.MessageCreated += OnMessageCreation;
-            Discord.Client.MessageDeleted += OnMessageDeleted;
-            Discord.Client.MessageUpdated += OnMessageUpdated;
-            Discord.Client.ChannelCreated += OnChannelCreated;
-            Discord.Client.ChannelDeleted += OnChannelDeleted;
-            Discord.Client.ChannelUpdated += OnChannelUpdated;
-            Discord.Client.PresenceUpdated += OnPresenceUpdated;
-            Discord.Client.VoiceStateUpdated += OnVoiceStateUpdated;
-            DrawingCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
-            ViewModel.UndoEnabled = false;
-            ViewModel.RedoEnabled = false;
-
-            CommandManager.AddPreviewCanExecuteHandler(MessageTextBox, MessageTextBox_OnPreviewCanExecute);
-            CommandManager.AddPreviewExecutedHandler(MessageTextBox, MessageTextBox_OnPreviewExecuted);
-
-            PreviewKeyDown += Chat_PreviewKeyDown;
-            KeyDown += Chat_KeyDown;
-
-            PART_AttachmentsEditor.ViewModel.Attachments.CollectionChanged
-                += OnAttachmentsEditorAttachmentsUpdated;
-
-            RefreshAerochatVersionLinkVisibility();
-        }
+       
 
         private void Chat_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1097,15 +1099,15 @@ namespace Aerochat.Windows
             chatSoundPlayer.Stop();
             chatSoundPlayer.Close();
 
-            Discord.Client.TypingStarted -= OnType;
-            Discord.Client.MessageCreated -= OnMessageCreation;
-            Discord.Client.MessageDeleted -= OnMessageDeleted;
-            Discord.Client.MessageUpdated -= OnMessageUpdated;
-            Discord.Client.ChannelCreated -= OnChannelCreated;
-            Discord.Client.ChannelDeleted -= OnChannelDeleted;
-            Discord.Client.ChannelUpdated -= OnChannelUpdated;
-            Discord.Client.PresenceUpdated -= OnPresenceUpdated;
-            Discord.Client.VoiceStateUpdated -= OnVoiceStateUpdated;
+            _discordClient.TypingStarted -= OnType;
+            _discordClient.MessageCreated -= OnMessageCreation;
+            _discordClient.MessageDeleted -= OnMessageDeleted;
+            _discordClient.MessageUpdated -= OnMessageUpdated;
+            _discordClient.ChannelCreated -= OnChannelCreated;
+            _discordClient.ChannelDeleted -= OnChannelDeleted;
+            _discordClient.ChannelUpdated -= OnChannelUpdated;
+            _discordClient.PresenceUpdated -= OnPresenceUpdated;
+            _discordClient.VoiceStateUpdated -= OnVoiceStateUpdated;
 
             ViewModel.Messages.Clear();
             TypingUsers.Clear();
@@ -1131,11 +1133,11 @@ namespace Aerochat.Windows
         {
             List<DiscordUser> tempUsers = new();
             foreach (var user in TypingUsers.ToList()) {
-                if (!Discord.Client.TryGetCachedUser(user.Id, out DiscordUser discordUser))
+                if (!_discordClient.TryGetCachedUser(user.Id, out DiscordUser discordUser))
                 {
                     // I believe this is fully safe since it'll only occur in a server context,
                     // where all typing users' profiles should be fully accessible.
-                    discordUser = (await Discord.Client.GetUserProfileAsync(user.Id, true)).User;
+                    discordUser = (await _discordClient.GetUserProfileAsync(user.Id, true)).User;
                 }
                 tempUsers.Add(discordUser);
             }
@@ -1198,9 +1200,9 @@ namespace Aerochat.Windows
         private async Task SendMessage(string value, Stream? drawingAttachment = null, int attachmentWidth = 0, int attachmentHeight = 0)
         {
             bool IsDM = Channel is DiscordDmChannel;
-            if (!Discord.Client.TryGetCachedGuild(Channel.GuildId ?? 0, out DiscordGuild guild) && !IsDM)
+            if (!_discordClient.TryGetCachedGuild(Channel.GuildId ?? 0, out DiscordGuild guild) && !IsDM)
             {
-                guild = await Discord.Client.GetGuildAsync(Channel.GuildId ?? 0);
+                guild = await _discordClient.GetGuildAsync(Channel.GuildId ?? 0);
             }
             // scroll to bottom
             ScrollViewer scrollViewer = VisualTreeHelper.GetChild(MessagesListItemsControl, 0) as ScrollViewer;
@@ -1217,7 +1219,7 @@ namespace Aerochat.Windows
 
             DiscordMessage fakeMsg = (DiscordMessage)constructor.Invoke(null);
             fakeMsg.GetType().GetProperty("Content")?.SetValue(fakeMsg, value);
-            fakeMsg.GetType().GetProperty("Author")?.SetValue(fakeMsg, Discord.Client.CurrentUser);
+            fakeMsg.GetType().GetProperty("Author")?.SetValue(fakeMsg, _discordClient.CurrentUser);
             fakeMsg.GetType().GetProperty("Channel")?.SetValue(fakeMsg, Channel);
             fakeMsg.GetType().GetProperty("Guild")?.SetValue(fakeMsg, guild);
             fakeMsg.GetType().GetProperty("_timestampRaw")?.SetValue(fakeMsg, DateTime.Now);
@@ -1229,7 +1231,7 @@ namespace Aerochat.Windows
             fakeMsg.GetType().GetProperty("_mentionedChannels")?.SetValue(fakeMsg, new List<DiscordChannel>());
             ViewModel.Messages.Add(new()
             {
-                Author = IsDM ? UserViewModel.FromUser(Discord.Client.CurrentUser) : UserViewModel.FromMember(guild.CurrentMember),
+                Author = IsDM ? UserViewModel.FromUser(_discordClient.CurrentUser) : UserViewModel.FromMember(guild.CurrentMember),
                 Message = value == "[nudge]" ? "You have just sent a nudge." : value,
                 Timestamp = DateTime.Now,
                 Id = 0,
@@ -1552,7 +1554,7 @@ namespace Aerochat.Windows
             else if (item is HomeListItemViewModel)
             {
                 // get the channel
-                if (!Discord.Client.TryGetCachedChannel(item.Id, out DiscordChannel channel)) return;
+                if (!_discordClient.TryGetCachedChannel(item.Id, out DiscordChannel channel)) return;
                 switch (channel.Type)
                 {
                     case ChannelType.Voice:
@@ -1950,6 +1952,7 @@ namespace Aerochat.Windows
             AutoReset = false
         };
 
+
         private void TypingTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             Dispatcher.BeginInvoke(() =>
@@ -2014,7 +2017,7 @@ namespace Aerochat.Windows
                 // Build reactions context menu:
             }
 
-            bool isOwnMessage = vm.Author.Id == Discord.Client.CurrentUser.Id;
+            bool isOwnMessage = vm.Author.Id == _discordClient.CurrentUser.Id;
 
             MenuItem editButton = (MenuItem)FindContextMenuItemName(contextMenu, "EditButton");
             editButton.Visibility = isOwnMessage
