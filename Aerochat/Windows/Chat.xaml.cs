@@ -2,6 +2,7 @@
 using Aerochat.Enums;
 using Aerochat.Helpers;
 using Aerochat.Hoarder;
+using Aerochat.Services;
 using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.ViewModels;
@@ -170,11 +171,9 @@ namespace Aerochat.Windows
 
             if (ViewModel.Messages.Count > 0) ViewModel.Messages.Clear();
             ViewModel.Loading = true;
-            Discord.Client.TryGetCachedChannel(ChannelId, out DiscordChannel newChannel);
-            if (newChannel is null)
-            {
-                newChannel = await Discord.Client.GetChannelAsync(ChannelId);
-            }
+
+            var chatService = new ChatService(Discord.Client);
+            var newChannel = await chatService.GetChannelAsync(ChannelId);
 
             await Dispatcher.BeginInvoke(delegate
             {
