@@ -3,6 +3,10 @@ using DSharpPlus;
 
 namespace Aerochat.Services
 {
+    public interface IDiscordApi
+    {
+        Task<DiscordMessage> SendMessageAsync(ulong channelId, DiscordMessageBuilder builder);
+    }
     public class DiscordUnauthorizedException : Exception
     {
         public DiscordUnauthorizedException(string? message = null) : base(message) { }
