@@ -281,19 +281,20 @@ namespace Aerochat.Windows
 
             ViewModel.IsDM = isDM;
             ViewModel.IsGroupChat = isGroupChat;
-            ViewModel.CurrentUser = UserViewModel.FromUser(_discordClient.CurrentUser);
+            var currentUser = await chatService.GetCurrentUser();
+            ViewModel.CurrentUser = UserViewModel.FromUser(currentUser);
 
             DiscordUser? recipient = null;
             if (isDM && !isGroupChat)
             {
-                recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != _discordClient.CurrentUser.Id);
-                if (!_discordClient.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
+                recipient = ((DiscordDmChannel)newChannel).Recipients.FirstOrDefault(x => x.Id != currentUser.Id);
+                if (!chatService.TryGetCachedUser(recipient?.Id ?? 0, out recipient) || recipient?.BannerColor == null)
                 {
                     // GetUserProfileAsync can fail if the recipient is not friends with you and shares no
                     // mutual servers. We need to fail gracefully in this case.
                     try
                     {
-                        DiscordProfile userProfile = await _discordClient.GetUserProfileAsync(recipient.Id, true);
+                        DiscordProfile userProfile = await chatService.GetUserProfileAsync(recipient.Id, true);
                         recipient = userProfile.User;
                     }
                     catch (NotFoundException)
@@ -329,13 +330,8 @@ namespace Aerochat.Windows
                 ViewModel.Recipient.Presence = _initialPresence;
             }
 
-            var messages = await newChannel.GetMessagesAsync(50);
+            var messages = await chatService.GetMessagesAsync(newChannel);
             List<MessageViewModel> messageViewModels = new();
-
-            if (!_discordClient.TryGetCachedGuild(newChannel.GuildId ?? 0, out DiscordGuild guild) && !isDM)
-            {
-                guild = await _discordClient.GetGuildAsync(newChannel.GuildId ?? 0);
-            }
 
             foreach (var msg in messages)
             {
