@@ -42,8 +42,6 @@ namespace Aerochat.Windows
     {
         public string Text { get; set; } = text;
 
-        public bool IsEyecandy { get; set; } = isEyecandy;
-
         public delegate void ToolbarItemAction(FrameworkElement itemElement);
 
         public ToolbarItemAction Action { get; set; } = action;
@@ -62,7 +60,7 @@ namespace Aerochat.Windows
         private bool sizeTainted = false;
         private PresenceViewModel? _initialPresence = null;
         private HomeListItemViewModel? _openingItem = null;
-        private ChatService _chatService;
+        private readonly ChatService _chatService;
 
         public ObservableCollection<DiscordUser> TypingUsers { get; } = new();
         public ChatWindowViewModel ViewModel { get; set; } = new ChatWindowViewModel();
@@ -163,8 +161,6 @@ namespace Aerochat.Windows
             double frequency = 16;
             double steps = duration * 1000 / frequency;
             int stepSize = (int)Math.Floor(frequency);
-
-            Random random = new();
 
             for (int i = 0; i < steps; i++)
             {
@@ -386,10 +382,10 @@ namespace Aerochat.Windows
                 {
                     foreach (var item in category.Items)
                     {
-                        _chatService.TryGetCachedChannel(item.Id, out var c);
-                        if (c == null) continue;
+                        _chatService.TryGetCachedChannel(item.Id, out var discordChannel);
+                        if (discordChannel == null) continue;
 
-                        bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(c.Id, out var lastReadMessageId);
+                        bool found = SettingsManager.Instance.LastReadMessages.TryGetValue(discordChannel.Id, out var lastReadMessageId);
                         DateTime lastReadMessageTime;
 
                         if (found)
@@ -401,8 +397,8 @@ namespace Aerochat.Windows
                             lastReadMessageTime = SettingsManager.Instance.ReadRecieptReference;
                         }
 
-                        bool isCurrentChannel = c.Id == ChannelId;
-                        var channel = c;
+                        bool isCurrentChannel = discordChannel.Id == ChannelId;
+                        var channel = discordChannel;
                         var lastMessageId = channel.LastMessageId;
 
                         if (channel.Type == ChannelType.Voice)

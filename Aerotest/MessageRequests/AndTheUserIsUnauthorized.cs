@@ -1,16 +1,16 @@
+using Aerochat.Hoarder;
 using Aerochat.Services;
 using DSharpPlus.Entities;
 using Moq;
-using Aerochat.Hoarder;
 
-namespace Aerotest.ChatRequests
+namespace Aerotest.MessageRequests
 {
-    public class GivenARequestToSendAnImage
+    public class AndTheUserIsUnauthorized
     {
         private SendResult _result;
 
         [SetUp]
-        public async Task WhenTheUserIsNotAuthorized()
+        public async Task Setup()
         {
             var api = new Mock<IDiscordApi>();
             api.Setup(a => a.SendMessageAsync(It.IsAny<ulong>(), It.IsAny<DiscordMessageBuilder>()))
