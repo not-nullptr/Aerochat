@@ -706,42 +706,6 @@ namespace Aerochat.Windows
             }
         }
 
-        private async Task OnTyping(DiscordClient sender, DSharpPlus.EventArgs.TypingStartEventArgs args)
-        {
-            var guildId = args.Channel.GuildId;
-            if (guildId is null) return;
-            var guild = Discord.Client.TryGetCachedGuild(guildId.Value, out var g) ? g : await Discord.Client.GetGuildAsync(guildId.Value);
-            if (guild is null) return;
-            HomeListItemViewModel? item = null;
-            foreach (var category in ViewModel.Categories)
-            {
-                item = category.Items.FirstOrDefault(x => guild.Channels.ContainsKey(x.Id));
-                if (item != null) break;
-            }
-            if (item is null) return;
-
-            item.Image="/Aerochat;component/Resources/Frames/XSFrameActiveM.png";
-
-            if (_typingTimers.ContainsKey(guildId.Value))
-            {
-                _typingTimers[guildId.Value].Stop();
-                _typingTimers[guildId.Value].Start();
-            }
-            else
-            {
-                _typingTimers[guildId.Value] = new(15000);
-                _typingTimers[guildId.Value].Elapsed += (s, e) =>
-                {
-                    _typingTimers[guildId.Value].Stop();
-                    Dispatcher.BeginInvoke(() =>
-                    {
-                        item.Image="/Aerochat;component/Resources/Frames/XSFrameIdleM.png";
-                    });
-                };
-                _typingTimers[guildId.Value].Start();
-            }
-        }
-
         private async Task ChannelDeletedEvent(DiscordClient sender, DSharpPlus.EventArgs.ChannelDeleteEventArgs args)
         {
             if (args.Channel.GuildId is null) await Dispatcher.InvokeAsync(() => UpdateStatuses());
