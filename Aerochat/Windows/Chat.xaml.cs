@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Forms.VisualStyles;
 using System.Windows.Ink;
@@ -30,6 +31,7 @@ using System.Windows.Threading;
 using Vanara.PInvoke;
 using static Aerochat.ViewModels.HomeListViewCategory;
 using static Aerochat.Windows.ToolbarItem;
+using static System.Windows.Forms.AxHost;
 using static Vanara.PInvoke.DwmApi;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
@@ -149,6 +151,7 @@ namespace Aerochat.Windows
                 += OnAttachmentsEditorAttachmentsUpdated;
 
             RefreshAerochatVersionLinkVisibility();
+            STTButton.SetToggle(true);
         }
         public async Task ExecuteNudgePrettyPlease(double initialLeft, double initialTop, double duration = 2, double intensity = 10, bool forceFocus = false)
         {
@@ -1623,6 +1626,11 @@ namespace Aerochat.Windows
             ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity).ConfigureAwait(false);
         }
 
+        private void OpenEmojiFlyout(object sender, MouseButtonEventArgs e)
+        {
+            EmojiFlyout.IsOpen = true;
+        }
+
         private void JumpToReply(object sender, MouseButtonEventArgs e)
         {
             var messageVm = (sender as Panel)?.DataContext as MessageViewModel;
@@ -1657,6 +1665,11 @@ namespace Aerochat.Windows
 
             Shell32.ShellExecute(HWND.NULL, "open", uri, null, null, ShowWindowCommand.SW_SHOWNORMAL);
             return true;
+        }
+
+        private void EmojiFlyout_Closed(object sender, EventArgs e)
+        {
+            EmojiButtonGrid.SetToggle(false);
         }
 
         private async void MessageParser_HyperlinkClicked(object sender, Controls.HyperlinkClickedEventArgs e)
@@ -1895,11 +1908,13 @@ namespace Aerochat.Windows
 
         private void SwitchToText_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            STDButton.SetToggle(false);
             ShowEditorTextTab();
         }
 
         private void SwitchToDraw_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            STTButton.SetToggle(false);
             ShowEditorDrawTab();
         }
 

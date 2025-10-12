@@ -1481,6 +1481,15 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <Popup x:Name="EmojiFlyout" Closed="EmojiFlyout_Closed" StaysOpen="False" Placement="Bottom" PlacementTarget="{Binding ElementName=EmojiButtonGrid}">
+                                                <Border BorderBrush="#dedede" BorderThickness="1px" Background="White" Width="375px" Height="248px">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Your emoticons" Foreground="#333333" FontWeight="Bold" Margin="9,6"/>
+                                                        <TextBlock TextWrapping="Wrap" Text="You currently have no saved emoticons. Coming soon! In the meantime, send emojis by typing in Discord's :emoji: format." Foreground="#737373" Margin="9,6"/>
+                                                        <TextBlock TextWrapping="Wrap" Text="Examples of emojis are :smile:, :grin:, :zipper_mouth:, :rage:, and :sob:" Foreground="#737373" Margin="9,4"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
                                             <StackPanel Orientation="Horizontal">
                                                 <StackPanel.Style>
                                                     <Style TargetType="StackPanel">
@@ -1631,6 +1640,10 @@
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
+                                            <Grid Height="30" MouseUp="OpenEmojiFlyout">
+                                                <controls:NineSliceButton x:Name="EmojiButtonGrid" ToggleButton="CheckToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="8,0" Source="/Aerochat;component/Resources/Emoji/Smile.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
+                                            </Grid>
                                             <Grid Height="30" MouseUp="RunNudge">
                                                 <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
@@ -1639,11 +1652,11 @@
                                         <StackPanel Margin="0,0,4,0" Grid.Column="1" Orientation="Horizontal">
                                             <!-- Button visibility is controlled from codebehind. -->
                                             <Grid Width="24" Height="30" x:Name="SwitchToDraw" MouseUp="SwitchToDraw_MouseUp">
-                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <controls:NineSliceButton x:Name="STDButton" ToggleButton="RadioToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
                                             </Grid>
                                             <Grid Height="30" Width="24" x:Name="SwitchToText" MouseUp="SwitchToText_MouseUp">
-                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <controls:NineSliceButton x:Name="STTButton" ToggleButton="RadioToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Text.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="13" Height="13" />
                                             </Grid>
                                         </StackPanel>
@@ -1672,7 +1685,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Hyperlink.Style>
-                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat Beta by nullptr" />
+                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat by nullptr" />
                         </Hyperlink>
                     </TextBlock>
                     <StackPanel Margin="0,2,4,0" Orientation="Horizontal" Grid.Column="1" Height="24">

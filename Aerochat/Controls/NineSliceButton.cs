@@ -21,6 +21,13 @@ namespace Aerochat.Controls
         Disabled
     }
 
+    public enum ToggleMode // OmegaAOL
+    {
+        NoToggle, 
+        CheckToggleButton, // emulates checkbox - click to toggle and untoggle
+        RadioToggleButton, // emulates radio button - can only be untoggled programatically (button.SetToggle(false)) once toggled
+    }
+
     /// <summary>
     /// A variant of the nine-slice background control suited for buttons. This automatically handles the changing of the
     /// background based on mouse interactions.
@@ -32,6 +39,18 @@ namespace Aerochat.Controls
         //protected NineSliceImageSet? _disabledImageSet = null;
 
         private ButtonState _state = ButtonState.Normal;
+        private ButtonState State
+        {
+            get => _state;
+            set
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    OnStateChanged();
+                }
+            }
+        }
 
         public ImageSource? Normal
         {
@@ -57,6 +76,23 @@ namespace Aerochat.Controls
             set { SetValue(PressedProperty, value); InvalidateVisual(); }
         }
 
+        public ToggleMode ToggleButton { get; set; } = ToggleMode.NoToggle;
+        private bool IsToggled = false;
+        public void SetToggle(bool toggle)
+        {
+            if (toggle)
+            {
+                State = ButtonState.Pressed;
+            }
+            else
+            {
+                State = ButtonState.Normal;
+                InvalidateVisual();
+            }
+
+            IsToggled = toggle;
+        }
+
         public static readonly DependencyProperty PressedProperty =
             DependencyProperty.Register("Pressed", typeof(ImageSource), typeof(NineSliceButton), new PropertyMetadata(default(ImageSource), OnImageChanged));
 
@@ -80,16 +116,24 @@ namespace Aerochat.Controls
 
         protected override CroppedBitmap? ResolvePartBitmap(NineSlicePart part)
         {
-            if (_state == ButtonState.Hover)
+            if (State == ButtonState.Hover)
             {
                 return ResolvePartBitmapFromImageSet(_hoverImageSet, part);
             }
-            else if (_state == ButtonState.Pressed)
+            else if (State == ButtonState.Pressed)
             {
                 return ResolvePartBitmapFromImageSet(_pressedImageSet, part);
             }
 
             return ResolvePartBitmapFromImageSet(_imageSet, part);
+        }
+
+        private void OnStateChanged()
+        {
+            if (!IsToggled)
+            {
+                InvalidateVisual();
+            }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -100,27 +144,38 @@ namespace Aerochat.Controls
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
-            _state = ButtonState.Hover;
-            InvalidateVisual();
+            State = ButtonState.Hover;
+
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
             base.OnMouseLeave(e);
-            _state = ButtonState.Normal;
-            InvalidateVisual();
+            State = ButtonState.Normal;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-            _state = ButtonState.Pressed;
+            State = ButtonState.Pressed;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonUp(e);
-            _state = ButtonState.Hover;
+            if (IsToggled && ToggleButton == ToggleMode.CheckToggleButton) { IsToggled = false; State = ButtonState.Hover; }
+            else
+            {
+                if (ToggleButton > 0) // for both CheckToggleButton and RadioToggleButton
+                {
+                    State = ButtonState.Pressed;
+                    IsToggled = true;
+                }
+                else
+                {
+                    State = ButtonState.Hover;
+                }
+            }
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
