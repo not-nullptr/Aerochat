@@ -153,8 +153,8 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
                                     <Grid Height="27" PreviewMouseUp="ToolbarClick">
-                                        <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
-                                        <TextBlock Foreground="{Binding DataContext.Recipient.Scene.TextColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Margin="8,0,8,1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Text="{Binding Path=Text}" />
+                                        <controls:NineSliceButton ToggleButton="RadioToggleButton" ToolTip="{Binding Path=ToolTip}" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                        <TextBlock Foreground="{Binding DataContext.Recipient.Scene.TextColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}" Margin="8,0,8,1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Text="{Binding Path=Text}"/>
                                     </Grid>
                                     <Rectangle HorizontalAlignment="Right" Width="9" Height="0" />
                                     <StackPanel.Style>
@@ -328,7 +328,7 @@
                                                         <RowDefinition Height="Auto" />
                                                         <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
-                                                    <Grid Grid.Row="0" Margin="0,0,0,2" PreviewMouseDown="ItemClick">
+                                                    <Grid Grid.Row="0" PreviewMouseDown="ItemClick">
                                                         <Grid.Style>
                                                             <Style TargetType="Grid">
                                                                 <Setter Property="Visibility" Value="Visible" />
@@ -1378,9 +1378,9 @@
                                         <ColumnDefinition Width="16*"/>
                                         <ColumnDefinition Width="65*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" LostFocus="MessageTextBox_LostFocus" IsInactiveSelectionHighlightEnabled="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="MessageTextBox_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" Panel.ZIndex="10" x:Name="MessageTextBox" Grid.ColumnSpan="2">
-                                        <TextBox.Style>
-                                            <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+                                    <RichTextBox Visibility="Visible" ScrollViewer.ScrollChanged="MessageTextBox_SizeChanged" TextChanged="MessageTextBox_TextChanged" IsEnabled="{Binding Channel.CanTalk}" LostFocus="MessageTextBox_LostFocus" IsInactiveSelectionHighlightEnabled="True" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" PreviewKeyDown="MessageTextBox_PreviewKeyDown" Padding="3,4" Background="Transparent" FontSize="14" Panel.ZIndex="10" x:Name="MessageTextBox" Grid.ColumnSpan="2">
+                                        <RichTextBox.Style>
+                                            <Style BasedOn="{x:Null}" TargetType="{x:Type RichTextBox}">
                                                 <Style.Resources>
                                                     <!-- Make inactive selection have the same colour as the active one. -->
                                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
@@ -1389,7 +1389,7 @@
                                                 <Setter Property="AllowDrop" Value="true"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type TextBox}">
+                                                        <ControlTemplate TargetType="{x:Type RichTextBox}">
                                                             <Border x:Name="bg" BorderBrush="#bdd5df" BorderThickness="0">
                                                                 <ScrollViewer Background="Transparent" x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                                             </Border>
@@ -1397,8 +1397,8 @@
                                                     </Setter.Value>
                                                 </Setter>
                                             </Style>
-                                        </TextBox.Style>
-                                    </TextBox>
+                                        </RichTextBox.Style>
+                                    </RichTextBox>
                                     <Grid Margin="2,2,2,0" Panel.ZIndex="10" x:Name="DrawingContainer" Visibility="Collapsed" Grid.ColumnSpan="2">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -1481,6 +1481,146 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <Popup x:Name="EmojiFlyout" Closed="EmojiFlyout_Closed" StaysOpen="False" Placement="Bottom" PlacementTarget="{Binding ElementName=EmojiButtonGrid}">
+                                                <Border BorderBrush="#dedede" BorderThickness="1px" Background="White" Width="375px" Height="248px">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <TextBlock Text="Your emoticons" Foreground="#333333" FontWeight="Bold" Margin="9,6"/>
+                                                            <TextBlock Text="Show all..." Foreground="#0066cc" HorizontalAlignment="Right" Margin="9,6" Cursor="Hand"/>
+                                                        </Grid>
+                                                        <Grid Margin="9,0,9,9">
+                                                            <Grid.Resources>
+                                                                <Style TargetType="Border" x:Key="EmojiBoxStyle">
+                                                                    <Setter Property="BorderBrush" Value="#dedede"/>
+                                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                                    <Setter Property="Width" Value="26"/>
+                                                                    <Setter Property="Height" Value="26"/>
+                                                                    <Setter Property="Margin" Value="2,2"/>
+                                                                    <Setter Property="Background" Value="#fefefe"/>
+                                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                                    <Setter Property="VerticalAlignment" Value="Top"/>
+                                                                    <EventSetter Event="MouseLeftButtonUp" Handler="EmojiBox_Click"/>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="BorderBrush" Value="#0066cc"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Resources>
+
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="34"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="*"/>
+                                                            </Grid.RowDefinitions>
+
+                                                            <TextBlock Grid.Row="1" Text="Recently used emoticons" Foreground="#737373" Margin="0,12,0,5"/>
+
+                                                            <Grid x:Name="RecentEmojiGrid" Grid.Row="2">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Border Grid.Column="0" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="1" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="2" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="3" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="4" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="5" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="6" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="7" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="8" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="9" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
+                                                            </Grid>
+
+                                                            <TextBlock Grid.Row="3" Text="Pinned emoticons" Foreground="#737373" Margin="0,4,0,5"/>
+
+                                                            <Grid x:Name="PinnedEmojiGrid" Grid.Row="4">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="30"/>
+                                                                    <RowDefinition Height="30"/>
+                                                                    <RowDefinition Height="30"/>
+                                                                    <RowDefinition Height="30"/>
+                                                                </Grid.RowDefinitions>
+
+                                                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="6" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="7" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="8" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="9" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="0" Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                
+                                                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="4" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="5" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="6" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="7" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="8" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="9" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="1" Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
+
+                                                                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="4" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="5" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="6" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="7" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="8" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="9" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="2" Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
+
+                                                                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="2" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="3" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="4" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="5" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="6" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="7" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="8" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="9" Style="{StaticResource EmojiBoxStyle}"/>
+                                                                <Border Grid.Row="3" Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
                                             <StackPanel Orientation="Horizontal">
                                                 <StackPanel.Style>
                                                     <Style TargetType="StackPanel">
@@ -1631,6 +1771,10 @@
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
+                                            <Grid Height="30" MouseUp="OpenEmojiFlyout">
+                                                <controls:NineSliceButton x:Name="EmojiButtonGrid" ToolTip="Select an emoticon" ToggleButton="CheckToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <Image Margin="8,0" Source="/Aerochat;component/Resources/Emoji/Smile.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
+                                            </Grid>
                                             <Grid Height="30" MouseUp="RunNudge">
                                                 <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Nudge.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="24" Height="16" />
@@ -1639,11 +1783,11 @@
                                         <StackPanel Margin="0,0,4,0" Grid.Column="1" Orientation="Horizontal">
                                             <!-- Button visibility is controlled from codebehind. -->
                                             <Grid Width="24" Height="30" x:Name="SwitchToDraw" MouseUp="SwitchToDraw_MouseUp">
-                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <controls:NineSliceButton ToolTip="Write and send messages in your handwriting" x:Name="STDButton" ToggleButton="RadioToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Pen.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
                                             </Grid>
                                             <Grid Height="30" Width="24" x:Name="SwitchToText" MouseUp="SwitchToText_MouseUp">
-                                                <controls:NineSliceButton Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <controls:NineSliceButton x:Name="STTButton" ToggleButton="RadioToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="4,0" Source="/Aerochat;component/Resources/Message/Text.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="13" Height="13" />
                                             </Grid>
                                         </StackPanel>
@@ -1672,7 +1816,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Hyperlink.Style>
-                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat Beta by nullptr" />
+                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat by nullptr" />
                         </Hyperlink>
                     </TextBlock>
                     <StackPanel Margin="0,2,4,0" Orientation="Horizontal" Grid.Column="1" Height="24">

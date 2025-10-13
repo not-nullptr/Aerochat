@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -59,7 +60,7 @@ namespace Aerochat.ViewModels
                 {
                     chat.OpenAttachmentsFilePicker();
                 }
-            }),
+            }, false, "Share photos"), // add the tooltips when you implement buttons!
             new("Files", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Files clicked");
@@ -69,43 +70,56 @@ namespace Aerochat.ViewModels
                 {
                     chat.OpenAttachmentsFilePicker();
                 }
-            }),
+            }, false, "Share files"),
             new("Video", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Video clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+                OnUmimplementedAction(itemElement);
             }, true),
             new("Call", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Call clicked");
-                OnAnyToolbarButtonClicked(itemElement);
-            }, true),
+               OnUmimplementedAction(itemElement);
+            }, true, "Call a contact"),
             new("Games", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Games clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+                OnUmimplementedAction(itemElement);
             }, true),
             new("Activities", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Activities clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+                OnUmimplementedAction(itemElement);
             }, true),
             new("Invite", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Invite clicked");
-                OnAnyToolbarButtonClicked(itemElement);
+                OnUmimplementedAction(itemElement);
             }, true),
             new("Block", (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Block clicked");
-                OnAnyToolbarButtonClicked(itemElement);
-            }, true)
+
+                var menu = new ContextMenu();
+                var menuItem1 = new MenuItem { Header = "Block permanently" };
+                menuItem1.Click += (_, __) => OnUmimplementedAction(itemElement);
+                var menuItem2 = new MenuItem { Header = "Block and report abuse" };
+                menuItem2.Click += (_, __) => OnUmimplementedAction(itemElement);
+                menu.Items.Add(menuItem1);
+                menu.Items.Add(menuItem2);
+
+                itemElement.ContextMenu = menu;
+                menu.PlacementTarget = itemElement;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+
+            }, true, "Block this contact from seeing or contacting you")
         };
 
         /// <summary>
         /// Shows a dialog stating that the toolbar action is unimplemented.
         /// </summary>
-        private static void OnAnyToolbarButtonClicked(FrameworkElement itemElement)
+        private static void OnUmimplementedAction(FrameworkElement itemElement)
         {
             Dialog dialog = new(
                 "Error",
@@ -262,7 +276,7 @@ namespace Aerochat.ViewModels
         }
 
         private DrawingTool _drawingTool = DrawingTool.Pen;
-        
+
         public DrawingTool DrawingTool
         {
             get => _drawingTool;
@@ -283,6 +297,6 @@ namespace Aerochat.ViewModels
             get => _redoEnabled;
             set => SetProperty(ref _redoEnabled, value);
         }
-        
+
     }
 }

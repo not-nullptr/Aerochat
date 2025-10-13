@@ -9,6 +9,7 @@ using Aerovoice.Clients;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,9 +17,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Forms.VisualStyles;
 using System.Windows.Ink;
@@ -30,6 +33,7 @@ using System.Windows.Threading;
 using Vanara.PInvoke;
 using static Aerochat.ViewModels.HomeListViewCategory;
 using static Aerochat.Windows.ToolbarItem;
+using static System.Windows.Forms.AxHost;
 using static Vanara.PInvoke.DwmApi;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
@@ -38,9 +42,10 @@ using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false)
+    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false, string hint = "Action unimplemented")
     {
         public string Text { get; set; } = text;
+        public string ToolTip { get; set; } = hint;
 
         public delegate void ToolbarItemAction(FrameworkElement itemElement);
 
@@ -149,6 +154,7 @@ namespace Aerochat.Windows
                 += OnAttachmentsEditorAttachmentsUpdated;
 
             RefreshAerochatVersionLinkVisibility();
+            STTButton.SetToggle(true);
         }
         public async Task ExecuteNudgePrettyPlease(double initialLeft, double initialTop, double duration = 2, double intensity = 10, bool forceFocus = false)
         {
@@ -262,6 +268,11 @@ namespace Aerochat.Windows
             ViewModel.IsGroupChat = isGroupChat;
             var currentUser = await _chatService.GetCurrentUser();
             ViewModel.CurrentUser = UserViewModel.FromUser(currentUser);
+
+            await Dispatcher.BeginInvoke(() =>
+            {
+                SetIconGCDM(isDM, isGroupChat);
+            });
 
             DiscordUser? recipient = null;
             if (isDM && !isGroupChat)
@@ -1205,7 +1216,7 @@ namespace Aerochat.Windows
             var ctor = msgType.GetConstructor(
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 binder: null,
-                types: Type.EmptyTypes,
+                types: System.Type.EmptyTypes,
                 modifiers: null);
 
             if (ctor is null) throw new Exception("DiscordMessage private constructor not found.");
@@ -1359,8 +1370,7 @@ namespace Aerochat.Windows
             if (Channel is null)
                 return;
 
-            TextBox text = MessageTextBox;
-            string value = new(text.Text);
+            string value = GetMessageBoxText();
 
             if (value.Trim() == string.Empty && (!ViewModel.IsShowingAttachmentEditor
                 || PART_AttachmentsEditor.ViewModel.Attachments.Count == 0))
@@ -1368,7 +1378,7 @@ namespace Aerochat.Windows
                 return;
             }
 
-            text.Text = "";
+            MessageTextBox.Document.Blocks.Clear();
             ViewModel.BottomHeight = 64;
 
             if (ViewModel.MessageTargetMode == TargetMessageMode.Reply)
@@ -1430,7 +1440,9 @@ namespace Aerochat.Windows
             // Unselect all the text in the message box. This ensures that the caret ends up
             // at the end of the previous selection rather than the beginning, which is the
             // more expected behaviour of a chatbox.
-            MessageTextBox.Select(MessageTextBox.SelectionStart + MessageTextBox.SelectionLength, 0);
+            TextPointer end = MessageTextBox.Selection.End;
+            MessageTextBox.CaretPosition = end;
+            MessageTextBox.Selection.Select(end, end);
         }
 
         private void ToolbarClick(object sender, MouseButtonEventArgs e)
@@ -1623,6 +1635,58 @@ namespace Aerochat.Windows
             ExecuteNudgePrettyPlease(Left, Top, SettingsManager.Instance.NudgeLength, SettingsManager.Instance.NudgeIntensity).ConfigureAwait(false);
         }
 
+        private void OpenEmojiFlyout(object sender, MouseButtonEventArgs e)
+        {
+            EmojiFlyout.IsOpen = true;
+            var imageFiles = EmojiDictionary.Map.Values.Distinct().ToList();
+            int index = 0;
+
+            foreach (var imageName in imageFiles)
+            {
+                if (index >= PinnedEmojiGrid.Children.Count) break;
+
+                var border = PinnedEmojiGrid.Children[index] as Border;
+                Image img = new Image();
+
+                if (border != null)
+                {
+                    img.Source = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{imageName}"));
+                    img.Stretch = Stretch.Uniform;
+                    img.Margin = new Thickness(3);
+                    img.Tag = EmojiDictionary.Map.FirstOrDefault(kvp => kvp.Value == imageName).Key;
+                    border.Child = img;
+                }
+
+                index++;
+            }
+        }
+
+        private void EmojiBox_Click(object sender, MouseButtonEventArgs e)
+        {
+            Image imgInside = ((Border)sender).Child as Image;
+            Image newImg = new Image
+            {
+                Source = imgInside.Source,
+                Width = 16,
+                Height = 16
+            };
+
+            InlineUIContainer container = new InlineUIContainer(newImg);
+            container.Tag = imgInside.Tag;
+
+            Paragraph paragraph = MessageTextBox.Document.Blocks.LastBlock as Paragraph;
+            if (paragraph == null)
+            {
+                paragraph = new Paragraph();
+                MessageTextBox.Document.Blocks.Add(paragraph);
+            }
+            paragraph.Inlines.Add(container);
+            paragraph.Inlines.Add(new Run(" "));
+
+            MessageTextBox.CaretPosition = paragraph.ContentEnd;
+            MessageTextBox.Focus();
+        }
+
         private void JumpToReply(object sender, MouseButtonEventArgs e)
         {
             var messageVm = (sender as Panel)?.DataContext as MessageViewModel;
@@ -1657,6 +1721,11 @@ namespace Aerochat.Windows
 
             Shell32.ShellExecute(HWND.NULL, "open", uri, null, null, ShowWindowCommand.SW_SHOWNORMAL);
             return true;
+        }
+
+        private void EmojiFlyout_Closed(object sender, EventArgs e)
+        {
+            EmojiButtonGrid.SetToggle(false);
         }
 
         private async void MessageParser_HyperlinkClicked(object sender, Controls.HyperlinkClickedEventArgs e)
@@ -1739,10 +1808,40 @@ namespace Aerochat.Windows
             await VoiceManager.Instance.LeaveVoiceChannel();
         }
 
+        private string GetMessageBoxText() // returns full text & converts all emoticon images to Unicode emojis
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (Block block in MessageTextBox.Document.Blocks)
+            {
+                foreach (Inline inline in ((Paragraph)block).Inlines)
+                {
+                    switch (inline)
+                    {
+                        case Run:
+                            sb.Append(((Run)inline).Text);
+                            break;
+
+                        case InlineUIContainer:
+                            string EmojiNameDiscord = ":" + ((InlineUIContainer)inline).Tag + ":";
+                            DiscordEmoji emoji = DiscordEmoji.FromName(Discord.Client, EmojiNameDiscord);
+                            TextPointer caret = MessageTextBox.CaretPosition;
+                            sb.Append(emoji.ToString());
+                            break;
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        private void SetMessageBoxText(string text) // TODO: make it set emoticons instead of Unicode
+        {
+            new TextRange(MessageTextBox.Document.ContentStart, MessageTextBox.Document.ContentEnd).Text = text;
+        }
+
         private void MessageTextBox_SizeChanged(object sender, ScrollChangedEventArgs e)
         {
             if (isDraggingBottomSeparator) return;
-            var textBox = (TextBox)sender;
+            var textBox = (RichTextBox)sender;
             var newHeight = (int)textBox.ExtentHeight + 40;
             if ((ViewModel.BottomHeight > newHeight && sizeTainted) || newHeight > 200) return;
 
@@ -1905,6 +2004,7 @@ namespace Aerochat.Windows
 
         private void ShowEditorTextTab()
         {
+            STDButton.SetToggle(false);
             if (MessageTextBox.Visibility == Visibility.Visible) return;
             _drawingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _writingHeight;
@@ -1914,6 +2014,7 @@ namespace Aerochat.Windows
 
         private void ShowEditorDrawTab()
         {
+            STTButton.SetToggle(false);
             if (MessageTextBox.Visibility == Visibility.Collapsed) return;
             _writingHeight = ViewModel.BottomHeight;
             ViewModel.BottomHeight = _drawingHeight;
@@ -1983,16 +2084,22 @@ namespace Aerochat.Windows
             Dispatcher.BeginInvoke(() =>
             {
                 if (!_isTyping) return;
-                if (MessageTextBox.Text == _lastValue || MessageTextBox.Text == string.Empty)
+
+                string currentText = GetMessageBoxText();
+
+                if (currentText == _lastValue || string.IsNullOrWhiteSpace(currentText))
                 {
                     _isTyping = false;
                     return;
                 }
-                _lastValue = MessageTextBox.Text;
+
+                _lastValue = currentText;
+
                 Task.Run(async () =>
                 {
                     await Channel.TriggerTypingAsync();
                 });
+
                 typingTimer.Start();
             });
         }
@@ -2004,7 +2111,8 @@ namespace Aerochat.Windows
                 _isTyping = true;
                 TypingTimer_Elapsed(null, null!);
                 typingTimer.Start();
-            };
+            }
+            ;
         }
 
         private void OnMessageContextMenuOpening(object senderRaw, ContextMenuEventArgs e)
@@ -2208,7 +2316,7 @@ namespace Aerochat.Windows
             ViewModel.TargetMessage = message;
             ViewModel.MessageTargetMode = TargetMessageMode.Edit;
 
-            MessageTextBox.Text = message.Message;
+            SetMessageBoxText(message.Message);
 
             RevalidatePushToDrawVisibility();
 
@@ -2225,7 +2333,7 @@ namespace Aerochat.Windows
             {
                 // Only if we're clearing the message being edited should we
                 // wipe the contents of the input box.
-                MessageTextBox.Text = "";
+                MessageTextBox.Document.Blocks.Clear();
             }
 
             ClearMessageSelection();
@@ -2243,6 +2351,17 @@ namespace Aerochat.Windows
             ViewModel.MessageTargetMode = TargetMessageMode.Reply;
 
             ShowReplyView();
+        }
+
+        private void SetIconGCDM(bool isDm, bool isGc)
+        {
+            string uri = null;
+            if (isDm && !isGc) // 1-on-1 dm
+            {
+                uri = "pack://application:,,,/Icons/DirectMessage.ico";
+            }
+            else { uri = "pack://application:,,,/Icons/GroupServer.ico"; }
+            this.Icon = new BitmapImage(new Uri(uri));
         }
 
         private void ClearReplyTarget()

@@ -68,21 +68,14 @@ namespace Aerochat
 
             await Discord.Client.UpdateStatusAsync(userStatus: status);
 
-            try
+
+            if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto.Status != null)
             {
-                if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto != null)
-                {
-                    DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status = status.ToDiscordString();
-                    _ = DiscordUserSettingsManager.Instance.UpdateRemote();
-                }
-            }
-            catch (NullReferenceException)
-            {
-                // I have no reason why this happens despite my null checking, but I cannot
-                // replicate the circumstances to trigger a crash here no matter what I've
-                // tried. Just ignore the error and hope for the best.
-            }
-            
+                DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status = status.ToDiscordString();
+                _ = DiscordUserSettingsManager.Instance.UpdateRemote();
+            } // NullReferenceException crash fixed: UserSettingsProto was not null but the Status field was. - OmegaAOL
+
+
             foreach (Window wnd in Current.Windows)
             {
                 if (wnd is Chat chat)
@@ -392,7 +385,8 @@ namespace Aerochat
             // loss):
             Discord.Client.Ready -= OnInitialClientReady;
 
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Login? loginWindow = Windows.OfType<Login>().FirstOrDefault();
                 loginWindow?.Dispatcher.BeginInvoke(() => loginWindow.Close());
                 new Home().Show();
@@ -803,7 +797,8 @@ namespace Aerochat
                 jumpList.JumpItems.Add(item);
             }
 
-            _ = Dispatcher.BeginInvoke(() => {
+            _ = Dispatcher.BeginInvoke(() =>
+            {
                 jumpList.Apply();
                 JumpList.SetJumpList(Application.Current, jumpList);
             });
