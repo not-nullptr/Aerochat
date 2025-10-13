@@ -69,11 +69,8 @@ namespace Aerochat
             await Discord.Client.UpdateStatusAsync(userStatus: status);
 
 
-<<<<<<< HEAD
+
             if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto != null && DiscordUserSettingsManager.Instance.UserSettingsProto.Status != null)
-=======
-            if (updateUserSettingsProto && DiscordUserSettingsManager.Instance.UserSettingsProto.Status != null)
->>>>>>> 2009fb5e61d9d3f2a391d1dbb3a65ee3bbb51412
             {
                 DiscordUserSettingsManager.Instance.UserSettingsProto.Status.Status = status.ToDiscordString();
                 _ = DiscordUserSettingsManager.Instance.UpdateRemote();
