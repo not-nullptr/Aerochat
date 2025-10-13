@@ -72,7 +72,7 @@ namespace Aerochat.Helpers
                 _userSettingsProto = PreloadedUserSettings.Parser.ParseFrom(protoBytes);
 
                 // Set the status from the protobuf settings.
-                if (_userSettingsProto.Status.Status != null)
+                if (_userSettingsProto.Status != null)
                 {
                     UserStatus status = _userSettingsProto.Status.Status.ToUserStatus();
                     await Application.Current.Dispatcher.BeginInvoke(() => App.SetStatus(status, false));

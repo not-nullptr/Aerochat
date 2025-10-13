@@ -1,8 +1,11 @@
 using Aerochat.Hoarder;
 using DSharpPlus.Entities;
 using System.Globalization;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Text.RegularExpressions;
+using System.Linq;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -208,154 +211,99 @@ namespace Aerochat.Controls
 
                 List<Inline> inlines = new();
                 Run currentRun = new Run();
-                DiscordEmoji? emoji = null;
 
-                if (text.StartsWith(":") && text.EndsWith(":"))
+                if (ContainsEmoji(text)) // stops the iteration if the text can't possibly contain emoji
                 {
-                    try
+                    DiscordEmoji? emoji = null;
+                    StringInfo info = new(text);
+                    int loopCount = info.LengthInTextElements;
+                    for (int i = 0; i < loopCount; i++)
                     {
-                        emoji = DiscordEmoji.FromName(Discord.Client, text);
-                    }
-                    catch { }
-                }
+                        string c = info.SubstringByTextElements(i, 1);
 
-                else if (DiscordEmoji.IsValidUnicode(text))
-                {
-                    try
-                    {
-                        emoji = DiscordEmoji.FromUnicode(text);
-                    }
-                    catch { }
-                }
-
-                if (emoji != null)
-                {
-                    // emoji is not null; add the current run to the inlines list
-                    inlines.Add(currentRun);
-                    currentRun = new Run();
-                    string? emojiName = emoji.SearchName.Replace(":", "") switch
-                    {
-                        "grinning" or "smiley" or "smile" or "slight_smile" => "Smile.png",
-                        "grin" or "laughing" or "sweat_smile" or "joy" or "rofl" => "Grin.png",
-                        "sob" => "Sob.png",
-                        "pray" => "HighFive.png",
-                        "thinking" => "Thinking.png",
-                        "flushed" => "Flushed.png",
-                        "sunglasses" => "Sunglasses.png",
-                        "slight_frown" => "Discontent.png",
-                        "frowning" or "frowning2" or "pensive" => "Frown.png",
-                        "thumbsup" => "ThumbsUp.png",
-                        "thumbsdown" => "ThumbsDown.png",
-                        "nerd" => "Nerd.png",
-                        "partying_face" => "Party.png",
-                        "airplane" => "Plane.png",
-                        "rainbow" => "Rainbow.png",
-                        "pizza" => "Pizza.png",
-                        "rage" => "Rage.png",
-                        "rose" => "Rose.png",
-                        "angel" or "innocent" => "Angel.png",
-                        "angry" => "Anger.png",
-                        "bat" => "Bat.png",
-                        "beach" or "island" => "Beach.png",
-                        "beer" or "beers" => "Beer.png",
-                        "broken_heart" => "BrokenHeart.png",
-                        "cake" or "birthday_cake" or "moon_cake" => "Cake.png",
-                        "camera" or "camera_with_flash" or "movie_camera" or "video_camera" => "Camera.png",
-                        "red_car" or "blue_car" or "race_car" => "Car.png",
-                        "black_cat" or "cat" or "cat2" => "Cat.png",
-                        "mobile_phone" or "calling" => "CellPhone.png",
-                        "smoking" => "Cigarette.png",
-                        "clock" or "alarm_clock" or "timer_clock" => "Clock.png",
-                        "coffee" => "Coffee.png",
-                        "computer" or "desktop_computer" => "Computer.png",
-                        "confused" => "Confused.png",
-                        "people_holding_hands" or "two_men_holding_hands" or "two_women_holding_hands" => "Conversation.png", // Discord hasn't added conversation, this is a good substitute
-                        "fingers_crossed" => "CrossedFingers.png",
-                        "handcuffs" or "cuffs" => "Cuffs.png", // not on discord
-                        "coin" or "moneybag" or "dollar" or "euro" or "pound" or "heavy_dollar_sign" or "yen" => "Currency.png",
-                        "imp" or "smiling_imp" => "Demon.png",
-                        "dog" or "guide_dog" or "service_dog" or "dog2" or "poodle" => "Dog.png",
-                        "film_frames" or "projector" => "Film.png",
-                        "soccer" or "soccer_ball" or "actual_football" => "SoccerBall.png",
-                        "goat" => "Goat.png",
-                        "heart" or "hearts" or "heart_decoration" or "black_heart" or "green_heart" or "blue_heart" or "brown_heart" or "grey_heart" or "light_blue_heart" or "orange_heart" or "pink_heart" or "purple_heart" or "yellow_heart" or "white_heart" => "Heart.png",
-                        "pray" or "folded_hands" => "HighFive.png",
-                        "jump" => "Jump.png", // not on discord
-                        "bulb" or "light_bulb" => "LightBulb.png",
-                        "biting_lip" => "LipBite.png",
-                        "mailbox_with_mail" or "envelope" or "postbox" or "incoming_envelope" or "e_mail" or "email" or "envelope_with_arrow" => "Mail.png",
-                        "man" or "man_beard" => "Man.png",
-                        "crescent_moon" or "full_moon" or "full_moon_with_face" => "Moon.png",
-                        "musical_note" or "musical_notes" => "Music.png",
-                        "telephone" or "telephone_reciever" => "Phone.png",
-                        "fork_knife_plate" or "fork_and_knife_with_plate" => "Plate.png",
-                        "gift" or "wrapped_gift" => "Present.png",
-                        "rabbit" or "rabbit2" => "Rabbit.png",
-                        "cloud_rain" => "Rain.png",
-                        "reach_left" => "ReachLeft.png", // not on discord
-                        "reach_right" => "ReachRight.png", // not on discord
-                        "rolling_eyes" => "RollingEyes.png",
-                        "wilted_rose" => "RoseWilter.png",
-                        "sheep" or "ewe" or "ram" => "Sheep.png",
-                        "nauseated_face" or "sick" or "face_vomiting" => "Sick.png",
-                        "snail" => "Snail.png",
-                        "bowl_with_spoon" or "tea" => "Soup.png",
-                        "hushed_face" or "hushed" => "Surprise.png",
-                        "astonished" => "Surprised.png",
-                        "thunder_cloud_rain" => "Thunder.png",
-                        "stuck_out_tongue_closed_eyes" or "stuck_out_tongue" or "stuck_out_tongue_winking_eye" or "tongue" => "Tongue.png",
-                        "turtle" => "Tortoise.png",
-                        "closed_umbrella" or "umbrella" or "umbrella2" => "Umbrella.png",
-                        "wine_glass" => "Wine.png",
-                        "wink" => "Wink.png",
-                        "wlm" => "WLM.png",
-                        "woman" or "woman_beard" => "Woman.png",
-                        "video_game" or "xbox" => "Xbox.png",
-                        "yawning_face" => "Yawn.png",
-                        "zipper_mouth" => "ZipMouth.png",
-                        _ => null
-                    };
-
-                    if (emojiName is null)
-                    {
-                        inlines.Add(new Run(emoji.Name));
-                    }
-                    else
-                    {
-                        InlineUIContainer inline = new();
-                        Image image = new();
-                        //image.Source = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{emojiName}"));
-                        // see if its in the cache
-                        if (!EmojiCache.TryGetValue(emojiName, out BitmapSource? value))
+                        if (text.StartsWith(":") && text.EndsWith(":"))
                         {
-                            value = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{emojiName}"));
-                            value.Freeze();
-                            EmojiCache[emojiName] = value;
+                            try
+                            {
+                                emoji = DiscordEmoji.FromName(Discord.Client, text);
+                                loopCount = 1;
+                            }
+                            catch { }
                         }
-                        image.Source = value;
-                        image.Width = 19;
-                        image.Height = 19;
-                        inline.Child = image;
-                        inlines.Add(inline);
-                    }
 
-                    if (inlines.Count == 0) inlines.Add(currentRun);
-                    foreach (var inline in inlines)
-                    {
-                        textBlock.Inlines.Add(inline);
+                        else
+                        {
+                            DiscordEmoji.TryFromUnicode(c, out emoji);
+                        }
+
+                        if (emoji == null)
+                        {
+                            // just add the character to the current run
+                            currentRun.Text += c;
+                            continue;
+                        }
+
+                        // emoji is not null; add the current run to the inlines list
+                        inlines.Add(currentRun);
+                        currentRun = new Run();
+                        if (!EmojiDictionary.Map.TryGetValue(emoji.SearchName.Replace(":", ""), out var emojiName))
+                            emojiName = null; // fallback
+
+                        if (emojiName is null)
+                        {
+                            inlines.Add(new Run(emoji.Name));
+                        }
+                        else
+                        {
+                            InlineUIContainer inline = new();
+                            Image image = new();
+                            //image.Source = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{emojiName}"));
+                            // see if its in the cache
+                            if (!EmojiCache.TryGetValue(emojiName, out BitmapSource? value))
+                            {
+                                value = new BitmapImage(new Uri($"pack://application:,,,/Resources/Emoji/{emojiName}"));
+                                value.Freeze();
+                                EmojiCache[emojiName] = value;
+                            }
+                            image.Source = value;
+                            image.Width = 19;
+                            image.Height = 19;
+                            inline.Child = image;
+                            inlines.Add(inline);
+                        }
                     }
                 }
 
                 else
                 {
-                    textBlock.Inlines.Add(new Run(text));
+                    currentRun.Text = text;
                 }
 
+                if (inlines.Count == 0) inlines.Add(currentRun);
+
+                foreach (var inline in inlines)
+                {
+                    textBlock.Inlines.Add(inline);
+                }
                 // add a space
                 textBlock.Inlines.Add(new Run(" "));
                 textBlock.TextWrapping = TextWrapping.Wrap;
             }
             MainPanel.Children.Add(textBlock);
+        }
+
+        private bool ContainsEmoji(string text)
+        {
+            if (text.Contains(':') && text.IndexOf(':') != text.LastIndexOf(':'))
+                return true;
+
+            foreach (char c in text)
+            {
+                if (char.IsSurrogate(c) || char.GetUnicodeCategory(c) == System.Globalization.UnicodeCategory.OtherSymbol)
+                    return true;
+            }
+
+            return false;
         }
 
         private void TextBlock_ContextMenuOpening(object sender, ContextMenuEventArgs e)

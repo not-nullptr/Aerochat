@@ -69,6 +69,10 @@
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
 		<None Remove="Controls\pbfillend.png" />
+		<None Remove="Icons\DirectMessage.ico" />
+		<None Remove="Icons\DM.ico" />
+		<None Remove="Icons\GroupServer.ico" />
+		<None Remove="Icons\Notification.ico" />
 		<None Remove="Resources\AttachmentsEditor\Delete.png" />
 		<None Remove="Resources\AttachmentsEditor\DeleteHover.png" />
 		<None Remove="Resources\AttachmentsEditor\DeletePressed.png" />
@@ -409,6 +413,9 @@
 		<Resource Include="Ads\WelcometoBitviewBlaynchannel.gif" />
 		<Resource Include="Ads\WWTHD.gif" />
 		<Resource Include="Ads\youtube.jpeg" />
+		<Resource Include="Icons\DirectMessage.ico" />
+		<Resource Include="Icons\GroupServer.ico" />
+		<Resource Include="Icons\Notification.ico" />
 		<Resource Include="Resources\AttachmentsEditor\Delete.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeleteHover.png" />
 		<Resource Include="Resources\AttachmentsEditor\DeletePressed.png" />
