@@ -110,8 +110,9 @@ namespace Aerochat.Windows
                 ChannelId = id;
             }
 
-
+           
             InitializeComponent();
+            MessageTextBox.Document.FontFamily = new System.Windows.Media.FontFamily("Times New Roman");
             DataContext = ViewModel;
 
             // Ensure that visual elements that aren't supposed to be initially
@@ -1681,7 +1682,6 @@ namespace Aerochat.Windows
                 MessageTextBox.Document.Blocks.Add(paragraph);
             }
             paragraph.Inlines.Add(container);
-            paragraph.Inlines.Add(new Run(" "));
 
             MessageTextBox.CaretPosition = paragraph.ContentEnd;
             MessageTextBox.Focus();
@@ -1817,6 +1817,7 @@ namespace Aerochat.Windows
                 {
                     switch (inline)
                     {
+                        default:
                         case Run:
                             sb.Append(((Run)inline).Text);
                             break;
@@ -2112,7 +2113,11 @@ namespace Aerochat.Windows
                 TypingTimer_Elapsed(null, null!);
                 typingTimer.Start();
             }
-            ;
+
+            /*if (GetMessageBoxText().EndsWith(':')) TODO: Emoji suggestions popup
+            {
+                
+            }*/
         }
 
         private void OnMessageContextMenuOpening(object senderRaw, ContextMenuEventArgs e)
@@ -2311,6 +2316,8 @@ namespace Aerochat.Windows
         {
             // Leave other selection modes so no conflicts occur:
             ClearMessageSelection();
+
+            MessageTextBox.CaretPosition = MessageTextBox.Document.Blocks.LastBlock.ContentEnd; // move cursor to end
 
             message.IsSelectedForUiAction = true;
             ViewModel.TargetMessage = message;
