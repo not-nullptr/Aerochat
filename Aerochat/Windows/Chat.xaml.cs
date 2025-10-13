@@ -1681,10 +1681,6 @@ namespace Aerochat.Windows
                 MessageTextBox.Document.Blocks.Add(paragraph);
             }
             paragraph.Inlines.Add(container);
-<<<<<<< HEAD
-=======
-            paragraph.Inlines.Add(new Run(" "));
->>>>>>> 2009fb5e61d9d3f2a391d1dbb3a65ee3bbb51412
 
             MessageTextBox.CaretPosition = paragraph.ContentEnd;
             MessageTextBox.Focus();
@@ -1820,10 +1816,7 @@ namespace Aerochat.Windows
                 {
                     switch (inline)
                     {
-<<<<<<< HEAD
                         default:
-=======
->>>>>>> 2009fb5e61d9d3f2a391d1dbb3a65ee3bbb51412
                         case Run:
                             sb.Append(((Run)inline).Text);
                             break;
@@ -2119,15 +2112,11 @@ namespace Aerochat.Windows
                 TypingTimer_Elapsed(null, null!);
                 typingTimer.Start();
             }
-<<<<<<< HEAD
 
             /*if (GetMessageBoxText().EndsWith(':')) TODO: Emoji suggestions popup
             {
                 
-            }*/
-=======
-            ;
->>>>>>> 2009fb5e61d9d3f2a391d1dbb3a65ee3bbb51412
+            }*/            
         }
 
         private void OnMessageContextMenuOpening(object senderRaw, ContextMenuEventArgs e)
