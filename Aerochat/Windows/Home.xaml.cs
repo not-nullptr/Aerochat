@@ -1136,15 +1136,19 @@ namespace Aerochat.Windows
 
         private void Image_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            UriBuilder builder = new(ViewModel.Ad.Url);
-            var segments = builder.Path.Split('/');
-            if (builder.Host == "web.archive.org" && segments.Length > 2 && !segments[2].EndsWith("if_"))
+            try // OmegaAOL - wrap in try catch, issue #141
             {
-                segments[2] += "if_";
+                UriBuilder builder = new(ViewModel.Ad.Url);
+                var segments = builder.Path.Split('/');
+                if (builder.Host == "web.archive.org" && segments.Length > 2 && !segments[2].EndsWith("if_"))
+                {
+                    segments[2] += "if_";
+                }
+                builder.Path = string.Join("/", segments);
+                var uri = builder.Uri;
+                Process.Start(new ProcessStartInfo(uri.ToString()) { UseShellExecute = true });
             }
-            builder.Path = string.Join("/", segments);
-            var uri = builder.Uri;
-            Process.Start(new ProcessStartInfo(uri.ToString()) { UseShellExecute = true });
+            catch (Exception ex) { Console.WriteLine("Ad link launch failed with: " + ex.Message); }
         }
 
         private void NameDropdown_Click(object sender, RoutedEventArgs e)

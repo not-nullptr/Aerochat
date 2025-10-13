@@ -78,7 +78,8 @@
 	<Ad Image="StarTube.png" Url="https://github.com/lightbeam24/StarTube?tab=readme-ov-file" Submitter="λ SwiftEvolta" />
 	<Ad Image="youtube.jpeg" Url="https://web.archive.org/web/20051231232401/http://www.youtube.com/" Submitter="Auger" />
 	<Ad Image="VergilsBanish.png" Url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" Submitter="Laserman" />
-	<Ad Image="Homestuck.gif" Url="http://www.mspaintadventures.com/newindex.php" Submitter="jane" />
+	<!-- [OmegaAOL] Link updated for below ad to address Issue #145 -->
+	<Ad Image="Homestuck.gif" Url="https://homestuck.com" Submitter="jane" />
 	<Ad Image="jvtexad.png" Url="https://jvtex.neocities.org/homepage" Submitter="jane" Frames="53" FrameDelay="220" />
 	<Ad Image="CodenamesUnlimitedElectronicMusic.png" Url="https://www.deathmothtribe.com/artists/codename/release" Submitter="codename" />
 	<Ad Image="Soundcloud2011.png" Url="https://web.archive.org/web/20110629023725if_/http://soundcloud.com/" Submitter="codename" />
@@ -124,7 +125,8 @@
 	<Ad Image="WelcometoBitviewBlaynchannel.gif" Url="https://www.bitview.net/user/Blayn" Submitter="RobotixFox" />
 	<Ad Image="windowsxd.png" Url="https://gandalfsax.com/" Submitter="xdek" />
 	<Ad Image="penguincomputing.png" Url="https://pod.penguincomputing.com/" Submitter="mohamed" />
-	<Ad Image="MSPAINTADVENTURES.gif" Url="https://homestuck.giovanh.com/unofficial-homestuck-collection/" Submitter="Lumacy" />
+	<!-- [OmegaAOL] Link updated for below ad to address Issue #145 -->
+	<Ad Image="MSPAINTADVENTURES.gif" Url="https://homestuck.com/" Submitter="Lumacy" />
 	<Ad Image="SPAMTONSWEEPSTAKES.gif" Url="https://deltarune.com/sweepstakes/" Submitter="Lumacy" />
 	<Ad Image="SouthParkBiggerLongerUncut.png" Url="https://web.archive.org/web/20000622000811/http://www.southparkmovie.com/" Submitter="ringo" />
 	<Ad Image="ProjectLuna.png" Url="https://project-luna.lol" Submitter="patricktbp" />
