@@ -112,7 +112,6 @@ namespace Aerochat.Windows
 
            
             InitializeComponent();
-            MessageTextBox.Document.FontFamily = new System.Windows.Media.FontFamily("Times New Roman");
             DataContext = ViewModel;
 
             // Ensure that visual elements that aren't supposed to be initially
