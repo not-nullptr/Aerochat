@@ -17,7 +17,7 @@ namespace Aerochat
                 foreach (var alias in aliases)
                     Map[alias] = file;
             }
-
+            // Emoji sorting with aliases. The emoticons in the picker are sorted by the order of these aliases. When an emoticons is selected from the picker, its corresponding DiscordEmoji uses the value of the FIRST key.
             AddAliases(new[] { "grinning", "smiley", "smile", "slight_smile" }, "Smile.png");
             AddAliases(new[] { "grin", "laughing", "sweat_smile", "joy", "rofl" }, "Grin.png");
             AddAliases(new[] { "wink" }, "Wink.png");
