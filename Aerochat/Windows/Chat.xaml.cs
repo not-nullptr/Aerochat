@@ -1816,12 +1816,13 @@ namespace Aerochat.Windows
                 {
                     switch (inline)
                     {
-                        default:
-                        case Run:
+                        case LineBreak: // newline
+                            sb.AppendLine();
+                            break;
+                        case Run: // character
                             sb.Append(((Run)inline).Text);
                             break;
-
-                        case InlineUIContainer:
+                        case InlineUIContainer: // emoticon
                             string EmojiNameDiscord = ":" + ((InlineUIContainer)inline).Tag + ":";
                             DiscordEmoji emoji = DiscordEmoji.FromName(Discord.Client, EmojiNameDiscord);
                             TextPointer caret = MessageTextBox.CaretPosition;
