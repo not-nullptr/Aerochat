@@ -2316,6 +2316,7 @@ namespace Aerochat.Windows
             // Leave other selection modes so no conflicts occur:
             ClearMessageSelection();
 
+<<<<<<< HEAD
             Paragraph paragraph = MessageTextBox.Document.Blocks.LastBlock as Paragraph;
             if (paragraph == null)
             {
@@ -2324,6 +2325,9 @@ namespace Aerochat.Windows
             }
 
             MessageTextBox.CaretPosition = paragraph.ContentEnd;
+=======
+            MessageTextBox.CaretPosition = MessageTextBox.Document.Blocks.LastBlock.ContentEnd; // move cursor to end
+>>>>>>> 54cc5c98b6440ee81201ae6c9ca57cdb1e4cb39f
 
             message.IsSelectedForUiAction = true;
             ViewModel.TargetMessage = message;
