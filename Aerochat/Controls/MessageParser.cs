@@ -1,7 +1,5 @@
 using Aerochat.Hoarder;
 using DSharpPlus.Entities;
-using Markdig.Syntax;
-using MdXaml;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -360,12 +358,12 @@ namespace Aerochat.Controls
                         }
                         else if (m.Groups[8].Success) // list
                         {
-                            var run = new Run("• " + m.Groups[8].Value);
+                            var run = new Run("Â• " + m.Groups[8].Value);
                             inlines.Add(run);
                         }
                         else if (m.Groups[9].Success) // quote
                         {
-                            var run = new Run("“" + m.Groups[9].Value.Trim() + "”");
+                            var run = new Run("Â“" + m.Groups[9].Value.Trim() + "Â”");
                             run.FontStyle = FontStyles.Italic;
                             run.Foreground = Brushes.DimGray;
                             inlines.Add(run);
