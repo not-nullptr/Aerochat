@@ -17,7 +17,7 @@ namespace Aerochat
                 foreach (var alias in aliases)
                     Map[alias] = file;
             }
-
+            // Emoji sorting with aliases. The emoticons in the picker are sorted by the order of these aliases. When an emoticons is selected from the picker, its corresponding DiscordEmoji uses the value of the FIRST key.
             AddAliases(new[] { "grinning", "smiley", "smile", "slight_smile" }, "Smile.png");
             AddAliases(new[] { "grin", "laughing", "sweat_smile", "joy", "rofl" }, "Grin.png");
             AddAliases(new[] { "wink" }, "Wink.png");
@@ -44,8 +44,10 @@ namespace Aerochat
             AddAliases(new[] { "thumbsup" }, "ThumbsUp.png");
             AddAliases(new[] { "thumbsdown" }, "ThumbsDown.png");
             AddAliases(new[] { "nerd" }, "Nerd.png");
+            AddAliases(new[] { "video_game", "xbox" }, "Xbox.png");
             AddAliases(new[] { "rose" }, "Rose.png");
             AddAliases(new[] { "wilted_rose" }, "Rose_Wilter.png");
+            AddAliases(new[] { "biting_lip" }, "LipBite.png");
             AddAliases(new[] { "partying_face" }, "Party.png");
             AddAliases(new[] { "airplane" }, "Plane.png");
             AddAliases(new[] { "heart", "hearts", "heart_decoration", "black_heart", "green_heart", "blue_heart", "brown_heart",
@@ -55,6 +57,8 @@ namespace Aerochat
             AddAliases(new[] { "man", "man_beard" }, "Man.png");
             AddAliases(new[] { "angel", "innocent" }, "Angel.png");
             AddAliases(new[] { "bat" }, "Bat.png");
+            AddAliases(new[] { "mobile_phone", "calling" }, "CellPhone.png");
+            AddAliases(new[] { "smoking" }, "Cigarette.png");
             AddAliases(new[] { "beach", "island" }, "Beach.png");
             AddAliases(new[] { "beer", "beers" }, "Beer.png");
             AddAliases(new[] { "broken_heart" }, "BrokenHeart.png");
@@ -64,8 +68,6 @@ namespace Aerochat
             AddAliases(new[] { "black_cat", "cat", "cat2" }, "Cat.png");
             AddAliases(new[] { "person_walking", "reach_left" }, "ReachLeft.png");
             AddAliases(new[] { "person_walking_facing_right", "reach_right" }, "ReachRight.png");
-            AddAliases(new[] { "mobile_phone", "calling" }, "CellPhone.png");
-            AddAliases(new[] { "smoking" }, "Cigarette.png");
             AddAliases(new[] { "clock", "alarm_clock", "timer_clock" }, "Clock.png");
             AddAliases(new[] { "coffee" }, "Coffee.png");
             AddAliases(new[] { "computer", "desktop_computer" }, "Computer.png");
@@ -78,7 +80,6 @@ namespace Aerochat
             AddAliases(new[] { "goat" }, "Goat.png");
             AddAliases(new[] { "jump" }, "Jump.png");
             AddAliases(new[] { "bulb", "light_bulb" }, "LightBulb.png");
-            AddAliases(new[] { "biting_lip" }, "LipBite.png");
             AddAliases(new[] { "mailbox_with_mail", "envelope", "postbox", "incoming_envelope", "e_mail", "email", "envelope_with_arrow" }, "Mail.png");
             AddAliases(new[] { "crescent_moon", "full_moon", "full_moon_with_face" }, "Moon.png");
             AddAliases(new[] { "musical_note", "musical_notes" }, "Music.png");
@@ -95,7 +96,6 @@ namespace Aerochat
             AddAliases(new[] { "closed_umbrella", "umbrella", "umbrella2" }, "Umbrella.png");
             AddAliases(new[] { "wine_glass" }, "Wine.png");
             AddAliases(new[] { "computer", "wlm" }, "WLM.png");
-            AddAliases(new[] { "video_game", "xbox" }, "Xbox.png");
         }
     }
 }

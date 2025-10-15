@@ -1816,12 +1816,13 @@ namespace Aerochat.Windows
                 {
                     switch (inline)
                     {
-                        default:
-                        case Run:
+                        case LineBreak: // newline
+                            sb.AppendLine();
+                            break;
+                        case Run: // character
                             sb.Append(((Run)inline).Text);
                             break;
-
-                        case InlineUIContainer:
+                        case InlineUIContainer: // emoticon
                             string EmojiNameDiscord = ":" + ((InlineUIContainer)inline).Tag + ":";
                             DiscordEmoji emoji = DiscordEmoji.FromName(Discord.Client, EmojiNameDiscord);
                             TextPointer caret = MessageTextBox.CaretPosition;
@@ -2077,8 +2078,6 @@ namespace Aerochat.Windows
             AutoReset = false
         };
 
-
-
         private void TypingTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             Dispatcher.BeginInvoke(() =>
@@ -2316,7 +2315,17 @@ namespace Aerochat.Windows
             // Leave other selection modes so no conflicts occur:
             ClearMessageSelection();
 
-            MessageTextBox.CaretPosition = MessageTextBox.Document.Blocks.LastBlock.ContentEnd; // move cursor to end
+
+            Paragraph paragraph = MessageTextBox.Document.Blocks.LastBlock as Paragraph;
+            if (paragraph == null)
+            {
+                paragraph = new Paragraph();
+                MessageTextBox.Document.Blocks.Add(paragraph);
+            }
+
+            MessageTextBox.CaretPosition = paragraph.ContentEnd;
+
+
 
             message.IsSelectedForUiAction = true;
             ViewModel.TargetMessage = message;

@@ -20,7 +20,7 @@ using System.Windows;
 
 static class AssemblyInfo
 {
-    public const string Version = "0.2.3";
+    public const string Version = "0.2.5";
 
 #if AEROCHAT_RC
     /// <summary>
