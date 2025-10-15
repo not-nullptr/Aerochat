@@ -2078,8 +2078,6 @@ namespace Aerochat.Windows
             AutoReset = false
         };
 
-
-
         private void TypingTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             Dispatcher.BeginInvoke(() =>
