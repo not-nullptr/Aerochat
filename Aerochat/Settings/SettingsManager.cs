@@ -194,6 +194,9 @@ namespace Aerochat.Settings
         [Settings("Appearance", "Display unimplemented buttons for eyecandy")]
         public bool DisplayUnimplementedButtons { get; set; } = false;
 
+        [Settings("Appearance", "Configure when to use the non-native basic titlebar fallback")]
+        public BasicTitlebarSetting BasicTitlebar { get; set; } = BasicTitlebarSetting.Automatic;
+
         [Settings("Appearance", "Use the Windows XP caption button theme in non-native titlebar")]
         public bool XPCaptionButtons { get; set; } = false;
 

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using Aerochat.Settings;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -58,10 +60,47 @@ namespace Aerochat.Controls
         Grid Container;
         TitlebarStyle _titlebarStyle = TitlebarStyle.Default;
         public bool IsDwmEnabled { get; private set; }
+
         public BaseTitlebar()
         {
-            DwmIsCompositionEnabled(out bool isEnabled);
+            DetermineDwmCompositionState(out bool isEnabled);
             IsDwmEnabled = isEnabled;
+
+            SettingsManager.Instance.PropertyChanged += OnSettingsChange;
+        }
+
+        /// <summary>
+        /// Determines a virtualised DWM composition state which will not
+        /// </summary>
+        private HRESULT DetermineDwmCompositionState(out bool fEnabled)
+        {
+            if (ShouldForceNonNative())
+            {
+                fEnabled = false;
+                return HRESULT.S_OK;
+            }
+            else if (ShouldForceNative())
+            {
+                fEnabled = true;
+                return HRESULT.S_OK;
+            }
+
+            return DwmIsCompositionEnabled(out fEnabled);
+        }
+
+        private void OnSettingsChange(object? sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == "BasicTitlebar")
+            {
+                Application.Current.Dispatcher.BeginInvoke(UpdateBasicTitlebarSetting);
+            }
+        }
+
+        public void UpdateBasicTitlebarSetting()
+        {
+            DetermineDwmCompositionState(out bool isEnabled);
+            IsDwmEnabled = isEnabled;
+            OnDwmChanged();
         }
 
         public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
@@ -195,6 +234,16 @@ namespace Aerochat.Controls
 
                 _scaledRoundedCornerRadius = (int)Math.Ceiling(baseCornerRadius * fDpiScale);
             }
+        }
+
+        private bool ShouldForceNonNative()
+        {
+            return SettingsManager.Instance.BasicTitlebar == Enums.BasicTitlebarSetting.AlwaysNonNative;
+        }
+
+        private bool ShouldForceNative()
+        {
+            return SettingsManager.Instance.BasicTitlebar == Enums.BasicTitlebarSetting.AlwaysNative;
         }
 
         private void Window_StateChanged(object? sender, EventArgs e)
@@ -602,6 +651,11 @@ namespace Aerochat.Controls
 
                 case WM_DWMCOMPOSITIONCHANGED:
                 {
+                    if (ShouldForceNative() || ShouldForceNonNative())
+                    {
+                        break;
+                    }
+
                     DwmIsCompositionEnabled(out bool enabled);
                     if (enabled != IsDwmEnabled)
                     {
