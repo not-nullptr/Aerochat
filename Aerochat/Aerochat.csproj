@@ -14,6 +14,7 @@
 		<NuGetAudit>false</NuGetAudit>
 		<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppHostSourcePath>$(MSBuildProjectDirectory)\AppHostBin\apphost.exe</AppHostSourcePath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -68,6 +69,7 @@
 		<None Remove="Ads\WelcometoBitviewBlaynchannel.gif" />
 		<None Remove="Ads\WWTHD.gif" />
 		<None Remove="Ads\youtube.jpeg" />
+		<None Remove="AppHostBin\apphost.exe" />
 		<None Remove="Controls\pbfillend.png" />
 		<None Remove="Icons\DirectMessage.ico" />
 		<None Remove="Icons\DM.ico" />
@@ -671,6 +673,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="AppHostBin\apphost.exe" />
 		<EmbeddedResource Include="Scenes\Scenes.xml" />
 	</ItemGroup>
 

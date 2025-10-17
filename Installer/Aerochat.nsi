@@ -13,7 +13,20 @@ RequestExecutionLevel user
 ManifestSupportedOS Win7
 
 !define AEROCHAT_BIN_FOLDER "bin\x64\Release\net8.0-windows7.0"
-!define AEROCHAT_VERSION "0.2.3"
+!define AEROCHAT_VERSION "0.2.4"
+!define AEROCHAT_RC # Comment this line out if you aren't building RC
+!define AEROCHAT_RC_VERSION "Stability Test Release"
+
+!ifdef AEROCHAT_RC
+    !define AEROCHAT_RC_SUFFIX " ${AEROCHAT_RC_VERSION}"
+!else
+    !define AEROCHAT_RC_SUFFIX ""
+!endif
+
+# Wrapped in a macro to make it super easy to turn off for testing purposes (makes build go WAY faster)
+# Just search for "${PLACE_FILE}" and comment out such lines, instead of having to search for "File"
+# which is a lot harder.
+!define PLACE_FILE File
 
 # Required for detecting running Aerochat processes and closing them:
 !define AEROCHAT_APP_GUID_NOBRACE "8231C4FA-AD94-487A-BDBF-A936306AE009"
@@ -25,7 +38,7 @@ ManifestSupportedOS Win7
 
 VIProductVersion "${AEROCHAT_VERSION}.0"
 VIFileVersion "${AEROCHAT_VERSION}.0"
-VIAddVersionKey "FileDescription" "Aerochat Setup v${AEROCHAT_VERSION}"
+VIAddVersionKey "FileDescription" "Aerochat Setup v${AEROCHAT_VERSION}${AEROCHAT_RC_SUFFIX}"
 VIAddVersionKey "FileVersion" "${AEROCHAT_VERSION}"
 VIAddVersionKey "LegalCopyright" "nullptr"
 
@@ -60,6 +73,7 @@ FunctionEnd
 !define MUI_WELCOMEPAGE_TEXT "$(STRING_WELCOME_TEXT)"
 !insertmacro MUI_PAGE_WELCOME
 
+Page custom PageCheckLoadLibraryExEligibility # For Windows < 8
 Page custom PageUpgradeConfirmation
 
 # We don't want to show install destination options if we're upgrading.
@@ -92,7 +106,7 @@ Page custom PageUpgradeConfirmation
     !include "l10n\${LANGLOAD}.nsh"
     !undef LANG
 !macroend
- 
+
 !macro LANG_STRING NAME VALUE
     LangString "${NAME}" "${LANG_${LANG}}" "${VALUE}"
 !macroend
@@ -408,6 +422,136 @@ FunctionEnd
 !insertmacro DeclareEnsureApplicationClosed "" # Installer
 !insertmacro DeclareEnsureApplicationClosed "un." # Uninstaller
 
+Function OnClickGetHelpForLoadLibraryExUpdateLink
+    ExecShell open "$(STRING_NEEDSKB2533623_GETHELP_LINK)"
+FunctionEnd
+
+Function OnClickContinueAnywayButton
+    MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(STRING_CONTINUEANYWAY_BODY)" IDYES _IfContinue
+    Return
+    
+_IfContinue:
+    # Move to the next page.
+    SendMessage $HWNDPARENT 0x408 1 0
+FunctionEnd
+
+# Checks for LoadLibraryEx eligiblity by attempting to load a module with it and catching
+# the failure state.
+#
+# This will detect if the user doesn't have the update KB2533623 installed on their Windows
+# Vista or Windows 7 system, and thus wouldn't be able to run Aerochat.
+Function PageCheckLoadLibraryExEligibility
+    Push $0
+    
+    # 0x00000800 = LOAD_LIBRARY_SEARCH_SYSTEM32
+    System::Call 'Kernel32::LoadLibraryEx(t "kernel32.dll", i 0, i 0x00000800)p .r0'
+    
+    StrCmp $0 0 _FailedToLoad
+    
+    # If we succeeded, then we'll obviously skip this page. It's not necessary.
+    # This will be the path on all eligible systems.
+    System::Call 'Kernel32::FreeLibrary(pr0)'
+    
+    Pop $0
+    Abort
+    Return
+    
+_FailedToLoad:
+    Pop $0
+    
+    !insertmacro MUI_HEADER_TEXT "$(STRING_NOTICE_TITLE)" "$(STRING_NEEDSKB2533623_DESCRIPTION)"
+    
+    nsDialogs::Create 1018
+    Pop $0
+    
+    ${If} $0 == error
+        Abort
+    ${EndIf}
+    
+    # We need to measure the whole "inner dialog" of NSIS in order to get bounds for measuring
+    # the text. Once we have that, we can figure out how to position everything. This is a lot
+    # of work, but it does work out in the end.
+    #
+    Push $0 # HWND of inner dialog
+    Push $1 # Pointer scratch
+    Push $2
+    Push $3
+    Push $4
+    Push $5
+    Push $6
+    
+    FindWindow $0 "#32770" "" $HWNDPARENT # Get NSIS inner dialog.
+    
+    System::Alloc 16 # RECT structure is 16 bytes
+    Pop $1
+    
+    # Prepare DC for text measurement:
+    System::Call "User32::GetDC(pr0)p .r2"
+    SendMessage $HWNDPARENT ${WM_GETFONT} 0 0 $3
+    System::Call "Gdi32::SelectObject(pr2, pr3)p .r4"
+    
+    # Measure text:
+    System::Call "User32::GetClientRect(pr0, pr1)"
+    System::Call 'User32::DrawText(pr2, t `$(STRING_NEEDSKB2533623_BODY)`, i -1, pr1, i 0x410)' # 0x400 = DT_CALCRECT
+                                                                                                #  0x10 = DT_WORDBREAK
+    
+    # Copy measured text into registers for access
+    System::Call "*$1(i .r3, i .r4, i .r5, i .r6)"
+    
+    ${NSD_CreateLabel} $3 $4 $5 $6 "$(STRING_NEEDSKB2533623_BODY)"
+    Pop $0
+    
+    IntOp $6 $6 + 20
+    
+    # Measure text:
+    FindWindow $0 "#32770" "" $HWNDPARENT # Get NSIS inner dialog.
+    System::Call "User32::GetClientRect(pr0, pr1)"
+    System::Call 'User32::DrawText(pr2, t `$(STRING_NEEDSKB2533623_GETHELP_BUTTON)`, i -1, pr1, i 0x400)' # 0x400 = DT_CALCRECT
+    
+    # Copy measured text into registers for access
+    System::Call "*$1(i, i, i .r3, i .r4)" # Preserve R6 for vertical offset.
+    
+    ${NSD_CreateLink} 0 $6 $3 $4 "$(STRING_NEEDSKB2533623_GETHELP_BUTTON)"
+    Pop $0
+    ${NSD_OnClick} $0 OnClickGetHelpForLoadLibraryExUpdateLink
+    
+    IntOp $6 $6 + $4
+    IntOp $6 $6 + 10
+    
+    # Measure text:
+    FindWindow $0 "#32770" "" $HWNDPARENT # Get NSIS inner dialog.
+    System::Call "User32::GetClientRect(pr0, pr1)"
+    System::Call 'User32::DrawText(pr2, t `$(STRING_NEEDSKB2533623_CONTINUEANYWAY_BUTTON)`, i -1, pr1, i 0x400)' # 0x400 = DT_CALCRECT
+    
+    # Copy measured text into registers for access
+    System::Call "*$1(i, i, i .r3, i .r4)" # Preserve R6 for vertical offset.
+    
+    ${NSD_CreateLink} 0 $6 $3 $4 "$(STRING_NEEDSKB2533623_CONTINUEANYWAY_BUTTON)"
+    Pop $0
+    ${NSD_OnClick} $0 OnClickContinueAnywayButton
+    
+    # Reset DC now that we're done with measurement:
+    System::Call "Gdi32::SelectObject(pr2, pr4)"
+    System::Call "User32::ReleaseDC(pr2)"
+    
+    System::Free $1
+    
+    Pop $6
+    Pop $5
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Pop $0
+    
+    Push $R0
+    GetDlgItem $R0 $HWNDPARENT 1
+    EnableWindow $R0 0
+    Pop $R0
+    
+    nsDialogs::Show
+FunctionEnd
+
 Function PageUpgradeConfirmation
     Call SkipPageIfNotInstalled
     
@@ -467,7 +611,41 @@ Section "Aerochat" Aerochat
     # Install files
     SetOutPath "$InstDir"
     WriteUninstaller "$InstDir\uninstall.exe"
-    File /r /x *.pdb /x *.xml /x Aerochat.json "..\Aerochat\${AEROCHAT_BIN_FOLDER}\*"
+    ${PLACE_FILE} /r /x *.pdb /x *.xml /x Aerochat.json "..\Aerochat\${AEROCHAT_BIN_FOLDER}\*"
+    
+!ifdef AEROCHAT_RC # We include PDBs for RC builds.
+    ${PLACE_FILE} /r "..\Aerochat\${AEROCHAT_BIN_FOLDER}\*.pdb"
+!else
+    Delete "$InstDir\*.pdb" # Delete all PDBs from a previous RC build, if present.
+!endif
+    
+    # The .NET runtime requires the Visual C++ Runtime, which is not guaranteed to be installed
+    # on the user's system. We will just try to install it no matter what, and nothing should
+    # happen on a regular user's system.
+    Push $0
+    DetailPrint "$(STRING_STATUS_MSVCRT_ENSURING)"
+    
+    ReadRegDword $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64" "Bld"
+    IntCmp $0 23026 0 0 _VcrtAlreadyInstalled # 23026 = 2015 runtime build number
+    
+    SetDetailsPrint listonly # Prefer displaying the user-friendly message since this is a long action.
+    ${PLACE_FILE} ".\VC_redist.x64.exe"
+    ExecWait '"$INSTDIR\VC_redist.x64.exe" /quiet /norestart'
+    SetDetailsPrint both
+    Delete "$INSTDIR\VC_redist.x64.exe"
+    
+_VcrtAlreadyInstalled:
+    DetailPrint "$(STRING_STATUS_MSVCRT_ENSURED)"
+    Pop $0
+    
+    # Aerochat requires the .NET runtime, of course.
+    DetailPrint "$(STRING_STATUS_DOTNET_ENSURING)"
+    SetDetailsPrint listonly # Prefer displaying the user-friendly message since this is a long action.
+    ${PLACE_FILE} ".\windowsdesktop-runtime-8.0.19-win-x64.exe"
+    ExecWait '"$INSTDIR\windowsdesktop-runtime-8.0.19-win-x64.exe" /quiet /norestart'
+    SetDetailsPrint both
+    Delete "$INSTDIR\windowsdesktop-runtime-8.0.19-win-x64.exe"
+    DetailPrint "$(STRING_STATUS_DOTNET_ENSURED)"
 
     # Create shortcut
     SetShellVarContext all
@@ -486,7 +664,7 @@ Section "Aerochat" Aerochat
     WriteRegStr SHCTX "${UNINSTALL_KEY}" \
                  "Publisher" "nullptr"
     WriteRegStr SHCTX "${UNINSTALL_KEY}" \
-                 "DisplayVersion" "${AEROCHAT_VERSION}"
+                 "DisplayVersion" "${AEROCHAT_VERSION}${AEROCHAT_RC_SUFFIX}"
     WriteRegDWORD SHCTX "${UNINSTALL_KEY}" \
                  "NoModify" 1
     WriteRegDWORD SHCTX "${UNINSTALL_KEY}" \
@@ -496,6 +674,30 @@ SectionEnd
 Function un.onInit
     !insertmacro MULTIUSER_UNINIT
 FunctionEnd
+
+!define CLSID_ShellLinkW {00021401-0000-0000-C000-000000000046}
+!define IID_IShellLinkW  {000214F9-0000-0000-C000-000000000046}
+!define IID_IPersistFile {0000010B-0000-0000-C000-000000000046}
+!define CLSCTX_INPROC_SERVER 0x1
+
+# COM interface method offsets
+!define IUnknown_QueryInterface 0
+!define IUnknown_AddRef 1
+!define IUnknown_Release 2
+
+!define IShellLinkW_GetPath 3
+!define IShellLinkW_GetIDList 4 # We only need this
+
+!define IPersistFile_GetClassID 3
+!define IPersistFile_IsDirty 4
+!define IPersistFile_Load 5
+!define IPersistFile_Save 6
+!define IPersistFile_SaveCompleted 7
+!define IPersistFile_GetCurFile 8
+
+!define STGM_READ 0x0
+
+!define MAX_PATH 260
 
 Section "Uninstall"
     # Otherwise, ensure that the application is closed so that we can upgrade it.
@@ -510,6 +712,94 @@ Section "Uninstall"
     SetShellVarContext all
     Delete "$SMPROGRAMS\Aerochat.lnk"
     SetShellVarContext lastused
+
+!if 0 # Currently does not work, so it's disabled for the Stability Test Release.
+    # Since we want to be nice, we will only delete the desktop shortcut if we know it is Aerochat.
+    IfFileExists "$desktop\Aerochat.lnk" 0 _NoDesktopShortcut
+    
+    Push $0 # Pointer to IShelLLink object
+    Push $1 # HRESULT
+    Push $2 # Pointer to ITEMIDLIST structure
+    Push $3 # Pointer to IPersistFile object
+    Push $4 # Pointer to path string
+    
+    ; System::StrAlloc ${MAX_PATH} + 1
+    ; Pop $4
+    
+    System::Call "ole32::CoCreateInstance(g '${CLSID_ShellLinkW}', p 0, i ${CLSCTX_INPROC_SERVER}, g '${IID_IShellLinkW}', *p .r0)i .r1"
+    
+    # Check if HR failed
+    IntCmp $1 0 0 _FailedCreateShellLink 0
+    
+    # Cast to IPersistFile:
+    System::Call "$0->${IUnknown_QueryInterface}(g '${IID_IPersistFile}', *p .r3)i .r1"
+    IntCmp $1 0 0 _FailedCreatePersistFile 0
+    
+    System::Call "$3->${IPersistFile_Load}(t '$desktop\Aerochat.lnk', i ${STGM_READ})i .r1"
+    IntCmp $1 0 0 _FailedLoadLinkFile 0
+    
+    System::Call "$0->${IShellLinkW_GetIDList}(*p .r2)i .r1"
+    IntCmp $1 0 0 _FailedGetIdList 0
+    
+    MessageBox MB_OK "$2 $1"
+    
+    System::Call "shell32:SHGetPathFromIDListW(pr2, w .r4)i .r1" # R1 actually holds a BOOL in this case
+    StrCmp $1 0 _FailedGetPath
+    
+    # XXX: See if this is necessary
+    #Push $5
+    #System::Call "*$4(&t${MAX_PATH} .r5)" # Read the pointer into 
+    MessageBox MB_OK "Hello $4"
+    #Pop $5
+    
+    Goto _CleanUpDesktopShortcutDeletion
+
+_FailedCreateShellLink:
+    DetailPrint "Failed to create IShellLink object to delete desktop shortcut. $1"
+    Goto _CleanUpDesktopShortcutDeletion
+
+_FailedCreatePersistFile:
+    DetailPrint "Failed to create IPersistFile. $1"
+    Goto _CleanUpDesktopShortcutDeletion
+
+_FailedLoadLinkFile:
+    DetailPrint "Failed IPersistFile::Load. $1"
+    Goto _CleanUpDesktopShortcutDeletion
+
+_FailedGetIdList:
+    DetailPrint "Failed IShellLink::GetIDList. $1"
+    Goto _CleanUpDesktopShortcutDeletion
+
+_FailedGetPath:
+    DetailPrint "Failed SHGetPathFromIDListW. $1"
+    Goto _CleanUpDesktopShortcutDeletion
+    
+_CleanUpDesktopShortcutDeletion: # We'll deem this "CUDSD" for sub-labels.
+    ; System::Free $4
+
+    StrCmp $2 0 _CUDSD_NoItemIdList
+    System::Call "ole32:CoTaskMemFree(pr2)"
+
+_CUDSD_NoItemIdList:
+    StrCmp $0 0 _CUDSD_NoInstancePersistFile # This is a basically a C pattern `if (pUnk) pUnk->Release();`
+                                             # Obviously, we need the compare because we can't call a method on a null pointer.
+    System::Call "$3->${IUnknown_Release}()"
+
+_CUDSD_NoInstancePersistFile:
+    StrCmp $0 0 _CUDSD_NoInstanceShellLink
+    System::Call "$0->${IUnknown_Release}()"
+
+_CUDSD_NoInstanceShellLink:
+
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Pop $0
+    
+_NoDesktopShortcut:
+
+!endif
 
     # Delete uninstall entry
     SetRegView 64
