@@ -595,12 +595,16 @@ namespace Aerochat.Windows
 
             var categories = guild.Channels.Values
                 .Where(x => x.Type == ChannelType.Category
-                       && x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                       && (x.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
                        && guild.Channels.Values.Where(c =>
                             c.ParentId == x.Id
                             && c.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
                             && AllowedChannelTypes.Contains(c.Type)
-                       ).Count() > 0)
+                       ).Count() > 0 || guild.Channels.Values.Where(c =>
+                            c.ParentId == x.Id
+                            && c.PermissionsFor(guild.CurrentMember).HasPermission(Permissions.AccessChannels)
+                            && AllowedChannelTypes.Contains(c.Type)
+                       ).Count() > 0))
                 .OrderBy(x => x.Position);
 
             foreach (var category in categories)
@@ -616,6 +620,7 @@ namespace Aerochat.Windows
                 var channels = guild.Channels.Values
                     .Where(x => x.ParentId == category.Id && AllowedChannelTypes.Contains(x.Type))
                     .OrderBy(x => x.Position);
+
                 foreach (var channel in channels)
                 {
                     if ((channel.PermissionsFor(guild.CurrentMember) & Permissions.AccessChannels) != Permissions.AccessChannels) continue;
