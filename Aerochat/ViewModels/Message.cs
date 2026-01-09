@@ -108,6 +108,7 @@ namespace Aerochat.ViewModels
         }
 
         private string? _timestampString = null;
+        private string? _lastMessageReceivedString = null;
 
         public string TimestampString
         {
@@ -121,10 +122,29 @@ namespace Aerochat.ViewModels
             set => SetProperty(ref _timestampString, GetTimestampString());
         }
 
+        public string LastMessageReceivedString
+        {
+            get
+            {
+                if (_lastMessageReceivedString == null)
+                    _lastMessageReceivedString = GetLastMessageReceivedString();
+                return _lastMessageReceivedString;
+            }
+
+            set => SetProperty(ref _lastMessageReceivedString, GetLastMessageReceivedString());
+        }
+
         private string GetTimestampString()
         {
             var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
             return Timestamp.ToString(format, CultureInfo.InvariantCulture);  // Ensure InvariantCulture to control formatting: Otherwise we will lose the AM/PM at the end!
+        }
+
+        private string GetLastMessageReceivedString()
+        {
+            var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
+            var time = Timestamp.ToString(format, CultureInfo.InvariantCulture);
+            return $"Last message received at {time} on {Timestamp:dd/MM/yyyy}.";
         }
 
         private DateTime _timestamp;

@@ -950,6 +950,13 @@ namespace Aerochat.Windows
                         message.RaisePropertyChanged(nameof(message.TimestampString));
                     }
 
+                    if (ViewModel.LastReceivedMessage is not null)
+                    {
+                        var lastMessage = ViewModel.LastReceivedMessage;
+                        lastMessage.LastMessageReceivedString = "(Ignored)"; // Setter creates the value
+                        lastMessage.RaisePropertyChanged(nameof(lastMessage.LastMessageReceivedString));
+                    }
+
                     RefreshAerochatVersionLinkVisibility();
                 });
             }
@@ -1068,6 +1075,13 @@ namespace Aerochat.Windows
 
                         item.HiddenInfo = previous.Author?.Id == item.Author?.Id && !previous.Special;
 
+                    }
+
+                    // Reset the "Last message received ..." string, as the 12/24 hour
+                    // clock setting may have changed
+                    if (ViewModel.LastReceivedMessage is not null)
+                    {
+                        ViewModel.LastReceivedMessage.LastMessageReceivedString = "(Ignored)";
                     }
                 }
             });

@@ -1300,14 +1300,7 @@
                                                     <Setter Property="Text" Value="{Binding TypingString, Mode=OneWay}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding TypingString, Mode=OneWay}" Value="">
-                                                            <Setter Property="Text">
-                                                                <Setter.Value>
-                                                                    <MultiBinding StringFormat="{}Last message received at {0:HH:mm} on {1:dd/MM/yyyy}.">
-                                                                        <Binding Path="LastReceivedMessage.Timestamp" />
-                                                                        <Binding Path="LastReceivedMessage.Timestamp" />
-                                                                    </MultiBinding>
-                                                                </Setter.Value>
-                                                            </Setter>
+                                                            <Setter Property="Text" Value="{Binding LastReceivedMessage.LastMessageReceivedString}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
