@@ -432,25 +432,20 @@ namespace Aerochat
                 SettingsManager.Instance.HasUserLoggedInBefore = true;
                 SettingsManager.Save();
             }
-            DiscordColor? colour = Discord.Client.CurrentUser.BannerColor;
-            if (colour != null)
+            SceneViewModel scene = SceneViewModel.FromUser(Discord.Client.CurrentUser);
+            // clone the scene into ThemeService.Instance.Scene, so that its not by reference
+            if (scene != null)
             {
-                string hex = $"#{colour.Value.R:X2}{colour.Value.G:X2}{colour.Value.B:X2}";
-                SceneViewModel scene = SceneViewModel.FromUser(Discord.Client.CurrentUser);
-                // clone the scene into ThemeService.Instance.Scene, so that its not by reference
-                if (scene != null)
+                ThemeService.Instance.Scene = new SceneViewModel
                 {
-                    ThemeService.Instance.Scene = new SceneViewModel
-                    {
-                        Id = scene.Id,
-                        File = scene.File,
-                        DisplayName = scene.DisplayName,
-                        Color = scene.Color,
-                        Default = scene.Default,
-                        TextColor = scene.TextColor,
-                        ShadowColor = scene.ShadowColor,
-                    };
-                }
+                    Id = scene.Id,
+                    File = scene.File,
+                    DisplayName = scene.DisplayName,
+                    Color = scene.Color,
+                    Default = scene.Default,
+                    TextColor = scene.TextColor,
+                    ShadowColor = scene.ShadowColor,
+                };
             }
             Dispatcher.Invoke(() =>
             {
