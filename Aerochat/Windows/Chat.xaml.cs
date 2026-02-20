@@ -1762,6 +1762,18 @@ namespace Aerochat.Windows
                         break;
                     }
 
+                case Controls.HyperlinkType.User:
+                    {
+                        if (e.AssociatedObject is not DiscordUser discordUser)
+                            return;
+                        var authorVm = UserViewModel.FromUser(discordUser);
+                        UserProfilePopupContent.DataContext = new { Author = authorVm, Scene = ThemeService.Instance.Scene };
+                        UserProfilePopup.PlacementTarget = sender as System.Windows.UIElement;
+                        UserProfilePopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                        UserProfilePopup.IsOpen = true;
+                        break;
+                    }
+
                 case Controls.HyperlinkType.Channel:
                     {
                         var channel = (DiscordChannel)e.AssociatedObject;
