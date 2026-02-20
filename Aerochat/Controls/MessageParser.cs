@@ -294,10 +294,13 @@ namespace Aerochat.Controls
 
         public TextBlock FormatFullText(TextBlock sourceTextBlock)
         {
+#if FEATURE_SELECTABLE_MESSAGE_TEXT
+            var newTextBlock = new SelectableTextBlock
+#else
             var newTextBlock = new TextBlock
+#endif
             {
                 TextWrapping = sourceTextBlock.TextWrapping,
-
                 Foreground = sourceTextBlock.Foreground,
                 TextAlignment = sourceTextBlock.TextAlignment
             };

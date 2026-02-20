@@ -1,4 +1,4 @@
-﻿using Aerochat.Helpers;
+using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Services;
 using Aerochat.Settings;
@@ -2293,6 +2293,17 @@ namespace Aerochat.Windows
             MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.Message.ToString());
+        }
+
+        private void AuthorName_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button || button.DataContext is not MessageViewModel messageVm || messageVm.Author == null)
+                return;
+            var scene = ViewModel.Recipient?.Scene ?? ThemeService.Instance.Scene;
+            UserProfilePopupContent.DataContext = new { Author = messageVm.Author, Scene = scene };
+            UserProfilePopup.PlacementTarget = button;
+            UserProfilePopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            UserProfilePopup.IsOpen = true;
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)

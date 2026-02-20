@@ -1,4 +1,4 @@
-﻿<Window x:Class="Aerochat.Windows.Chat"
+<Window x:Class="Aerochat.Windows.Chat"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -118,10 +118,19 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="AuthorNameTextBlockStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextDecorations" Value="Underline" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
         <helpers:ImageConverter x:Key="imageConverter"/>
+        <helpers:StatusStringToUserStatusConverter x:Key="StatusStringToUserStatusConverter"/>
     </Window.Resources>
     <controls:BaseTitlebar Color="{Binding Recipient.Scene.Color}" BlackText="{Binding Recipient.Scene.TextColor}">
+        <Grid>
         <Grid AllowDrop="{Binding Channel.CanAttachFiles}" Drop="OnDropFileIntoChatWindow">
             <Grid>
                 <controls:ColorizedNineSlice TintColor="{Binding Recipient.Scene.Color}" Image="/Aerochat;component/Resources/Message/Background.png" />
@@ -955,7 +964,11 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </StackPanel.Style>
-                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" />
+                                                    <Button FontSize="13" Grid.Row="0" Style="{StaticResource TransparentStyle}" Cursor="Hand" Padding="0" VerticalAlignment="Center" Click="AuthorName_Click">
+                                                        <Button.Content>
+                                                            <TextBlock Text="{Binding Path=Author.Name}" Foreground="{Binding Author.Color}" Style="{StaticResource AuthorNameTextBlockStyle}" />
+                                                        </Button.Content>
+                                                    </Button>
                                                     <Image Margin="2,0,0,0" Source="{Binding Author.Image, Converter={StaticResource imageConverter}}" Width="20" Height="20">
                                                         <Image.Style>
                                                             <Style TargetType="Image">
@@ -1835,6 +1848,42 @@
                     </StackPanel>
                 </Grid>
             </Grid>
+        </Grid>
+        <Popup x:Name="UserProfilePopup" StaysOpen="False" AllowsTransparency="True">
+            <!-- Glassy border identical to profile picture frame: gradient highlight (top-left) to shadow (bottom-right) -->
+            <Border x:Name="UserProfilePopupContent" Padding="0" MinWidth="200" CornerRadius="6" BorderThickness="2">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#E0FFFFFF" Offset="0"/>
+                        <GradientStop Color="#90FFFFFF" Offset="0.4"/>
+                        <GradientStop Color="#50000000" Offset="0.7"/>
+                        <GradientStop Color="#80000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.3"/>
+                </Border.Effect>
+                <Border Margin="2" Padding="16" CornerRadius="4" BorderThickness="1" BorderBrush="#70000000" Background="{Binding Scene.Color}">
+                    <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <controls:ProfilePictureFrame FrameSize="Large" HorizontalAlignment="Center"
+                            UserStatus="{Binding Author.Presence.Status, Converter={StaticResource StatusStringToUserStatusConverter}}"
+                            ProfilePicture="{Binding Author.Avatar, Converter={StaticResource imageConverter}}" />
+                    </Grid>
+                    <TextBlock FontSize="15" FontWeight="Bold" Foreground="{Binding Scene.TextColor}" Text="{Binding Author.Name}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" />
+                    <TextBox FontSize="12" Foreground="{Binding Scene.TextColor}" Opacity="0.85" Margin="0,2,0,0" HorizontalAlignment="Center"
+                        IsReadOnly="True" Background="Transparent" BorderThickness="0" Padding="0" Cursor="IBeam" MinWidth="120"
+                        HorizontalContentAlignment="Center">
+                        <TextBox.Text>
+                            <MultiBinding StringFormat="{}{0}@aerochat.live">
+                                <Binding Path="Author.Username" Mode="OneWay" />
+                            </MultiBinding>
+                        </TextBox.Text>
+                    </TextBox>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Popup>
         </Grid>
     </controls:BaseTitlebar>
 </Window>
