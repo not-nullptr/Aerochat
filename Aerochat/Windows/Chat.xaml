@@ -1853,7 +1853,6 @@
             </Grid>
         </Grid>
         <Popup x:Name="UserProfilePopup" StaysOpen="False" AllowsTransparency="True">
-            <!-- Glassy border identical to profile picture frame: gradient highlight (top-left) to shadow (bottom-right) -->
             <Border x:Name="UserProfilePopupContent" Padding="0" MinWidth="200" CornerRadius="6" BorderThickness="2">
                 <Border.BorderBrush>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
