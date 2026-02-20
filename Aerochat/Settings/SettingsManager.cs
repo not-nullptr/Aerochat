@@ -1,4 +1,4 @@
-﻿using Aerochat.Enums;
+using Aerochat.Enums;
 using Aerochat.ViewModels;
 using System;
 using System.IO;
@@ -147,6 +147,8 @@ namespace Aerochat.Settings
         public bool HasUserLoggedInBefore { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
         public List<ulong> ViewedNotices { get; set; } = [];
+        public List<ulong> FavoriteConversationIds { get; set; } = [];
+        public List<ulong> FavoriteGuildIds { get; set; } = [];
 
         #endregion
 
@@ -203,11 +205,6 @@ namespace Aerochat.Settings
 
         [Settings("Appearance", "Highlight messages that have mentioned you")]
         public bool HighlightMentions { get; set; } = true;
-
-        [Settings("Appearance", "Show the Aerochat Discord server link button on the home page")]
-
-        public bool DisplayDiscordServerLink { get; set; } = true;
-
 
         [Settings("Appearance", "Show news on the home page")]
 
