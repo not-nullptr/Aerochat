@@ -1262,6 +1262,7 @@ namespace Aerochat.Windows
                 Ephemeral = true,
                 Special = value == "[nudge]",
                 MessageEntity = fakeMsg,
+                IsAuthorCurrentUser = true,
             };
 
             ViewModel.Messages.Add(pendingVm);
@@ -2299,8 +2300,7 @@ namespace Aerochat.Windows
         {
             if (sender is not Button button || button.DataContext is not MessageViewModel messageVm || messageVm.Author == null)
                 return;
-            var scene = ViewModel.Recipient?.Scene ?? ThemeService.Instance.Scene;
-            UserProfilePopupContent.DataContext = new { Author = messageVm.Author, Scene = scene };
+            UserProfilePopupContent.DataContext = new { Author = messageVm.Author, Scene = ThemeService.Instance.Scene };
             UserProfilePopup.PlacementTarget = button;
             UserProfilePopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             UserProfilePopup.IsOpen = true;

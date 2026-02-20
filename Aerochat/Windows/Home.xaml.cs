@@ -938,14 +938,17 @@ namespace Aerochat.Windows
                     }
                 }
 
-                
-                if (isSame) return;
+                if (isSame)
+                {
+                    // List unchanged; still refresh favorites so loaded-from-config favorites appear
+                    RefreshFavoritesCategory();
+                    return;
+                }
                 ViewModel.Categories[1].Items.Clear();
                 foreach (var item in newList)
                 {
                     ViewModel.Categories[1].Items.Add(item);
                 }
-
                 RefreshFavoritesCategory();
             });
         }
@@ -1055,7 +1058,8 @@ namespace Aerochat.Windows
             var favoriteItem = contextMenu.Items[0] as MenuItem;
             var unfavoriteItem = contextMenu.Items[1] as MenuItem;
             if (favoriteItem == null || unfavoriteItem == null) return;
-            var inFavorites = ViewModel.Categories.Count > 0 && ViewModel.Categories[0].Items.Contains(listItem);
+            // Use Id comparison: Favorites category contains clones, so reference equality would be wrong
+            var inFavorites = ViewModel.Categories.Count > 0 && ViewModel.Categories[0].Items.Any(i => i.Id == listItem.Id);
             var alreadyFavorited = SettingsManager.Instance.FavoriteConversationIds.Contains(listItem.Id)
                 || SettingsManager.Instance.FavoriteGuildIds.Contains(listItem.Id);
             favoriteItem.Visibility = inFavorites || alreadyFavorited ? Visibility.Collapsed : Visibility.Visible;

@@ -123,6 +123,9 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="TextDecorations" Value="Underline" />
                 </Trigger>
+                <DataTrigger Binding="{Binding IsAuthorCurrentUser}" Value="True">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 

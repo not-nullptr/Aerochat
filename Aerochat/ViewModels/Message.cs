@@ -1,4 +1,4 @@
-﻿using Aerochat.Enums;
+using Aerochat.Enums;
 using Aerochat.Hoarder;
 using Aerochat.Settings;
 using Aerochat.Helpers;
@@ -29,8 +29,16 @@ namespace Aerochat.ViewModels
         private bool _isReply = false;
         private bool _isSelectedForUiAction = false;
         private bool _isTTS = false;
+        private bool _isAuthorCurrentUser = false;
         private MessageViewModel? _replyMessage;
         private DiscordMessage _messageEntity;
+
+        /// <summary>True when the message author is the current client user (for bolding in UI).</summary>
+        public bool IsAuthorCurrentUser
+        {
+            get => _isAuthorCurrentUser;
+            set => SetProperty(ref _isAuthorCurrentUser, value);
+        }
 
         public UserViewModel? Author
         {
@@ -191,7 +199,8 @@ namespace Aerochat.ViewModels
                 Type = message.MessageType?.ToString() ?? "Unknown",
                 IsReply = message.MessageType == MessageType.Reply && !isReply,
                 MessageEntity = message,
-                IsTTS = message.IsTTS
+                IsTTS = message.IsTTS,
+                IsAuthorCurrentUser = user.Id == Discord.Client.CurrentUser.Id
             };
 
             if (SettingsManager.Instance.DisplayLinkPreviews)
