@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +20,13 @@ namespace Aerochat.ViewModels
         private SceneViewModel? _scene;
         private string? _color = "#525252";
         private string? _image;
+        private bool _isSpeaking;
+
+        public bool IsSpeaking
+        {
+            get => _isSpeaking;
+            set => SetProperty(ref _isSpeaking, value);
+        }
 
         public required string Name
         {

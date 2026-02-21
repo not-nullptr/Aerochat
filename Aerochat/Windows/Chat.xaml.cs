@@ -1,4 +1,4 @@
-﻿using Aerochat.Helpers;
+using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Services;
 using Aerochat.Settings;
@@ -141,6 +141,8 @@ namespace Aerochat.Windows
             _chatService.ChannelUpdated += OnChannelUpdated;
             _chatService.PresenceUpdated += OnPresenceUpdated;
             _chatService.VoiceStateUpdated += OnVoiceStateUpdated;
+            VoiceManager.Instance.UserSpeakingChanged += OnUserSpeakingChanged;
+            VoiceManager.Instance.ClientSpeakingChanged += OnClientSpeakingChanged;
             ViewModel.UndoEnabled = false;
             ViewModel.RedoEnabled = false;
 
@@ -651,6 +653,8 @@ namespace Aerochat.Windows
             }
             catch (Exception) { }
             base.OnClosing(e);
+            VoiceManager.Instance.UserSpeakingChanged -= OnUserSpeakingChanged;
+            VoiceManager.Instance.ClientSpeakingChanged -= OnClientSpeakingChanged;
             _chatService.TypingStarted -= OnType;
             _chatService.MessageCreated -= OnMessageCreation;
             // dispose of the chat
@@ -729,14 +733,14 @@ namespace Aerochat.Windows
 
                 if (isNudge)
                 {
-                    chatSoundPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
+                    chatSoundPlayer.Open(SoundHelper.GetSoundUri("nudge.wav"));
                 }
                 else
                 {
                     if (IsActive && message.Author?.Id != _chatService.GetCurrentUser().Result.Id)
                     {
                         if (SettingsManager.Instance.NotifyChat || message.MessageEntity.MentionedUsers.Contains(_chatService.GetCurrentUser().Result)) // IDK
-                            chatSoundPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                            chatSoundPlayer.Open(SoundHelper.GetSoundUri("type.wav"));
                     }
                 }
             });
@@ -971,8 +975,66 @@ namespace Aerochat.Windows
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
         {
-            if (args.Guild.Id != Channel.Guild?.Id) return;
-            Dispatcher.BeginInvoke(RefreshChannelList);
+            var currentUser = await _chatService.GetCurrentUser();
+            bool isMe = args.User.Id == currentUser.Id;
+
+            ulong? beforeId = args.Before?.Channel?.Id;
+            ulong? afterId = args.After?.Channel?.Id;
+            bool channelChanged = beforeId != afterId;
+
+            if (channelChanged)
+            {
+                bool joined = afterId != null;
+                bool left = beforeId != null;
+
+                if (isMe)
+                {
+                    if (joined)
+                        Dispatcher.BeginInvoke(() => chatSoundPlayer.Open(SoundHelper.GetSoundUri("joincall.wav")));
+                    else if (left)
+                        Dispatcher.BeginInvoke(() => chatSoundPlayer.Open(SoundHelper.GetSoundUri("leavecall.wav")));
+                }
+                else
+                {
+                    var myChannel = VoiceManager.Instance.Channel;
+                    if (myChannel != null)
+                    {
+                        if (joined && afterId == myChannel.Id)
+                            Dispatcher.BeginInvoke(() => chatSoundPlayer.Open(SoundHelper.GetSoundUri("joincall.wav")));
+                        else if (left && beforeId == myChannel.Id)
+                            Dispatcher.BeginInvoke(() => chatSoundPlayer.Open(SoundHelper.GetSoundUri("leavecall.wav")));
+                    }
+                }
+            }
+
+            if (args.Guild.Id == Channel.Guild?.Id)
+                Dispatcher.BeginInvoke(RefreshChannelList);
+        }
+
+        private void OnUserSpeakingChanged(object? sender, (ulong UserId, bool IsSpeaking) e)
+        {
+            Dispatcher.BeginInvoke(() => UpdateSpeakingState(e.UserId, e.IsSpeaking));
+        }
+
+        private void OnClientSpeakingChanged(object? sender, bool isSpeaking)
+        {
+            var currentUser = _chatService.GetCurrentUser().Result;
+            Dispatcher.BeginInvoke(() => UpdateSpeakingState(currentUser.Id, isSpeaking));
+        }
+
+        private void UpdateSpeakingState(ulong userId, bool isSpeaking)
+        {
+            foreach (var cat in ViewModel.Categories)
+            {
+                foreach (var item in cat.Items)
+                {
+                    foreach (var user in item.ConnectedUsers)
+                    {
+                        if (user.Id == userId)
+                            user.IsSpeaking = isSpeaking;
+                    }
+                }
+            }
         }
 
         private async Task OnPresenceUpdated(DiscordClient sender, DSharpPlus.EventArgs.PresenceUpdateEventArgs args)
@@ -1824,6 +1886,75 @@ namespace Aerochat.Windows
         private async void LeaveCallButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             await VoiceManager.Instance.LeaveVoiceChannel();
+        }
+
+        private void VoiceUserContextMenu_Open(object sender, MouseButtonEventArgs e)
+        {
+            var border = sender as FrameworkElement;
+            if (border?.DataContext is not UserViewModel user) return;
+
+            var currentUser = _chatService.GetCurrentUser().Result;
+            bool isMe = user.Id == currentUser.Id;
+
+            var menu = new ContextMenu();
+
+            var profileItem = new MenuItem { Header = "Profile" };
+            menu.Items.Add(profileItem);
+            menu.Items.Add(new Separator());
+
+            bool isMuted = isMe ? VoiceManager.Instance.SelfMuted : VoiceManager.Instance.IsUserMuted(user.Id);
+            var muteItem = new MenuItem { Header = isMuted ? "Unmute" : "Mute", IsCheckable = false };
+            muteItem.Click += (s, _) =>
+            {
+                if (isMe)
+                    VoiceManager.Instance.SelfMuted = !VoiceManager.Instance.SelfMuted;
+                else
+                    VoiceManager.Instance.SetUserMuted(user.Id, !VoiceManager.Instance.IsUserMuted(user.Id));
+            };
+            menu.Items.Add(muteItem);
+
+            if (isMe)
+            {
+                bool isDeafened = VoiceManager.Instance.SelfDeafened;
+                var deafenItem = new MenuItem { Header = isDeafened ? "Undeafen" : "Deafen", IsCheckable = false };
+                deafenItem.Click += (s, _) =>
+                {
+                    VoiceManager.Instance.SelfDeafened = !VoiceManager.Instance.SelfDeafened;
+                };
+                menu.Items.Add(deafenItem);
+            }
+
+            menu.Items.Add(new Separator());
+
+            var volumeMenu = new MenuItem { Header = "Volume" };
+            float currentVol = isMe
+                ? VoiceManager.Instance.ClientTransmitVolume
+                : VoiceManager.Instance.GetUserVolume(user.Id);
+
+            int[] volumeSteps = { 0, 25, 50, 75, 100, 125, 150, 175, 200 };
+            foreach (int pct in volumeSteps)
+            {
+                float vol = pct / 100f;
+                var volItem = new MenuItem
+                {
+                    Header = $"{pct}%",
+                    IsCheckable = true,
+                    IsChecked = Math.Abs(currentVol - vol) < 0.01f
+                };
+                volItem.Click += (s, _) =>
+                {
+                    if (isMe)
+                        VoiceManager.Instance.ClientTransmitVolume = vol;
+                    else
+                        VoiceManager.Instance.SetUserVolume(user.Id, vol);
+                };
+                volumeMenu.Items.Add(volItem);
+            }
+            menu.Items.Add(volumeMenu);
+
+            menu.PlacementTarget = border;
+            menu.IsOpen = true;
+            e.Handled = true;
         }
 
         private string GetMessageBoxText() // returns full text & converts all emoticon images to Unicode emojis

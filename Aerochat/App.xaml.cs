@@ -1,4 +1,4 @@
-﻿using Aerochat.Hoarder;
+using Aerochat.Hoarder;
 using Aerochat.ViewModels;
 using Aerochat.Windows;
 using Aerochat.Settings;
@@ -550,7 +550,7 @@ namespace Aerochat
                         });
                         noti.Show();
 
-                        mediaPlayer.Open(new Uri("Resources/Sounds/online.wav", UriKind.Relative));
+                        mediaPlayer.Open(Helpers.SoundHelper.GetSoundUri("online.wav"));
                     });
 
                 };
@@ -627,13 +627,13 @@ namespace Aerochat
 
                         if (isNudge)
                         {
-                            if (SettingsManager.Instance.PlayNotificationSounds) //toggle sound
-                                mediaPlayer.Open(new Uri("Resources/Sounds/nudge.wav", UriKind.Relative));
+                            if (SettingsManager.Instance.PlayNotificationSounds)
+                                mediaPlayer.Open(Helpers.SoundHelper.GetSoundUri("nudge.wav"));
                         }
                         else
                         {
                             if (SettingsManager.Instance.PlayNotificationSounds)
-                                mediaPlayer.Open(new Uri("Resources/Sounds/type.wav", UriKind.Relative));
+                                mediaPlayer.Open(Helpers.SoundHelper.GetSoundUri("type.wav"));
                         }
                     });
                 };
