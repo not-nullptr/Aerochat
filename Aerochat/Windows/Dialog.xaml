@@ -1,16 +1,17 @@
-﻿<Window x:Class="Aerochat.Windows.Dialog"
+<Window x:Class="Aerochat.Windows.Dialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DialogViewModel}"
         xmlns:controls="clr-namespace:Aerochat.Controls"
+        xmlns:loc="clr-namespace:Aerochat.Localization"
         mc:Ignorable="d"
         MinHeight="163" Width="538"
         SizeToContent="Height"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Title="Windows Live Messenger"
+        Title="{loc:Loc DialogTitle}"
         Style="{StaticResource Window}">
     <controls:BaseTitlebar Color="#f1f6fb" BlackText="Black">
         <Grid>
@@ -35,7 +36,7 @@
                 </Grid>
                 <Grid Grid.Row="1">
                     <StackPanel Margin="15,11" FlowDirection="RightToLeft" Orientation="Horizontal">
-                        <Button Click="Button_Click" Foreground="#333" Height="23" MinWidth="72" Content="Continue" />
+                        <Button Click="Button_Click" Foreground="#333" Height="23" MinWidth="72" Content="{loc:Loc DialogContinue}" />
                     </StackPanel>
                 </Grid>
             </Grid>

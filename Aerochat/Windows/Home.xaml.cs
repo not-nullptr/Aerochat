@@ -1,5 +1,6 @@
-﻿using Aerochat.Helpers;
+using Aerochat.Helpers;
 using Aerochat.Hoarder;
+using Aerochat.Localization;
 using Aerochat.Settings;
 using Aerochat.ViewModels;
 using DiscordProtos.DiscordUsers.V1;
@@ -302,10 +303,8 @@ namespace Aerochat.Windows
 
 #if AEROCHAT_RC && !DEVELOPER_PRERELEASE
                 Dialog betaNoticeDlg = new(
-                    "Notice",
-                    "This is a work-in-progress beta copy of Aerochat. Please stay updated with the GitHub " +
-                    "page for the full release. You will be prompted to install the full release when it " +
-                    "comes out.",
+                    LocalizationManager.Instance["HomeNoticeTitle"],
+                    LocalizationManager.Instance["HomeBetaNoticeRC"],
                     SystemIcons.Information
                 );
                 betaNoticeDlg.Owner = null;
@@ -316,10 +315,8 @@ namespace Aerochat.Windows
                 if (SettingsManager.Instance.ShowBetaWarning)
                 {
                     Dialog betaNoticeDlg = new(
-                        "Notice",
-                        "Aerochat is currently early in development. Many features are currently unimplemented. " +
-                        "You will probably not be able to daily drive it. \n\n" +
-                        "Please keep this in mind when reporting bugs.",
+                        LocalizationManager.Instance["HomeNoticeTitle"],
+                        LocalizationManager.Instance["HomeBetaNoticeDev"],
                         SystemIcons.Information
                     );
                     betaNoticeDlg.Owner = this;
@@ -383,7 +380,7 @@ namespace Aerochat.Windows
                 catch
                 {
                     ViewModel.CurrentNews ??= new NewsViewModel();
-                    ViewModel.CurrentNews.Body = "Failed to fetch news.";
+                    ViewModel.CurrentNews.Body = LocalizationManager.Instance["HomeFailedFetchNews"];
                 }
             });
         }

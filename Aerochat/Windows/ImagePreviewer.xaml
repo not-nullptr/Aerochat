@@ -1,4 +1,4 @@
-﻿<Window x:Class="Aerochat.Windows.ImagePreviewer"
+<Window x:Class="Aerochat.Windows.ImagePreviewer"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ImagePreviewerViewModel}"
         xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:loc="clr-namespace:Aerochat.Localization"
         mc:Ignorable="d"
         Title="{Binding FileName}"
         WindowStyle="None"
@@ -40,7 +41,7 @@
             </Image.Style>
         </Image>
 
-        <Button Grid.Row="0" Width="28" Height="17" UseLayoutRounding="True" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Click="OnCloseBtnClick" Style="{StaticResource TransparentStyle}" ToolTip="Close">
+        <Button Grid.Row="0" Width="28" Height="17" UseLayoutRounding="True" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Click="OnCloseBtnClick" Style="{StaticResource TransparentStyle}" ToolTip="{loc:Loc ImagePreviewerClose}">
             <Image Width="28" Height="17" UseLayoutRounding="True">
                 <Image.Clip>
                     <RectangleGeometry 
@@ -101,7 +102,7 @@
         </Button>
 
         <Grid UseLayoutRounding="True" Margin="0,2,4,0" Grid.Row="1">
-            <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" Click="OnOpenImageClick" Style="{StaticResource TransparentStyle}" ToolTip="Open in Browser">
+            <Button Width="20" UseLayoutRounding="True" Height="19" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" Click="OnOpenImageClick" Style="{StaticResource TransparentStyle}" ToolTip="{loc:Loc ImagePreviewerOpenInBrowser}">
                 <Image Width="20" Height="19" UseLayoutRounding="True">
                     <Image.Style>
                         <Style TargetType="Image">

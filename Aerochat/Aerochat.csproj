@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Globals">
 		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
@@ -794,6 +794,15 @@
 
 	<ItemGroup>
 	  <Folder Include="Protobuf\" />
+	</ItemGroup>
+
+	<!-- Locale files are shipped alongside the executable so contributors can add
+	     new translations without recompiling. Simply drop a new <code>.json file
+	     in the Locales/ folder and it will appear in the language selector. -->
+	<ItemGroup>
+	  <Content Include="Locales\*.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

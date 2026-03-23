@@ -1,4 +1,4 @@
-﻿using Aerochat.Enums;
+using Aerochat.Enums;
 using Aerochat.Helpers;
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,19 @@ namespace Aerochat.ViewModels
             get => _name;
             set => SetProperty(ref _name, value);
         }
+
+        /// <summary>
+        /// The original English DisplayName from [SettingsAttribute].
+        /// Used as the Tag on controls so event handlers can find the backing property by
+        /// its attribute DisplayName regardless of the active translation.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Optional helper text shown below the control in small grey text.
+        /// </summary>
+        public string Note { get; set; }
+
         public string DefaultValue
         {
             get => _defaultValue;
@@ -57,6 +70,12 @@ namespace Aerochat.ViewModels
             get => _name;
             set => SetProperty(ref _name, value);
         }
+
+        /// <summary>
+        /// The original English category name from [SettingsAttribute], used internally
+        /// to match settings properties regardless of the active translation.
+        /// </summary>
+        public string Key { get; set; }
     }
 
     public class SettingsViewModel : ViewModelBase

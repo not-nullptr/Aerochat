@@ -1,4 +1,4 @@
-﻿using Aerochat.Enums;
+using Aerochat.Enums;
 using Aerochat.ViewModels;
 using System;
 using System.IO;
@@ -147,6 +147,12 @@ namespace Aerochat.Settings
         public bool HasUserLoggedInBefore { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
         public List<ulong> ViewedNotices { get; set; } = [];
+
+        /// <summary>
+        /// BCP-47 language code for the UI locale (e.g. "en", "fr").
+        /// Defaults to English. Locale files must be present in the Locales/ folder.
+        /// </summary>
+        public string Language { get; set; } = "en";
 
         #endregion
 

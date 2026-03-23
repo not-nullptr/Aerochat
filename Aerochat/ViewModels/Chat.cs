@@ -1,4 +1,5 @@
-﻿using Aerochat.Controls;
+using Aerochat.Controls;
+using Aerochat.Localization;
 using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.Voice;
@@ -51,7 +52,7 @@ namespace Aerochat.ViewModels
 
         public List<ToolbarItem> ToolbarItems { get; set; } = new()
         {
-            new("Photos", (FrameworkElement itemElement) =>
+            new(LocalizationManager.Instance["ChatToolbarPhotos"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Photos clicked");
 
@@ -60,8 +61,8 @@ namespace Aerochat.ViewModels
                 {
                     chat.OpenAttachmentsFilePicker();
                 }
-            }, false, "Share photos"), // add the tooltips when you implement buttons!
-            new("Files", (FrameworkElement itemElement) =>
+            }, false, LocalizationManager.Instance["ChatToolbarPhotosTooltip"]),
+            new(LocalizationManager.Instance["ChatToolbarFiles"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Files clicked");
 
@@ -70,40 +71,40 @@ namespace Aerochat.ViewModels
                 {
                     chat.OpenAttachmentsFilePicker();
                 }
-            }, false, "Share files"),
-            new("Video", (FrameworkElement itemElement) =>
+            }, false, LocalizationManager.Instance["ChatToolbarFilesTooltip"]),
+            new(LocalizationManager.Instance["ChatToolbarVideo"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Video clicked");
                 OnUmimplementedAction(itemElement);
             }, true),
-            new("Call", (FrameworkElement itemElement) =>
+            new(LocalizationManager.Instance["ChatToolbarCall"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Call clicked");
                OnUmimplementedAction(itemElement);
-            }, true, "Call a contact"),
-            new("Games", (FrameworkElement itemElement) =>
+            }, true, LocalizationManager.Instance["ChatToolbarCallTooltip"]),
+            new(LocalizationManager.Instance["ChatToolbarGames"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Games clicked");
                 OnUmimplementedAction(itemElement);
             }, true),
-            new("Activities", (FrameworkElement itemElement) =>
+            new(LocalizationManager.Instance["ChatToolbarActivities"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Activities clicked");
                 OnUmimplementedAction(itemElement);
             }, true),
-            new("Invite", (FrameworkElement itemElement) =>
+            new(LocalizationManager.Instance["ChatToolbarInvite"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Invite clicked");
                 OnUmimplementedAction(itemElement);
             }, true),
-            new("Block", (FrameworkElement itemElement) =>
+            new(LocalizationManager.Instance["ChatToolbarBlock"], (FrameworkElement itemElement) =>
             {
                 Debug.WriteLine("Block clicked");
 
                 var menu = new ContextMenu();
-                var menuItem1 = new MenuItem { Header = "Block permanently" };
+                var menuItem1 = new MenuItem { Header = LocalizationManager.Instance["ChatToolbarBlockPermanently"] };
                 menuItem1.Click += (_, __) => OnUmimplementedAction(itemElement);
-                var menuItem2 = new MenuItem { Header = "Block and report abuse" };
+                var menuItem2 = new MenuItem { Header = LocalizationManager.Instance["ChatToolbarBlockAndReport"] };
                 menuItem2.Click += (_, __) => OnUmimplementedAction(itemElement);
                 menu.Items.Add(menuItem1);
                 menu.Items.Add(menuItem2);
@@ -113,7 +114,7 @@ namespace Aerochat.ViewModels
                 menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
                 menu.IsOpen = true;
 
-            }, true, "Block this contact from seeing or contacting you")
+            }, true, LocalizationManager.Instance["ChatToolbarBlockTooltip"])
         };
 
         /// <summary>
@@ -121,9 +122,10 @@ namespace Aerochat.ViewModels
         /// </summary>
         private static void OnUmimplementedAction(FrameworkElement itemElement)
         {
+            var loc = LocalizationManager.Instance;
             Dialog dialog = new(
-                "Error",
-                "This action is currently unimplemented.",
+                loc["ChatToolbarErrorTitle"],
+                loc["ChatToolbarErrorUnimplemented"],
                 SystemIcons.Error
             );
             dialog.Owner = Window.GetWindow(itemElement);
@@ -166,9 +168,9 @@ namespace Aerochat.ViewModels
 
         private ChannelViewModel _channel = new()
         {
-            Name = "Loading channel...",
+            Name = LocalizationManager.Instance["ChatLoadingChannel"],
             Id = 0,
-            Topic = "This channel is loading. Please wait...",
+            Topic = LocalizationManager.Instance["ChatLoadingChannelWait"],
         };
         public ChannelViewModel Channel
         {
