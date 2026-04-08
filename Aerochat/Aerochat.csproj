@@ -614,27 +614,33 @@
 		<Resource Include="Resources\ScrollBar\UpGlyphActive.png" />
 		<Resource Include="Resources\ScrollBar\UpGlyphHover.png" />
 		<Resource Include="Resources\ScrollBar\UpGlyphInactive.png" />
-		<Resource Include="Resources\Sounds\newalert.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\newemail.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\nudge.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\online.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\outgoing.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\phone.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
-		<Resource Include="Resources\Sounds\type.wav">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Resource>
+		<Content Include="Resources\Sounds\newalert.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\newemail.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\nudge.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\online.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\outgoing.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\phone.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\type.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\joincall.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\Sounds\leavecall.wav">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Resource Include="Resources\Titlebar\Vista\Close.png" />
 		<Resource Include="Resources\Titlebar\Vista\CloseActive.png" />
 		<Resource Include="Resources\Titlebar\Vista\CloseHover.png" />

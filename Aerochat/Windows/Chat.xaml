@@ -489,10 +489,35 @@
                                                                                 <ItemsControl ItemsSource="{Binding ConnectedUsers}">
                                                                                     <ItemsControl.ItemTemplate>
                                                                                         <DataTemplate>
-                                                                                            <StackPanel Orientation="Horizontal" Margin="4,2,0,2">
-                                                                                                <controls:ProfilePictureFrame FrameSize="ExtraSmall" UserStatus="{Binding Presence.Status}" />
-                                                                                                <TextBlock Margin="4,0,0,0" Opacity="0.5" Text="{Binding Name}" />
-                                                                                            </StackPanel>
+                                                                                            <Border CornerRadius="3" Padding="0" Margin="0,1,0,1" x:Name="VoiceUserBorder" MouseRightButtonUp="VoiceUserContextMenu_Open">
+                                                                                                <Border.Style>
+                                                                                                    <Style TargetType="Border">
+                                                                                                        <Setter Property="Background" Value="Transparent" />
+                                                                                                        <Style.Triggers>
+                                                                                                            <DataTrigger Binding="{Binding IsSpeaking}" Value="True">
+                                                                                                                <Setter Property="Background">
+                                                                                                                    <Setter.Value>
+                                                                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                                                                            <GradientStop Color="#3300C853" Offset="0" />
+                                                                                                                            <GradientStop Color="#2200E676" Offset="0.5" />
+                                                                                                                            <GradientStop Color="#1100C853" Offset="1" />
+                                                                                                                        </LinearGradientBrush>
+                                                                                                                    </Setter.Value>
+                                                                                                                </Setter>
+                                                                                                                <Setter Property="Effect">
+                                                                                                                    <Setter.Value>
+                                                                                                                        <DropShadowEffect Color="#00C853" BlurRadius="8" ShadowDepth="0" Opacity="0.4" />
+                                                                                                                    </Setter.Value>
+                                                                                                                </Setter>
+                                                                                                            </DataTrigger>
+                                                                                                        </Style.Triggers>
+                                                                                                    </Style>
+                                                                                                </Border.Style>
+                                                                                                <StackPanel Orientation="Horizontal" Margin="4,2,4,2">
+                                                                                                    <controls:ProfilePictureFrame FrameSize="ExtraSmall" UserStatus="{Binding Presence.Status}" />
+                                                                                                    <TextBlock Margin="4,0,0,0" Opacity="0.5" Text="{Binding Name}" />
+                                                                                                </StackPanel>
+                                                                                            </Border>
                                                                                         </DataTemplate>
                                                                                     </ItemsControl.ItemTemplate>
                                                                                 </ItemsControl>
