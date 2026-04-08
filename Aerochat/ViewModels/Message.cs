@@ -144,7 +144,7 @@ namespace Aerochat.ViewModels
         {
             var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
             var time = Timestamp.ToString(format, CultureInfo.InvariantCulture);
-            return $"Last message received at {time} on {Timestamp:dd/MM/yyyy}.";
+            return $"Last message received at {time} on {Timestamp.ToShortDateString()}.";
         }
 
         private DateTime _timestamp;
