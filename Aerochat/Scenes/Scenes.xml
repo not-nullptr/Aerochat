@@ -124,4 +124,32 @@
 	<item id="122" credit="fail0verflow" mimetype="image/png" contenttype="D" file="DarkWaters.png" displayname="Dark Waters" color="#009fce" default="false" />
 	<item id="123" credit="content: 'Kyra';" mimetype="image/png" contenttype="D" file="Cloudsdale.png" displayname="Cloudsdale" color="#d892aa" default="false" />
 	<item id="124" credit="original comic by RobotixFox!" mimetype="image/png" contenttype="D" file="niconicomiku.png" displayname="niconico &amp; miku" color="#71bbe8" default="false" />
+		<item id="125" credit="buddyarctic [Microsoft Windows XP]" mimetype="image/png" contenttype="D" file="Ascent.png" displayname="Ascent" color="#1242be" default="false" />
+	<item id="126" credit="buddyarctic [Microsoft Windows XP]" mimetype="image/png" contenttype="D" file="Autumn.png" displayname="Autumn" color="#f5972e" default="false" />
+	<item id="127" credit="buddyarctic [Touhou]" mimetype="image/png" contenttype="D" file="Bad Apple!!.png" displayname="Bad Apple!!" color="#ffffff" default="false" />
+	<item id="128" credit="buddyarctic [LocalThunk]" mimetype="image/png" contenttype="D" file="Balatro.png" displayname="Balatro" color="#9f1814" default="false" />
+	<item id="129" credit="buddyarctic [Roblox]" mimetype="image/png" contenttype="D" file="Block Town.png" displayname="Block Town" color="#e81717" default="false" />
+	<item id="130" credit="buddyarctic [Microsoft Office 97]" mimetype="image/png" contenttype="D" file="Clippy!!!!!!.png" displayname="Clippy" color="#86d6fb" default="false" />
+	<item id="131" credit="buddyarctic [Ndemic Creations]" mimetype="image/png" contenttype="D" file="Cure Mode.png" displayname="Plague Inc: Cure Mode" color="#71d0ff" default="false" />
+	<item id="132" credit="buddyarctic [Zeptolab]" mimetype="image/png" contenttype="D" file="Cut The Rope.png" displayname="Cut The Rope" color="#e5a75b" default="false" />
+	<item id="133" credit="buddyarctic [Halfbrick Studios]" mimetype="image/png" contenttype="D" file="Fruit Ninja Basic Dojo.png" displayname="Basic Dojo" color="#553115" default="false" />
+	<item id="134" credit="buddyarctic [4J Studios & Mojang: Minecraft]" mimetype="image/png" contenttype="D" file="Halloween Day.png" displayname="Halloween Day 2015" color="#e0ba47" default="false" />
+	<item id="135" credit="buddyarctic [4J Studios & Mojang: Minecraft]" mimetype="image/png" contenttype="D" file="Halloween Night.png" displayname="Halloween Night 2015" color="#3f3816" default="false" />
+	<item id="136" credit="buddyarctic [Apple]" mimetype="image/png" contenttype="D" file="Mac OS X 10.5 Leopard Aurora.png" displayname="Leopard Aurora" color="#c160b8" default="false" />
+	<item id="137" credit="buddyarctic [Apple]" mimetype="image/png" contenttype="D" file="Mac OS X 10.9 Mavericks Wave.png" displayname="Mavericks Wave" color="#3a858b" default="false" />
+	<item id="138" credit="buddyarctic [Flipline Studios]" mimetype="image/png" contenttype="D" file="Papa's Freezeria.png" displayname="Papa's Freezeria" color="#d69cff" default="false" />
+	<item id="139" credit="buddyarctic [Ndemic Creations]" mimetype="image/png" contenttype="D" file="Plague Mode.png" displayname="Plague Mode: Virus Mode" color="#830e2e" default="false" />
+	<item id="140" credit="buddyarctic [Disney & Pixar]" mimetype="image/png" contenttype="D" file="WALL-E.png" displayname="WALL-E" color="#4b3a78" default="false" />
+	<item id="141" credit="buddyarctic [Nintendo]" mimetype="image/png" contenttype="D" file="Wii U TV Background.png" displayname="Wii U TV Background" color="#e3edeb" default="false" />
+	<item id="142" credit="buddyarctic [Nintendo]" mimetype="image/png" contenttype="D" file="Wild World.png" displayname="Wild World" color="#46aa61" default="false" />
+	<item id="143" credit="buddyarctic [Microsoft Windows 2000]" mimetype="image/png" contenttype="D" file="Windows 2000.png" displayname="Windows 2000" color="#3a6ea5" default="false" />
+	<item id="144" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Blue Night.png" displayname="Xbox Blue Night" color="#0f2952" default="false" />
+	<item id="145" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Blue.png" displayname="Xbox Blue" color="#37a0f1" default="false" />
+	<item id="146" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Day.png" displayname="Xbox Day" color="#ece9f8" default="false" />
+	<item id="147" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Green Night.png" displayname="Xbox Green Night" color="#134e1f" default="false" />
+	<item id="148" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Night.png" displayname="Xbox Night" color="#654129" default="false" />
+	<item id="149" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Orange.png" displayname="Xbox Orange" color="#e49201" default="false" />
+	<item id="150" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Purple Night.png" displayname="Xbox Purple Night" color="#56367c" default="false" />
+	<item id="151" credit="buddyarctic [Microsoft, Xbox 360]" mimetype="image/png" contenttype="D" file="Xbox Purple.png" displayname="Xbox Purple" color="#a462b7" default="false" />
+	<item id="152" credit="buddyarctic [Telltale Games, Mojang]" mimetype="image/png" contenttype="D" file="mcsm 1.png" displayname="Minecraft Story Mode" color="#c4c2f3" default="false" />
 </package>
