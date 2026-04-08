@@ -134,6 +134,7 @@
 	<Ad Image="Re-Console.png" Url="https://modrinth.com/modpack/legacy-minecraft" Submitter="NicSonic-_-" />
 	<Ad Image="cyanogenmod.png" Url="https://web.archive.org/web/20140122073954/http://www.cyanogenmod.org/" Submitter="Xbox 360 guy" />
 	<Ad Image="Zombo" Url="https://web.archive.org/web/20260207073619/https://zombo.com/" Submitter="buddyarctic" />
+	<Ad Image="Lonely add aerochat.png" Url="https://soundcloud.com/none4marco/lonely/" Submitter="none4marco" />
 	<!-- I removed a duplicate with the same metadata, but different image. The export bot did not 
          actually include the other image, choosing the latest one. - Isabella -->
 	<Ad Image="Persona3.jpeg" Url="https://web.archive.org/web/20060611132518if_/http://p3.atlus.co.jp/" Submitter="DismissedAxe" />
