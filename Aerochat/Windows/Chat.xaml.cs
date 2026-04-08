@@ -1,5 +1,6 @@
 using Aerochat.Helpers;
 using Aerochat.Hoarder;
+using Aerochat.Localization;
 using Aerochat.Services;
 using Aerochat.Settings;
 using Aerochat.Theme;
@@ -42,7 +43,7 @@ using Timer = System.Timers.Timer;
 
 namespace Aerochat.Windows
 {
-    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false, string hint = "Action unimplemented")
+    public class ToolbarItem(string text, ToolbarItemAction action, bool isEyecandy = false, string hint = "")
     {
         public string Text { get; set; } = text;
         public string ToolTip { get; set; } = hint;
@@ -202,10 +203,9 @@ namespace Aerochat.Windows
             try
             {
 #if !AEROCHAT_RC
-                AerochatVersionLink.Text = "Aerochat v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + " by nullptr";
+                AerochatVersionLink.Text = string.Format(LocalizationManager.Instance["ChatAerochatVersion"], Assembly.GetExecutingAssembly().GetName().Version!.ToString(3));
 #else
-                AerochatVersionLink.Text = "Aerochat v" + Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) +
-                    " " + AssemblyInfo.RC_REVISION + " by nullptr";
+                AerochatVersionLink.Text = string.Format(LocalizationManager.Instance["ChatAerochatVersion"], Assembly.GetExecutingAssembly().GetName().Version!.ToString(3) + " " + AssemblyInfo.RC_REVISION);
 #endif
 
                 MouseEnter += (s, e) => SetVisibleProperty(true);
@@ -542,11 +542,11 @@ namespace Aerochat.Windows
             }
             catch (UnauthorizedException e)
             {
-                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog("Unauthorized request.\n\nTechnical details: " + e.WebResponse.Response));
+                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog(LocalizationManager.Instance["ChatErrorUnauthorized"] + "\n\nTechnical details: " + e.WebResponse.Response));
             }
             catch (Exception e)
             {
-                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog("An unknown error occurred.\n\nTechnical details: " + e.ToString()));
+                _ = Application.Current.Dispatcher.BeginInvoke(() => ShowErrorDialog(LocalizationManager.Instance["ChatErrorUnknown"] + "\n\nTechnical details: " + e.ToString()));
             }
         }
 
@@ -829,7 +829,7 @@ namespace Aerochat.Windows
 
         public void UnavailableDialog()
         {
-            ShowErrorDialog("This server is unavailable right now. Please try again later.", "Server unavailable");
+            ShowErrorDialog(LocalizationManager.Instance["ChatErrorServerError"], LocalizationManager.Instance["ChatServerUnavailable"]);
         }
 
         public void ShowErrorDialog(string message, string title = "Error", Icon? icon = null)
@@ -1207,12 +1207,13 @@ namespace Aerochat.Windows
                 }
                 tempUsers.Add(discordUser);
             }
+            var loc = LocalizationManager.Instance;
             ViewModel.TypingString = tempUsers.Count switch
             {
                 0 => "",
-                1 => $"{tempUsers[0].DisplayName} is writing...",
-                2 => $"{tempUsers[0].DisplayName} and {tempUsers[1].DisplayName} are writing...",
-                _ => $"{tempUsers[0].DisplayName} and {tempUsers.Count - 1} others are writing..."
+                1 => string.Format(loc["ChatTypingOne"], tempUsers[0].DisplayName),
+                2 => string.Format(loc["ChatTypingTwo"], tempUsers[0].DisplayName, tempUsers[1].DisplayName),
+                _ => string.Format(loc["ChatTypingMany"], tempUsers[0].DisplayName, tempUsers.Count - 1)
             };
         }
 
@@ -1318,7 +1319,7 @@ namespace Aerochat.Windows
             var pendingVm = new MessageViewModel
             {
                 Author = isDM ? UserViewModel.FromUser(me) : UserViewModel.FromMember(guild!.CurrentMember),
-                Message = value == "[nudge]" ? "You have just sent a nudge." : value,
+                Message = value == "[nudge]" ? LocalizationManager.Instance["ChatNudgeSent"] : value,
                 Timestamp = DateTime.Now,
                 Id = 0,
                 Ephemeral = true,
@@ -1397,8 +1398,8 @@ namespace Aerochat.Windows
                         catch
                         {
                             var errorDialog = new Dialog(
-                                "Error",
-                                $"Failed to upload attachment #{i} \"{a.FileName}\".",
+                                LocalizationManager.Instance["AppErrorTitle"],
+                                string.Format(LocalizationManager.Instance["ChatFailedUploadAttachment"], i) + $" \"{a.FileName}\"",
                                 SystemIcons.Warning
                             )
                             { Owner = this };
@@ -1425,11 +1426,11 @@ namespace Aerochat.Windows
                     if (idx >= 0) ViewModel.Messages.RemoveAt(idx);
 
                     var msg = string.IsNullOrWhiteSpace(result.ErrorMessage)
-                        ? "Unknown error."
+                        ? LocalizationManager.Instance["ChatUnknownError"]
                         : result.ErrorMessage;
 
                     var errorDialog = new Dialog(
-                        "Failed to send message",
+                        LocalizationManager.Instance["ChatFailedSendMessage"],
                         $"{result.ErrorCode ?? "Error"}: {msg}",
                         SystemIcons.Error
                     )
@@ -1681,7 +1682,7 @@ namespace Aerochat.Windows
                         {
                             SettingsManager.Instance.HasWarnedAboutVoiceChat = true;
                             SettingsManager.Save();
-                            var dialog = new Dialog("Call warning", "Calling is currently in beta and WILL PROBABLY CRASH YOUR CLIENT. It uses your default microphone and speakers in the Windows settings, so please make sure those are properly configured. This warning will not be shown again; click the call again to join.", SystemIcons.Warning);
+                            var dialog = new Dialog(LocalizationManager.Instance["ChatCallWarning"], "Calling is currently in beta and WILL PROBABLY CRASH YOUR CLIENT. It uses your default microphone and speakers in the Windows settings, so please make sure those are properly configured. This warning will not be shown again; click the call again to join.", SystemIcons.Warning);
                             dialog.Owner = this;
                             dialog.ShowDialog();
                             return;
@@ -1693,8 +1694,8 @@ namespace Aerochat.Windows
                         catch (Exception ex)
                         {
                             Dialog errorDialog = new(
-                                "Error",
-                                "Failed to open voice channel.\n\nTechnical details: " + ex.ToString(),
+                                LocalizationManager.Instance["AppErrorTitle"],
+                                LocalizationManager.Instance["ChatFailedOpenVoiceChannel"] + "\n\nTechnical details: " + ex.ToString(),
                                 SystemIcons.Error
                             );
                             errorDialog.Owner = this;
@@ -2593,8 +2594,8 @@ namespace Aerochat.Windows
         {
             if (!ViewModel.Channel.CanAttachFiles)
             {
-                Dialog errorDialog = new("Error",
-                    "You do not have permission to perform this action.",
+                Dialog errorDialog = new(LocalizationManager.Instance["AppErrorTitle"],
+                    LocalizationManager.Instance["ChatNoPermissionAction"],
                     SystemIcons.Error);
                 errorDialog.Owner = this;
                 errorDialog.ShowDialog();
@@ -2616,9 +2617,8 @@ namespace Aerochat.Windows
             {
                 if (dialog.FileNames.Length > 10)
                 {
-                    Dialog errorDialog = new("Error",
-                        "You may only attach at most 10 files in the same message. " +
-                        "The selection will be clipped to first 10 items.",
+                    Dialog errorDialog = new(LocalizationManager.Instance["AppErrorTitle"],
+                        LocalizationManager.Instance["ChatMaxAttachments"],
                         SystemIcons.Error);
                     errorDialog.Owner = this;
                     errorDialog.ShowDialog();
@@ -2673,8 +2673,8 @@ namespace Aerochat.Windows
 
             if (PART_AttachmentsEditor.ViewModel.Attachments.Count >= 10)
             {
-                Dialog errorDialog = new("Error",
-                    "You may only attach at most 10 files in the same message.",
+                Dialog errorDialog = new(LocalizationManager.Instance["AppErrorTitle"],
+                    LocalizationManager.Instance["ChatMaxAttachments"],
                     SystemIcons.Error);
                 errorDialog.Owner = this;
                 errorDialog.ShowDialog();

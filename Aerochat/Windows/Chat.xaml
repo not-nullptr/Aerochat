@@ -12,6 +12,7 @@
         xmlns:helpers="clr-namespace:Aerochat.Helpers"
         xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
         xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChatWindowViewModel}"
+        xmlns:loc="clr-namespace:Aerochat.Localization"
         mc:Ignorable="d"
         SizeChanged="Window_SizeChanged"
         PreviewMouseMove="Window_PreviewMouseMove"
@@ -862,24 +863,24 @@
                                         <Grid Margin="0,4,0,0" Tag="{Binding DataContext,RelativeSource={RelativeSource Mode=Self}}" Name="PART_MessageGrid" ContextMenuOpening="OnMessageContextMenuOpening">
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem x:Name="AddReactionButton" Header="Add Reaction"></MenuItem>
+                                                    <MenuItem x:Name="AddReactionButton" Header="{loc:Loc ChatContextMenuAddReaction}"></MenuItem>
                                                     <Separator x:Name="ReactionsSeparator" />
-                                                    <MenuItem x:Name="EditButton" Header="Edit" Click="EditButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="ReplyButton" Header="Reply" Click="ReplyButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="ForwardButton" Header="Forward" Visibility="Collapsed"></MenuItem>
-                                                    <MenuItem x:Name="CopyMessageButton" Header="Copy Message" Click="CopyMessageButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="CopyMessageLinkButton" Header="Copy Message Link" Click="CopyMessageLinkButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="MarkUnreadButton" Header="Mark as Unread" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="EditButton" Header="{loc:Loc ChatContextMenuEdit}" Click="EditButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="ReplyButton" Header="{loc:Loc ChatContextMenuReply}" Click="ReplyButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="ForwardButton" Header="{loc:Loc ChatContextMenuForward}" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageButton" Header="{loc:Loc ChatContextMenuCopyMessage}" Click="CopyMessageButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageLinkButton" Header="{loc:Loc ChatContextMenuCopyMessageLink}" Click="CopyMessageLinkButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="MarkUnreadButton" Header="{loc:Loc ChatContextMenuMarkAsUnread}" Visibility="Collapsed"></MenuItem>
                                                     <Separator x:Name="LinkActionsSeparator" Visibility="Collapsed" />
-                                                    <MenuItem x:Name="CopyLinkButton" Header="Copy Link" Visibility="Collapsed"></MenuItem>
-                                                    <MenuItem x:Name="CopyImageButton" Header="Copy Image" Visibility="Collapsed"></MenuItem>
-                                                    <MenuItem x:Name="OpenImageButton" Header="Open Image in Browser" Visibility="Collapsed"></MenuItem>
-                                                    <MenuItem x:Name="SaveImageButton" Header="Save Image" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="CopyLinkButton" Header="{loc:Loc ChatContextMenuCopyLink}" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="CopyImageButton" Header="{loc:Loc ChatContextMenuCopyImage}" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="OpenImageButton" Header="{loc:Loc ChatContextMenuOpenImageInBrowser}" Visibility="Collapsed"></MenuItem>
+                                                    <MenuItem x:Name="SaveImageButton" Header="{loc:Loc ChatContextMenuSaveImage}" Visibility="Collapsed"></MenuItem>
                                                     <Separator x:Name="DeveloperActionsSeparator" />
-                                                    <MenuItem x:Name="CopyAuthorIdButton" Header="Copy Author ID" Click="CopyAuthorIdButton_Click"></MenuItem>
-                                                    <MenuItem x:Name="CopyMessageIdButton" Header="Copy Message ID" Click="CopyMessageIdButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="CopyAuthorIdButton" Header="{loc:Loc ChatContextMenuCopyAuthorId}" Click="CopyAuthorIdButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="CopyMessageIdButton" Header="{loc:Loc ChatContextMenuCopyMessageId}" Click="CopyMessageIdButton_Click"></MenuItem>
                                                     <Separator x:Name="DeleteButtonSeparator" />
-                                                    <MenuItem x:Name="DeleteButton" Header="Delete Message" Click="DeleteButton_Click"></MenuItem>
+                                                    <MenuItem x:Name="DeleteButton" Header="{loc:Loc ChatContextMenuDeleteMessage}" Click="DeleteButton_Click"></MenuItem>
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
                                             <Grid.Style>
@@ -973,7 +974,7 @@
                                                     <Grid Grid.Column="1" Margin="0,4,0,2" MouseLeftButtonDown="JumpToReply" Cursor="Hand">
                                                         <TextBlock FontSize="9" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,16,0" MaxHeight="24" TextTrimming="CharacterEllipsis">
                                                             <Run Text="{Binding ReplyMessage.Author.Name}" Foreground="{Binding ReplyMessage.Author.Color}" />
-                                                            <Run Text=" said: " Foreground="#525252" />
+                                                            <Run Text="{loc:Loc ChatReplySaid}" Foreground="#525252" />
                                                             <Run Text="{Binding ReplyMessage.Message}" Foreground="#525252" />
                                                         </TextBlock>
                                                     </Grid>
@@ -1011,9 +1012,9 @@
                                                             </Style>
                                                         </Image.Style>
                                                     </Image>
-                                                    <TextBlock FontSize="13" Grid.Row="0" Text=" said (" Foreground="#525252" />
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{loc:Loc ChatEditSaid}" Foreground="#525252" />
                                                     <TextBlock FontSize="13" Grid.Row="0" Text="{Binding TimestampString}" Foreground="#525252" />
-                                                    <TextBlock FontSize="13" Grid.Row="0" Text="):" Foreground="#525252" />
+                                                    <TextBlock FontSize="13" Grid.Row="0" Text="{loc:Loc ChatEditSaidClose}" Foreground="#525252" />
                                                 </StackPanel>
                                             </StackPanel>
                                             <StackPanel Grid.Row="2" Margin="8,-6,0,0">
@@ -1440,7 +1441,7 @@
                                         </Grid.ColumnDefinitions>
                                         <InkCanvas x:Name="DrawingCanvas" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
                                         <Grid Grid.Column="1" Margin="8,4,4,4">
-                                            <Button x:Name="CanvasButton" Click="CanvasButton_Click" IsDefault="True" Width="72" Content="Send" />
+                                            <Button x:Name="CanvasButton" Click="CanvasButton_Click" IsDefault="True" Width="72" Content="{loc:Loc ChatSendButton}" />
                                         </Grid>
                                     </Grid>
                                     <controls:ColorizedNineSlice Image="/Aerochat;component/Resources/Message/InputBackground.png" Slice="16,16" TintColor="{Binding Recipient.Scene.Color}" Grid.ColumnSpan="2">
@@ -1458,7 +1459,7 @@
                                             </Style>
                                         </controls:ColorizedNineSlice.Style>
                                     </controls:ColorizedNineSlice>
-                                    <TextBlock Opacity="0.7" Text="You do not have permission to talk in this chat." FontStyle="Italic" Margin="6,4,6,4" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2">
+                                    <TextBlock Opacity="0.7" Text="{loc:Loc ChatNoPermissionToTalk}" FontStyle="Italic" Margin="6,4,6,4" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -1519,8 +1520,8 @@
                                                 <Border BorderBrush="#dedede" BorderThickness="1px" Background="White" Width="375px" Height="248px">
                                                     <StackPanel>
                                                         <Grid>
-                                                            <TextBlock Text="Your emoticons" Foreground="#333333" FontWeight="Bold" Margin="9,6"/>
-                                                            <TextBlock Text="Show all..." Foreground="#0066cc" HorizontalAlignment="Right" Margin="9,6" Cursor="Hand"/>
+                                                            <TextBlock Text="{loc:Loc ChatYourEmoticons}" Foreground="#333333" FontWeight="Bold" Margin="9,6"/>
+                                                            <TextBlock Text="{loc:Loc ChatShowAllEmoticons}" Foreground="#0066cc" HorizontalAlignment="Right" Margin="9,6" Cursor="Hand"/>
                                                         </Grid>
                                                         <Grid Margin="9,0,9,9">
                                                             <Grid.Resources>
@@ -1550,7 +1551,7 @@
                                                                 <RowDefinition Height="*"/>
                                                             </Grid.RowDefinitions>
 
-                                                            <TextBlock Grid.Row="1" Text="Recently used emoticons" Foreground="#737373" Margin="0,12,0,5"/>
+                                                            <TextBlock Grid.Row="1" Text="{loc:Loc ChatRecentEmoticons}" Foreground="#737373" Margin="0,12,0,5"/>
 
                                                             <Grid x:Name="RecentEmojiGrid" Grid.Row="2">
                                                                 <Grid.ColumnDefinitions>
@@ -1580,7 +1581,7 @@
                                                                 <Border Grid.Column="10" Style="{StaticResource EmojiBoxStyle}"/>
                                                             </Grid>
 
-                                                            <TextBlock Grid.Row="3" Text="Pinned emoticons" Foreground="#737373" Margin="0,4,0,5"/>
+                                                            <TextBlock Grid.Row="3" Text="{loc:Loc ChatPinnedEmoticons}" Foreground="#737373" Margin="0,4,0,5"/>
 
                                                             <Grid x:Name="PinnedEmojiGrid" Grid.Row="4">
                                                                 <Grid.ColumnDefinitions>
@@ -1806,7 +1807,7 @@
                                                 </Grid>
                                             </StackPanel>
                                             <Grid Height="30" MouseUp="OpenEmojiFlyout">
-                                                <controls:NineSliceButton x:Name="EmojiButtonGrid" ToolTip="Select an emoticon" ToggleButton="CheckToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
+                                                <controls:NineSliceButton x:Name="EmojiButtonGrid" ToolTip="{loc:Loc ChatSelectEmoticon}" ToggleButton="CheckToggleButton" Hover="/Aerochat;component/Resources/Message/ToolbarHover.png" Pressed="/Aerochat;component/Resources/Message/ToolbarActive.png" Slice="6,6" />
                                                 <Image Margin="8,0" Source="/Aerochat;component/Resources/Emoji/Smile.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsHitTestVisible="False" Width="16" Height="16" />
                                             </Grid>
                                             <Grid Height="30" MouseUp="RunNudge">
@@ -1850,7 +1851,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Hyperlink.Style>
-                            <TextBlock HorizontalAlignment="Stretch" Text="Aerochat by nullptr" />
+                            <TextBlock HorizontalAlignment="Stretch" Text="{loc:Loc ChatAttribution}" />
                         </Hyperlink>
                     </TextBlock>
                     <StackPanel Margin="0,2,4,0" Orientation="Horizontal" Grid.Column="1" Height="24">

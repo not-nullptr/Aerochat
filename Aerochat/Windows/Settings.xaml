@@ -1,11 +1,14 @@
-﻿<Window x:Class="Aerochat.Windows.Settings"
+<Window x:Class="Aerochat.Windows.Settings"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Aerochat.Windows" xmlns:viewmodels="clr-namespace:Aerochat.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+        xmlns:local="clr-namespace:Aerochat.Windows"
+        xmlns:viewmodels="clr-namespace:Aerochat.ViewModels"
+        xmlns:loc="clr-namespace:Aerochat.Localization"
+        d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
         mc:Ignorable="d"
-        Title="Settings" Height="570" Width="520"
+        Title="{loc:Loc SettingsWindowTitle}" Height="570" Width="520"
         Background="#f0f0f0"
         Style="{StaticResource Window}" WindowStartupLocation="CenterScreen">
     <Grid Margin="7">
@@ -125,7 +128,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
-                                <CheckBox Click="CheckBox_Click" Tag="{Binding Name}" IsChecked="{Binding DefaultValue}" VerticalAlignment="Center">
+                                <CheckBox Click="CheckBox_Click" Tag="{Binding Key}" IsChecked="{Binding DefaultValue}" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Name}" />
                                 </CheckBox>
                             </StackPanel>
@@ -143,7 +146,7 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
-                                <TextBox TextChanged="TextBox_TextChanged" Tag="{Binding Name}" Text="{Binding DefaultValue}" PreviewTextInput="TextBox_PreviewTextInput" VerticalContentAlignment="Center" Width="150" Height="22" HorizontalAlignment="Left" />
+                                <TextBox TextChanged="TextBox_TextChanged" Tag="{Binding Key}" Text="{Binding DefaultValue}" PreviewTextInput="TextBox_PreviewTextInput" VerticalContentAlignment="Center" Width="150" Height="22" HorizontalAlignment="Left" />
                             </StackPanel>
                             
                             <!-- For Multi-String to Index Settings -->
@@ -162,7 +165,7 @@
                                 <ComboBox 
                                     SelectionChanged="ComboBox_SelectionChanged" 
                                     SelectedItem="{Binding DefaultValue, Mode=TwoWay}" 
-                                    Tag="{Binding Name}"
+                                    Tag="{Binding Key}"
                                     ItemsSource="{Binding StringValues}" 
                                     Width="150" 
                                     Height="22" 
@@ -186,11 +189,47 @@
                                 <ComboBox 
        SelectionChanged="ComboBox_SelectionChanged" 
        SelectedItem="{Binding SelectedEnumValue, Mode=TwoWay}" 
-                                    Tag="{Binding Name}"
+                                    Tag="{Binding Key}"
        ItemsSource="{Binding EnumValues}" 
        Width="150" 
        Height="22" 
        HorizontalAlignment="Left" />
+                            </StackPanel>
+
+                            <!-- For StringList Settings (e.g. Language selector) -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="StringList">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Margin="0,8,0,4" Text="{Binding Name}" />
+                                <ComboBox
+                                    SelectionChanged="StringList_SelectionChanged"
+                                    SelectedItem="{Binding DefaultValue, Mode=TwoWay}"
+                                    Tag="{Binding Key}"
+                                    ItemsSource="{Binding StringValues}"
+                                    Width="150"
+                                    Height="22"
+                                    HorizontalAlignment="Left" />
+                                <TextBlock Margin="0,4,0,0" FontSize="11" Foreground="#888" TextWrapping="Wrap"
+                                           Text="{Binding Note}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Note}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

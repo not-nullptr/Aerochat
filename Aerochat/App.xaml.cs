@@ -1,4 +1,5 @@
 using Aerochat.Hoarder;
+using Aerochat.Localization;
 using Aerochat.ViewModels;
 using Aerochat.Windows;
 using Aerochat.Settings;
@@ -222,6 +223,11 @@ namespace Aerochat
         private void StartAerochatMain()
         {
             SettingsManager.Load();
+
+            // Apply the saved locale as early as possible so every window opened
+            // afterward already uses the correct language.
+            LocalizationManager.Instance.LoadLanguage(SettingsManager.Instance.Language);
+
             if (SettingsManager.Instance.ReadRecieptReference == DateTime.MinValue)
             {
                 SettingsManager.Instance.ReadRecieptReference = DateTime.Now;
@@ -289,7 +295,7 @@ namespace Aerochat
                     this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
                     Dialog dialog = new(
-                        "Warning",
+                        LocalizationManager.Instance["AppWarningTitle"],
                         "Your session token could not be decrypted. This may occur due to your configuration being " +
                         "transferred from another user. You will be logged out.",
                         SystemIcons.Warning
@@ -755,10 +761,10 @@ namespace Aerochat
                     ApplicationPath = System.Environment.ProcessPath,
                     Arguments = $"/opendm {channelId}",
                     Title = recipientName,
-                    Description = $"Open your chat with {recipientName}",
+                    Description = string.Format(LocalizationManager.Instance["AppJumpListOpenChatWith"], recipientName),
                     IconResourcePath = System.Environment.ProcessPath,
                     IconResourceIndex = 0,
-                    CustomCategory = "Recent Chats",
+                    CustomCategory = LocalizationManager.Instance["AppJumpListRecentChats"],
                 };
 
                 jumpList.JumpItems.Add(item);
@@ -784,10 +790,10 @@ namespace Aerochat
                     ApplicationPath = System.Environment.ProcessPath,
                     Arguments = $"/openguild {guildId}",
                     Title = guild.Name,
-                    Description = $"Open your chat in {guild.Name}",
+                    Description = string.Format(LocalizationManager.Instance["AppJumpListOpenChatIn"], guild.Name),
                     IconResourcePath = System.Environment.ProcessPath,
                     IconResourceIndex = 0,
-                    CustomCategory = "Recent Servers",
+                    CustomCategory = LocalizationManager.Instance["AppJumpListRecentServers"],
                 };
 
                 jumpList.JumpItems.Add(item);

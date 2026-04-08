@@ -171,6 +171,12 @@ namespace Aerochat.Settings
         public List<ulong> FavoriteConversationIds { get; set; } = [];
         public List<ulong> FavoriteGuildIds { get; set; } = [];
 
+        /// <summary>
+        /// BCP-47 language code for the UI locale (e.g. "en", "fr").
+        /// Defaults to English. Locale files must be present in the Locales/ folder.
+        /// </summary>
+        public string Language { get; set; } = "en";
+
         #endregion
 
         #region Public Settings

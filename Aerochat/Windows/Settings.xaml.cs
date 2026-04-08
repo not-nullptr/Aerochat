@@ -1,4 +1,5 @@
-﻿using Aerochat.Settings;
+using Aerochat.Localization;
+using Aerochat.Settings;
 using Aerochat.Theme;
 using Aerochat.ViewModels;
 using System;
@@ -25,41 +26,77 @@ namespace Aerochat.Windows
     public partial class Settings : Window
     {
         public SettingsViewModel ViewModel { get; } = new();
+        private const string GeneralCategoryKey = "General";
+
         public Settings()
         {
             InitializeComponent();
             DataContext = ViewModel;
-            // using reflection, get all properties using the SettingsAttribute decorator off SettingsManager.Instance
+
+            // Inject the "General" category first (contains language selector).
+            ViewModel.Categories.Add(new SettingsCategory
+            {
+                Key = GeneralCategoryKey,
+                Name = LocalizationManager.Instance["SettingsCategoryGeneral"]
+            });
+
+            // Populate remaining categories from reflection on SettingsManager.
             var properties = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .Where(prop => prop.GetCustomAttribute<SettingsAttribute>() != null);
-            // add all categories
-            foreach (var category in properties.Select(prop => prop.GetCustomAttribute<SettingsAttribute>()!.Category).Distinct())
+
+            foreach (var englishCategory in properties
+                .Select(prop => prop.GetCustomAttribute<SettingsAttribute>()!.Category)
+                .Distinct())
             {
-                ViewModel.Categories.Add(new SettingsCategory { Name = category });
+                var locKey = "SettingsCategory" + englishCategory;
+                var translated = LocalizationManager.Instance.Get(locKey);
+                ViewModel.Categories.Add(new SettingsCategory
+                {
+                    Key = englishCategory,
+                    Name = translated != locKey ? translated : englishCategory
+                });
             }
 
             ViewModel.SelectedCategory = ViewModel.Categories.First();
             CategoriesListBox.SelectedItem = ViewModel.SelectedCategory;
-            var items = GetSettingsFromCategory(ViewModel.SelectedCategory.Name);
+            var items = GetSettingsFromCategory(ViewModel.SelectedCategory.Key);
             foreach (var item in items)
             {
                 ViewModel.SettingsItems.Add(item);
             }
         }
 
-        private string GetEnumDisplayName(Enum enumValue)
+        private static string GetEnumDisplayName(Enum enumValue)
         {
-            // Get the field corresponding to the enum value
             var field = enumValue.GetType().GetField(enumValue.ToString());
-            // Get the DisplayAttribute from the field
             var attribute = (DisplayAttribute)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
+            var englishName = attribute?.Name ?? enumValue.ToString();
+            // Translate via reverse-lookup in the English baseline
+            return LocalizationManager.Instance.GetByEnglishValue(englishName);
+        }
 
-            return attribute?.Name ?? enumValue.ToString(); // Return the display name or the enum value if no display name is found
+        /// <summary>
+        /// Returns the translated display name for a settings property.
+        /// The locale key is constructed as "Setting" + the C# property name (e.g. "SettingShowBetaWarning").
+        /// Falls back to the English DisplayName from [SettingsAttribute] when no translation is available.
+        /// </summary>
+        private static string TranslateSettingName(PropertyInfo prop)
+        {
+            var attr = prop.GetCustomAttribute<SettingsAttribute>()!;
+            var locKey = "Setting" + prop.Name;
+            var translated = LocalizationManager.Instance.Get(locKey);
+            return translated != locKey ? translated : attr.DisplayName;
         }
 
         public List<SettingViewModel> GetSettingsFromCategory(string category)
         {
+            // The "General" category is handled separately since its items are not
+            // backed by [Settings]-decorated properties on SettingsManager.
+            // category is always the English Key, so comparing to GeneralCategoryKey is sufficient.
+            if (category == GeneralCategoryKey)
+                return GetGeneralSettings();
+
             var properties = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .Where(prop => prop.GetCustomAttribute<SettingsAttribute>()?.Category == category);
@@ -78,7 +115,8 @@ namespace Aerochat.Windows
 
                     settings.Add(new SettingViewModel
                     {
-                        Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                        Key = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                        Name = TranslateSettingName(prop),
                         Type = "Enum",
                         DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString(),
                         EnumValues = new ObservableCollection<string>(enumValues.Select(ev => ev.Value)),
@@ -94,9 +132,10 @@ namespace Aerochat.Windows
                         
                         settings.Add(new SettingViewModel
                         {
-                            Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Key = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Name = TranslateSettingName(prop),
                             Type = prop.PropertyType.Name,
-                            DefaultValue = displayNames.ElementAtOrDefault(SettingsManager.Instance.InputDeviceIndex) ?? "Unknown",
+                            DefaultValue = displayNames.ElementAtOrDefault(SettingsManager.Instance.InputDeviceIndex) ?? LocalizationManager.Instance["SettingsUnknownDevice"],
                             StringValues = new ObservableCollection<string>(displayNames),
                         });
                     }
@@ -104,7 +143,8 @@ namespace Aerochat.Windows
                     {
                         settings.Add(new SettingViewModel
                         {
-                            Name = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Key = prop.GetCustomAttribute<SettingsAttribute>()!.DisplayName,
+                            Name = TranslateSettingName(prop),
                             Type = prop.PropertyType.Name,
                             DefaultValue = prop.GetValue(SettingsManager.Instance)?.ToString()
                         });
@@ -115,6 +155,32 @@ namespace Aerochat.Windows
             return settings;
         }
 
+        /// <summary>
+        /// Builds the settings items for the "General" category, which contains the language selector.
+        /// The available languages are discovered dynamically by scanning the Locales folder, so
+        /// contributors can add new translations without recompiling the application.
+        /// </summary>
+        private List<SettingViewModel> GetGeneralSettings()
+        {
+            var loc = LocalizationManager.Instance;
+            var languages = loc.GetAvailableLanguages();
+            var currentName = languages.FirstOrDefault(l => l.Code == SettingsManager.Instance.Language).Name
+                              ?? SettingsManager.Instance.Language;
+
+            return new List<SettingViewModel>
+            {
+                new SettingViewModel
+                {
+                    Key = "Language",
+                    Name = loc["SettingLanguage"],
+                    Note = loc["SettingLanguageRestartNote"],
+                    Type = "StringList",
+                    DefaultValue = currentName,
+                    StringValues = new ObservableCollection<string>(languages.Select(l => l.Name))
+                }
+            };
+        }
+
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // get the selected category
@@ -123,7 +189,7 @@ namespace Aerochat.Windows
             // clear the settings list
             ViewModel.SettingsItems.Clear();
             // add the settings from the selected category
-            var items = GetSettingsFromCategory(category.Name);
+            var items = GetSettingsFromCategory(category.Key);
             foreach (var item in items)
             {
                 ViewModel.SettingsItems.Add(item);
@@ -139,81 +205,89 @@ namespace Aerochat.Windows
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textBox = (TextBox)sender;
-            int.TryParse(textBox.Text, out var result);
-            // get the property name
-            var name = textBox.Tag.ToString();
-            // get all properties with their decorators and find the one where name == the name on the decorator)
+            if (textBox.Tag is not string name) return;
+            if (!int.TryParse(textBox.Text, out var result)) return;
             var property = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .FirstOrDefault(prop => prop.GetCustomAttribute<SettingsAttribute>()?.DisplayName == name);
-            // if the types don't match, return
-            if (property!.PropertyType != typeof(int)) return;
-            property!.SetValue(SettingsManager.Instance, result);
-            // save the settings
+            if (property is null || property.PropertyType != typeof(int)) return;
+            property.SetValue(SettingsManager.Instance, result);
             SettingsManager.Save();
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
             var checkBox = (CheckBox)sender;
-            var name = checkBox.Tag.ToString();
-            // get all properties with their decorators and find the one where name == the name on the decorator)
+            if (checkBox.Tag is not string name) return;
             var property = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .FirstOrDefault(prop => prop.GetCustomAttribute<SettingsAttribute>()?.DisplayName == name);
-            // set the value of the property to the value of the textbox
-            if (property!.PropertyType != typeof(bool)) return;
-            property!.SetValue(SettingsManager.Instance, checkBox.IsChecked);
-            // save the settings
+            if (property is null || property.PropertyType != typeof(bool)) return;
+            property.SetValue(SettingsManager.Instance, checkBox.IsChecked);
             SettingsManager.Save();
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = (ComboBox)sender;
-            var name = comboBox.Tag.ToString();
-            var selectedValue = comboBox.SelectedItem.ToString();
+            if (comboBox.Tag is not string name) return;
+            if (comboBox.SelectedItem is not string selectedValue) return;
 
-            // Find the corresponding property in SettingsManager
             var property = SettingsManager.Instance.GetType()
                 .GetProperties()
                 .FirstOrDefault(prop => prop.GetCustomAttribute<SettingsAttribute>()?.DisplayName == name);
 
-            // If it's an Enum, map display name to enum value
-            if (property!.PropertyType.IsEnum)
+            if (property is null) return;
+
+            if (property.PropertyType.IsEnum)
             {
                 var enumValue = Enum.GetValues(property.PropertyType)
                     .Cast<Enum>()
-                    .FirstOrDefault(e => GetEnumDisplayName(e) == selectedValue);
+                    .FirstOrDefault(v => GetEnumDisplayName(v) == selectedValue);
 
                 if (enumValue != null)
-                {
                     property.SetValue(SettingsManager.Instance, enumValue);
-                }
             }
-            
-            // If it's an integer, it's a List of strings to Int mapping
-            if (property!.PropertyType.IsInteger()) 
+            else if (property.PropertyType.IsInteger())
             {
-                int foundIndex = 0;
                 int index = 0;
-                
                 foreach (string comboBoxItem in comboBox.Items)
                 {
-                    if (comboBoxItem == selectedValue)
-                    {
-                        foundIndex = index;
-                        break;
-                    }
-
+                    if (comboBoxItem == selectedValue) break;
                     index++;
                 }
-                
-                property.SetValue(SettingsManager.Instance, foundIndex);
+                property.SetValue(SettingsManager.Instance, index);
             }
 
-            // Save the settings
             SettingsManager.Save();
+        }
+
+        /// <summary>
+        /// Handles language selection changes from the StringList combobox in the General category.
+        /// Finds the language code that corresponds to the selected display name and reloads the locale.
+        /// </summary>
+        private void StringList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = (ComboBox)sender;
+            if (comboBox.SelectedItem is not string selectedName)
+                return;
+
+            var languages = LocalizationManager.Instance.GetAvailableLanguages();
+            var match = languages.FirstOrDefault(l => l.Name == selectedName);
+            if (match == default)
+                return;
+
+            // Do nothing if the language hasn't actually changed (e.g. ComboBox init fires SelectionChanged).
+            if (match.Code == SettingsManager.Instance.Language)
+                return;
+
+            // Persist the new language choice before restarting.
+            SettingsManager.Instance.Language = match.Code;
+            SettingsManager.Save();
+
+            // Restart the application so every already-open window picks up the new language.
+            System.Diagnostics.Process.Start(Environment.ProcessPath!);
+            Application.Current.Shutdown();
         }
     }
 }

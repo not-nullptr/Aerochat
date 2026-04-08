@@ -1,5 +1,6 @@
 using Aerochat.Enums;
 using Aerochat.Hoarder;
+using Aerochat.Localization;
 using Aerochat.Settings;
 using Aerochat.Helpers;
 using DSharpPlus;
@@ -152,7 +153,7 @@ namespace Aerochat.ViewModels
         {
             var format = SettingsManager.Instance.SelectedTimeFormat == TimeFormat.TwentyFourHour ? "HH:mm" : "h:mm tt";
             var time = Timestamp.ToString(format, CultureInfo.InvariantCulture);
-            return $"Last message received at {time} on {Timestamp.ToShortDateString()}.";
+            return string.Format(Localization.LocalizationManager.Instance["MessageLastReceived"], time, Timestamp.ToString("dd/MM/yyyy"));
         }
 
         private DateTime _timestamp;
@@ -213,23 +214,24 @@ namespace Aerochat.ViewModels
 
             // TO ANY DEVELOPER LOOKING AT THIS, THINKING "WHERE IS THIS CRASHING??"
             // IT'S PROBABLY THE TIERONE, TIERTWO, OR TIERTHREE USERPREMIUMGUILDSUBSCRIPTIONS!!!!
+            var loc = LocalizationManager.Instance;
             var specialMsg = message.MessageType switch
             {
-                MessageType.GuildMemberJoin => $"{user.Name} has entered the conversation.",
-                MessageType.UserPremiumGuildSubscription => $"{user.Name} has subscribed to {message.Channel.Guild.Name}!",
-                MessageType.TierOneUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level one!",
-                MessageType.TierTwoUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level two!",
-                MessageType.TierThreeUserPremiumGuildSubscription => $"{user.Name} has subscribed to the server, bringing {message.Channel.Guild.Name} to level three!",
-                MessageType.RecipientAdd => $"{user.Name} has been added to the group.",
-                MessageType.RecipientRemove => $"{user.Name} has been removed from the group.",
-                MessageType.Call => $"{user.Name} has started a call.",
-                MessageType.ChannelFollowAdd => $"{user.Name} has followed the channel.",
-                MessageType.GuildDiscoveryDisqualified => $"{message.Channel.Guild.Name} has been disqualified from server discovery.",
-                MessageType.GuildDiscoveryRequalified => $"{message.Channel.Guild.Name} has been requalified for server discovery.",
-                MessageType.GuildDiscoveryGracePeriodInitialWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for a week.",
-                MessageType.GuildDiscoveryGracePeriodFinalWarning => $"{message.Channel.Guild.Name} has failed to meet the server discovery requirements for three weeks.",
-                MessageType.ChannelPinnedMessage => $"{user.Name} pinned a message to this channel.",
-                MessageType.ChannelNameChange => $"{user.Name} has changed the group name to {message.Content}.",
+                MessageType.GuildMemberJoin => string.Format(loc["MessageSystemJoined"], user.Name),
+                MessageType.UserPremiumGuildSubscription => string.Format(loc["MessageSystemNitroUpgrade"], user.Name),
+                MessageType.TierOneUserPremiumGuildSubscription => string.Format(loc["MessageSystemNitroUpgradeTier1"], user.Name),
+                MessageType.TierTwoUserPremiumGuildSubscription => string.Format(loc["MessageSystemNitroUpgradeTier2"], user.Name),
+                MessageType.TierThreeUserPremiumGuildSubscription => string.Format(loc["MessageSystemNitroUpgradeTier3"], user.Name),
+                MessageType.RecipientAdd => string.Format(loc["MessageSystemGroupAdd"], user.Name, message.MentionedUsers.FirstOrDefault()?.Username ?? "?"),
+                MessageType.RecipientRemove => string.Format(loc["MessageSystemGroupRemove"], user.Name, message.MentionedUsers.FirstOrDefault()?.Username ?? "?"),
+                MessageType.Call => string.Format(loc["MessageSystemGroupCall"], user.Name),
+                MessageType.ChannelFollowAdd => string.Format(loc["MessageSystemFollowedChannel"], user.Name, message.Content),
+                MessageType.GuildDiscoveryDisqualified => loc["MessageSystemGuildDiscovery"],
+                MessageType.GuildDiscoveryRequalified => loc["MessageSystemGuildDiscovery"],
+                MessageType.GuildDiscoveryGracePeriodInitialWarning => loc["MessageSystemGuildDiscovery"],
+                MessageType.GuildDiscoveryGracePeriodFinalWarning => loc["MessageSystemGuildDiscovery"],
+                MessageType.ChannelPinnedMessage => string.Format(loc["MessageSystemPinnedMessage"], user.Name),
+                MessageType.ChannelNameChange => string.Format(loc["MessageSystemGroupRename"], user.Name, message.Content),
                 _ => null
             };
             switch (message.Content)
@@ -244,7 +246,9 @@ namespace Aerochat.ViewModels
                     //    Special = true,
                     //    RawMessage = message.Content
                     //};
-                    vm.Message = $"{(user.Id == Discord.Client.CurrentUser.Id ? "You have" : $"{user.Name} has")} just sent a nudge.";
+                    vm.Message = user.Id == Discord.Client.CurrentUser.Id
+                        ? loc["MessageNudgeSentYou"]
+                        : string.Format(loc["MessageNudgeSentOther"], user.Name);
                     vm.Special = true;
                     break;
                 default:
