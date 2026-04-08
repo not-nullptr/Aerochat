@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Globals">
 		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
@@ -10,6 +10,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
+		<DefineConstants>$(DefineConstants);FEATURE_SELECTABLE_MESSAGE_TEXT</DefineConstants>
 		<Platforms>AnyCPU;x64</Platforms>
 		<NuGetAudit>false</NuGetAudit>
 		<ApplicationIcon>Icons\MainWnd.ico</ApplicationIcon>

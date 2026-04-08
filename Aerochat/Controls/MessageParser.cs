@@ -182,7 +182,22 @@ namespace Aerochat.Controls
                         if (link.Inlines.Count > 0 && type != null)
                         {
                             link.Click += (s, e) => OnHyperlinkClicked(type.Value, associatedObject);
-                            textBlock.Inlines.Add(link);
+                            // When the mentioned user is the client give light blue background so it stands out
+                            if (type == HyperlinkType.User && associatedObject is DiscordUser mentionedUser
+                                && mentionedUser.Id == Discord.Client.CurrentUser?.Id
+                                && Settings.SettingsManager.Instance.HighlightMentions)
+                            {
+                                link.Foreground = new SolidColorBrush(Color.FromRgb(73, 164, 218));
+                                var span = new Span(link)
+                                {
+                                    Background = new SolidColorBrush(Color.FromArgb(0x50, 73, 164, 218))
+                                };
+                                textBlock.Inlines.Add(span);
+                            }
+                            else
+                            {
+                                textBlock.Inlines.Add(link);
+                            }
                             continue;
                         }
                         else if (type == HyperlinkType.ServerEmoji)
@@ -294,10 +309,13 @@ namespace Aerochat.Controls
 
         public TextBlock FormatFullText(TextBlock sourceTextBlock)
         {
+#if FEATURE_SELECTABLE_MESSAGE_TEXT
+            var newTextBlock = new SelectableTextBlock
+#else
             var newTextBlock = new TextBlock
+#endif
             {
                 TextWrapping = sourceTextBlock.TextWrapping,
-
                 Foreground = sourceTextBlock.Foreground,
                 TextAlignment = sourceTextBlock.TextAlignment
             };

@@ -1,4 +1,4 @@
-﻿using Aerochat.Helpers;
+using Aerochat.Helpers;
 using Aerochat.Hoarder;
 using Aerochat.Services;
 using Aerochat.Settings;
@@ -1262,6 +1262,7 @@ namespace Aerochat.Windows
                 Ephemeral = true,
                 Special = value == "[nudge]",
                 MessageEntity = fakeMsg,
+                IsAuthorCurrentUser = true,
             };
 
             ViewModel.Messages.Add(pendingVm);
@@ -1758,6 +1759,18 @@ namespace Aerochat.Windows
                             return;
 
                         OpenExternalUrl(uri);
+                        break;
+                    }
+
+                case Controls.HyperlinkType.User:
+                    {
+                        if (e.AssociatedObject is not DiscordUser discordUser)
+                            return;
+                        var authorVm = UserViewModel.FromUser(discordUser);
+                        UserProfilePopupContent.DataContext = new { Author = authorVm, Scene = ThemeService.Instance.Scene };
+                        UserProfilePopup.PlacementTarget = sender as System.Windows.UIElement;
+                        UserProfilePopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                        UserProfilePopup.IsOpen = true;
                         break;
                     }
 
@@ -2293,6 +2306,16 @@ namespace Aerochat.Windows
             MessageViewModel? messageVm = GetMessageViewModelForContextMenu(sender);
 
             Clipboard.SetText(messageVm.Message.ToString());
+        }
+
+        private void AuthorName_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button || button.DataContext is not MessageViewModel messageVm || messageVm.Author == null)
+                return;
+            UserProfilePopupContent.DataContext = new { Author = messageVm.Author, Scene = ThemeService.Instance.Scene };
+            UserProfilePopup.PlacementTarget = button;
+            UserProfilePopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            UserProfilePopup.IsOpen = true;
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
