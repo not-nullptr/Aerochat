@@ -91,7 +91,6 @@ namespace Aerochat.Windows
                 // Set default visibilities of optional homepage elements:
                 UpdateAdVisibility();
                 UpdateNewsVisibility();
-                UpdateDiscordServerLinkVisibility();
 
                 await Client_Ready(Discord.Client, null);
 
@@ -108,9 +107,6 @@ namespace Aerochat.Windows
         private void UpdateNewsVisibility() =>
             NewsContainer.Visibility = SettingsManager.Instance.DisplayHomeNews ? Visibility.Visible : Visibility.Collapsed;
 
-        private void UpdateDiscordServerLinkVisibility() =>
-            DiscordServerLinkContainer.Visibility = SettingsManager.Instance.DisplayDiscordServerLink ? Visibility.Visible : Visibility.Collapsed;
-
         private void OnSettingsChange(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SettingsManager.Instance.DisplayAds))
@@ -120,10 +116,6 @@ namespace Aerochat.Windows
             else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayHomeNews))
             {
                 Dispatcher.BeginInvoke(UpdateNewsVisibility);
-            }
-            else if (e.PropertyName == nameof(SettingsManager.Instance.DisplayDiscordServerLink))
-            {
-                Dispatcher.BeginInvoke(UpdateDiscordServerLinkVisibility);
             }
         }
 
@@ -194,14 +186,6 @@ namespace Aerochat.Windows
             {
                 newsTimer.Elapsed += NewsTimer_Elapsed;
                 newsTimer.Start();
-                ViewModel.Buttons.Add(new()
-                {
-                    Image="/Aerochat;component/Resources/Icons/DiscordIcon.png",
-                    Click = () =>
-                    {
-                        Process.Start(new ProcessStartInfo("https://discord.gg/Jcg84hmSqM") { UseShellExecute = true });
-                    }
-                });
                 var assembly = Assembly.GetExecutingAssembly();
                 string resourceName = "Aerochat.Ads.Ads.xml";
                 using Stream stream = assembly.GetManifestResourceStream(resourceName);
@@ -244,15 +228,9 @@ namespace Aerochat.Windows
                 ViewModel.Ad = _ads[AdIndex];
                 _adTimer.Start();
 
-                ViewModel.Categories.Add(new HomeListViewCategory
-                {
-                    Name = "Conversations",
-                });
-
-                ViewModel.Categories.Add(new HomeListViewCategory
-                {
-                    Name = "Servers",
-                });
+                ViewModel.Categories.Insert(0, new HomeListViewCategory { Name = "Favorites" });
+                ViewModel.Categories.Add(new HomeListViewCategory { Name = "Conversations" });
+                ViewModel.Categories.Add(new HomeListViewCategory { Name = "Servers" });
 
                 Discord.Client.PresenceUpdated += InvokeUpdateStatuses;
                 Discord.Client.ChannelCreated += ChannelCreatedEvent;
@@ -262,6 +240,7 @@ namespace Aerochat.Windows
 
                 UpdateStatuses();
                 AddGuilds();
+                RefreshFavoritesCategory();
 
                 Discord.Client.MessageCreated += async (s, e) =>
                 {
@@ -734,7 +713,7 @@ namespace Aerochat.Windows
             {
                 foreach (PreloadedUserSettings.Types.GuildFolder folder in DiscordUserSettingsManager.Instance.UserSettingsProto!.GuildFolders.Folders)
                 {
-                    var index = 1;
+                    var index = 2; // Servers category index (0=Favorites, 1=Conversations, 2=Servers)
                     if (!string.IsNullOrEmpty(folder.Name))
                     {
                         var category = new HomeListViewCategory
@@ -787,7 +766,7 @@ namespace Aerochat.Windows
 
                 channelsList.Sort((x, y) => x.Position.CompareTo(y.Position));
 
-                CreateAndInsertGuild(guild.Name, channelsList.ElementAtOrDefault(0)?.Id ?? 0, 1);
+                CreateAndInsertGuild(guild.Name, channelsList.ElementAtOrDefault(0)?.Id ?? 0, 2);
             }
             UpdateUnreadMessages();
         }
@@ -812,12 +791,64 @@ namespace Aerochat.Windows
             ViewModel.Categories[categoryIndex].Items.Add(guildItem);
         }
 
+        private void RefreshFavoritesCategory()
+        {
+            if (ViewModel.Categories.Count == 0) return;
+            var favoritesCategory = ViewModel.Categories[0];
+            if (favoritesCategory.Name != "Favorites") return;
+
+            favoritesCategory.Items.Clear();
+
+            // Conversations category is at index 1
+            const int conversationsIndex = 1;
+            if (ViewModel.Categories.Count > conversationsIndex)
+            {
+                foreach (var id in SettingsManager.Instance.FavoriteConversationIds.ToList())
+                {
+                    var source = ViewModel.Categories[conversationsIndex].Items.FirstOrDefault(i => i.Id == id);
+                    if (source != null)
+                        favoritesCategory.Items.Add(CloneListItem(source));
+                }
+            }
+
+            // Servers and folders start at index 2
+            for (var catIndex = 2; catIndex < ViewModel.Categories.Count; catIndex++)
+            {
+                foreach (var id in SettingsManager.Instance.FavoriteGuildIds.ToList())
+                {
+                    var source = ViewModel.Categories[catIndex].Items.FirstOrDefault(i => i.Id == id);
+                    if (source != null)
+                    {
+                        favoritesCategory.Items.Add(CloneListItem(source));
+                        break; // each guild appears in only one category
+                    }
+                }
+            }
+        }
+
+        private static HomeListItemViewModel CloneListItem(HomeListItemViewModel source)
+        {
+            var clone = new HomeListItemViewModel
+            {
+                Id = source.Id,
+                Name = source.Name,
+                Image = source.Image,
+                Presence = source.Presence,
+                IsGroupChat = source.IsGroupChat,
+                RecipientCount = source.RecipientCount,
+                LastMsgId = source.LastMsgId,
+            };
+            foreach (var r in source.Recipients) clone.Recipients.Add(r);
+            foreach (var u in source.ConnectedUsers) clone.ConnectedUsers.Add(u);
+            return clone;
+        }
+
         private void UpdateStatuses()
         {
             // Update the UI with the sorted list
             _ = Dispatcher.BeginInvoke(() =>
             {
-                var oldList = ViewModel.Categories[0].Items;
+                var oldList = ViewModel.Categories[1].Items;
                 var newList = new List<HomeListItemViewModel>();
 
                 // Build the new list from the current private channels
@@ -904,13 +935,18 @@ namespace Aerochat.Windows
                     }
                 }
 
-                
-                if (isSame) return;
-                ViewModel.Categories[0].Items.Clear();
+                if (isSame)
+                {
+                    // List unchanged; still refresh favorites so loaded-from-config favorites appear
+                    RefreshFavoritesCategory();
+                    return;
+                }
+                ViewModel.Categories[1].Items.Clear();
                 foreach (var item in newList)
                 {
-                    ViewModel.Categories[0].Items.Add(item);
+                    ViewModel.Categories[1].Items.Add(item);
                 }
+                RefreshFavoritesCategory();
             });
         }
 
@@ -1008,6 +1044,67 @@ namespace Aerochat.Windows
             {
                 item.IsSelected = true;
             }
+        }
+
+        private void ItemContextMenu_Opening(object sender, ContextMenuEventArgs e)
+        {
+            if (sender is not Button button || button.DataContext is not HomeListItemViewModel listItem)
+                return;
+            var contextMenu = button.ContextMenu;
+            if (contextMenu?.Items.Count != 2) return;
+            var favoriteItem = contextMenu.Items[0] as MenuItem;
+            var unfavoriteItem = contextMenu.Items[1] as MenuItem;
+            if (favoriteItem == null || unfavoriteItem == null) return;
+            // Use Id comparison: Favorites category contains clones, so reference equality would be wrong
+            var inFavorites = ViewModel.Categories.Count > 0 && ViewModel.Categories[0].Items.Any(i => i.Id == listItem.Id);
+            var alreadyFavorited = SettingsManager.Instance.FavoriteConversationIds.Contains(listItem.Id)
+                || SettingsManager.Instance.FavoriteGuildIds.Contains(listItem.Id);
+            favoriteItem.Visibility = inFavorites || alreadyFavorited ? Visibility.Collapsed : Visibility.Visible;
+            unfavoriteItem.Visibility = inFavorites || alreadyFavorited ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void FavoriteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetListItemFromContextMenuSender(sender);
+            if (item == null) return;
+            // Category 0 = Favorites, 1 = Conversations, 2+ = Servers/folders
+            var inConversations = ViewModel.Categories.Count > 1 && ViewModel.Categories[1].Items.Contains(item);
+            if (inConversations)
+            {
+                if (!SettingsManager.Instance.FavoriteConversationIds.Contains(item.Id))
+                {
+                    SettingsManager.Instance.FavoriteConversationIds.Add(item.Id);
+                    SettingsManager.Save();
+                    RefreshFavoritesCategory();
+                }
+            }
+            else
+            {
+                if (!SettingsManager.Instance.FavoriteGuildIds.Contains(item.Id))
+                {
+                    SettingsManager.Instance.FavoriteGuildIds.Add(item.Id);
+                    SettingsManager.Save();
+                    RefreshFavoritesCategory();
+                }
+            }
+        }
+
+        private void UnfavoriteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetListItemFromContextMenuSender(sender);
+            if (item == null) return;
+            SettingsManager.Instance.FavoriteConversationIds.Remove(item.Id);
+            SettingsManager.Instance.FavoriteGuildIds.Remove(item.Id);
+            SettingsManager.Save();
+            RefreshFavoritesCategory();
+        }
+
+        private static HomeListItemViewModel? GetListItemFromContextMenuSender(object sender)
+        {
+            if (sender is not MenuItem menuItem) return null;
+            var contextMenu = menuItem.Parent as ContextMenu;
+            var target = contextMenu?.PlacementTarget as Button;
+            return target?.DataContext as HomeListItemViewModel;
         }
 
         private async void Button_MouseDoubleClick(object sender, MouseButtonEventArgs e)

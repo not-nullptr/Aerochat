@@ -633,7 +633,13 @@
                             <HierarchicalDataTemplate ItemsSource="{Binding Items}">
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate>
-                                        <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}">
+                                        <Button MouseDoubleClick="Button_MouseDoubleClick" HorizontalContentAlignment="Left" Style="{StaticResource TransparentStyle}" ContextMenuOpening="ItemContextMenu_Opening">
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Favorite" Click="FavoriteMenuItem_Click" />
+                                                    <MenuItem Header="Remove from Favorites" Click="UnfavoriteMenuItem_Click" />
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
                                             <Grid Height="20" PreviewMouseDown="ItemClick">
                                                 <controls:NineSlice Slice="4,4">
                                                     <controls:NineSlice.Style>
@@ -919,42 +925,9 @@
                                 <controls:ColorizedNineSlice TintColor="{Binding Theme.Scene.Color}" Darken="0.5" Slice="1,1" VerticalAlignment="Top" Image="/Aerochat;component/Resources/Home/BottomSeparator.png" Height="6" />
                                 <Grid Margin="16,4,16,16">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
                                         <RowDefinition Height="64" />
                                     </Grid.RowDefinitions>
-                                    <Grid Grid.Row="0" x:Name="DiscordServerLinkContainer">
-                                        <ItemsControl ItemsSource="{Binding Buttons}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button Height="44" Style="{StaticResource TransparentStyle}" Width="Auto" Click="Button_Click">
-                                                        <Grid Width="Auto">
-                                                            <controls:NineSlice Slice="4,4">
-                                                                <controls:NineSlice.Style>
-                                                                    <Style TargetType="controls:NineSlice">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}" Value="True">
-                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/NonNativeTooltip/ItemHover.png" />
-                                                                            </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsPressed}" Value="True">
-                                                                                <Setter Property="Image" Value="/Aerochat;component/Resources/NonNativeTooltip/ItemActive.png" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </controls:NineSlice.Style>
-                                                            </controls:NineSlice>
-                                                            <Image Margin="8" Source="/Aerochat;component/Resources/Icons/DiscordIcon.png" />
-                                                        </Grid>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Grid>
-                                    <Grid Grid.Row="1" UseLayoutRounding="True">
+                                    <Grid Grid.Row="0" UseLayoutRounding="True">
                                         <Border Width="Auto" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black">
                                             <controls:AdImage x:Name="AdImage" PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="Image_PreviewMouseRightButtonDown" MaxWidth="234" Height="60" Grid.Column="1" DataContext="{Binding Ad}">
                                                 <controls:AdImage.Style>

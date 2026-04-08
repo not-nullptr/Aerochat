@@ -54,16 +54,14 @@ namespace Aerochat.Settings
                     "config.json");                                                       // \config.json
 
 #if DEBUG
-                // For debug builds, we always want to supply an application-specific
-                // path for developer convenience. It's not a problem since these builds
-                // should stay local to the developer's system.
-                if (true)
+                // Use user path in DEBUG too so that settings (e.g. favorites) persist across
+                // rebuilds and runs; the bin folder can be cleaned or vary by configuration.
+                _settingsFilePath = userPath;
 #else
                 // Otherwise, we only set the active path to the application-local path
                 // if the file already exists. This will not affect migration as the
                 // Aerochat 0.2 installer manages migration of 0.1-era configuration.
                 if (Path.Exists(applicationLocalPath))
-#endif
                 {
                     _settingsFilePath = applicationLocalPath;
                 }
@@ -71,6 +69,7 @@ namespace Aerochat.Settings
                 {
                     _settingsFilePath = userPath;
                 }
+#endif
 
                 return _settingsFilePath;
             }
@@ -101,9 +100,31 @@ namespace Aerochat.Settings
 
         public static void Load()
         {
-            if (!File.Exists(SettingsFilePath)) return;
+            var path = SettingsFilePath;
+#if DEBUG
+            // Migrate from legacy bin folder config so favorites and other settings are not lost
+            if (!File.Exists(path))
+            {
+                var applicationLocalPath = Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!,
+                    $"{Assembly.GetEntryAssembly()!.GetName().Name}.json");
+                if (File.Exists(applicationLocalPath))
+                {
+                    var migrationJson = File.ReadAllText(applicationLocalPath);
+                    if (TryLoadFromJson(migrationJson))
+                        Save(); // write to new user path
+                    return;
+                }
+            }
+#endif
+            if (!File.Exists(path)) return;
 
-            var json = File.ReadAllText(SettingsFilePath);
+            var json = File.ReadAllText(path);
+            TryLoadFromJson(json);
+        }
+
+        private static bool TryLoadFromJson(string json)
+        {
             Dictionary<string, JsonElement>? settings = null;
             try
             {
@@ -111,8 +132,7 @@ namespace Aerochat.Settings
             }
             catch (Exception)
             {
-                // Bypass any exception and skip loading settings.
-                return;
+                return false;
             }
 
             var properties = Instance.GetType()
@@ -129,11 +149,12 @@ namespace Aerochat.Settings
                     var value = JsonSerializer.Deserialize(jsonElement.GetRawText(), property.PropertyType);
                     property.SetValue(Instance, value);
                 }
-                catch (JsonException ex)
+                catch (JsonException)
                 {
-                    // throw new InvalidOperationException($"Error deserializing property '{property.Name}'", ex);
+                    // skip property
                 }
             }
+            return true;
         }
 #endregion
 
@@ -147,6 +168,8 @@ namespace Aerochat.Settings
         public bool HasUserLoggedInBefore { get; set; } = false;
         public bool HasWarnedAboutVoiceChat { get; set; } = false;
         public List<ulong> ViewedNotices { get; set; } = [];
+        public List<ulong> FavoriteConversationIds { get; set; } = [];
+        public List<ulong> FavoriteGuildIds { get; set; } = [];
 
         /// <summary>
         /// BCP-47 language code for the UI locale (e.g. "en", "fr").
@@ -209,11 +232,6 @@ namespace Aerochat.Settings
 
         [Settings("Appearance", "Highlight messages that have mentioned you")]
         public bool HighlightMentions { get; set; } = true;
-
-        [Settings("Appearance", "Show the Aerochat Discord server link button on the home page")]
-
-        public bool DisplayDiscordServerLink { get; set; } = true;
-
 
         [Settings("Appearance", "Show news on the home page")]
 

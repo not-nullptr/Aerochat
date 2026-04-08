@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -35,13 +35,11 @@ namespace Aerovoice.Clients
         private JObject _ready;
         private bool _disposed = false;
 
-
-        public IPlayer Player = new NAudioPlayer();
+        public NAudioPlayer Player = new NAudioPlayer();
         public IDecoder Decoder = new OpusDotNetDecoder();
         public IEncoder Encoder = new ConcentusEncoder();
         public BaseRecorder Recorder = new NAudioRecorder();
         public string? ForceEncryptionName;
-
 
         private BaseCrypt cryptor;
         private byte[] _secretKey;
@@ -56,18 +54,52 @@ namespace Aerovoice.Clients
         private uint _ssrc = 0;
 
         public bool Speaking { get; private set; } = false;
+        public bool SelfMuted { get; set; } = false;
+        public bool SelfDeafened { get; set; } = false;
+
+        public readonly ConcurrentDictionary<uint, ulong> SsrcToUserId = new();
+        private readonly ConcurrentDictionary<ulong, DateTime> _lastSpeakingTime = new();
+        private const double SpeakingTimeoutMs = 300;
+        private const double IncomingRmsThreshold = 300;
+
+        public event EventHandler<(ulong UserId, bool IsSpeaking)> UserSpeakingChanged;
+        public event EventHandler<bool> ClientSpeakingChanged;
+
+        public ulong GetUserIdFromSsrc(uint ssrc)
+        {
+            return SsrcToUserId.TryGetValue(ssrc, out var userId) ? userId : 0;
+        }
 
         System.Timers.Timer _timer;
+        System.Timers.Timer _speakingDecayTimer;
 
         public VoiceSocket(DiscordClient client)
         {
             _client = client;
-            // every 1/60 seconds, on another thread, incrementTimestamp using 3840
             _timer = new();
             _timer.Interval = 16.666666666666668;
             _timer.AutoReset = true;
             _timer.Elapsed += (s, e) => _timestamp.Increment(3840);
             _timer.Start();
+
+            _speakingDecayTimer = new();
+            _speakingDecayTimer.Interval = 150;
+            _speakingDecayTimer.AutoReset = true;
+            _speakingDecayTimer.Elapsed += SpeakingDecayTimer_Elapsed;
+            _speakingDecayTimer.Start();
+        }
+
+        private void SpeakingDecayTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            var now = DateTime.UtcNow;
+            foreach (var kvp in _lastSpeakingTime)
+            {
+                if ((now - kvp.Value).TotalMilliseconds > SpeakingTimeoutMs)
+                {
+                    if (_lastSpeakingTime.TryRemove(kvp.Key, out _))
+                        UserSpeakingChanged?.Invoke(this, (kvp.Key, false));
+                }
+            }
         }
 
         public async Task SendMessage(JObject message)
@@ -138,13 +170,20 @@ namespace Aerovoice.Clients
                 }
                 case 4: // session description
                 {
-                    // secret_key is a number array
                     var secretKey = message["d"]!["secret_key"]!.Value<JArray>()!.Select(x => (byte)x.Value<int>()).ToArray();
                     _secretKey = secretKey;
                     if (cryptor is null)
                     {
                         cryptor = GetPreferredEncryption();
                     }
+                    break;
+                }
+                case 5: // speaking
+                {
+                    var d = message["d"]!;
+                    var userId = d["user_id"]!.Value<ulong>();
+                    var ssrc = d["ssrc"]!.Value<uint>();
+                    SsrcToUserId[ssrc] = userId;
                     break;
                 }
             }
@@ -239,14 +278,43 @@ namespace Aerovoice.Clients
 
         private void ProcessPacket(byte[] e)
         {
+            if (SelfDeafened) return;
+
             var ssrc = BinaryPrimitives.ReadUInt32BigEndian(e.AsSpan(8));
+
+            if (Player.IsSsrcMuted(ssrc)) return;
 
             byte[] decryptedData = cryptor.Decrypt(e, _secretKey);
             if (decryptedData.Length == 0) return;
-            // read ushort increment, 2 bytes in
             ushort increment = BinaryPrimitives.ReadUInt16BigEndian(e.AsSpan(2));
             var decoded = Decoder.Decode(decryptedData, decryptedData.Length, out int decodedLength, ssrc, increment);
+
+            var userId = GetUserIdFromSsrc(ssrc);
+            if (userId != 0)
+            {
+                double rms = ComputeRms(decoded, decodedLength);
+                if (rms >= IncomingRmsThreshold)
+                {
+                    bool wasNew = !_lastSpeakingTime.ContainsKey(userId);
+                    _lastSpeakingTime[userId] = DateTime.UtcNow;
+                    if (wasNew)
+                        UserSpeakingChanged?.Invoke(this, (userId, true));
+                }
+            }
+
             Player.AddSamples(decoded, decodedLength, ssrc);
+        }
+
+        private static double ComputeRms(byte[] pcm, int length)
+        {
+            int samples = length / 2;
+            double sum = 0;
+            for (int i = 0; i < length - 1; i += 2)
+            {
+                short sample = (short)((pcm[i + 1] << 8) | pcm[i]);
+                sum += sample * sample;
+            }
+            return Math.Sqrt(sum / samples);
         }
 
         public BaseCrypt GetPreferredEncryption()
@@ -331,13 +399,11 @@ namespace Aerovoice.Clients
         {
             await Task.Run(() =>
             {
-                // Append incoming 20ms audio to the circular buffer
                 AddToCircularBuffer(e);
 
-                // Check if the user is speaking using the circular buffer
                 var sampleIsSpeaking = IsSpeaking(_circularBuffer, _bufferFilled ? BufferSizeBytes : _bufferOffset);
 
-                if (sampleIsSpeaking)
+                if (sampleIsSpeaking || SelfMuted)
                 {
                     if (Speaking)
                     {
@@ -346,13 +412,14 @@ namespace Aerovoice.Clients
                             op = 5,
                             d = new
                             {
-                                speaking = 0, // not speaking
+                                speaking = 0,
                                 delay = 0,
                                 ssrc = _ssrc
                             }
                         }));
+                        Speaking = false;
+                        ClientSpeakingChanged?.Invoke(this, false);
                     }
-                    Speaking = false;
                     return;
                 }
 
@@ -363,28 +430,49 @@ namespace Aerovoice.Clients
                         op = 5,
                         d = new
                         {
-                            speaking = 1 << 0, // VOICE
+                            speaking = 1 << 0,
                             delay = 0,
                             ssrc = _ssrc
                         }
                     }));
                     Speaking = true;
+                    ClientSpeakingChanged?.Invoke(this, true);
                 }
 
                 if (cryptor is null) return;
-                var opus = Encoder.Encode(e);
+
+                byte[] toEncode = e;
+                float vol = Player.ClientTransmitVolume;
+                if (Math.Abs(vol - 1.0f) > 0.01f)
+                    toEncode = ScalePcm(e, vol);
+
+                var opus = Encoder.Encode(toEncode);
                 var header = new byte[12];
-                header[0] = 0x80; // Version + Flags
-                header[1] = 0x78; // Payload Type
-                BinaryPrimitives.WriteInt16BigEndian(header.AsSpan(2), _udpSequence++); // Sequence
-                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), _timestamp.GetCurrentTimestamp()); // Timestamp
-                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(8), _ssrc); // SSRC
+                header[0] = 0x80;
+                header[1] = 0x78;
+                BinaryPrimitives.WriteInt16BigEndian(header.AsSpan(2), _udpSequence++);
+                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), _timestamp.GetCurrentTimestamp());
+                BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(8), _ssrc);
                 var packet = new byte[header.Length + opus.Length];
                 Array.Copy(header, 0, packet, 0, header.Length);
                 Array.Copy(opus, 0, packet, header.Length, opus.Length);
                 var encrypted = cryptor.Encrypt(packet, _secretKey);
                 UdpClient.SendMessage(encrypted);
             });
+        }
+
+        private static byte[] ScalePcm(byte[] pcm, float volume)
+        {
+            var result = new byte[pcm.Length];
+            for (int i = 0; i < pcm.Length - 1; i += 2)
+            {
+                short sample = (short)((pcm[i + 1] << 8) | pcm[i]);
+                int scaled = (int)(sample * volume);
+                scaled = Math.Clamp(scaled, short.MinValue, short.MaxValue);
+                result[i] = (byte)(scaled & 0xFF);
+                result[i + 1] = (byte)((scaled >> 8) & 0xFF);
+            }
+            return result;
         }
 
         private void AddToCircularBuffer(byte[] data)
@@ -480,7 +568,6 @@ namespace Aerovoice.Clients
 
         public async Task DisconnectAndDispose()
         {
-            // if the socket isn't connected, return
             if (!_connected) return;
             _connected = false;
             _disposed = true;
@@ -489,6 +576,7 @@ namespace Aerovoice.Clients
             UdpClient?.Dispose();
             Recorder?.Dispose();
             _timer.Dispose();
+            _speakingDecayTimer.Dispose();
             Encoder?.Dispose();
         }
     }
